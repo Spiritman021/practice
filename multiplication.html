@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Mock Test Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --answered: #10b981;
+            --unanswered: #e5e7eb;
+            --current: #4f46e5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+        }
+
+        .exam-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .timer-badge {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-badge.normal {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- SETUP SCREEN --- */
+        #setup-screen {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .setup-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .setup-card h2 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* --- TEST SCREEN --- */
+        #test-screen {
+            flex-direction: row;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .main-test-area {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .question-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .q-number-badge {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .marks-info {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: #ecfdf5;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .question-content {
+            flex: 1;
+            padding: 50px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .math-problem {
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+
+        .answer-input-container {
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .single-input-wrapper,
+        .dual-input-wrapper {
+            width: 100%;
+            display: none;
+        }
+
+        .single-input-wrapper.active,
+        .dual-input-wrapper.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #answer-input {
+            width: 100%;
+            font-size: 2.5rem;
+            text-align: center;
+            padding: 15px;
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .dual-input-wrapper input {
+            width: 40%;
+            font-size: 2.5rem;
+            text-align: center;
+            padding: 15px;
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .dual-input-wrapper .x-sign {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        #answer-input:focus,
+        .dual-input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+            outline: none;
+        }
+
+        .action-footer {
+            padding: 15px 25px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            background: #fdfdfd;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .palette-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 15px 20px;
+            gap: 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            background: #fafafa;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        .palette-container {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .grid-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .palette-btn {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .palette-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .palette-btn.answered {
+            background: var(--answered);
+            color: white;
+            border-color: var(--answered);
+        }
+
+        .palette-btn.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .palette-btn.incorrect {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .palette-btn.current {
+            border: 2px solid var(--current);
+            box-shadow: inset 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- RESULT SCREEN --- */
+        #result-screen {
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, var(--primary), #312e81);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .result-header h2 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-circle .score {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-circle .total {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: var(--card-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .detailed-analysis {
+            padding: 30px;
+        }
+
+        .detailed-analysis h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        .analysis-table-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: var(--text-muted);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-correct {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-incorrect {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-skipped {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .result-actions {
+            padding: 20px 30px 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .result-actions .btn {
+            width: auto;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+            }
+
+            .screen {
+                padding: 15px;
+            }
+
+            .setup-card {
+                padding: 25px 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .form-row .form-group {
+                margin-bottom: 0px;
+            }
+
+            #test-screen {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .question-content {
+                padding: 40px 20px;
+            }
+
+            .math-problem {
+                font-size: 3rem;
+                margin-bottom: 30px;
+            }
+
+            #answer-input {
+                font-size: 2rem;
+            }
+
+            .question-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .palette-legend {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .stat-box {
+                border-left: none !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .stat-box:last-child {
+                border-bottom: none;
+            }
+
+            .result-actions {
+                padding: 20px 15px;
+            }
+
+            .result-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Multiplication Mock Test</div>
+        <div class="exam-info" id="exam-header-info" style="display: none;">
+            <div class="timer-badge normal" id="top-timer">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span id="timer-text">00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="screen active">
+        <div class="setup-card">
+            <h2>Configure Your Test</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>From Table</label>
+                    <select id="start-table"></select>
+                </div>
+                <div class="form-group">
+                    <label>To Table</label>
+                    <select id="end-table"></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Multiply From</label>
+                    <input type="number" id="min-multiplier" value="1" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Multiply To</label>
+                    <input type="number" id="max-multiplier" value="10" min="1" max="100">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Test Type</label>
+                <select id="test-type">
+                    <option value="normal" selected>Find Product (e.g. 7 x 8 = ?)</option>
+                    <option value="factors">Find Factors (e.g. ? x ? = 56)</option>
+                    <option value="mixed">Mixed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Number of Questions</label>
+                <select id="num-questions">
+                    <option value="10">10 Questions</option>
+                    <option value="20" selected>20 Questions</option>
+                    <option value="30">30 Questions</option>
+                    <option value="50">50 Questions</option>
+                    <option value="100">100 Questions</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Evaluation Mode</label>
+                <select id="eval-mode">
+                    <option value="submit" selected>Answer on Submit (Mock Test)</option>
+                    <option value="quick">Quick Feedback (After each question)</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px;">
+                <button class="btn" onclick="startTest()">Start Practice</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEST SCREEN -->
+    <div id="test-screen" class="screen">
+        <div class="main-test-area">
+            <div class="question-header">
+                <div class="q-number-badge">Question <span id="current-q-num">1</span> of <span
+                        id="total-q-count">20</span></div>
+                <div class="marks-info">+1 Mark | -0 Negative</div>
+            </div>
+
+            <div class="question-content">
+                <div class="math-problem" id="question-text">-- x --</div>
+                <div class="answer-input-container">
+                    <div class="single-input-wrapper active" id="single-input-wrapper">
+                        <input type="number" id="answer-input" placeholder="Enter answer here..." autocomplete="off">
+                    </div>
+                    <div class="dual-input-wrapper" id="dual-input-wrapper">
+                        <input type="number" id="answer-input-f1" placeholder="?" autocomplete="off">
+                        <span class="x-sign">×</span>
+                        <input type="number" id="answer-input-f2" placeholder="?" autocomplete="off">
+                    </div>
+                    <div id="quick-feedback-msg"
+                        style="display:none; margin-top: 15px; font-size: 1.1rem; font-weight: 600; color: var(--danger); text-align: center;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-footer">
+                <button class="btn btn-secondary" style="width: auto;" onclick="prevQuestion()"
+                    id="btn-prev">Previous</button>
+                <button class="btn" style="width: auto; background: var(--success);" onclick="saveAndNext()"
+                    id="btn-next">Save & Next</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-header">
+                Question Palette
+            </div>
+            <div class="palette-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--answered);"></div> Answered
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color"
+                        style="background: var(--card-bg); border: 1px solid var(--border-color);"></div> Not Answered
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--card-bg); border: 2px solid var(--current);">
+                    </div> Current
+                </div>
+            </div>
+            <div class="palette-container">
+                <div class="grid-palette" id="palette-grid">
+                    <!-- Buttons generated dynamically -->
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-danger" onclick="confirmSubmit()">Submit Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <div class="result-container">
+            <div class="result-header">
+                <h2>Test Summary Report</h2>
+                <p>Performance based on accuracy and speed</p>
+                <div class="score-circle">
+                    <div class="score" id="res-score">0</div>
+                    <div class="total">out of <span id="res-total">0</span></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="value" id="res-accuracy">0%</div>
+                    <div class="label">Accuracy</div>
+                </div>
+                <div class="stat-box"
+                    style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
+                    <div class="value" id="res-time">00:00</div>
+                    <div class="label">Time Taken</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="res-speed">0s</div>
+                    <div class="label">Avg Time / Ques</div>
+                </div>
+            </div>
+
+            <div class="detailed-analysis">
+                <h3>Detailed Question Analysis</h3>
+                <div class="analysis-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="10%">Q.No</th>
+                                <th width="30%">Question</th>
+                                <th width="20%">Your Answer</th>
+                                <th width="20%">Correct Answer</th>
+                                <th width="20%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analysis-tbody">
+                            <!-- Rows dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn" onclick="location.reload()">Start New Mock Test</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Variables ---
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let testStartTime = null;
+        let timerInterval = null;
+        let totalSeconds = 0;
+        let evalMode = 'submit';
+        let isWaitingForNext = false;
+
+        // --- Elements ---
+        const startSelect = document.getElementById('start-table');
+        const endSelect = document.getElementById('end-table');
+        const testTypeSelect = document.getElementById('test-type');
+        const answerInput = document.getElementById('answer-input');
+        const answerInputF1 = document.getElementById('answer-input-f1');
+        const answerInputF2 = document.getElementById('answer-input-f2');
+        const singleInputWrapper = document.getElementById('single-input-wrapper');
+        const dualInputWrapper = document.getElementById('dual-input-wrapper');
+        const paletteGrid = document.getElementById('palette-grid');
+
+        // --- Initialization ---
+        for (let i = 1; i <= 30; i++) {
+            let opt1 = document.createElement('option');
+            let opt2 = document.createElement('option');
+            opt1.value = opt2.value = i;
+            opt1.textContent = opt2.textContent = i;
+            startSelect.appendChild(opt1);
+            endSelect.appendChild(opt2);
+        }
+        endSelect.value = 10;
+
+        // Listen for Enter key on Answer Inputs
+        function handleEnter(e) {
+            if (e.key === 'Enter') saveAndNext();
+        }
+        answerInput.addEventListener('keypress', handleEnter);
+        answerInputF1.addEventListener('keypress', handleEnter);
+        answerInputF2.addEventListener('keypress', handleEnter);
+
+        // --- Functions ---
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            if (screenId === 'test-screen') {
+                document.getElementById('exam-header-info').style.display = 'flex';
+            } else {
+                document.getElementById('exam-header-info').style.display = 'none';
+            }
+        }
+
+        function startTest() {
+            const start = parseInt(startSelect.value);
+            const end = parseInt(endSelect.value);
+            const minMultInput = parseInt(document.getElementById('min-multiplier').value) || 1;
+            const maxMultInput = parseInt(document.getElementById('max-multiplier').value) || 10;
+            let numQ = parseInt(document.getElementById('num-questions').value);
+            evalMode = document.getElementById('eval-mode').value;
+
+            const minVal = Math.min(start, end);
+            const maxVal = Math.max(start, end);
+
+            const minMult = Math.min(minMultInput, maxMultInput);
+            const maxMult = Math.max(minMultInput, maxMultInput);
+
+            // Generate all possible unique combinations
+            let allPossible = [];
+            for (let t = minVal; t <= maxVal; t++) {
+                for (let m = minMult; m <= maxMult; m++) {
+                    allPossible.push({ table: t, multiplier: m });
+                }
+            }
+
+            // Shuffle the complete pool of possible questions (Fisher-Yates)
+            for (let i = allPossible.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allPossible[i], allPossible[j]] = [allPossible[j], allPossible[i]];
+            }
+
+            // Ensure we don't ask for more questions than uniquely possible
+            numQ = Math.min(numQ, allPossible.length);
+            const testTypeStr = testTypeSelect ? testTypeSelect.value : 'normal';
+
+            questions = [];
+            for (let i = 0; i < numQ; i++) {
+                const q = allPossible[i];
+                let qType = testTypeStr;
+                if (qType === 'mixed') {
+                    qType = Math.random() > 0.5 ? 'normal' : 'factors';
+                }
+
+                if (qType === 'factors') {
+                    questions.push({
+                        id: i,
+                        type: 'factors',
+                        text: `${q.table * q.multiplier} = ? × ?`,
+                        correctProduct: q.table * q.multiplier,
+                        exampleFactors: `${q.table} × ${q.multiplier}`,
+                        userAnswer: null,
+                        timeSpent: 0
+                    });
+                } else {
+                    questions.push({
+                        id: i,
+                        type: 'normal',
+                        text: `${q.table} × ${q.multiplier}`,
+                        correctAnswer: q.table * q.multiplier,
+                        userAnswer: null,
+                        timeSpent: 0
+                    });
+                }
+            }
+
+            document.getElementById('total-q-count').textContent = numQ;
+            currentQuestionIndex = 0;
+
+            buildPalette();
+            switchScreen('test-screen');
+            loadQuestion(0);
+
+            totalSeconds = 0;
+            testStartTime = Date.now();
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                totalSeconds = Math.floor((Date.now() - testStartTime) / 1000);
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-text').textContent = `${m}:${s}`;
+        }
+
+        function buildPalette() {
+            paletteGrid.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'palette-btn';
+                btn.textContent = idx + 1;
+                btn.id = `pal-${idx}`;
+                btn.onclick = () => jumpToQuestion(idx);
+                paletteGrid.appendChild(btn);
+            });
+        }
+
+        function updatePaletteUI() {
+            questions.forEach((q, idx) => {
+                const btn = document.getElementById(`pal-${idx}`);
+                btn.classList.remove('current', 'answered', 'correct', 'incorrect');
+
+                if (q.userAnswer !== null && q.userAnswer !== '') {
+                    if (evalMode === 'quick') {
+                        if (getIsCorrect(q)) {
+                            btn.classList.add('correct');
+                        } else {
+                            btn.classList.add('incorrect');
+                        }
+                    } else {
+                        btn.classList.add('answered');
+                    }
+                }
+
+                if (idx === currentQuestionIndex) {
+                    btn.classList.add('current');
+                }
+            });
+        }
+
+        function saveCurrentAnswer() {
+            const q = questions[currentQuestionIndex];
+            if (q.type === 'factors') {
+                const val1 = answerInputF1.value.trim();
+                const val2 = answerInputF2.value.trim();
+                if (val1 === '' && val2 === '') {
+                    q.userAnswer = null;
+                } else {
+                    q.userAnswer = `${val1} × ${val2}`;
+                }
+            } else {
+                const val = answerInput.value.trim();
+                q.userAnswer = val === '' ? null : parseInt(val);
+            }
+        }
+
+        function getIsCorrect(q) {
+            if (q.userAnswer === null) return false;
+            if (q.type === 'factors') {
+                const parts = q.userAnswer.split(' × ');
+                if (parts.length !== 2) return false;
+                const v1 = parseInt(parts[0]);
+                const v2 = parseInt(parts[1]);
+                return (!isNaN(v1) && !isNaN(v2) && v1 * v2 === q.correctProduct);
+            } else {
+                return q.userAnswer === q.correctAnswer;
+            }
+        }
+
+        function loadQuestion(index) {
+            isWaitingForNext = false;
+            document.getElementById('quick-feedback-msg').style.display = 'none';
+            answerInput.style.borderColor = "var(--border-color)";
+            answerInputF1.style.borderColor = "var(--border-color)";
+            answerInputF2.style.borderColor = "var(--border-color)";
+
+            currentQuestionIndex = index;
+            document.getElementById('current-q-num').textContent = index + 1;
+            const q = questions[index];
+            document.getElementById('question-text').textContent = q.text;
+
+            if (q.type === 'factors') {
+                singleInputWrapper.classList.remove('active');
+                dualInputWrapper.classList.add('active');
+                const parts = q.userAnswer ? q.userAnswer.split(' × ') : [];
+                answerInputF1.value = parts[0] || '';
+                answerInputF2.value = parts[1] || '';
+                setTimeout(() => answerInputF1.focus(), 50);
+            } else {
+                dualInputWrapper.classList.remove('active');
+                singleInputWrapper.classList.add('active');
+                answerInput.value = q.userAnswer !== null ? q.userAnswer : '';
+                setTimeout(() => answerInput.focus(), 50);
+            }
+
+            document.getElementById('btn-prev').disabled = index === 0;
+            const btnNext = document.getElementById('btn-next');
+            if (index === questions.length - 1) {
+                btnNext.textContent = 'Save & Review';
+                btnNext.style.background = 'var(--primary)';
+            } else {
+                btnNext.textContent = 'Save & Next';
+                btnNext.style.background = 'var(--success)';
+            }
+
+            updatePaletteUI();
+            setTimeout(() => answerInput.focus(), 50);
+        }
+
+        function jumpToQuestion(index) {
+            saveCurrentAnswer();
+            loadQuestion(index);
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                jumpToQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function saveAndNext() {
+            if (isWaitingForNext) {
+                moveToNext();
+                return;
+            }
+
+            saveCurrentAnswer();
+
+            if (evalMode === 'quick' && questions[currentQuestionIndex].userAnswer !== null) {
+                const q = questions[currentQuestionIndex];
+                const isCorrect = getIsCorrect(q);
+                
+                if (q.type === 'factors') {
+                    answerInputF1.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
+                    answerInputF2.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
+                } else {
+                    answerInput.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
+                }
+
+                if (isCorrect) {
+                    setTimeout(() => {
+                        answerInput.style.borderColor = "var(--border-color)";
+                        answerInputF1.style.borderColor = "var(--border-color)";
+                        answerInputF2.style.borderColor = "var(--border-color)";
+                        moveToNext();
+                    }, 400);
+                } else {
+                    const fbMsg = document.getElementById('quick-feedback-msg');
+                    if (q.type === 'factors') {
+                        fbMsg.textContent = `Incorrect! One valid answer is: ${q.exampleFactors}`;
+                    } else {
+                        fbMsg.textContent = `Incorrect! Correct Answer: ${q.correctAnswer}`;
+                    }
+                    fbMsg.style.display = 'block';
+                    isWaitingForNext = true;
+                    document.getElementById('btn-next').textContent = "Next ➔";
+                }
+            } else {
+                moveToNext();
+            }
+        }
+
+        function moveToNext() {
+            if (currentQuestionIndex < questions.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                updatePaletteUI();
+                answerInput.blur();
+                alert('You have reached the end of the test. Please review your answers using the Palette or click "Submit Test".');
+            }
+        }
+
+        function confirmSubmit() {
+            saveCurrentAnswer(); // Save the final state before submitting
+            updatePaletteUI();
+
+            let unanswered = questions.filter(q => q.userAnswer === null).length;
+            let msg = unanswered > 0 ?
+                `Are you sure you want to submit? You have ${unanswered} unanswered question(s).` :
+                `Are you sure you want to submit the test?`;
+
+            if (confirm(msg)) {
+                submitTest();
+            }
+        }
+
+        function submitTest() {
+            clearInterval(timerInterval);
+
+            let score = 0;
+            let answeredCount = 0;
+            const tbody = document.getElementById('analysis-tbody');
+            tbody.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                let statusClass = 'status-skipped';
+                let statusText = 'Skipped';
+
+                if (q.userAnswer !== null) {
+                    answeredCount++;
+                    if (getIsCorrect(q)) {
+                        score++;
+                        statusClass = 'status-correct';
+                        statusText = 'Correct';
+                    } else {
+                        statusClass = 'status-incorrect';
+                        statusText = 'Incorrect';
+                    }
+                }
+
+                const uAnsTxt = q.userAnswer !== null ? q.userAnswer : '-';
+                const correctTxt = q.type === 'factors' ? q.exampleFactors : q.correctAnswer;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:600;">${q.text}</td>
+                    <td>${uAnsTxt}</td>
+                    <td>${correctTxt}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Populate Results
+            document.getElementById('res-score').textContent = score;
+            document.getElementById('res-total').textContent = questions.length;
+
+            const accuracy = answeredCount === 0 ? 0 : Math.round((score / answeredCount) * 100);
+            document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('res-time').textContent = `${m}:${s}`;
+
+            const speed = (totalSeconds / questions.length).toFixed(1);
+            document.getElementById('res-speed').textContent = `${speed}s`;
+
+            switchScreen('result-screen');
+        }
+    </script>
+</body>
+
+</html>
