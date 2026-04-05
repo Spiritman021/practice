@@ -641,6 +641,160 @@
             .result-actions .btn {
                 width: 100%;
             }
+
+            .learn-body {
+                flex-direction: column;
+            }
+            .number-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .nav-num-btn {
+                padding: 10px;
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* --- LEARN SCREEN --- */
+        #learn-screen {
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .learn-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .learn-header {
+            background: linear-gradient(135deg, var(--primary), #312e81);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .learn-header h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .tab-group {
+            display: flex;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: #f3f4f6;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+
+        .learn-body {
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            flex: 1;
+        }
+
+        .nav-num-btn {
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border: 2px solid var(--border-color);
+            background: #fff;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-num-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-num-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .table-viewer {
+            flex: 1.5;
+            background: #fdfdfd;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .table-viewer h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .table-row {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 8px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            letter-spacing: 1px;
+        }
+
+        .table-row .dim {
+            color: var(--text-muted);
+        }
+
+        .learn-actions {
+            padding: 20px 30px;
+            background: #f9fafb;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -718,6 +872,9 @@
             <div class="form-group" style="margin-top: 30px;">
                 <button class="btn" onclick="startTest()">Start Practice</button>
             </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="enterLearnMode()">Learn Tables</button>
+            </div>
         </div>
     </div>
 
@@ -779,6 +936,32 @@
             </div>
             <div class="sidebar-footer">
                 <button class="btn btn-danger" onclick="confirmSubmit()">Submit Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEARN SCREEN -->
+    <div id="learn-screen" class="screen">
+        <div class="learn-container">
+            <div class="learn-header">
+                <h2>Table Learner</h2>
+            </div>
+            <div class="tab-group" id="learn-tabs">
+                <button class="tab-btn active" onclick="loadLearnGroup(1, 10)">1 to 10</button>
+                <button class="tab-btn" onclick="loadLearnGroup(11, 20)">11 to 20</button>
+                <button class="tab-btn" onclick="loadLearnGroup(21, 30)">21 to 30</button>
+            </div>
+            <div class="learn-body">
+                <div class="number-grid" id="learn-num-grid">
+                    <!-- Buttons -->
+                </div>
+                <div class="table-viewer" id="learn-table-viewer">
+                    <h3>Select a number</h3>
+                    <!-- Table goes here -->
+                </div>
+            </div>
+            <div class="learn-actions">
+                <button class="btn btn-secondary" style="width:auto; min-width:200px;" onclick="switchScreen('setup-screen')">Back to Setup</button>
             </div>
         </div>
     </div>
@@ -886,6 +1069,48 @@
             } else {
                 document.getElementById('exam-header-info').style.display = 'none';
             }
+        }
+
+        function enterLearnMode() {
+            switchScreen('learn-screen');
+            loadLearnGroup(1, 10);
+        }
+
+        function loadLearnGroup(start, end) {
+            const tabs = document.querySelectorAll('#learn-tabs .tab-btn');
+            tabs.forEach(t => {
+                if (t.textContent.includes(start.toString())) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+
+            const grid = document.getElementById('learn-num-grid');
+            grid.innerHTML = '';
+            for (let i = start; i <= end; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'nav-num-btn';
+                btn.textContent = i;
+                btn.onclick = () => showTable(i, btn);
+                grid.appendChild(btn);
+            }
+            
+            if (grid.firstChild) grid.firstChild.click();
+        }
+
+        function showTable(num, btnElement) {
+            document.querySelectorAll('.nav-num-btn').forEach(b => b.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            const viewer = document.getElementById('learn-table-viewer');
+            let html = `<h3>Table of ${num}</h3>`;
+            for (let i = 1; i <= 10; i++) {
+                html += `<div class="table-row">
+                            <span>${num}</span> <span class="dim">×</span> <span>${i}</span> <span class="dim">=</span> <span>${num * i}</span>
+                         </div>`;
+            }
+            viewer.innerHTML = html;
         }
 
         function startTest() {
