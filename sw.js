@@ -1,9 +1,10 @@
-const CACHE_NAME = 'practice-hub-v1';
+const CACHE_NAME = 'practice-hub-v4';
 const urlsToCache = [
   './',
   './index.html',
   './alphabets.html',
   './multiplication.html',
+  './table-hunt.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
