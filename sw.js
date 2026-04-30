@@ -1,10 +1,16 @@
-const CACHE_NAME = 'practice-hub-v4';
+const CACHE_NAME = 'practice-hub-v7';
 const urlsToCache = [
   './',
   './index.html',
   './alphabets.html',
   './multiplication.html',
   './table-hunt.html',
+  './consecutive-products.html',
+  './squares.html',
+  './cubes.html',
+  './power-practice.css',
+  './power-practice.js',
+  './mobile-overrides.css',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
