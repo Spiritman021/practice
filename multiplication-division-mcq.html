@@ -278,14 +278,22 @@
             color: var(--text-main);
             cursor: pointer;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
-            gap: 14px;
+            gap: 18px;
             min-height: 56px;
             padding: 14px 16px;
             text-align: left;
             font: inherit;
             font-weight: 800;
+        }
+
+        .option-letter {
+            min-width: 42px;
+        }
+
+        .option-value {
+            text-align: left;
         }
 
         .option-btn.selected {
@@ -368,7 +376,7 @@
 
         .result-summary {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin-bottom: 16px;
         }
@@ -534,7 +542,11 @@
                         <div class="result-summary">
                             <div class="result-box">
                                 <div class="stat-value" id="final-score">0/0</div>
-                                <div class="stat-label">Score</div>
+                                <div class="stat-label">Score (-0.25 wrong)</div>
+                            </div>
+                            <div class="result-box">
+                                <div class="stat-value" id="correct-wrong">0 / 0</div>
+                                <div class="stat-label">Correct / Wrong</div>
                             </div>
                             <div class="result-box">
                                 <div class="stat-value" id="accuracy">0%</div>
@@ -571,6 +583,7 @@
         const questionText = document.getElementById('question-text');
         const optionsGrid = document.getElementById('options-grid');
         const palette = document.getElementById('palette');
+        const negativeMark = 0.25;
 
         let questions = [];
         let currentIndex = 0;
@@ -704,7 +717,7 @@
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = `option-btn ${question.selected === option ? 'selected' : ''}`;
-                button.innerHTML = `<span>(${letters[index]})</span><strong>${option}</strong>`;
+                button.innerHTML = `<span class="option-letter">(${letters[index]})</span><strong class="option-value">${option}</strong>`;
                 button.addEventListener('click', () => selectOption(option));
                 optionsGrid.appendChild(button);
             });
@@ -752,10 +765,13 @@
         }
 
         function showResult() {
-            const correct = questions.filter(question => question.selected === question.answer).length;
-            const attempted = questions.filter(question => question.selected !== null).length;
+            const correct = getCorrectCount();
+            const attempted = getAttemptedCount();
+            const wrong = getWrongCount();
+            const score = getNetScore();
             const totalTimeMs = Math.max(0, Math.round(performance.now() - startedAt));
-            document.getElementById('final-score').textContent = `${correct}/${questions.length}`;
+            document.getElementById('final-score').textContent = `${formatScore(score)}/${questions.length}`;
+            document.getElementById('correct-wrong').textContent = `${correct} / ${wrong}`;
             document.getElementById('accuracy').textContent = `${Math.round((correct / questions.length) * 100)}%`;
             document.getElementById('attempted').textContent = attempted;
             document.getElementById('total-time').textContent = formatClock(totalTimeMs);
@@ -769,12 +785,13 @@
             reviewList.innerHTML = '';
             questions.forEach(question => {
                 const isCorrect = question.selected === question.answer;
+                const isUnattempted = question.selected === null;
                 const row = document.createElement('div');
                 row.className = 'review-row';
                 row.innerHTML = `
                     <div><strong>${question.text}</strong><br><span class="muted">Your answer: ${question.selected ?? 'Not attempted'}</span></div>
                     <div>Correct: ${question.answer}<br><span class="muted">${question.level}</span></div>
-                    <div><span class="status ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</span></div>
+                    <div><span class="status ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : (isUnattempted ? 'Skipped' : 'Wrong')}</span></div>
                 `;
                 reviewList.appendChild(row);
             });
@@ -788,7 +805,11 @@
                 button.className = 'palette-btn';
                 button.textContent = index + 1;
                 if (submitted) {
-                    button.classList.add(question.selected === question.answer ? 'correct' : 'wrong');
+                    if (question.selected === null) {
+                        button.classList.add('answered');
+                    } else {
+                        button.classList.add(question.selected === question.answer ? 'correct' : 'wrong');
+                    }
                 } else if (question.selected !== null) {
                     button.classList.add('answered');
                 }
@@ -806,8 +827,24 @@
         }
 
         function updateHeader() {
-            const attempted = questions.filter(question => question.selected !== null).length;
-            document.getElementById('score-pill').textContent = submitted ? `Score: ${questions.filter(question => question.selected === question.answer).length}` : `Answered: ${attempted}`;
+            const attempted = getAttemptedCount();
+            document.getElementById('score-pill').textContent = submitted ? `Score: ${formatScore(getNetScore())}` : `Answered: ${attempted}`;
+        }
+
+        function getCorrectCount() {
+            return questions.filter(question => question.selected === question.answer).length;
+        }
+
+        function getAttemptedCount() {
+            return questions.filter(question => question.selected !== null).length;
+        }
+
+        function getWrongCount() {
+            return questions.filter(question => question.selected !== null && question.selected !== question.answer).length;
+        }
+
+        function getNetScore() {
+            return getCorrectCount() - (getWrongCount() * negativeMark);
         }
 
         function updateTimer() {
@@ -863,6 +900,10 @@
             const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
             const seconds = String(totalSeconds % 60).padStart(2, '0');
             return `${minutes}:${seconds}`;
+        }
+
+        function formatScore(score) {
+            return Number.isInteger(score) ? String(score) : score.toFixed(2).replace(/0$/, '');
         }
 
         if ('serviceWorker' in navigator) {
