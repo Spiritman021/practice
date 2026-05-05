@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v10';
+const CACHE_NAME = 'practice-hub-v11';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const urlsToCache = [
   './squares.html',
   './cubes.html',
   './reverse-table.html',
+  './multiplication-division-mcq.html',
   './power-practice.css',
   './power-practice.js',
   './mobile-overrides.css',

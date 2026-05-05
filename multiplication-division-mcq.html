@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Multiplication Division MCQ Mock Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0891b2;
+            --primary-hover: #0e7490;
+            --bg-color: #ecfeff;
+            --card-bg: #ffffff;
+            --text-main: #172033;
+            --text-muted: #64748b;
+            --border-color: #a5f3fc;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --shadow: 0 12px 28px rgba(8, 145, 178, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background:
+                linear-gradient(135deg, rgba(8, 145, 178, 0.14), transparent 34%),
+                linear-gradient(315deg, rgba(34, 197, 94, 0.1), transparent 32%),
+                var(--bg-color);
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .pill {
+            background: #ecfeff;
+            color: var(--primary-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        main {
+            width: min(1120px, 100%);
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        body.exam-mode {
+            background: #f8feff;
+        }
+
+        body.exam-mode main {
+            width: 100%;
+            max-width: none;
+            min-height: calc(100vh - 73px);
+            padding: 0 !important;
+        }
+
+        body.exam-mode #setup-screen {
+            display: none;
+        }
+
+        body.exam-mode #exam-screen {
+            display: block;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .setup-card {
+            width: min(760px, 100%);
+            margin: 32px auto;
+            padding: 28px;
+        }
+
+        h1,
+        h2,
+        p {
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            line-height: 1.05;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+        }
+
+        .muted {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .rule-box {
+            background: #ecfeff;
+            border-left: 5px solid var(--primary);
+            border-radius: 10px;
+            margin: 22px 0;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 800;
+            line-height: 1.55;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        label {
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 13px 14px;
+            font: inherit;
+            outline: none;
+            background: #fff;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.12);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            min-height: 46px;
+            padding: 12px 16px;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #eef2f7;
+            color: var(--text-main);
+            border: 1px solid #dbe3ef;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .exam-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 18px;
+            min-height: calc(100vh - 73px);
+            padding: 18px;
+        }
+
+        .exam-card {
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 109px);
+        }
+
+        .question-top {
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 20px;
+        }
+
+        .question-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 32px 28px;
+        }
+
+        .question-text {
+            font-size: clamp(2.2rem, 7vw, 4.8rem);
+            font-weight: 800;
+            line-height: 1.08;
+            text-align: center;
+            margin: 12px 0 30px;
+        }
+
+        .options-grid {
+            width: min(720px, 100%);
+            margin: 0 auto;
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #dbe3ef;
+            border-radius: 10px;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            min-height: 56px;
+            padding: 14px 16px;
+            text-align: left;
+            font: inherit;
+            font-weight: 800;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: #ecfeff;
+            box-shadow: inset 0 0 0 2px rgba(8, 145, 178, 0.12);
+        }
+
+        .exam-actions {
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-section {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .side-section:last-child {
+            border-bottom: none;
+        }
+
+        .palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .palette-btn {
+            aspect-ratio: 1;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .palette-btn.current {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: inset 0 0 0 2px rgba(8, 145, 178, 0.14);
+        }
+
+        .palette-btn.answered {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .palette-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .palette-btn.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .result-screen {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .result-screen.active {
+            display: block;
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .result-box {
+            background: #ecfeff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .review-list {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .review-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 92px;
+            gap: 10px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .review-row:last-child {
+            border-bottom: none;
+        }
+
+        .status {
+            border-radius: 999px;
+            color: white;
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 5px 9px;
+            text-align: center;
+        }
+
+        .status.correct {
+            background: var(--success);
+        }
+
+        .status.wrong {
+            background: var(--danger);
+        }
+
+        @media (max-width: 900px) {
+            .settings-grid,
+            .exam-layout,
+            .result-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .exam-layout {
+                padding: 12px;
+            }
+
+            .exam-card {
+                min-height: auto;
+            }
+
+            .side-panel {
+                order: -1;
+            }
+
+            .question-top,
+            .exam-actions {
+                flex-direction: column;
+            }
+
+            .review-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="mobile-overrides.css">
+</head>
+
+<body>
+    <header>
+        <a href="index.html" class="logo">Practice Hub</a>
+        <div class="header-stats">
+            <div class="pill" id="score-pill">Answered: 0</div>
+            <div class="pill" id="question-pill">Question: 0/0</div>
+            <div class="pill" id="timer-pill">00:00</div>
+        </div>
+    </header>
+
+    <main>
+        <section id="setup-screen" class="screen active">
+            <div class="panel setup-card">
+                <h1>Multiplication & Division MCQ Mock</h1>
+                <p class="muted">Randomly generated questions in the same style as a DPP mock: multiplication, division, brackets, addition and subtraction with five options.</p>
+                <div class="rule-box">Example style: 24 ÷ 6 × 2 = ? or 7 + 18 ÷ 3 × 2 = ?</div>
+
+                <div class="settings-grid">
+                    <div>
+                        <label for="question-count">Number of questions</label>
+                        <select id="question-count">
+                            <option value="10">10 questions</option>
+                            <option value="15">15 questions</option>
+                            <option value="20" selected>20 questions</option>
+                            <option value="30">30 questions</option>
+                            <option value="40">40 questions</option>
+                            <option value="50">50 questions</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="difficulty">Difficulty</label>
+                        <select id="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="start-btn" type="button">Start Mock Test</button>
+            </div>
+        </section>
+
+        <section id="exam-screen" class="screen">
+            <div class="exam-layout">
+                <section class="panel exam-card">
+                    <div class="question-top">
+                        <div>
+                            <strong id="question-title">Question 1</strong>
+                            <div class="muted" id="question-help">Choose one option.</div>
+                        </div>
+                        <div class="pill" id="difficulty-pill">Medium</div>
+                    </div>
+
+                    <div class="question-body" id="question-body">
+                        <div class="muted">Solve Fast</div>
+                        <div class="question-text" id="question-text">24 ÷ 6 × 2 = ?</div>
+                        <div class="options-grid" id="options-grid"></div>
+                    </div>
+
+                    <div class="exam-actions">
+                        <button class="btn btn-secondary" id="prev-btn" type="button">Previous</button>
+                        <button class="btn btn-secondary" id="clear-btn" type="button">Clear Answer</button>
+                        <button class="btn btn-primary" id="next-btn" type="button">Save & Next</button>
+                        <button class="btn btn-danger" id="submit-btn" type="button">Submit Test</button>
+                    </div>
+
+                    <div class="result-screen" id="result-screen">
+                        <div class="result-summary">
+                            <div class="result-box">
+                                <div class="stat-value" id="final-score">0/0</div>
+                                <div class="stat-label">Score</div>
+                            </div>
+                            <div class="result-box">
+                                <div class="stat-value" id="accuracy">0%</div>
+                                <div class="stat-label">Accuracy</div>
+                            </div>
+                            <div class="result-box">
+                                <div class="stat-value" id="attempted">0</div>
+                                <div class="stat-label">Attempted</div>
+                            </div>
+                            <div class="result-box">
+                                <div class="stat-value" id="total-time">00:00</div>
+                                <div class="stat-label">Time</div>
+                            </div>
+                        </div>
+                        <div class="review-list" id="review-list"></div>
+                    </div>
+                </section>
+
+                <aside class="panel side-panel">
+                    <div class="side-section">
+                        <h2>Question Palette</h2>
+                        <div class="palette" id="palette"></div>
+                    </div>
+                    <div class="side-section">
+                        <button class="btn btn-secondary" id="new-test-btn" type="button">New Test</button>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const letters = ['a', 'b', 'c', 'd', 'e'];
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const palette = document.getElementById('palette');
+
+        let questions = [];
+        let currentIndex = 0;
+        let startedAt = 0;
+        let timerInterval = null;
+        let submitted = false;
+
+        document.getElementById('start-btn').addEventListener('click', startTest);
+        document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        document.getElementById('clear-btn').addEventListener('click', clearAnswer);
+        document.getElementById('submit-btn').addEventListener('click', submitTest);
+        document.getElementById('new-test-btn').addEventListener('click', newTest);
+
+        function startTest() {
+            const count = parseInt(document.getElementById('question-count').value, 10);
+            const difficulty = document.getElementById('difficulty').value;
+            questions = Array.from({ length: count }, () => generateQuestion(difficulty));
+            currentIndex = 0;
+            submitted = false;
+            startedAt = performance.now();
+            document.body.classList.add('exam-mode');
+            document.getElementById('setup-screen').classList.remove('active');
+            document.getElementById('exam-screen').classList.add('active');
+            document.getElementById('result-screen').classList.remove('active');
+            document.getElementById('question-body').style.display = 'flex';
+            document.getElementById('difficulty-pill').textContent = labelForDifficulty(difficulty);
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            renderPalette();
+            loadQuestion();
+            updateTimer();
+        }
+
+        function generateQuestion(difficulty) {
+            const level = difficulty === 'mixed' ? pick(['easy', 'medium', 'hard']) : difficulty;
+            const template = pick(getTemplates(level));
+            const question = template();
+            question.options = makeOptions(question.answer, level);
+            question.selected = null;
+            question.level = level;
+            return question;
+        }
+
+        function getTemplates(level) {
+            const max = level === 'easy' ? 12 : level === 'medium' ? 20 : 30;
+            return [
+                () => {
+                    const divisor = rand(2, max);
+                    const mid = rand(2, 12);
+                    const multiplier = rand(2, 8);
+                    return {
+                        text: `${divisor * mid} ÷ ${divisor} × ${multiplier} = ?`,
+                        answer: mid * multiplier
+                    };
+                },
+                () => {
+                    const quotient = rand(2, max);
+                    const divisor = rand(2, 12);
+                    const multiplier = rand(2, 10);
+                    return {
+                        text: `${quotient * multiplier} × ${divisor} ÷ ${divisor} = ?`,
+                        answer: quotient * multiplier
+                    };
+                },
+                () => {
+                    const divisor = rand(2, 12);
+                    const quotient = rand(2, max);
+                    const multiplier = rand(2, 8);
+                    const add = rand(2, 20);
+                    return {
+                        text: `${quotient * divisor} ÷ ${divisor} × ${multiplier} + ${add} = ?`,
+                        answer: quotient * multiplier + add
+                    };
+                },
+                () => {
+                    const base = rand(6, max + 8);
+                    const subtract = rand(1, base - 2);
+                    const multiplier = rand(2, 8);
+                    const divisor = pickDivisor((base - subtract) * multiplier);
+                    return {
+                        text: `(${base} - ${subtract}) × ${multiplier} ÷ ${divisor} = ?`,
+                        answer: ((base - subtract) * multiplier) / divisor
+                    };
+                },
+                () => {
+                    const first = rand(2, 12);
+                    const second = rand(2, max);
+                    const divisor = pickDivisor(first * second);
+                    const multiplier = rand(2, 6);
+                    return {
+                        text: `${first} × ${second} ÷ ${divisor} × ${multiplier} = ?`,
+                        answer: (first * second / divisor) * multiplier
+                    };
+                },
+                () => {
+                    const addStart = rand(2, 20);
+                    const divisor = rand(2, 12);
+                    const quotient = rand(2, max);
+                    const multiplier = rand(2, 8);
+                    const minus = rand(1, 15);
+                    return {
+                        text: `${addStart} + ${quotient * divisor} ÷ ${divisor} × ${multiplier} - ${minus} = ?`,
+                        answer: addStart + quotient * multiplier - minus
+                    };
+                }
+            ];
+        }
+
+        function makeOptions(answer, level) {
+            const options = new Set([answer]);
+            const spread = level === 'easy' ? 8 : level === 'medium' ? 14 : 24;
+            while (options.size < 5) {
+                const delta = rand(-spread, spread);
+                const candidate = answer + delta;
+                if (delta !== 0 && candidate >= 0) {
+                    options.add(candidate);
+                }
+            }
+            return shuffle([...options]);
+        }
+
+        function loadQuestion() {
+            const question = questions[currentIndex];
+            document.getElementById('question-title').textContent = `Question ${currentIndex + 1}`;
+            document.getElementById('question-help').textContent = `${question.level.toUpperCase()} · Choose one option`;
+            document.getElementById('question-pill').textContent = `Question: ${currentIndex + 1}/${questions.length}`;
+            questionText.textContent = question.text;
+            optionsGrid.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `option-btn ${question.selected === option ? 'selected' : ''}`;
+                button.innerHTML = `<span>(${letters[index]})</span><strong>${option}</strong>`;
+                button.addEventListener('click', () => selectOption(option));
+                optionsGrid.appendChild(button);
+            });
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').textContent = currentIndex === questions.length - 1 ? 'Save' : 'Save & Next';
+            updateHeader();
+            renderPalette();
+        }
+
+        function selectOption(option) {
+            if (submitted) return;
+            questions[currentIndex].selected = option;
+            loadQuestion();
+        }
+
+        function clearAnswer() {
+            if (submitted) return;
+            questions[currentIndex].selected = null;
+            loadQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            }
+        }
+
+        function submitTest() {
+            if (!questions.length || submitted) return;
+            const unanswered = questions.filter(question => question.selected === null).length;
+            if (unanswered > 0 && !confirm(`Submit test with ${unanswered} unanswered question(s)?`)) {
+                return;
+            }
+            submitted = true;
+            clearInterval(timerInterval);
+            showResult();
+        }
+
+        function showResult() {
+            const correct = questions.filter(question => question.selected === question.answer).length;
+            const attempted = questions.filter(question => question.selected !== null).length;
+            const totalTimeMs = Math.max(0, Math.round(performance.now() - startedAt));
+            document.getElementById('final-score').textContent = `${correct}/${questions.length}`;
+            document.getElementById('accuracy').textContent = `${Math.round((correct / questions.length) * 100)}%`;
+            document.getElementById('attempted').textContent = attempted;
+            document.getElementById('total-time').textContent = formatClock(totalTimeMs);
+            document.getElementById('timer-pill').textContent = formatClock(totalTimeMs);
+            document.getElementById('question-body').style.display = 'none';
+            document.getElementById('result-screen').classList.add('active');
+            updateHeader();
+            renderPalette();
+
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+            questions.forEach(question => {
+                const isCorrect = question.selected === question.answer;
+                const row = document.createElement('div');
+                row.className = 'review-row';
+                row.innerHTML = `
+                    <div><strong>${question.text}</strong><br><span class="muted">Your answer: ${question.selected ?? 'Not attempted'}</span></div>
+                    <div>Correct: ${question.answer}<br><span class="muted">${question.level}</span></div>
+                    <div><span class="status ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</span></div>
+                `;
+                reviewList.appendChild(row);
+            });
+        }
+
+        function renderPalette() {
+            palette.innerHTML = '';
+            questions.forEach((question, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'palette-btn';
+                button.textContent = index + 1;
+                if (submitted) {
+                    button.classList.add(question.selected === question.answer ? 'correct' : 'wrong');
+                } else if (question.selected !== null) {
+                    button.classList.add('answered');
+                }
+                if (index === currentIndex && !submitted) {
+                    button.classList.add('current');
+                }
+                button.addEventListener('click', () => {
+                    if (!submitted) {
+                        currentIndex = index;
+                        loadQuestion();
+                    }
+                });
+                palette.appendChild(button);
+            });
+        }
+
+        function updateHeader() {
+            const attempted = questions.filter(question => question.selected !== null).length;
+            document.getElementById('score-pill').textContent = submitted ? `Score: ${questions.filter(question => question.selected === question.answer).length}` : `Answered: ${attempted}`;
+        }
+
+        function updateTimer() {
+            document.getElementById('timer-pill').textContent = formatClock(performance.now() - startedAt);
+        }
+
+        function newTest() {
+            clearInterval(timerInterval);
+            submitted = false;
+            questions = [];
+            currentIndex = 0;
+            document.body.classList.remove('exam-mode');
+            document.getElementById('exam-screen').classList.remove('active');
+            document.getElementById('setup-screen').classList.add('active');
+            document.getElementById('score-pill').textContent = 'Answered: 0';
+            document.getElementById('question-pill').textContent = 'Question: 0/0';
+            document.getElementById('timer-pill').textContent = '00:00';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function pickDivisor(value) {
+            const divisors = [];
+            for (let number = 2; number <= 12; number++) {
+                if (value % number === 0) {
+                    divisors.push(number);
+                }
+            }
+            return pick(divisors.length ? divisors : [1]);
+        }
+
+        function labelForDifficulty(difficulty) {
+            return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        }
+
+        function pick(items) {
+            return items[rand(0, items.length - 1)];
+        }
+
+        function rand(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffle(items) {
+            for (let index = items.length - 1; index > 0; index--) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+            }
+            return items;
+        }
+
+        function formatClock(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            return `${minutes}:${seconds}`;
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
