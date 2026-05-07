@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v13';
+const CACHE_NAME = 'practice-hub-v15';
 const urlsToCache = [
   './',
   './index.html',
