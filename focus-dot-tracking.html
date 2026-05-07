@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#020617">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Dot Tracking Focus Task</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: 'Inter', sans-serif; color: #f8fafc; background: #020617; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(2,6,23,0.9); border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 3; }
+        .logo { color: #fff; text-decoration: none; font-weight: 800; }
+        .timer { color: rgba(255,255,255,0.7); font-size: 0.78rem; font-weight: 800; }
+        main { height: calc(100vh - 59px); position: relative; background: radial-gradient(circle at center, #111827, #020617); overflow: hidden; }
+        canvas { display: block; width: 100%; height: 100%; }
+        .panel { position: absolute; top: 18px; left: 18px; width: min(360px, calc(100% - 36px)); background: rgba(2,6,23,0.84); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 16px; z-index: 2; }
+        .panel.hidden { display: none; }
+        h1, h2, p { margin-top: 0; }
+        h1 { font-size: 1.35rem; }
+        p { color: #cbd5e1; line-height: 1.5; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        label { display: block; color: #cbd5e1; font-size: 0.8rem; font-weight: 800; margin-bottom: 6px; }
+        select, input, button { width: 100%; min-height: 42px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.22); font: inherit; font-weight: 800; padding: 9px 10px; }
+        button { cursor: pointer; background: #fff; color: #020617; }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+        .result-box { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; }
+        .result-value { font-size: 1.45rem; font-weight: 800; }
+        .result-label { color: #cbd5e1; font-size: 0.78rem; font-weight: 800; margin-top: 4px; }
+        @media (max-width: 700px) { header { align-items: flex-start; flex-direction: column; gap: 8px; } .panel { left: 12px; right: 12px; top: 12px; width: auto; } .row, .result-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <header><a class="logo" href="index.html">Practice Hub</a><div class="timer" id="timer">00:00</div></header>
+    <main>
+        <canvas id="track-canvas"></canvas>
+        <section class="panel" id="setup-panel">
+            <h1>Dot Tracking</h1>
+            <p>Follow the moving dot with your eyes only. Keep your head still and attention steady.</p>
+            <div class="row">
+                <div><label for="duration-select">Duration</label><select id="duration-select"><option value="60">1 minute</option><option value="120" selected>2 minutes</option><option value="300">5 minutes</option><option value="600">10 minutes</option></select></div>
+                <div><label for="speed-select">Speed</label><select id="speed-select"><option value="slow" selected>Slow</option><option value="medium">Medium</option><option value="fast">Fast</option></select></div>
+            </div>
+            <button id="start-btn" type="button">Start Task</button>
+        </section>
+        <section class="panel hidden" id="result-panel">
+            <h2>Tracking Complete</h2>
+            <p>Good visual focus.</p>
+            <div class="result-grid">
+                <div class="result-box"><div class="result-value" id="planned-time">00:00</div><div class="result-label">Planned</div></div>
+                <div class="result-box"><div class="result-value" id="actual-time">00:00</div><div class="result-label">Focused</div></div>
+            </div>
+            <button id="again-btn" type="button">Start Again</button>
+        </section>
+    </main>
+    <script>
+        const canvas = document.getElementById('track-canvas');
+        const ctx = canvas.getContext('2d');
+        const timer = document.getElementById('timer');
+        const setupPanel = document.getElementById('setup-panel');
+        const resultPanel = document.getElementById('result-panel');
+        let durationMs = 0, startedAt = 0, animationId = 0, active = false, speed = 0.00035;
+        document.getElementById('start-btn').addEventListener('click', startTask);
+        document.getElementById('again-btn').addEventListener('click', resetTask);
+        window.addEventListener('resize', resize);
+        resize();
+        draw(0);
+
+        function startTask() {
+            durationMs = parseInt(document.getElementById('duration-select').value, 10) * 1000;
+            speed = { slow: 0.00035, medium: 0.00055, fast: 0.0008 }[document.getElementById('speed-select').value];
+            startedAt = performance.now();
+            active = true;
+            setupPanel.classList.add('hidden');
+            resultPanel.classList.add('hidden');
+            cancelAnimationFrame(animationId);
+            animationId = requestAnimationFrame(loop);
+        }
+
+        function loop(now) {
+            draw(now);
+            if (active) {
+                const elapsed = performance.now() - startedAt;
+                const remaining = Math.max(0, durationMs - elapsed);
+                timer.textContent = formatClock(remaining);
+                if (remaining <= 0) return finishTask();
+            }
+            animationId = requestAnimationFrame(loop);
+        }
+
+        function draw(now) {
+            const w = canvas.clientWidth, h = canvas.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+            for (let y = 0; y < h; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+            const t = now * speed;
+            const x = w / 2 + Math.sin(t * 1.7) * w * 0.34;
+            const y = h / 2 + Math.sin(t * 2.3 + 1.2) * h * 0.32;
+            ctx.beginPath();
+            ctx.arc(x, y, 13, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 24;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+        }
+
+        function finishTask() {
+            active = false;
+            cancelAnimationFrame(animationId);
+            const elapsed = Math.min(durationMs, performance.now() - startedAt);
+            timer.textContent = '00:00';
+            document.getElementById('planned-time').textContent = formatClock(durationMs);
+            document.getElementById('actual-time').textContent = formatClock(elapsed);
+            resultPanel.classList.remove('hidden');
+            draw(performance.now());
+        }
+
+        function resetTask() {
+            resultPanel.classList.add('hidden');
+            setupPanel.classList.remove('hidden');
+            timer.textContent = '00:00';
+        }
+
+        function resize() {
+            const scale = window.devicePixelRatio || 1;
+            canvas.width = Math.floor(canvas.clientWidth * scale);
+            canvas.height = Math.floor(canvas.clientHeight * scale);
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        }
+        function formatClock(ms) { const total = Math.ceil(ms / 1000); return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`; }
+        if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(console.log));
+    </script>
+</body>
+
+</html>
