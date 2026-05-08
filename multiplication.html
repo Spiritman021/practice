@@ -655,6 +655,15 @@
                 padding: 10px;
                 font-size: 1.1rem;
             }
+            .table-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+            }
+            .common-note {
+                margin-left: 0;
+                text-align: center;
+            }
         }
         
         /* --- LEARN SCREEN --- */
@@ -782,14 +791,36 @@
             font-weight: 600;
             margin: 8px 0;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: baseline;
             gap: 10px;
             width: 100%;
             letter-spacing: 1px;
+            padding: 2px 0;
         }
 
         .table-row .dim {
             color: var(--text-muted);
+        }
+
+        .table-expression {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .common-note {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 4px 9px;
+            letter-spacing: 0.2px;
+            text-align: right;
+            margin-left: 12px;
         }
 
         .learn-actions {
@@ -1044,6 +1075,7 @@
         const singleInputWrapper = document.getElementById('single-input-wrapper');
         const dualInputWrapper = document.getElementById('dual-input-wrapper');
         const paletteGrid = document.getElementById('palette-grid');
+        const commonProductsMap = buildCommonProductsMap();
 
         // --- Initialization ---
         for (let i = 1; i <= 30; i++) {
@@ -1110,11 +1142,34 @@
             const viewer = document.getElementById('learn-table-viewer');
             let html = `<h3>Table of ${num}</h3>`;
             for (let i = 1; i <= 10; i++) {
+                const product = num * i;
+                const commonText = getCommonPairsText(num, i, product);
+                const commonHtml = commonText ? `<span class="common-note">Common: ${commonText}</span>` : '';
                 html += `<div class="table-row">
-                            <span>${num}</span> <span class="dim">×</span> <span>${i}</span> <span class="dim">=</span> <span>${num * i}</span>
+                            <span class="table-expression"><span>${num}</span> <span class="dim">×</span> <span>${i}</span> <span class="dim">=</span> <span>${product}</span></span>
+                            ${commonHtml}
                          </div>`;
             }
             viewer.innerHTML = html;
+        }
+
+        function buildCommonProductsMap() {
+            const map = new Map();
+            for (let t = 1; t <= 30; t++) {
+                for (let m = 1; m <= 10; m++) {
+                    const product = t * m;
+                    if (!map.has(product)) map.set(product, []);
+                    map.get(product).push({ table: t, multiplier: m });
+                }
+            }
+            return map;
+        }
+
+        function getCommonPairsText(table, multiplier, product) {
+            const pairs = commonProductsMap.get(product) || [];
+            const others = pairs.filter(item => !(item.table === table && item.multiplier === multiplier));
+            if (!others.length) return '';
+            return others.map(item => `${item.table}×${item.multiplier}`).join(', ');
         }
 
         function startTest() {
