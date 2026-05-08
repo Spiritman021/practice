@@ -162,12 +162,19 @@
 
         function renderOptions(pool) {
             optionsEl.innerHTML = '';
+            const hideLabel = level === 'hard';
             shuffle([...pool]).forEach(name => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'opt-btn';
-                btn.textContent = name.toUpperCase();
+                btn.textContent = hideLabel ? '' : name.toUpperCase();
+                btn.setAttribute('aria-label', name.toUpperCase());
                 btn.style.background = colorMap[name];
+                if (hideLabel) {
+                    btn.style.fontSize = '0';
+                } else {
+                    btn.style.fontSize = '1rem';
+                }
                 btn.addEventListener('click', () => answer(btn, name));
                 optionsEl.appendChild(btn);
             });
