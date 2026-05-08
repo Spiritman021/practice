@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#09131f">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Sequence Memory Focus Task</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; font-family: 'Outfit', sans-serif; color: #e2e8f0; background: radial-gradient(circle at 20% 0%, #123059 0%, #07101d 60%); }
+        header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); background: rgba(6,9,18,0.76); }
+        .logo { color: #fff; text-decoration: none; font-weight: 800; }
+        .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pill { border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; color: #cbd5e1; }
+        main { min-height: calc(100vh - 56px); display: grid; place-items: center; padding: 14px; }
+        .panel { width: min(760px, 100%); background: rgba(10,16,31,0.88); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 16px; }
+        h1, h2, p { margin-top: 0; }
+        p { color: #94a3b8; line-height: 1.5; }
+        .hidden { display: none; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 700; color: #cbd5e1; }
+        select, button { width: 100%; min-height: 42px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); font: inherit; font-weight: 700; padding: 8px 10px; }
+        button { cursor: pointer; background: #f8fafc; color: #0f172a; }
+        .hint { text-align: center; color: #93c5fd; font-weight: 700; margin-bottom: 12px; min-height: 22px; }
+        .grid { display: grid; gap: 8px; grid-template-columns: repeat(4, 1fr); }
+        .cell { aspect-ratio: 1; border-radius: 11px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); color: #fff; font-size: 1.1rem; font-weight: 800; }
+        .cell.show { background: #22d3ee; color: #082f49; }
+        .cell.correct { background: #22c55e; }
+        .cell.wrong { background: #ef4444; }
+        .result-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+        .box { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; }
+        .val { font-size: 1.35rem; font-weight: 800; }
+        .lbl { color: #94a3b8; font-size: 0.78rem; font-weight: 700; }
+        @media (max-width: 700px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .row, .result-grid { grid-template-columns: 1fr; }
+            .grid { gap: 6px; }
+            .panel { padding: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="logo" href="index.html">Practice Hub</a>
+        <div class="stats">
+            <div class="pill" id="timer">00:00</div>
+            <div class="pill" id="round-pill">Round 0/0</div>
+            <div class="pill" id="life-pill">Lives: 0</div>
+        </div>
+    </header>
+    <main>
+        <section class="panel" id="setup-panel">
+            <h1>Sequence Memory</h1>
+            <p>Watch the highlighted tile sequence, then tap the same order. This builds working memory and attention endurance.</p>
+            <div class="row">
+                <div>
+                    <label for="level-select">Level</label>
+                    <select id="level-select">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="rounds-select">Rounds</label>
+                    <select id="rounds-select">
+                        <option value="5">5 rounds</option>
+                        <option value="8" selected>8 rounds</option>
+                        <option value="12">12 rounds</option>
+                    </select>
+                </div>
+            </div>
+            <button id="start-btn" type="button">Start Task</button>
+        </section>
+
+        <section class="panel hidden" id="task-panel">
+            <div class="hint" id="hint">Memorize and wait...</div>
+            <div class="grid" id="grid"></div>
+        </section>
+
+        <section class="panel hidden" id="result-panel">
+            <h2>Task Complete</h2>
+            <div class="result-grid">
+                <div class="box"><div class="val" id="score-result">0</div><div class="lbl">Score</div></div>
+                <div class="box"><div class="val" id="round-result">0</div><div class="lbl">Rounds Cleared</div></div>
+                <div class="box"><div class="val" id="life-result">0</div><div class="lbl">Lives Left</div></div>
+                <div class="box"><div class="val" id="time-result">00:00</div><div class="lbl">Time</div></div>
+            </div>
+            <button id="again-btn" type="button">Start Again</button>
+        </section>
+    </main>
+    <script>
+        const config = {
+            easy: { size: 9, baseLength: 3, speed: 560, lives: 4 },
+            medium: { size: 16, baseLength: 4, speed: 460, lives: 3 },
+            hard: { size: 25, baseLength: 5, speed: 360, lives: 3 }
+        };
+        const setupPanel = document.getElementById('setup-panel');
+        const taskPanel = document.getElementById('task-panel');
+        const resultPanel = document.getElementById('result-panel');
+        const grid = document.getElementById('grid');
+        const timerEl = document.getElementById('timer');
+        const roundPill = document.getElementById('round-pill');
+        const lifePill = document.getElementById('life-pill');
+        const hintEl = document.getElementById('hint');
+        let level = 'medium';
+        let rounds = 8;
+        let round = 1;
+        let lives = 3;
+        let score = 0;
+        let sequence = [];
+        let inputIndex = 0;
+        let showing = false;
+        let startedAt = 0;
+        let interval = null;
+
+        document.getElementById('start-btn').addEventListener('click', startTask);
+        document.getElementById('again-btn').addEventListener('click', resetTask);
+
+        function startTask() {
+            level = document.getElementById('level-select').value;
+            rounds = parseInt(document.getElementById('rounds-select').value, 10);
+            round = 1;
+            score = 0;
+            lives = config[level].lives;
+            startedAt = performance.now();
+            setupPanel.classList.add('hidden');
+            resultPanel.classList.add('hidden');
+            taskPanel.classList.remove('hidden');
+            buildGrid();
+            updateTop();
+            clearInterval(interval);
+            interval = setInterval(updateTimer, 200);
+            startRound();
+        }
+
+        function buildGrid() {
+            const size = config[level].size;
+            grid.style.gridTemplateColumns = `repeat(${Math.sqrt(size)}, 1fr)`;
+            grid.innerHTML = '';
+            for (let i = 0; i < size; i++) {
+                const cell = document.createElement('button');
+                cell.type = 'button';
+                cell.className = 'cell';
+                cell.textContent = i + 1;
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleTap(cell, i));
+                grid.appendChild(cell);
+            }
+        }
+
+        function startRound() {
+            clearMarks();
+            inputIndex = 0;
+            showing = true;
+            hintEl.textContent = 'Memorize...';
+            sequence = generateSequence();
+            showSequence(0);
+        }
+
+        function generateSequence() {
+            const size = config[level].size;
+            const length = config[level].baseLength + Math.floor((round - 1) / 2);
+            const pool = shuffle(Array.from({ length: size }, (_, i) => i));
+            return pool.slice(0, Math.min(length, size));
+        }
+
+        function showSequence(position) {
+            const cells = [...grid.children];
+            if (position >= sequence.length) {
+                showing = false;
+                hintEl.textContent = 'Now tap in the same order';
+                return;
+            }
+            const idx = sequence[position];
+            const cell = cells[idx];
+            cell.classList.add('show');
+            setTimeout(() => {
+                cell.classList.remove('show');
+                setTimeout(() => showSequence(position + 1), config[level].speed * 0.35);
+            }, config[level].speed);
+        }
+
+        function handleTap(cell, index) {
+            if (showing) return;
+            const expected = sequence[inputIndex];
+            if (index === expected) {
+                cell.classList.add('correct');
+                inputIndex++;
+                if (inputIndex >= sequence.length) {
+                    score += sequence.length;
+                    round++;
+                    if (round > rounds) return finishTask();
+                    updateTop();
+                    setTimeout(startRound, 260);
+                }
+            } else {
+                cell.classList.add('wrong');
+                lives--;
+                updateTop();
+                setTimeout(() => cell.classList.remove('wrong'), 220);
+                if (lives <= 0) return finishTask();
+                setTimeout(startRound, 280);
+            }
+        }
+
+        function clearMarks() {
+            [...grid.children].forEach(cell => {
+                cell.classList.remove('show', 'correct', 'wrong');
+            });
+        }
+
+        function finishTask() {
+            clearInterval(interval);
+            taskPanel.classList.add('hidden');
+            resultPanel.classList.remove('hidden');
+            const elapsed = performance.now() - startedAt;
+            timerEl.textContent = formatClock(elapsed);
+            document.getElementById('score-result').textContent = score;
+            document.getElementById('round-result').textContent = `${Math.max(0, round - 1)}/${rounds}`;
+            document.getElementById('life-result').textContent = lives;
+            document.getElementById('time-result').textContent = formatClock(elapsed);
+        }
+
+        function resetTask() {
+            resultPanel.classList.add('hidden');
+            setupPanel.classList.remove('hidden');
+            timerEl.textContent = '00:00';
+            roundPill.textContent = 'Round 0/0';
+            lifePill.textContent = 'Lives: 0';
+        }
+
+        function updateTop() {
+            roundPill.textContent = `Round ${Math.min(round, rounds)}/${rounds}`;
+            lifePill.textContent = `Lives: ${lives}`;
+        }
+
+        function updateTimer() {
+            timerEl.textContent = formatClock(performance.now() - startedAt);
+        }
+
+        function shuffle(items) {
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [items[i], items[j]] = [items[j], items[i]];
+            }
+            return items;
+        }
+
+        function formatClock(ms) {
+            const sec = Math.floor(ms / 1000);
+            return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(console.log));
+        }
+    </script>
+</body>
+</html>
