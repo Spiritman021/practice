@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Guided body scan meditation for calming mind and improving focus before exam practice.">
+    <meta name="keywords" content="body scan meditation, mindfulness for students, concentration routine">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#f8fafc">
+    <title>Body Scan Meditation | Practice Hub</title>
+    <link rel="canonical" href="https://spiritman021.github.io/practice/focus-body-scan.html">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: #f8fafc; color: #0f172a; }
+        header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 20px; }
+        .wrap { max-width: 900px; margin: 0 auto; }
+        .logo { color: #2563eb; text-decoration: none; font-weight: 800; }
+        main { padding: 24px 18px 40px; }
+        .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; }
+        h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.3rem); text-align: center; }
+        p { margin: 0 0 12px; color: #475569; text-align: center; }
+        .timer { display: inline-block; margin: 6px auto 14px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 999px; font-weight: 700; color: #334155; }
+        .center { text-align: center; }
+        .prompt { margin-top: 10px; border: 1px solid #dbeafe; background: #eff6ff; border-radius: 12px; padding: 18px; text-align: center; }
+        .prompt h2 { margin: 0 0 8px; color: #1e3a8a; }
+        .prompt p { margin: 0; color: #334155; }
+        .actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        button, .btn { border: none; border-radius: 10px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+        button { background: #2563eb; color: #fff; }
+        button.secondary { background: #e2e8f0; color: #0f172a; }
+        .btn { background: #0f766e; color: #fff; }
+    </style>
+</head>
+<body>
+    <header><div class="wrap"><a class="logo" href="index.html">Practice Hub</a></div></header>
+    <main class="wrap">
+        <div class="card">
+            <h1>Body Scan Meditation</h1>
+            <p>Follow each body area slowly and relax tension. Great before mock tests.</p>
+            <div class="center"><div class="timer" id="timer">04:00</div></div>
+            <div class="prompt">
+                <h2 id="step-title">Ready</h2>
+                <p id="step-text">Sit comfortably. Keep your spine relaxed and breathing natural.</p>
+            </div>
+            <div class="actions">
+                <button id="start-btn" type="button">Start 4-Min Session</button>
+                <button id="stop-btn" class="secondary" type="button">Stop</button>
+                <a class="btn" href="index.html">Back to Dashboard</a>
+            </div>
+        </div>
+    </main>
+    <script>
+        const steps = [
+            { title: 'Feet & Legs', text: 'Notice both feet and lower legs. Relax any tightness.' },
+            { title: 'Hips & Lower Back', text: 'Soften your hips and lower back. Breathe gently.' },
+            { title: 'Chest & Shoulders', text: 'Release shoulder tension. Let chest breathing stay calm.' },
+            { title: 'Arms & Hands', text: 'Notice both arms and hands. Keep fingers loose.' },
+            { title: 'Face & Jaw', text: 'Relax eyes, jaw, and forehead. Keep attention steady.' },
+            { title: 'Full Body', text: 'Observe your whole body together. Stay still and focused.' }
+        ];
+        const timerEl = document.getElementById('timer');
+        const titleEl = document.getElementById('step-title');
+        const textEl = document.getElementById('step-text');
+        let timerInt = null;
+        let stepInt = null;
+        let sec = 240;
+        let idx = 0;
+
+        function fmt(n) {
+            const m = Math.floor(n / 60);
+            const s = n % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        function reset() {
+            clearInterval(timerInt);
+            clearInterval(stepInt);
+            timerInt = null;
+            stepInt = null;
+            sec = 240;
+            idx = 0;
+            timerEl.textContent = '04:00';
+            titleEl.textContent = 'Ready';
+            textEl.textContent = 'Sit comfortably. Keep your spine relaxed and breathing natural.';
+        }
+        function paintStep() {
+            const step = steps[Math.min(idx, steps.length - 1)];
+            titleEl.textContent = step.title;
+            textEl.textContent = step.text;
+        }
+        document.getElementById('start-btn').addEventListener('click', () => {
+            reset();
+            paintStep();
+            timerInt = setInterval(() => {
+                sec--;
+                timerEl.textContent = fmt(Math.max(0, sec));
+                if (sec <= 0) {
+                    clearInterval(timerInt);
+                    clearInterval(stepInt);
+                    titleEl.textContent = 'Session Complete';
+                    textEl.textContent = 'Stay with your breath for 20 seconds, then begin study.';
+                }
+            }, 1000);
+            stepInt = setInterval(() => {
+                idx++;
+                paintStep();
+            }, 40000);
+        });
+        document.getElementById('stop-btn').addEventListener('click', reset);
+    </script>
+</body>
+</html>

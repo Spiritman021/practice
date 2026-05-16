@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Candle gaze meditation for concentration, visual stability, and calm focus before study sessions.">
+    <meta name="keywords" content="candle meditation, trataka, focus meditation for students">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#f8fafc">
+    <title>Candle Gaze Meditation | Practice Hub</title>
+    <link rel="canonical" href="https://spiritman021.github.io/practice/focus-candle-gaze.html">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: #f8fafc; color: #0f172a; }
+        header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 20px; }
+        .wrap { max-width: 920px; margin: 0 auto; }
+        .logo { color: #2563eb; text-decoration: none; font-weight: 800; }
+        main { padding: 24px 18px 40px; }
+        .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; text-align: center; }
+        h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.3rem); }
+        p { margin: 0 0 14px; color: #475569; }
+        .timer { display: inline-block; margin: 8px 0 18px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 999px; font-weight: 700; color: #334155; }
+        .scene { min-height: 340px; border-radius: 14px; border: 1px solid #e2e8f0; background: linear-gradient(180deg, #fff7ed, #ffedd5); display: grid; place-items: center; }
+        .candle { position: relative; width: 36px; height: 140px; background: #fde68a; border-radius: 8px; border: 2px solid #f59e0b; }
+        .wick { position: absolute; top: -14px; left: 50%; width: 4px; height: 14px; margin-left: -2px; background: #111827; border-radius: 2px; }
+        .flame { position: absolute; top: -54px; left: 50%; width: 24px; height: 42px; margin-left: -12px; background: radial-gradient(circle at 50% 20%, #fff7ed, #f97316 60%, #ef4444 100%); border-radius: 50% 50% 42% 42%; animation: flicker 1.2s infinite ease-in-out; transform-origin: center 80%; }
+        @keyframes flicker { 0% { transform: rotate(-2deg) scale(1); } 50% { transform: rotate(2deg) scale(1.05); } 100% { transform: rotate(-1deg) scale(0.98); } }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+        button, .btn { border: none; border-radius: 10px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+        button { background: #2563eb; color: #fff; }
+        button.secondary { background: #e2e8f0; color: #0f172a; }
+        .btn { background: #0f766e; color: #fff; }
+        .hint { margin-top: 12px; color: #1e3a8a; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header><div class="wrap"><a class="logo" href="index.html">Practice Hub</a></div></header>
+    <main class="wrap">
+        <div class="card">
+            <h1>Candle Gaze Meditation</h1>
+            <p>Keep your eyes softly on the flame and breathe naturally. This improves visual attention and stillness.</p>
+            <div class="timer" id="timer">03:00</div>
+            <div class="scene">
+                <div class="candle"><div class="wick"></div><div class="flame"></div></div>
+            </div>
+            <div class="actions">
+                <button id="start-btn" type="button">Start 3-Min Session</button>
+                <button id="stop-btn" class="secondary" type="button">Stop</button>
+                <a class="btn" href="index.html">Back to Dashboard</a>
+            </div>
+            <div class="hint" id="hint">Tip: Blink gently when needed, then return to the flame center.</div>
+        </div>
+    </main>
+    <script>
+        const timerEl = document.getElementById('timer');
+        const hintEl = document.getElementById('hint');
+        let interval = null;
+        let seconds = 180;
+
+        function fmt(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        function reset() {
+            clearInterval(interval);
+            interval = null;
+            seconds = 180;
+            timerEl.textContent = '03:00';
+            hintEl.textContent = 'Tip: Blink gently when needed, then return to the flame center.';
+        }
+        document.getElementById('start-btn').addEventListener('click', () => {
+            clearInterval(interval);
+            seconds = 180;
+            timerEl.textContent = fmt(seconds);
+            hintEl.textContent = 'Stay still. Observe the flame shape and breathe slowly.';
+            interval = setInterval(() => {
+                seconds--;
+                timerEl.textContent = fmt(Math.max(0, seconds));
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    interval = null;
+                    hintEl.textContent = 'Session complete. Close eyes for 20 seconds and relax.';
+                }
+            }, 1000);
+        });
+        document.getElementById('stop-btn').addEventListener('click', reset);
+    </script>
+</body>
+</html>

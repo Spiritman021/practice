@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v33';
+const CACHE_NAME = 'practice-hub-v36';
 const urlsToCache = [
   './',
   './index.html',
@@ -17,6 +17,9 @@ const urlsToCache = [
   './focus-symbol-flash.html',
   './focus-stroop-tap.html',
   './focus-sequence-memory.html',
+  './focus-5-4-3-2-1.html',
+  './focus-candle-gaze.html',
+  './focus-body-scan.html',
   './fractions.html',
   './articles.html',
   './article-ssc-quant-strategy.html',
