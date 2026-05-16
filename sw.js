@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v36';
+const CACHE_NAME = 'practice-hub-v39';
 const urlsToCache = [
   './',
   './index.html',
@@ -30,6 +30,9 @@ const urlsToCache = [
   './article-focus-concentration-methods.html',
   './article-cutoff-prep-strategy.html',
   './article-7-day-revision-cycle.html',
+  './article-ssc-mensuration-shortcuts.html',
+  './article-bank-di-speed-strategy.html',
+  './article-time-work-distance-guide.html',
   './power-practice.css',
   './power-practice.js',
   './mobile-overrides.css',
