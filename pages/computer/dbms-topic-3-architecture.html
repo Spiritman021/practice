@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBMS Topic 3 | 2-Tier and 3-Tier Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent2: #1d4ed8;
+      --heading: #0f172a;
+      --text: #1e293b;
+      --text-muted: #475569;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); padding: 0 32px;
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .brand { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent2); text-decoration: none; font-size: 0.9rem; letter-spacing: 0.05em; }
+    .header-right { display: flex; gap: 10px; }
+    .badge { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .badge-gold { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 48px 32px 80px; }
+    .hero { margin-bottom: 34px; }
+    .topic-label { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .topic-label::before { content: ''; width: 24px; height: 2px; background: var(--accent); display: inline-block; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); color: var(--heading); line-height: 1.12; margin-bottom: 14px; }
+    h1 span { color: var(--accent2); }
+    .hero-sub { color: var(--text-muted); font-size: 1rem; max-width: 700px; line-height: 1.7; }
+
+    .section { margin-bottom: 28px; }
+    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .section-num { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; color: var(--accent); background: #dbeafe; border: 1px solid #93c5fd; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.55rem; color: var(--heading); }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; }
+    .notes-article h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.18rem;
+      color: var(--heading);
+      margin-bottom: 10px;
+    }
+    .notes-article h4 {
+      color: var(--accent2);
+      font-size: 1rem;
+      margin: 16px 0 8px;
+      font-weight: 700;
+    }
+    .notes-article p {
+      color: #334155;
+      line-height: 1.65;
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+    }
+    .notes-article ul {
+      margin: 0 0 14px 20px;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .notes-article li { margin-bottom: 8px; }
+    .notes-article li ul { margin-top: 8px; }
+    .callout {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 10px;
+    }
+
+    .diagram { border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; background: var(--surface2); margin-bottom: 12px; }
+    .flow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .node { border: 1px solid #bfdbfe; background: #fff; padding: 8px 12px; border-radius: 10px; color: #1e3a8a; font-weight: 700; }
+    .arrow { color: #64748b; font-weight: 800; }
+
+    .tbl-wrap { overflow-x: auto; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead tr { background: #eff6ff; }
+    th { padding: 13px 16px; text-align: left; color: var(--accent2); font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; color: var(--text); border-bottom: 1px solid #e2e8f0; line-height: 1.55; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    @media (max-width: 820px) {
+      header { padding: 0 16px; }
+      main { padding: 30px 16px 50px; }
+      .card { padding: 18px; }
+      .header-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="dbms.html">DBMS HUB</a>
+      <div class="header-right">
+        <span class="badge badge-blue">TOPIC 03</span>
+        <span class="badge badge-gold">FULL NOTES</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="topic-label">System Architecture</div>
+      <h1>2-Tier and <span>3-Tier Architecture</span></h1>
+      <p class="hero-sub">Clear breakdown of client-server and three-layer application models, including scalability, security, and practical usage context.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.1</div>
+        <h2>Detailed Notes</h2>
+      </div>
+      <div class="card">
+        <div class="notes-article">
+          <h3>Detailed Notes: 2-Tier and 3-Tier Architecture in DBMS</h3>
+
+          <h4>1. 2-Tier Architecture (Client-Server Architecture)</h4>
+          <p>The 2-tier architecture consists of two main layers: the <strong>Client Layer</strong> and the <strong>Database Server</strong>.</p>
+          <ul>
+            <li><strong>The Client Layer:</strong> This is the user's machine running an interface (API) that helps fetch data from the server.</li>
+            <li><strong>How it works:</strong> The client machine and the database server might be in different locations, so they establish a connection using <strong>JDBC/ODBC</strong>. The client sends a query or application program (e.g., written in Java) directly to the database server. The <strong>database server itself processes and executes the query</strong>, converts it, fetches the requested data, and sends it back to the client.</li>
+            <li><strong>Real-Life Examples:</strong>
+              <ul>
+                <li><strong>Physical Ticket Reservation:</strong> When you go to a railway station, the clerk uses a client machine to fill in your travel details. This machine requests seat availability directly from the server, processes it, and generates your ticket.</li>
+                <li><strong>Banking (In-Branch):</strong> When you physically visit a bank to withdraw ₹10,000, the clerk inputs the request into their client machine. The request goes to the server, which checks the account balance and completes the transaction.</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h4>Advantages of 2-Tier</h4>
+          <ul>
+            <li><strong>Simple Architecture:</strong> Very straightforward setup with only two layers.</li>
+            <li><strong>Easy Maintenance:</strong> Because it is typically used with a limited number of authorized clients (like recruited bank or railway employees) and a limited database, it is very easy to maintain.</li>
+          </ul>
+
+          <h4>Disadvantages of 2-Tier</h4>
+          <ul>
+            <li><strong>Poor Scalability:</strong> It struggles when the number of users is not limited.</li>
+            <li><strong>Security Risks (Vulnerabilities):</strong> The client interacts directly with the database, which is a major security vulnerability.</li>
+          </ul>
+
+          <h4>2. 3-Tier Architecture</h4>
+          <p>To solve the security and scalability issues of the 2-tier model, the industry largely shifted to the 3-tier architecture, which introduces a middle layer. It consists of the <strong>Application/Client Layer</strong>, the <strong>Business Layer</strong>, and the <strong>Data/Database Layer</strong>.</p>
+          <ul>
+            <li><strong>Application/Client Layer:</strong> This is the interface for normal users (e.g., the IRCTC website or a banking app). Users interact with buttons and checkboxes to input details (like account numbers or OTPs) without needing to write any code. This interface helps connect the user to the database.</li>
+            <li><strong>Business Layer (Intermediator):</strong> This middle layer supports the client application (whether it is built in Java, PHP, etc.).
+              <ul>
+                <li><strong>Role:</strong> It acts as a dedicated application server that <strong>processes all user queries</strong>.</li>
+                <li>Instead of dumping the processing load on the database server (which causes a <strong>"bottleneck" state</strong> in 2-tier architectures), the business layer handles the application programs and data checks.</li>
+                <li>It converts the query into machine language and serves a <strong>"fully cooked question"</strong> to the database, drastically reducing the database server's load.</li>
+                <li>When the data is retrieved, the business layer formats it to match exactly what the user interface demands.</li>
+              </ul>
+            </li>
+            <li><strong>Data Layer:</strong> This layer simply stores the data (often in relational tables) and returns the requested data when prompted by the business layer.</li>
+          </ul>
+
+          <h4>Advantages of 3-Tier</h4>
+          <ul>
+            <li><strong>High Scalability:</strong> Because a dedicated application server (Business Layer) handles all the processing, the database server is spared from heavy loads. This allows the system to handle an unlimited number of users simultaneously.</li>
+            <li><strong>High Security:</strong> The user never interacts directly with the database. The user does not even know the physical location of their data (similar to how cloud computing or Gmail operates).</li>
+          </ul>
+
+          <h4>Disadvantages of 3-Tier</h4>
+          <ul>
+            <li><strong>Complex Maintenance:</strong> Adding more layers and devices makes the system more complex. It requires more manpower, money, and effort to maintain compared to the 2-tier model.</li>
+          </ul>
+
+          <h4>Conclusion</h4>
+          <div class="callout">
+            <p>While 2-tier architectures are still utilized for internal, physical operations (like visiting a bank branch or railway counter), <strong>3-tier architectures are the standard for all modern web applications</strong>. Despite the higher maintenance complexity, organizations prioritize 3-tier systems because users today demand 24/7 data availability, high scalability, and robust security.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.2</div>
+        <h2>Architecture Diagrams</h2>
+      </div>
+      <div class="card">
+        <div class="diagram">
+          <div class="flow">
+            <div class="node">Client Layer</div>
+            <div class="arrow">↔</div>
+            <div class="node">Database Server</div>
+          </div>
+        </div>
+        <div class="diagram">
+          <div class="flow">
+            <div class="node">Application/Client Layer</div>
+            <div class="arrow">↔</div>
+            <div class="node">Business Layer</div>
+            <div class="arrow">↔</div>
+            <div class="node">Data/Database Layer</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">3.3</div>
+        <h2>Quick Comparison Table</h2>
+      </div>
+      <div class="card tbl-wrap" aria-label="2-tier vs 3-tier architecture table">
+        <table>
+          <thead>
+            <tr><th>Parameter</th><th>2-Tier</th><th>3-Tier</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Layers</td><td>Client + Database Server</td><td>Application + Business + Data Layer</td></tr>
+            <tr><td>Scalability</td><td>Limited</td><td>High</td></tr>
+            <tr><td>Security</td><td>Lower (direct DB access)</td><td>Higher (intermediated access)</td></tr>
+            <tr><td>Maintenance</td><td>Easier for small internal systems</td><td>Complex but robust for web-scale systems</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
