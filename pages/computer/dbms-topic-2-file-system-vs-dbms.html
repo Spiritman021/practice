@@ -1,214 +1,1065 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DBMS Topic 2 | File System vs DBMS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #f1f5f9;
-      --surface: #ffffff;
-      --surface2: #f8fafc;
-      --border: #e2e8f0;
-      --accent: #2563eb;
-      --accent2: #1d4ed8;
-      --heading: #0f172a;
-      --text: #1e293b;
-      --text-muted: #475569;
-      --text-dim: #94a3b8;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.92); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border); padding: 0 32px;
-    }
-    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
-    .brand { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent2); text-decoration: none; font-size: 0.9rem; letter-spacing: 0.05em; }
-    .header-right { display: flex; gap: 10px; }
-    .badge {
-      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
-      padding: 4px 10px; border-radius: 20px; font-family: 'JetBrains Mono', monospace;
-    }
-    .badge-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
-    .badge-gold { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File System vs DBMS — DBMS Chapter 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0D1B4B;
+    --blue:   #1565C0;
+    --steel:  #1976D2;
+    --lblue:  #42A5F5;
+    --cyan:   #00ACC1;
+    --red:    #C62828;
+    --redl:   #FFEBEE;
+    --green:  #2E7D32;
+    --greenl: #E8F5E9;
+    --orange: #E65100;
+    --orangel:#FFF3E0;
+    --purple: #6A1B9A;
+    --purplel:#F3E5F5;
+    --bluebg: #E3F2FD;
+    --gray:   #F5F5F5;
+    --text:   #1A1A1A;
+    --white:  #ffffff;
+    --dkgray: #424242;
+    --mdgray: #757575;
+    --gold:   #F9A825;
+  }
 
-    main { max-width: 1100px; margin: 0 auto; padding: 48px 32px 80px; }
-    .hero { margin-bottom: 34px; }
-    .topic-label {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600;
-      color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase;
-      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    }
-    .topic-label::before { content: ''; width: 24px; height: 2px; background: var(--accent); display: inline-block; }
-    h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); color: var(--heading); line-height: 1.12; margin-bottom: 14px; }
-    h1 span { color: var(--accent2); }
-    .hero-sub { color: var(--text-muted); font-size: 1rem; max-width: 680px; line-height: 1.7; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .section { margin-bottom: 28px; }
-    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-    .section-num {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600;
-      color: var(--accent); background: #dbeafe; border: 1px solid #93c5fd;
-      width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    }
-    h2 { font-family: 'Playfair Display', serif; font-size: 1.55rem; color: var(--heading); }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f8;
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-    .card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-      padding: 28px 32px;
-    }
+  /* ── TOP NAV ── */
+  .topbar {
+    background: #ffffff;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    border-bottom: 3px solid var(--cyan);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .chapter-tag {
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: .08em;
+  }
+  .topbar-title {
+    color: var(--navy);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .topbar-title span { color: var(--lblue); }
 
-    .notes { white-space: pre-wrap; line-height: 1.65; color: #334155; font-size: 0.95rem; }
-    .notes-article h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.18rem;
-      color: var(--heading);
-      margin-bottom: 10px;
-    }
-    .notes-article h4 {
-      color: var(--accent2);
-      font-size: 1rem;
-      margin: 16px 0 8px;
-      font-weight: 700;
-    }
-    .notes-article p {
-      color: #334155;
-      line-height: 1.65;
-      margin: 0 0 10px;
-      font-size: 0.95rem;
-    }
-    .notes-article ul {
-      margin: 0 0 14px 20px;
-      color: #334155;
-      line-height: 1.65;
-    }
-    .notes-article li { margin-bottom: 8px; }
-    .notes-article li ul { margin-top: 8px; }
-    .callout {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-top: 8px;
-    }
+  /* ── MODE TOGGLE ── */
+  .toggle-wrap {
+    display: flex;
+    background: var(--bluebg);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .toggle-btn {
+    padding: 7px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .25s ease;
+    color: var(--dkgray);
+    background: transparent;
+    letter-spacing: .02em;
+  }
+  .toggle-btn.active {
+    background: var(--cyan);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(0,172,193,.4);
+  }
 
-    .tbl-wrap { overflow-x: auto; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    thead tr { background: #eff6ff; }
-    th {
-      padding: 13px 16px; text-align: left; color: var(--accent2); font-weight: 600;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--border);
-    }
-    td { padding: 12px 16px; color: var(--text); border-bottom: 1px solid #e2e8f0; line-height: 1.55; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
+  /* ── HERO BANNER ── */
+  .hero {
+    background: linear-gradient(135deg, #1a237e 0%, #1565c0 60%, #1976d2 100%);
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(0,172,193,.15) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-content { position: relative; max-width: 820px; }
+  .hero-tag {
+    display: inline-block;
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    padding: 4px 12px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(36px, 6vw, 58px);
+    color: #fff;
+    letter-spacing: .04em;
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: var(--cyan); }
+  .hero-sub {
+    color: rgba(255,255,255,.6);
+    font-size: 14px;
+    font-weight: 400;
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  .hero-badges {
+    display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.75);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: .04em;
+  }
 
-    @media (max-width: 820px) {
-      header { padding: 0 16px; }
-      main { padding: 30px 16px 50px; }
-      .card { padding: 18px; }
-      .header-right { display: none; }
-    }
-  </style>
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; background: #f0f4f8; }
+
+  /* ── VIEWS ── */
+  .view { display: none; animation: fadeUp .35s ease forwards; }
+  .view.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 36px 0 18px;
+  }
+  .sec-num {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .sec-head h2 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .info-box.blue  { background: var(--bluebg); border-color: var(--blue); color: var(--navy); }
+  .info-box.orange{ background: var(--orangel); border-color: var(--orange); color: var(--dkgray); }
+  .info-box.green { background: var(--greenl); border-color: var(--green); color: var(--dkgray); }
+  .info-box.red   { background: var(--redl);   border-color: var(--red);   color: var(--dkgray); }
+
+  /* ── PROSE PARAGRAPHS ── */
+  .prose { font-size: 14.5px; line-height: 1.75; color: #2a2a2a; margin-bottom: 12px; }
+  .prose b { color: var(--navy); }
+  .prose code { font-family: 'Space Mono', monospace; background: #e8eaf6; padding: 1px 6px; border-radius: 3px; font-size: 12px; color: var(--orange); }
+
+  /* ── SUBSECTION BADGE ── */
+  .sub-head {
+    display: flex; align-items: center; gap: 12px;
+    margin: 24px 0 12px;
+    padding: 10px 16px;
+    border-radius: 8px;
+  }
+  .sub-letter {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700; font-size: 14px;
+    color: #fff; flex-shrink: 0;
+  }
+  .sub-head h3 { font-size: 15px; font-weight: 700; }
+  .sub-head .sub-hint { font-size: 11.5px; font-weight: 400; opacity: .7; margin-top: 1px; }
+
+  /* ── COMPARISON CARDS ── */
+  .compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin: 14px 0;
+  }
+  .cmp-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  }
+  .cmp-card-head {
+    padding: 10px 16px;
+    font-weight: 700; font-size: 13px;
+    color: #fff;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cmp-card-body {
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .cmp-card-body b { font-weight: 600; }
+
+  /* ── DIAGRAM / TABLE WRAPPERS ── */
+  .diagram {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  }
+  .diagram-title {
+    background: var(--navy);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: .04em;
+    padding: 9px 16px;
+    font-family: 'Space Mono', monospace;
+  }
+  .diagram-caption {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--mdgray);
+    font-style: italic;
+    padding: 8px 16px;
+    background: #fafafa;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  /* ── SVG ARCH DIAGRAMS ── */
+  .svg-wrap { padding: 20px; background: #fff; }
+  .svg-wrap svg { width: 100%; height: auto; display: block; }
+
+  /* ── DATA TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--navy); color: #fff;
+    padding: 9px 12px; text-align: left;
+    font-weight: 700; font-size: 12px;
+    letter-spacing: .04em;
+  }
+  .data-table th:first-child { border-radius: 0; }
+  .data-table td { padding: 9px 12px; border-bottom: 1px solid #e8eaf6; vertical-align: top; }
+  .data-table tr:nth-child(even) td { background: #f5f7ff; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child { font-weight: 600; color: var(--navy); }
+  .data-table .bad  { color: var(--red);   font-weight: 500; }
+  .data-table .good { color: var(--green); font-weight: 500; }
+
+  /* ── IRCTC TABLE ── */
+  .irctc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .irctc-table th { background: var(--blue); color: #fff; padding: 7px 10px; font-size: 11.5px; letter-spacing:.03em; }
+  .irctc-table td { padding: 7px 10px; border-bottom: 1px solid #dde8ff; }
+  .irctc-table tr:nth-child(even) td { background: #eef3ff; }
+
+  /* ── STEP LIST ── */
+  .step-list { list-style: none; margin: 10px 0; }
+  .step-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-bottom: 10px; font-size: 14px; line-height: 1.6;
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--blue); color: #fff;
+    font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* ── REVISION VIEW ── */
+  .rev-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: 0 3px 16px rgba(0,0,0,.08);
+    border: 1px solid #e8eaf6;
+  }
+  .rev-card-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    color: #fff;
+    font-weight: 700; font-size: 15px;
+  }
+  .rev-card-head .rev-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    font-weight: 700; flex-shrink: 0;
+  }
+  .rev-card-body { padding: 16px 20px; }
+
+  .rev-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 10px 0;
+  }
+  .rev-side {
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .rev-side-head {
+    padding: 7px 12px;
+    font-weight: 700; font-size: 12px;
+    color: #fff;
+    letter-spacing: .03em;
+  }
+  .rev-side-body {
+    padding: 10px 12px;
+    line-height: 1.65;
+  }
+  .rev-kv { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; align-items: flex-start; }
+  .rev-kv .rk { font-weight: 700; color: var(--navy); min-width: 110px; flex-shrink: 0; }
+  .rev-kv .rv { color: var(--dkgray); line-height: 1.5; }
+
+  /* ── QUICK REF TABLE ── */
+  .qr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .qr-table th { background: var(--navy); color: #fff; padding: 9px 12px; font-size: 11.5px; }
+  .qr-table td { padding: 8px 12px; border-bottom: 1px solid #e8eaf6; vertical-align: top; }
+  .qr-table tr:nth-child(even) td { background: #f5f7ff; }
+  .qr-table td:first-child { font-weight: 700; color: var(--navy); width: 130px; }
+  .qr-table td:nth-child(2) { color: var(--red); }
+  .qr-table td:nth-child(3) { color: var(--green); }
+
+  /* ── ADV/DIS PILLS ── */
+  .pill-list { list-style: none; margin: 6px 0; }
+  .pill-list li {
+    display: flex; gap: 8px;
+    font-size: 13px; margin-bottom: 5px; line-height: 1.5;
+    align-items: flex-start;
+  }
+  .pill-list li::before { content: attr(data-icon); flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FLOW ARCH ── */
+  .flow-arch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 24px 20px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .flow-box {
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+  .flow-box .fb-title { font-weight: 700; font-size: 13px; color: #fff; }
+  .flow-box .fb-sub   { font-size: 10.5px; color: rgba(255,255,255,.7); margin-top: 3px; line-height: 1.4; }
+  .flow-arrow {
+    font-size: 20px;
+    color: var(--mdgray);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── REDUNDANCY VIZ ── */
+  .red-viz { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+  .red-side { border-radius: 8px; overflow: hidden; }
+  .red-side-title { padding: 8px 12px; font-weight: 700; font-size: 12px; color: #fff; }
+  .red-rows { }
+  .red-row {
+    display: flex; gap: 0;
+    border-bottom: 1px solid rgba(0,0,0,.07);
+    font-size: 12px;
+  }
+  .red-row:last-child { border-bottom: none; }
+  .red-cell {
+    flex: 1; padding: 5px 8px;
+    text-align: center;
+  }
+  .red-row.header .red-cell { font-weight: 700; background: rgba(0,0,0,.08); }
+  .dup-badge {
+    background: var(--red); color: #fff;
+    font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 3px;
+    margin-left: 4px; vertical-align: middle;
+  }
+  .pk-badge {
+    background: var(--green); color: #fff;
+    font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 3px;
+    margin-left: 4px;
+  }
+
+  /* ── CONCURRENCY ── */
+  .conc-viz { padding: 16px; }
+  .conc-users {
+    display: flex; gap: 10px; justify-content: center;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .conc-user {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px; font-weight: 600;
+    text-align: center;
+  }
+  .conc-arrows { text-align: center; font-size: 22px; color: var(--mdgray); margin: 4px 0; }
+  .conc-center {
+    display: flex; gap: 14px; justify-content: center;
+    align-items: center; flex-wrap: wrap;
+  }
+  .conc-box {
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 13px; font-weight: 700;
+    color: #fff;
+  }
+  .conc-result {
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 12px; font-weight: 700; text-align: center;
+  }
+
+  /* ── RBAC ── */
+  .rbac-tree {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .rbac-row {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  }
+  .rbac-node {
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 12px; font-weight: 700;
+    color: #fff; text-align: center;
+    min-width: 100px;
+  }
+  .rbac-node .rbac-perm { font-size: 10px; font-weight: 400; opacity: .8; display: block; margin-top: 2px; }
+  .rbac-line { color: var(--mdgray); font-size: 16px; }
+
+  /* ── SEARCH VIZ ── */
+  .search-viz { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; }
+  .sv-side { border-radius: 8px; overflow: hidden; }
+  .sv-title { padding: 8px 12px; font-weight: 700; font-size: 12.5px; color: #fff; }
+  .sv-body { padding: 12px; font-size: 12.5px; line-height: 1.6; }
+  .big-bar {
+    background: linear-gradient(90deg, var(--red) 0%, #ef9a9a 100%);
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 20px;
+    text-align: center;
+    margin: 8px 0;
+  }
+  .small-bar {
+    background: linear-gradient(90deg, var(--green) 0%, #81c784 100%);
+    border-radius: 4px;
+    padding: 6px 14px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    margin: 8px 0;
+    width: 60%;
+  }
+  .code-pill {
+    font-family: 'Space Mono', monospace;
+    background: #e8eaf6;
+    color: var(--blue);
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: block;
+    margin: 6px 0;
+    line-height: 1.6;
+  }
+
+  /* ── CONCLUSION ── */
+  .conclusion-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin: 14px 0;
+  }
+  .concl-card {
+    border-radius: 10px;
+    border: 2px solid;
+    padding: 16px;
+    text-align: center;
+  }
+  .concl-icon { font-size: 28px; margin-bottom: 8px; }
+  .concl-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .concl-text  { font-size: 12px; color: var(--dkgray); line-height: 1.5; }
+
+  @media (max-width: 620px) {
+    .compare-grid, .rev-row, .red-viz, .search-viz { grid-template-columns: 1fr; }
+    .conclusion-grid { grid-template-columns: 1fr 1fr; }
+    .flow-arch { gap: 4px; }
+    .flow-box { min-width: 80px; padding: 10px 10px; }
+    .topbar-title { display: none; }
+    .toggle-btn { padding: 7px 14px; font-size: 12px; }
+    .hero h1 { font-size: 30px; }
+    .main { padding: 24px 16px 60px; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="header-inner">
-      <a class="brand" href="dbms.html">DBMS HUB</a>
-      <div class="header-right">
-        <span class="badge badge-blue">TOPIC 02</span>
-        <span class="badge badge-gold">FULL NOTES</span>
-      </div>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 02</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>File System vs DBMS</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive')">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision')">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 2 • LECTURE NOTES</div>
+    <h1>File System<br><span>vs</span> DBMS</h1>
+    <p class="hero-sub">Why file systems fail at scale — and how DBMS solves the 5 core limitations of the file-based approach.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span>
+      <span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span>
+      <span class="badge">B.Tech / BCA</span>
     </div>
-  </header>
+  </div>
+</div>
 
-  <main>
-    <section class="hero">
-      <div class="topic-label">Database Foundations</div>
-      <h1>File System <span>vs DBMS</span></h1>
-      <p class="hero-sub">Direct comparison of legacy file-based data handling and DBMS-driven client-server data management, with practical backend implications.</p>
-    </section>
+<!-- MAIN -->
+<div class="main">
 
-    <section class="section">
-      <div class="section-header">
-        <div class="section-num">2.1</div>
-        <h2>Detailed Notes</h2>
-      </div>
-      <div class="card">
-        <div class="notes-article">
-          <h3>Detailed Notes: File System vs. DBMS</h3>
+  <!-- ═══════════════════ DESCRIPTIVE VIEW ═══════════════════ -->
+  <div id="view-descriptive" class="view active">
 
-          <h4>1. The Era Before DBMS: The File System</h4>
-          <ul>
-            <li>Before the adoption of Database Management Systems (DBMS), data was primarily managed using <strong>File Systems</strong>, which are still built into modern operating systems (like CIFS and NFS).</li>
-            <li>In a file system, users store data locally in a hierarchical format using drives, folders, and sub-folders.</li>
-            <li>While file systems are perfectly fine for an individual user managing local files on a personal laptop, they fail when applied to modern <strong>Client-Server architectures</strong>. In these architectures, data is stored on centralized servers and accessed by thousands of users globally.</li>
-          </ul>
+    <!-- Section 1 -->
+    <div class="sec-head">
+      <div class="sec-num" style="background:var(--orange);color:#fff;">1</div>
+      <h2 style="color:var(--navy);">The Era Before DBMS — File Systems</h2>
+    </div>
 
-          <h4>2. Five Major Disadvantages of File Systems (and Advantages of DBMS)</h4>
+    <p class="prose">
+      Before DBMS became the standard, organizations managed data using <b>File Systems</b> — still present today in operating systems as <b>CIFS</b> (Windows/network) and <b>NFS</b> (Linux/Unix). Data was stored locally in a hierarchical structure of drives, folders, and sub-folders.
+    </p>
+    <p class="prose">
+      File systems work perfectly fine for a <b>single user on a personal laptop</b>. But they completely fall apart when applied to <b>Client-Server architectures</b>, where data sits on centralized servers accessed by thousands of global users simultaneously.
+    </p>
 
-          <h4>A. Inefficient Searching and Memory Utilization</h4>
-          <ul>
-            <li><strong>File System:</strong> If you need to search for a tiny piece of data (e.g., 1 KB of specific train details on the IRCTC network), the file system might fetch the entire 25 GB file containing all train records. This wastes immense time and memory.</li>
-            <li><strong>DBMS:</strong> You can write a simple SQL query, and the server will fetch and return only the specific 1 KB of data requested. This makes searching fast and memory utilization highly efficient.</li>
-          </ul>
-
-          <h4>B. Lack of Location Independence</h4>
-          <ul>
-            <li><strong>File System:</strong> To access data, the user must know the exact meta-data and physical location of the file (e.g., <code>C:/folder 1/folder 2</code>).</li>
-            <li><strong>DBMS:</strong> Data is completely <strong>location-independent</strong>. The user does not need to know where the server is physically located. They simply open a web or mobile app, send a request, and the DBMS responds seamlessly without requiring the user to navigate file paths.</li>
-          </ul>
-
-          <h4>C. Poor Concurrency Control</h4>
-          <ul>
-            <li><strong>Concurrency</strong> means multiple users accessing the same data simultaneously. For instance, IRCTC handles 2 to 3 lakh transactions daily, with thousands of users booking concurrently.</li>
-            <li><strong>File System:</strong> It lacks the protocols needed to manage simultaneous access safely. If thousands of users try to read or write data at the same time, it leads to severe data inconsistency.</li>
-            <li><strong>DBMS:</strong> It is built with proper transaction control and concurrency protocols to manage simultaneous read-write and write-write conflicts flawlessly.</li>
-          </ul>
-
-          <h4>D. Lack of Role-Based Security</h4>
-          <ul>
-            <li><strong>File System:</strong> Operating systems offer very basic security. Once a user logs into a laptop with a password, they generally have full access to all the drives and files.</li>
-            <li><strong>DBMS:</strong> It provides <strong>Hierarchical or Role-Based Access Control (RBAC)</strong>. Different users are assigned different roles (e.g., an Admin vs. a regular User, or a Dean vs. a Student in a university). Users can only see the specific data permitted by their role, making unauthorized data invisible to them.</li>
-          </ul>
-
-          <h4>E. High Data Redundancy (Duplicacy)</h4>
-          <ul>
-            <li><strong>File System:</strong> It does not actively prevent data duplicacy. For example, you could save a student named "Ram" four times in the same document, or save identical data in multiple files just by changing the file names.</li>
-            <li><strong>DBMS:</strong> It enforces data integrity through <strong>constraints</strong> like Primary Keys and Foreign Keys. These strict rules ensure that you can only store unique, non-redundant data.</li>
-          </ul>
-
-          <h4>3. Conclusion: The Backend Standard</h4>
-          <div class="callout">
-            <p>In today's world, massive applications like Amazon, Google, and Flipkart all rely on a <strong>Client-Server architecture</strong>. The users sit at the frontend, but the backend always runs on a <strong>DBMS</strong> to efficiently handle requests, enforce security, and maintain clean data.</p>
+    <div class="diagram">
+      <div class="diagram-title">📂 Evolution: File System Era → DBMS Era</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0;">
+        <div style="padding:20px; background:var(--orangel); border-right:2px solid #ffe0b2;">
+          <div style="text-align:center; font-size:28px; margin-bottom:8px;">📁</div>
+          <div style="font-weight:700; color:var(--orange); font-size:14px; text-align:center; margin-bottom:8px;">FILE SYSTEM ERA</div>
+          <div style="font-size:12px; color:var(--dkgray); line-height:1.7;">
+            ✗ &nbsp;Local storage only<br>
+            ✗ &nbsp;Hierarchical folders<br>
+            ✗ &nbsp;Single user focused<br>
+            ✗ &nbsp;CIFS / NFS protocols<br>
+            ✗ &nbsp;No concurrent access<br>
+            ✗ &nbsp;No role-based security
+          </div>
+        </div>
+        <div style="padding:20px; background:var(--greenl);">
+          <div style="text-align:center; font-size:28px; margin-bottom:8px;">🗄️</div>
+          <div style="font-weight:700; color:var(--green); font-size:14px; text-align:center; margin-bottom:8px;">DBMS ERA (Modern Standard)</div>
+          <div style="font-size:12px; color:var(--dkgray); line-height:1.7;">
+            ✓ &nbsp;Centralized server<br>
+            ✓ &nbsp;SQL-based querying<br>
+            ✓ &nbsp;Millions of users<br>
+            ✓ &nbsp;MySQL / Oracle / SQL Server<br>
+            ✓ &nbsp;Full concurrency control<br>
+            ✓ &nbsp;RBAC security
           </div>
         </div>
       </div>
-    </section>
+      <div class="diagram-caption">File systems work for individual laptops. DBMS is built for Client-Server architectures at global scale.</div>
+    </div>
 
-    <section class="section">
-      <div class="section-header">
-        <div class="section-num">2.2</div>
-        <h2>Comparison Table</h2>
+    <div class="info-box orange">
+      ⚠️ <b>Key Problem:</b> A file system has no concept of "serving multiple users simultaneously." The moment you need concurrent access, role-based security, or efficient search — file systems are inadequate.
+    </div>
+
+    <!-- Section 2 -->
+    <div class="sec-head">
+      <div class="sec-num" style="background:var(--navy);color:#fff;">2</div>
+      <h2 style="color:var(--navy);">Five Major Disadvantages of File Systems</h2>
+    </div>
+
+    <!-- 2A -->
+    <div class="sub-head" style="background:var(--redl);">
+      <div class="sub-letter" style="background:var(--red);">A</div>
+      <div>
+        <h3 style="color:var(--red);">Inefficient Searching & Memory Utilization</h3>
+        <div class="sub-hint" style="color:var(--dkgray);">File System loads the entire file; DBMS returns only what you asked for</div>
       </div>
-      <div class="card tbl-wrap" aria-label="File system vs DBMS comparison table">
-        <table>
+    </div>
+
+    <p class="prose">
+      Imagine you want just one train's departure time from the IRCTC database. With a file system, the server might load the <b>entire 25 GB file</b> of all train records just to give you 1 KB of data. This is extremely wasteful in both time and memory.
+    </p>
+    <p class="prose">
+      DBMS solves this with <b>SQL queries</b> — you specify exactly what you want, and the server fetches only that record. The difference is like using the index of a book vs reading the entire book to find one sentence.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-title">🔍 Search Efficiency: File System vs DBMS</div>
+      <div class="search-viz">
+        <div class="sv-side" style="border:1px solid #ef9a9a;">
+          <div class="sv-title" style="background:var(--red);">❌ File System</div>
+          <div class="sv-body">
+            <div>Query: "Get train 12301 details"</div>
+            <div class="big-bar">25 GB<br><span style="font-size:12px;font-weight:400;">entire file loaded</span></div>
+            <div style="color:var(--red); font-size:12px;">→ Only 1 KB was actually needed</div>
+            <div style="margin-top:8px; font-size:12px; color:var(--dkgray);">🐢 Slow &nbsp;|&nbsp; Memory-hungry &nbsp;|&nbsp; Wasteful</div>
+          </div>
+        </div>
+        <div class="sv-side" style="border:1px solid #a5d6a7;">
+          <div class="sv-title" style="background:var(--green);">✓ DBMS (SQL Query)</div>
+          <div class="sv-body">
+            <div>Query sent:</div>
+            <code class="code-pill">SELECT * FROM trains<br>WHERE train_no='12301';</code>
+            <div class="small-bar">1 KB</div>
+            <div style="color:var(--green); font-size:12px;">→ Only the requested row is returned</div>
+            <div style="margin-top:8px; font-size:12px; color:var(--dkgray);">⚡ Fast &nbsp;|&nbsp; Efficient &nbsp;|&nbsp; Precise</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-caption">IRCTC example: DBMS uses SQL to pinpoint and return only the specific record needed, saving massive memory and time.</div>
+    </div>
+
+    <!-- 2B -->
+    <div class="sub-head" style="background:var(--orangel);">
+      <div class="sub-letter" style="background:var(--orange);">B</div>
+      <div>
+        <h3 style="color:var(--orange);">Lack of Location Independence</h3>
+        <div class="sub-hint" style="color:var(--dkgray);">FS requires knowing the exact file path; DBMS is fully transparent</div>
+      </div>
+    </div>
+    <p class="prose">
+      In a file system, you must know the exact physical path to your data: <code>C:/server/irctc/2024/trains.dat</code>. This is impossible at scale — users can't be expected to navigate server directories.
+    </p>
+    <p class="prose">
+      With DBMS, <b>location independence</b> is built-in. A user in Delhi opens the IRCTC app, the request travels to a server in Mumbai, data is fetched and returned — entirely transparent to the user. They never see a file path.
+    </p>
+
+    <div class="compare-grid">
+      <div class="cmp-card">
+        <div class="cmp-card-head" style="background:var(--red);">❌ File System</div>
+        <div class="cmp-card-body" style="background:var(--redl);">
+          User must know: <code>C:/folder1/folder2/data.dat</code><br>
+          Physical location must be provided explicitly. Different servers = different paths. No abstraction layer.
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-card-head" style="background:var(--green);">✓ DBMS</div>
+        <div class="cmp-card-body" style="background:var(--greenl);">
+          User opens app → sends request → gets data.<br>
+          Server could be in Mumbai, Singapore, or the cloud. <b>Fully transparent</b> — no path knowledge needed.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2C -->
+    <div class="sub-head" style="background:var(--bluebg);">
+      <div class="sub-letter" style="background:var(--blue);">C</div>
+      <div>
+        <h3 style="color:var(--blue);">Poor Concurrency Control</h3>
+        <div class="sub-hint" style="color:var(--dkgray);">Simultaneous users cause data chaos in FS; DBMS handles it flawlessly</div>
+      </div>
+    </div>
+
+    <div class="info-box blue">
+      📌 <b>Concurrency</b> = multiple users reading/writing the <i>same data</i> at the same time. IRCTC handles <b>2–3 lakh (200,000–300,000) transactions daily</b>, with thousands booking concurrently at peak times.
+    </div>
+
+    <p class="prose">
+      File systems have no protocols for managing simultaneous access. If two users try to book the last seat at the same moment, both might succeed — creating a <b>double-booking</b>. This is data inconsistency.
+    </p>
+    <p class="prose">
+      DBMS comes with built-in <b>transaction control and locking protocols</b> (shared locks, exclusive locks, MVCC). Only one write transaction can modify a record at a time. All others wait in a controlled queue.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-title">⚡ Concurrency Control — IRCTC Scale</div>
+      <div class="conc-viz">
+        <div class="conc-users">
+          <div class="conc-user" style="background:#e3f2fd; color:var(--blue);">👤 User 1<br><span style="font-size:10px;">Book Seat</span></div>
+          <div class="conc-user" style="background:#e3f2fd; color:var(--blue);">👤 User 2<br><span style="font-size:10px;">Book Seat</span></div>
+          <div class="conc-user" style="background:#e3f2fd; color:var(--blue);">👤 User 3<br><span style="font-size:10px;">Check Seat</span></div>
+          <div class="conc-user" style="background:#e3f2fd; color:var(--blue);">👤 User 4<br><span style="font-size:10px;">Cancel Seat</span></div>
+        </div>
+        <div class="conc-arrows">↓ ↓ ↓ ↓</div>
+        <div class="conc-center">
+          <div>
+            <div class="conc-box" style="background:var(--red); margin-bottom:8px;">File System<br><span style="font-size:10px; font-weight:400;">No protocols</span></div>
+            <div class="conc-result" style="background:var(--redl); color:var(--red); border:1px solid #ef9a9a;">✕ Data Inconsistency<br><span style="font-size:11px; font-weight:400;">Double bookings, corrupt data</span></div>
+          </div>
+          <div style="font-size:24px; color:var(--mdgray);">vs</div>
+          <div>
+            <div class="conc-box" style="background:var(--green); margin-bottom:8px;">DBMS<br><span style="font-size:10px; font-weight:400;">Transaction Control + Locking</span></div>
+            <div class="conc-result" style="background:var(--greenl); color:var(--green); border:1px solid #a5d6a7;">✓ No Conflicts<br><span style="font-size:11px; font-weight:400;">Serialized, consistent access</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-caption">DBMS uses lock-based or MVCC protocols so concurrent users never corrupt shared data.</div>
+    </div>
+
+    <!-- 2D -->
+    <div class="sub-head" style="background:var(--purplel);">
+      <div class="sub-letter" style="background:var(--purple);">D</div>
+      <div>
+        <h3 style="color:var(--purple);">Lack of Role-Based Security</h3>
+        <div class="sub-hint" style="color:var(--dkgray);">OS login = full access in FS; DBMS enforces per-role visibility</div>
+      </div>
+    </div>
+    <p class="prose">
+      Operating systems offer coarse security — one password gets you into the machine, and then you can see <i>everything</i>. This is dangerous for multi-user systems like universities or hospitals.
+    </p>
+    <p class="prose">
+      DBMS provides <b>Hierarchical Role-Based Access Control (RBAC)</b>. Roles define what data each user can see or modify. A student can only access their own record. A dean sees department reports. Only the DBA sees everything.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-title">🔐 RBAC Hierarchy in DBMS (University Example)</div>
+      <div class="rbac-tree">
+        <div class="rbac-row">
+          <div class="rbac-node" style="background:var(--navy);">ADMIN / DBA<span class="rbac-perm">Full Access</span></div>
+        </div>
+        <div class="rbac-line">│</div>
+        <div class="rbac-row">
+          <div class="rbac-node" style="background:var(--purple);">DEAN / MANAGER<span class="rbac-perm">Dept. Data + Reports</span></div>
+          <div class="rbac-node" style="background:var(--blue);">FACULTY / STAFF<span class="rbac-perm">Own Records + Student Marks</span></div>
+        </div>
+        <div class="rbac-line">│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│</div>
+        <div class="rbac-row">
+          <div class="rbac-node" style="background:var(--green); min-width:140px;">STUDENT<span class="rbac-perm">Own Records Only</span></div>
+          <div class="rbac-node" style="background:var(--mdgray);">GUEST<span class="rbac-perm">Public Data Only</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; width:100%;">
+          <div style="background:var(--redl); border:1px solid #ef9a9a; border-radius:6px; padding:8px 12px; font-size:12px; color:var(--red);">
+            ✕ <b>File System:</b> One password = Access to all files on the machine
+          </div>
+          <div style="background:var(--greenl); border:1px solid #a5d6a7; border-radius:6px; padding:8px 12px; font-size:12px; color:var(--green);">
+            ✓ <b>DBMS:</b> Role defines exactly what data you can see or edit
+          </div>
+        </div>
+      </div>
+      <div class="diagram-caption">RBAC makes unauthorized data completely invisible to lower-privileged roles — not just hidden, but inaccessible.</div>
+    </div>
+
+    <!-- 2E -->
+    <div class="sub-head" style="background:var(--greenl);">
+      <div class="sub-letter" style="background:var(--green);">E</div>
+      <div>
+        <h3 style="color:var(--green);">High Data Redundancy (Duplicacy)</h3>
+        <div class="sub-hint" style="color:var(--dkgray);">No prevention in FS; DBMS enforces Primary Key + Foreign Key uniqueness</div>
+      </div>
+    </div>
+    <p class="prose">
+      In a file system, nothing stops you from saving "Ram, Roll No A101" four times in the same file, or copying the same data across multiple files with different names. This leads to storage waste and inconsistent records.
+    </p>
+    <p class="prose">
+      DBMS enforces <b>data integrity constraints</b>: the <b>Primary Key</b> ensures every record is unique. The <b>Foreign Key</b> maintains referential integrity across related tables. Any attempt to insert a duplicate throws an error instantly.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-title">📊 Data Redundancy: File System vs DBMS</div>
+      <div class="red-viz">
+        <div class="red-side" style="border:1px solid #ef9a9a;">
+          <div class="red-side-title" style="background:var(--red);">❌ File System — Duplicates Allowed</div>
+          <div class="red-rows" style="background:#fff;">
+            <div class="red-row header"><div class="red-cell">Name</div><div class="red-cell">Roll No</div><div class="red-cell">Branch</div></div>
+            <div class="red-row" style="background:#fff;"><div class="red-cell">Ram</div><div class="red-cell">A101</div><div class="red-cell">CSE</div></div>
+            <div class="red-row" style="background:#fff3f3;"><div class="red-cell">Ram</div><div class="red-cell">A101</div><div class="red-cell">CSE</div><span class="dup-badge">DUP</span></div>
+            <div class="red-row" style="background:#fff;"><div class="red-cell">Ram</div><div class="red-cell">A101</div><div class="red-cell">CSE</div><span class="dup-badge">DUP</span></div>
+            <div class="red-row" style="background:#fff3f3;"><div class="red-cell">Ram</div><div class="red-cell">A101</div><div class="red-cell">CSE</div><span class="dup-badge">DUP</span></div>
+          </div>
+          <div style="padding:6px 10px; font-size:11px; color:var(--red); font-weight:600; background:var(--redl);">Same data saved 4 times — no prevention!</div>
+        </div>
+        <div class="red-side" style="border:1px solid #a5d6a7;">
+          <div class="red-side-title" style="background:var(--green);">✓ DBMS — Primary Key Enforced</div>
+          <div class="red-rows" style="background:#fff;">
+            <div class="red-row header"><div class="red-cell">🔑 Roll No</div><div class="red-cell">Name</div><div class="red-cell">Branch</div></div>
+            <div class="red-row" style="background:#fff;"><div class="red-cell">A101<span class="pk-badge">PK</span></div><div class="red-cell">Ram</div><div class="red-cell">CSE</div></div>
+            <div class="red-row" style="background:#fff;"><div class="red-cell">A102</div><div class="red-cell">Shyam</div><div class="red-cell">ECE</div></div>
+          </div>
+          <div style="padding:8px 10px; background:var(--redl); font-size:11px; color:var(--red); font-weight:600; font-family:'Space Mono',monospace;">
+            ERROR: Duplicate entry 'A101'<br>for key 'PRIMARY'
+          </div>
+          <div style="padding:6px 10px; font-size:11px; color:var(--green); font-weight:600; background:var(--greenl);">Integrity enforced — duplicates rejected instantly!</div>
+        </div>
+      </div>
+      <div class="diagram-caption">Primary Key constraint in DBMS makes data redundancy structurally impossible at the database level.</div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="sec-head">
+      <div class="sec-num" style="background:var(--green);color:#fff;">3</div>
+      <h2 style="color:var(--navy);">Conclusion — The Backend Standard</h2>
+    </div>
+    <p class="prose">
+      In today's world, every major application — <b>Amazon, Google, Flipkart, IRCTC</b> — is built on a Client-Server architecture. The frontend is what users see, but the backend <i>always</i> runs on a DBMS to efficiently handle requests, enforce security, and maintain clean, consistent data.
+    </p>
+
+    <div class="conclusion-grid">
+      <div class="concl-card" style="border-color:var(--blue); background:#f5f8ff;">
+        <div class="concl-icon">⚡</div>
+        <div class="concl-title" style="color:var(--blue);">Efficiency</div>
+        <div class="concl-text">SQL fetches only what's needed. No wasteful full-file loading.</div>
+      </div>
+      <div class="concl-card" style="border-color:var(--red); background:#fff5f5;">
+        <div class="concl-icon">🔐</div>
+        <div class="concl-title" style="color:var(--red);">Security</div>
+        <div class="concl-text">RBAC ensures every user sees only their permitted data.</div>
+      </div>
+      <div class="concl-card" style="border-color:var(--green); background:#f5fff5;">
+        <div class="concl-icon">📏</div>
+        <div class="concl-title" style="color:var(--green);">Integrity</div>
+        <div class="concl-text">Primary Keys and constraints keep data unique and clean.</div>
+      </div>
+    </div>
+
+  </div>
+  <!-- END DESCRIPTIVE -->
+
+
+  <!-- ═══════════════════ REVISION VIEW ═══════════════════ -->
+  <div id="view-revision" class="view">
+
+    <!-- Card 1 -->
+    <div class="rev-card">
+      <div class="rev-card-head" style="background:var(--orange);">
+        <div class="rev-num">1</div>
+        Era Before DBMS — File System Basics
+      </div>
+      <div class="rev-card-body">
+        <div class="rev-kv"><span class="rk">What it is:</span><span class="rv">Data managed via OS file systems — hierarchical drives/folders. Still used as CIFS (Windows) and NFS (Linux).</span></div>
+        <div class="rev-kv"><span class="rk">Works for:</span><span class="rv">Single user on a personal laptop — perfectly fine.</span></div>
+        <div class="rev-kv"><span class="rk">Fails at:</span><span class="rv">Client-Server architecture — centralized servers, thousands of global users.</span></div>
+        <div class="rev-kv"><span class="rk">Root problem:</span><span class="rv">File systems were designed for local, individual use — not for concurrent multi-user, distributed access.</span></div>
+      </div>
+    </div>
+
+    <!-- Card 2 — all 5 disadvantages -->
+    <div class="rev-card">
+      <div class="rev-card-head" style="background:var(--navy);">
+        <div class="rev-num">2</div>
+        5 Disadvantages of File System (= 5 Advantages of DBMS)
+      </div>
+      <div class="rev-card-body">
+
+        <!-- A -->
+        <div style="border-left:4px solid var(--red); padding:10px 14px; background:var(--redl); border-radius:0 8px 8px 0; margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--red); margin-bottom:6px;">A — Inefficient Searching & Memory</div>
+          <div class="rev-row">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); margin-bottom:4px;">✕ File System</div>
+              <div style="font-size:12.5px; line-height:1.6;">Loads <b>entire 25 GB file</b> to find 1 KB of data. Wastes time and RAM.</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); margin-bottom:4px;">✓ DBMS</div>
+              <div style="font-size:12.5px; line-height:1.6;">SQL query → server returns <b>only the requested 1 KB</b>. Fast and memory-efficient.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B -->
+        <div style="border-left:4px solid var(--orange); padding:10px 14px; background:var(--orangel); border-radius:0 8px 8px 0; margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--orange); margin-bottom:6px;">B — Lack of Location Independence</div>
+          <div class="rev-row">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); margin-bottom:4px;">✕ File System</div>
+              <div style="font-size:12.5px; line-height:1.6;">Must know exact path: <code style="font-family:monospace; background:#ffe0b2; padding:1px 4px; font-size:11px;">C:/folder1/data.dat</code></div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); margin-bottom:4px;">✓ DBMS</div>
+              <div style="font-size:12.5px; line-height:1.6;">User in Delhi → data on Mumbai server → seamless. <b>No path needed.</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C -->
+        <div style="border-left:4px solid var(--blue); padding:10px 14px; background:var(--bluebg); border-radius:0 8px 8px 0; margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--blue); margin-bottom:6px;">C — Poor Concurrency Control</div>
+          <div style="font-size:12px; margin-bottom:6px; color:var(--dkgray);"><b>Concurrency:</b> Multiple users accessing same data simultaneously. IRCTC: 2–3 lakh transactions/day.</div>
+          <div class="rev-row">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); margin-bottom:4px;">✕ File System</div>
+              <div style="font-size:12.5px; line-height:1.6;">No protocols. Simultaneous access → <b>data inconsistency</b> (e.g., double bookings).</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); margin-bottom:4px;">✓ DBMS</div>
+              <div style="font-size:12.5px; line-height:1.6;"><b>Transaction control + locking protocols.</b> Read-write & write-write conflicts managed flawlessly.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D -->
+        <div style="border-left:4px solid var(--purple); padding:10px 14px; background:var(--purplel); border-radius:0 8px 8px 0; margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--purple); margin-bottom:6px;">D — Lack of Role-Based Security (RBAC)</div>
+          <div class="rev-row">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); margin-bottom:4px;">✕ File System</div>
+              <div style="font-size:12.5px; line-height:1.6;">One OS password → full access to all drives and files. No granular control.</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); margin-bottom:4px;">✓ DBMS</div>
+              <div style="font-size:12.5px; line-height:1.6;"><b>RBAC:</b> Admin / Dean / Faculty / Student — each sees only their permitted data. Unauthorized data is invisible.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E -->
+        <div style="border-left:4px solid var(--green); padding:10px 14px; background:var(--greenl); border-radius:0 8px 8px 0;">
+          <div style="font-weight:700; color:var(--green); margin-bottom:6px;">E — High Data Redundancy (Duplicacy)</div>
+          <div class="rev-row">
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--red); margin-bottom:4px;">✕ File System</div>
+              <div style="font-size:12.5px; line-height:1.6;">No prevention. "Ram, A101" can be saved 4 times. Same data in multiple files. Wasted storage.</div>
+            </div>
+            <div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--green); margin-bottom:4px;">✓ DBMS</div>
+              <div style="font-size:12.5px; line-height:1.6;"><b>Primary Key</b> ensures uniqueness. <b>Foreign Key</b> enforces referential integrity. Duplicates = instant error.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Card 3 — Master table -->
+    <div class="rev-card">
+      <div class="rev-card-head" style="background:var(--navy);">
+        <div class="rev-num">★</div>
+        Quick Revision — Master Comparison Table
+      </div>
+      <div class="rev-card-body" style="padding:0;">
+        <table class="qr-table">
           <thead>
-            <tr><th>Dimension</th><th>File System</th><th>DBMS</th></tr>
+            <tr>
+              <th>Parameter</th>
+              <th>File System ✕</th>
+              <th>DBMS ✓</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td>Search efficiency</td><td>May scan/fetch large files</td><td>Query-driven targeted fetch</td></tr>
-            <tr><td>Location awareness</td><td>User needs file path metadata</td><td>Location-independent access</td></tr>
-            <tr><td>Concurrency</td><td>Weak multi-user consistency controls</td><td>Transaction + concurrency protocols</td></tr>
-            <tr><td>Security model</td><td>Basic OS-level permissions</td><td>Role-based/hierarchical access</td></tr>
-            <tr><td>Redundancy control</td><td>High duplicate-data risk</td><td>Primary/Foreign Key constraints</td></tr>
+            <tr><td>Search Efficiency</td><td>Loads entire file (25 GB for 1 KB)</td><td>SQL returns only requested data</td></tr>
+            <tr><td>Location Independence</td><td>Must know exact file path</td><td>Fully transparent, path-free</td></tr>
+            <tr><td>Concurrency</td><td>No protocols → data inconsistency</td><td>Transaction control + locking</td></tr>
+            <tr><td>Security</td><td>All-or-nothing OS login</td><td>RBAC — role-based visibility</td></tr>
+            <tr><td>Redundancy</td><td>No prevention — unlimited duplicates</td><td>Primary Key + Foreign Key</td></tr>
+            <tr><td>Scale</td><td>Single-user, local only</td><td>Millions of users, global</td></tr>
+            <tr><td>Backend Use?</td><td>Personal laptop / local only</td><td>✓ Industry standard for all apps</td></tr>
           </tbody>
         </table>
       </div>
-    </section>
-  </main>
+    </div>
+
+    <!-- Card 4 — Key terms -->
+    <div class="rev-card">
+      <div class="rev-card-head" style="background:var(--blue);">
+        <div class="rev-num">📖</div>
+        Key Definitions — One-Liners
+      </div>
+      <div class="rev-card-body">
+        <div class="rev-kv"><span class="rk">CIFS</span><span class="rv">Common Internet File System — file sharing protocol used in Windows networks.</span></div>
+        <div class="rev-kv"><span class="rk">NFS</span><span class="rv">Network File System — file sharing protocol used in Linux/Unix environments.</span></div>
+        <div class="rev-kv"><span class="rk">Concurrency</span><span class="rv">Multiple users simultaneously reading or writing the same data.</span></div>
+        <div class="rev-kv"><span class="rk">RBAC</span><span class="rv">Role-Based Access Control — users see only data permitted by their assigned role.</span></div>
+        <div class="rev-kv"><span class="rk">Primary Key</span><span class="rv">A constraint that uniquely identifies each record — no two rows can have the same PK value.</span></div>
+        <div class="rev-kv"><span class="rk">Foreign Key</span><span class="rv">A constraint that enforces referential integrity between two related tables.</span></div>
+        <div class="rev-kv"><span class="rk">Data Inconsistency</span><span class="rv">When the same logical data has different values in different places due to lack of control.</span></div>
+        <div class="rev-kv"><span class="rk">Location Independence</span><span class="rv">User need not know where data is physically stored; the DBMS handles routing transparently.</span></div>
+      </div>
+    </div>
+
+    <!-- Card 5 — Conclusion -->
+    <div class="rev-card">
+      <div class="rev-card-head" style="background:var(--green);">
+        <div class="rev-num">3</div>
+        Conclusion — One-Line Summary
+      </div>
+      <div class="rev-card-body">
+        <div style="background:var(--greenl); border:1px solid #a5d6a7; border-radius:8px; padding:14px 16px; font-size:14px; line-height:1.7; color:var(--dkgray);">
+          File systems = built for <b>local, single-user, personal</b> use.<br>
+          DBMS = built for <b>global, multi-user, Client-Server</b> architectures.<br><br>
+          All modern applications (<b>Amazon, Google, Flipkart, IRCTC</b>) use DBMS on the backend. The 5 limitations of file systems (search, location, concurrency, security, redundancy) are all solved by DBMS through SQL, locking protocols, RBAC, and integrity constraints.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- END REVISION -->
+
+</div><!-- /main -->
+
+<script>
+  function switchView(mode) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 </body>
 </html>
