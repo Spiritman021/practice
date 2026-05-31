@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Schema — DBMS Chapter 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0D1B4B;
+    --blue:   #1565C0;
+    --steel:  #1976D2;
+    --lblue:  #42A5F5;
+    --cyan:   #00ACC1;
+    --red:    #C62828;
+    --redl:   #FFEBEE;
+    --green:  #2E7D32;
+    --greenl: #E8F5E9;
+    --orange: #E65100;
+    --orangel:#FFF3E0;
+    --purple: #6A1B9A;
+    --purplel:#F3E5F5;
+    --bluebg: #E3F2FD;
+    --gray:   #F5F5F5;
+    --text:   #1A1A1A;
+    --white:  #ffffff;
+    --dkgray: #424242;
+    --mdgray: #757575;
+    --teal:   #006064;
+    --tealL:  #e0f7fa;
+    --indigo: #283593;
+    --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0f4f8; color: var(--text); min-height: 100vh; }
+
+  /* ── TOPBAR ── */
+  .topbar { background: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; border-bottom: 3px solid var(--indigo); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .chapter-tag { background: var(--indigo); color: #fff; font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 3px; letter-spacing: .08em; }
+  .topbar-title { color: var(--navy); font-size: 15px; font-weight: 600; }
+  .topbar-title span { color: var(--indigo); }
+  .toggle-wrap { display: flex; background: var(--indigol); border-radius: 8px; padding: 4px; gap: 4px; }
+  .toggle-btn { padding: 7px 20px; border-radius: 6px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; transition: all .25s ease; color: var(--dkgray); background: transparent; }
+  .toggle-btn.active { background: var(--indigo); color: #fff; box-shadow: 0 2px 12px rgba(40,53,147,.35); }
+
+  /* ── HERO ── */
+  .hero { background: linear-gradient(135deg, #0d1b4b 0%, #283593 50%, #3949ab 100%); padding: 48px 40px 36px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 78% 45%, rgba(100,181,246,.18) 0%, transparent 60%); }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 40px 40px; }
+  .hero-content { position: relative; max-width: 820px; }
+  .hero-tag { display: inline-block; background: var(--cyan); color: #fff; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .1em; padding: 4px 12px; border-radius: 3px; margin-bottom: 16px; }
+  .hero h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(38px, 6vw, 60px); color: #fff; letter-spacing: .04em; line-height: 1.05; margin-bottom: 10px; }
+  .hero h1 span { color: #90caf9; }
+  .hero-sub { color: rgba(255,255,255,.65); font-size: 14px; max-width: 520px; line-height: 1.6; }
+  .hero-badges { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .badge { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.8); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; letter-spacing: .04em; }
+
+  /* ── MAIN ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+  .view { display: none; animation: fadeUp .35s ease forwards; }
+  .view.active { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SECTION HEADER ── */
+  .sec-head { display: flex; align-items: center; gap: 14px; margin: 36px 0 16px; }
+  .sec-num { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .sec-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+
+  /* ── PROSE ── */
+  .prose { font-size: 14.5px; line-height: 1.75; color: #2a2a2a; margin-bottom: 12px; }
+  .prose b { color: var(--navy); }
+
+  /* ── INFO BOX ── */
+  .info-box { border-left: 4px solid; border-radius: 0 8px 8px 0; padding: 13px 18px; margin: 14px 0; font-size: 14px; line-height: 1.7; }
+  .info-box.blue   { background: var(--bluebg);  border-color: var(--blue);   color: var(--navy); }
+  .info-box.indigo { background: var(--indigol);  border-color: var(--indigo); color: var(--indigo); }
+  .info-box.green  { background: var(--greenl);   border-color: var(--green);  color: var(--dkgray); }
+  .info-box.orange { background: var(--orangel);  border-color: var(--orange); color: var(--dkgray); }
+  .info-box.teal   { background: var(--tealL);    border-color: var(--teal);   color: var(--teal); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin: 16px 0; box-shadow: 0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background: var(--navy); color: #fff; font-weight: 700; font-size: 12.5px; letter-spacing: .04em; padding: 9px 16px; font-family: 'Space Mono', monospace; }
+  .diagram-caption { text-align: center; font-size: 11.5px; color: var(--mdgray); font-style: italic; padding: 8px 16px; background: #fafafa; border-top: 1px solid #f0f0f0; }
+
+  /* ── COMPARE GRID ── */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+  .cmp-card { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+  .cmp-card-head { padding: 10px 16px; font-weight: 700; font-size: 13px; color: #fff; }
+  .cmp-card-body { padding: 14px 16px; font-size: 13.5px; line-height: 1.65; }
+
+  /* ── LOGICAL vs PHYSICAL ── */
+  .lp-wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 24px 20px; gap: 0; }
+  .lp-box { border-radius: 12px; padding: 18px 16px; text-align: center; }
+  .lp-box .lp-icon  { font-size: 32px; margin-bottom: 8px; }
+  .lp-box .lp-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .lp-box .lp-sub   { font-size: 12.5px; line-height: 1.6; }
+  .lp-vs { font-family: 'Bebas Neue', cursive; font-size: 28px; color: var(--mdgray); padding: 0 16px; text-align: center; }
+
+  /* ── SCHEMA EXAMPLE TABLES ── */
+  .schema-tables-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+  .schema-ex { border-radius: 10px; overflow: hidden; }
+  .schema-ex-title { padding: 10px 14px; font-weight: 700; font-size: 13px; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .schema-attr-list { padding: 10px 0; }
+  .schema-attr { display: flex; align-items: center; gap: 0; border-bottom: 1px solid; }
+  .schema-attr:last-child { border-bottom: none; }
+  .schema-col-name { padding: 8px 14px; font-weight: 700; font-size: 13px; flex: 1; }
+  .schema-col-type { padding: 8px 14px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; border-left: 1px solid; white-space: nowrap; }
+  .schema-col-note { padding: 8px 10px; font-size: 11px; border-left: 1px solid; color: var(--mdgray); font-style: italic; }
+
+  /* ── THREE-SCHEMA ARCHITECTURE ── */
+  .three-schema-wrap { padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .ts-layer { border-radius: 10px; padding: 14px 20px; width: 100%; max-width: 520px; text-align: center; position: relative; }
+  .ts-layer .ts-num   { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: .1em; opacity: .7; margin-bottom: 4px; }
+  .ts-layer .ts-name  { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .ts-layer .ts-desc  { font-size: 12px; line-height: 1.5; opacity: .85; }
+  .ts-layer .ts-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-top: 6px; }
+  .ts-arrow { font-size: 20px; color: var(--mdgray); line-height: 1; padding: 4px 0; }
+
+  /* ── SQL / DDL SECTION ── */
+  .ddl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; }
+  .ddl-card { border-radius: 10px; overflow: hidden; }
+  .ddl-head { padding: 10px 14px; font-weight: 700; font-size: 13px; color: #fff; font-family: 'Space Mono', monospace; letter-spacing: .04em; }
+  .ddl-body { padding: 12px 14px; font-size: 13px; line-height: 1.6; }
+  .ddl-body .ddl-use { font-weight: 600; color: var(--navy); margin-bottom: 5px; font-size: 12.5px; }
+  .ddl-body .ddl-ex  { font-size: 11.5px; color: var(--mdgray); font-style: italic; margin-top: 5px; }
+
+  .code-block { background: #1e2a3a; border-radius: 10px; padding: 18px 20px; margin: 14px 0; font-family: 'Space Mono', monospace; font-size: 12.5px; line-height: 1.9; overflow-x: auto; }
+  .kw  { color: #80cbc4; font-weight: 700; }
+  .fn  { color: #82b1ff; }
+  .dt  { color: #ffcc80; }
+  .cm  { color: #78909c; font-style: italic; }
+  .st  { color: #a5d6a7; }
+  .pk  { color: #ef9a9a; font-weight: 700; }
+
+  /* ── SCOPE DIAGRAM ── */
+  .scope-wrap { padding: 20px; }
+  .scope-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .scope-single { flex: 1; min-width: 180px; border-radius: 10px; overflow: hidden; }
+  .scope-multi  { flex: 2; min-width: 260px; border-radius: 10px; overflow: hidden; }
+  .scope-head { padding: 9px 14px; font-weight: 700; font-size: 12.5px; color: #fff; }
+  .scope-body { padding: 12px 14px; font-size: 13px; line-height: 1.6; }
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin: 6px 0; border-radius: 6px; overflow: hidden; }
+  .mini-table th { padding: 5px 8px; font-weight: 700; text-align: left; }
+  .mini-table td { padding: 4px 8px; border-top: 1px solid rgba(0,0,0,.07); }
+  .mini-table tr:nth-child(even) td { background: rgba(0,0,0,.03); }
+  .fk-arrow { text-align: center; font-size: 13px; color: var(--mdgray); padding: 4px; font-weight: 600; }
+
+  /* ── DATA TYPES TABLE ── */
+  .dt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dt-table th { background: var(--navy); color: #fff; padding: 9px 14px; text-align: left; font-size: 12px; letter-spacing: .04em; }
+  .dt-table td { padding: 9px 14px; border-bottom: 1px solid #e8eaf6; vertical-align: top; }
+  .dt-table tr:nth-child(even) td { background: #f5f7ff; }
+  .dt-table tr:last-child td { border-bottom: none; }
+  .dt-table td:first-child { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--orange); font-weight: 700; }
+  .dt-table td:nth-child(2) { color: var(--navy); font-weight: 600; }
+
+  /* ── REVISION CARDS ── */
+  .rev-card { background: #fff; border-radius: 12px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 3px 16px rgba(0,0,0,.08); border: 1px solid #e8eaf6; }
+  .rev-card-head { display: flex; align-items: center; gap: 14px; padding: 14px 20px; color: #fff; font-weight: 700; font-size: 15px; }
+  .rev-num { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .rev-card-body { padding: 16px 20px; }
+  .rev-kv { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; align-items: flex-start; }
+  .rev-kv .rk { font-weight: 700; color: var(--navy); min-width: 135px; flex-shrink: 0; }
+  .rev-kv .rv { color: var(--dkgray); line-height: 1.55; }
+  .rev-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+
+  /* ── QR TABLE ── */
+  .qr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .qr-table th { background: var(--navy); color: #fff; padding: 9px 12px; font-size: 11.5px; text-align: left; }
+  .qr-table td { padding: 8px 12px; border-bottom: 1px solid #e8eaf6; vertical-align: top; line-height: 1.55; }
+  .qr-table tr:nth-child(even) td { background: #f5f7ff; }
+  .qr-table tr:last-child td { border-bottom: none; }
+  .qr-table td:first-child { font-weight: 700; color: var(--navy); width: 145px; }
+
+  @media (max-width: 620px) {
+    .compare-grid, .rev-row, .lp-wrap, .schema-tables-wrap, .ddl-grid { grid-template-columns: 1fr; }
+    .lp-vs { padding: 8px 0; }
+    .topbar-title { display: none; }
+    .toggle-btn { padding: 7px 12px; font-size: 12px; }
+    .hero h1 { font-size: 32px; }
+    .main { padding: 24px 16px 60px; }
+    .ts-layer { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 04</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>What is Schema</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 4 • LECTURE NOTES</div>
+    <h1>What is <span>Schema</span><br>& How to Define It</h1>
+    <p class="hero-sub">The logical blueprint of a database — what a schema is, how it maps to the Three-Schema Architecture, and how DDL commands implement it using SQL.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span>
+      <span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span>
+      <span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ════════════════════ DESCRIPTIVE VIEW ════════════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1: What is a Schema -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">What is a Schema?</h2>
+  </div>
+
+  <div class="info-box indigo">
+    📐 <b>Schema</b> = the <b>logical representation of a database</b>. It is the structural blueprint that defines how data is organized — not the data itself, but the structure that holds it.
+  </div>
+
+  <p class="prose">When data is actually stored in backend servers or hard drives, it exists as raw <b>physical files</b> on disk — not as neat tables. But users and developers don't think about files. They work with a clean, logical view: tables with named columns, data types, and relationships. <b>That logical view is the schema.</b></p>
+
+  <div class="diagram">
+    <div class="diagram-title">💾 Physical Storage vs Logical Schema</div>
+    <div class="lp-wrap">
+      <div class="lp-box" style="background:var(--orangel); border:2px solid var(--orange);">
+        <div class="lp-icon">🗂️</div>
+        <div class="lp-title" style="color:var(--orange);">Physical Storage</div>
+        <div class="lp-sub" style="color:var(--dkgray);">
+          Data stored on hard disk as raw <b>binary files</b>.<br><br>
+          No rows, no columns — just bits and bytes on disk blocks.<br><br>
+          <span style="font-family:'Space Mono',monospace; font-size:10.5px; color:var(--mdgray);">students.ibd<br>courses.ibd<br>enrollments.ibd</span>
+        </div>
+      </div>
+      <div class="lp-vs">VS</div>
+      <div class="lp-box" style="background:var(--indigol); border:2px solid var(--indigo);">
+        <div class="lp-icon">📋</div>
+        <div class="lp-title" style="color:var(--indigo);">Logical Schema (RDBMS)</div>
+        <div class="lp-sub" style="color:var(--dkgray);">
+          Users and developers see data as clean <b>tables</b> (relations) with defined columns, data types, and keys.<br><br>
+          <span style="font-family:'Space Mono',monospace; font-size:10.5px; color:var(--indigo);">Student(RollNo, Name, Address)<br>Course(CourseID, Name, Duration)</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--indigol); border-top:1px solid #c5cae9; padding:9px 16px; font-size:12.5px; color:var(--indigo); text-align:center; font-weight:600;">
+      🔑 In RDBMS, the logical representation of a schema = <b>Tables (Relations)</b>
+    </div>
+    <div class="diagram-caption">Schema is the abstraction layer — it hides the messy physical files and presents a clean logical structure to the user.</div>
+  </div>
+
+  <!-- Section 2: Schema Design Examples -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">Examples of Schema Design</h2>
+  </div>
+
+  <p class="prose">Designing a schema means defining the <b>entities</b> you need to represent and specifying the <b>attributes (columns)</b> for each entity. Think of it as laying out the headers of your table before filling in any data.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 Schema Design — Student & Course Entities</div>
+    <div class="schema-tables-wrap">
+
+      <!-- Student Schema -->
+      <div class="schema-ex" style="border:2px solid var(--blue);">
+        <div class="schema-ex-title" style="background:var(--blue);">👨‍🎓 Student Schema</div>
+        <div class="schema-attr-list" style="background:#fff;">
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--bluebg);">🔑 Roll Number</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">INTEGER</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">Primary Key — unique per student</div>
+          </div>
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--bluebg);">Name</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">VARCHAR(50)</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">Variable-length text</div>
+          </div>
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--bluebg);">Address</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">VARCHAR(100)</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">Variable-length text</div>
+          </div>
+        </div>
+        <div style="background:var(--bluebg); padding:7px 14px; font-size:11.5px; color:var(--blue); font-weight:600; font-family:'Space Mono',monospace;">Entity: Student &nbsp;|&nbsp; Attributes: 3</div>
+      </div>
+
+      <!-- Course Schema -->
+      <div class="schema-ex" style="border:2px solid var(--green);">
+        <div class="schema-ex-title" style="background:var(--green);">📚 Course Schema</div>
+        <div class="schema-attr-list" style="background:#fff;">
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--greenl);">🔑 Course ID</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">INTEGER</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">Primary Key — unique per course</div>
+          </div>
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--greenl);">Course Name</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">VARCHAR(80)</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">e.g. "Data Structures"</div>
+          </div>
+          <div class="schema-attr" style="border-color:#e8eaf6;">
+            <div class="schema-col-name" style="background:var(--greenl);">Duration</div>
+            <div class="schema-col-type" style="border-color:#e8eaf6; color:var(--orange); background:#fff9f0;">INTEGER</div>
+            <div class="schema-col-note" style="border-color:#e8eaf6; background:#fafafa;">Duration in hours/weeks</div>
+          </div>
+        </div>
+        <div style="background:var(--greenl); padding:7px 14px; font-size:11.5px; color:var(--green); font-weight:600; font-family:'Space Mono',monospace;">Entity: Course &nbsp;|&nbsp; Attributes: 3</div>
+      </div>
+
+    </div>
+    <div class="diagram-caption">Schema design = defining entities and their attributes with appropriate data types. No actual data yet — just the structure.</div>
+  </div>
+
+  <!-- Section 3: Three Schema Architecture -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Connection to Three-Schema Architecture</h2>
+  </div>
+
+  <p class="prose">The standard <b>Three-Schema Architecture</b> (also called ANSI/SPARC architecture) describes three levels at which a database can be viewed. The middle layer — the <b>Conceptual Schema</b> — is exactly what we mean when we talk about "the schema" in everyday usage.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🏛️ Three-Schema Architecture — Where Schema Fits</div>
+    <div class="three-schema-wrap">
+
+      <div class="ts-layer" style="background:var(--orangel); border:2px solid var(--orange);">
+        <div class="ts-num" style="color:var(--orange);">LEVEL 3 — EXTERNAL LEVEL</div>
+        <div class="ts-name" style="color:var(--orange);">External Schema / View Level</div>
+        <div class="ts-desc" style="color:var(--dkgray);">What individual users or applications see. Different users may see different subsets or views of the data (e.g. a student sees only their own records).</div>
+        <span class="ts-badge" style="background:var(--orangel); color:var(--orange); border:1px solid #ffcc80;">User Views / External Views</span>
+      </div>
+
+      <div class="ts-arrow">↕</div>
+
+      <div class="ts-layer" style="background:var(--indigol); border:3px solid var(--indigo); box-shadow:0 4px 20px rgba(40,53,147,.18);">
+        <div class="ts-num" style="color:var(--indigo);">LEVEL 2 — CONCEPTUAL LEVEL</div>
+        <div class="ts-name" style="color:var(--indigo);">Conceptual Schema ⭐</div>
+        <div class="ts-desc" style="color:var(--dkgray);">The <b>logical representation</b> of the entire database — all tables, columns, data types, and relationships. This is <b>THE schema</b> we study. Independent of physical storage.</div>
+        <span class="ts-badge" style="background:var(--indigo); color:#fff;">← THIS IS WHAT "SCHEMA" MEANS</span>
+      </div>
+
+      <div class="ts-arrow">↕</div>
+
+      <div class="ts-layer" style="background:var(--orangel); border:2px solid var(--mdgray);">
+        <div class="ts-num" style="color:var(--mdgray);">LEVEL 1 — INTERNAL LEVEL</div>
+        <div class="ts-name" style="color:var(--dkgray);">Internal Schema / Physical Level</div>
+        <div class="ts-desc" style="color:var(--dkgray);">How data is actually stored on disk — file formats, index structures, storage blocks. Hidden from users and developers.</div>
+        <span class="ts-badge" style="background:var(--gray); color:var(--mdgray); border:1px solid #e0e0e0;">Physical / Internal Files</span>
+      </div>
+
+    </div>
+    <div class="diagram-caption">Schema lives at the Conceptual Level — it's the logical bridge between how users see data and how it's physically stored on disk.</div>
+  </div>
+
+  <!-- Section 4: Implementing a Schema -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">How to Implement a Schema</h2>
+  </div>
+
+  <p class="prose">You can sketch a schema structure on paper — draw boxes, list columns, define relationships. But to actually <b>create it in a database</b>, you need a formal language. That language is <b>SQL (Structured Query Language)</b>.</p>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--mdgray);">📝 On Paper / Diagram</div>
+      <div class="cmp-card-body" style="background:var(--gray);">
+        You can design the schema visually — ER diagrams, box-and-arrow drawings, column lists on a whiteboard. This is the <b>planning phase</b>. No actual database is created yet.
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--indigo);">💻 In the Database (SQL / DDL)</div>
+      <div class="cmp-card-body" style="background:var(--indigol);">
+        To actually build the schema, you write <b>DDL commands in SQL</b>. This creates real tables in the database engine with the exact structure you defined — columns, data types, constraints.
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box orange">
+    🔑 <b>DDL (Data Definition Language)</b> is the subset of SQL used specifically to <b>define and manage the schema structure</b>. It does not insert or query data — it defines the skeleton the data will live in.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⚙️ Key DDL Commands for Schema Implementation</div>
+    <div class="ddl-grid">
+      <div class="ddl-card" style="border:1.5px solid #a5d6a7;">
+        <div class="ddl-head" style="background:var(--green);">CREATE TABLE</div>
+        <div class="ddl-body" style="background:var(--greenl);">
+          <div class="ddl-use">Creates a new table (schema structure) in the database.</div>
+          Defines the table name, all column names, their data types, and constraints like PRIMARY KEY.
+          <div class="ddl-ex">Used when: Setting up a database for the first time.</div>
+        </div>
+      </div>
+      <div class="ddl-card" style="border:1.5px solid #ffcc80;">
+        <div class="ddl-head" style="background:var(--orange);">ALTER TABLE</div>
+        <div class="ddl-body" style="background:var(--orangel);">
+          <div class="ddl-use">Modifies an existing table's structure.</div>
+          Can add a new column, remove a column, change a data type, or add/drop constraints — without touching the data.
+          <div class="ddl-ex">Used when: Schema needs to evolve after creation.</div>
+        </div>
+      </div>
+      <div class="ddl-card" style="border:1.5px solid #ef9a9a;">
+        <div class="ddl-head" style="background:var(--red);">DROP TABLE</div>
+        <div class="ddl-body" style="background:var(--redl);">
+          <div class="ddl-use">Permanently deletes a table and all its data.</div>
+          Removes the entire schema structure and every row stored in it. This action cannot be undone.
+          <div class="ddl-ex">Used when: A table is no longer needed.</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">These three DDL commands are the core tools for creating, modifying, and deleting schema structures in any RDBMS.</div>
+  </div>
+
+  <p class="prose">Here is what implementing the Student schema looks like in actual SQL:</p>
+
+  <div class="code-block">
+    <span class="cm">-- Creating the Student schema using DDL</span><br>
+    <span class="kw">CREATE TABLE</span> <span class="fn">Student</span> (<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;RollNo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">INTEGER</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="pk">PRIMARY KEY</span>,&nbsp;&nbsp;<span class="cm">-- unique identifier</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">50</span>)&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">NOT NULL</span>,&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- text, max 50 chars</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">100</span>)&nbsp;&nbsp;&nbsp;<span class="cm">-- optional text field</span><br>
+    );<br><br>
+    <span class="cm">-- Modifying schema: add a new column later</span><br>
+    <span class="kw">ALTER TABLE</span> <span class="fn">Student</span> <span class="kw">ADD</span> Email <span class="dt">VARCHAR</span>(<span class="st">80</span>);<br><br>
+    <span class="cm">-- Removing the table entirely</span><br>
+    <span class="kw">DROP TABLE</span> <span class="fn">Student</span>;
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🗃️ Common Data Types Used in Schema Definition</div>
+    <div style="padding:0 0 0 0; overflow-x:auto;">
+      <table class="dt-table">
+        <thead><tr><th>Data Type</th><th>Full Name</th><th>Used For</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>INTEGER</td><td>Integer</td><td>Whole numbers — IDs, roll numbers, counts</td><td>RollNo = 101</td></tr>
+          <tr><td>VARCHAR(n)</td><td>Variable Character</td><td>Text of varying length up to n characters</td><td>Name = "Ravi Kumar"</td></tr>
+          <tr><td>CHAR(n)</td><td>Fixed Character</td><td>Fixed-length text — always n characters</td><td>Gender = "M"</td></tr>
+          <tr><td>DATE</td><td>Date</td><td>Calendar dates</td><td>DOB = "2002-05-15"</td></tr>
+          <tr><td>FLOAT / DECIMAL</td><td>Floating Point</td><td>Decimal numbers — marks, prices, percentages</td><td>CGPA = 8.75</td></tr>
+          <tr><td>BOOLEAN</td><td>Boolean</td><td>True/False flags</td><td>IsActive = TRUE</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="diagram-caption">Choosing the right data type is a key part of schema design — it determines storage efficiency and data integrity.</div>
+  </div>
+
+  <!-- Section 5: Scope of a Schema -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">5</div>
+    <h2 style="color:var(--navy);">Scope of a Schema</h2>
+  </div>
+
+  <p class="prose">A schema is not strictly limited to a single table. It is the <b>overall structural blueprint</b> of a database — and that blueprint can contain one table or many related tables working together.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🗺️ Schema Scope — Single Table vs Multi-Table</div>
+    <div class="scope-wrap">
+      <div class="scope-row">
+
+        <div class="scope-single" style="border:2px solid var(--blue);">
+          <div class="scope-head" style="background:var(--blue);">Single-Table Schema</div>
+          <div class="scope-body" style="background:var(--bluebg);">
+            <div style="font-size:12px; color:var(--mdgray); margin-bottom:8px;">e.g. a simple contacts list</div>
+            <table class="mini-table">
+              <thead style="background:var(--blue); color:#fff;"><tr><th>🔑 ContactID</th><th>Name</th><th>Phone</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Ravi</td><td>9876...</td></tr>
+                <tr><td>2</td><td>Priya</td><td>9123...</td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:8px; font-size:12px; color:var(--blue);">Schema = 1 table only</div>
+          </div>
+        </div>
+
+        <div class="scope-multi" style="border:2px solid var(--indigo);">
+          <div class="scope-head" style="background:var(--indigo);">Multi-Table Schema (Related Tables)</div>
+          <div class="scope-body" style="background:var(--indigol);">
+            <div style="font-size:12px; color:var(--mdgray); margin-bottom:8px;">e.g. a university database schema</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div>
+                <table class="mini-table">
+                  <thead style="background:var(--blue); color:#fff;"><tr><th>🔑 RollNo</th><th>Name</th></tr></thead>
+                  <tbody><tr><td>101</td><td>Amit</td></tr><tr><td>102</td><td>Sara</td></tr></tbody>
+                </table>
+                <div style="text-align:center; font-size:10px; color:var(--blue); margin-top:2px; font-weight:700;">Student</div>
+              </div>
+              <div>
+                <table class="mini-table">
+                  <thead style="background:var(--green); color:#fff;"><tr><th>🔑 CID</th><th>Course</th></tr></thead>
+                  <tbody><tr><td>C01</td><td>DBMS</td></tr><tr><td>C02</td><td>OS</td></tr></tbody>
+                </table>
+                <div style="text-align:center; font-size:10px; color:var(--green); margin-top:2px; font-weight:700;">Course</div>
+              </div>
+            </div>
+            <div class="fk-arrow">↓ linked by Foreign Key (Enrollment table)</div>
+            <table class="mini-table">
+              <thead style="background:var(--purple); color:#fff;"><tr><th>RollNo (FK)</th><th>CID (FK)</th><th>Grade</th></tr></thead>
+              <tbody><tr><td>101</td><td>C01</td><td>A</td></tr><tr><td>102</td><td>C02</td><td>B+</td></tr></tbody>
+            </table>
+            <div style="text-align:center; font-size:10px; color:var(--purple); margin-top:2px; font-weight:700;">Enrollment (junction table)</div>
+            <div style="margin-top:8px; font-size:12px; color:var(--indigo); font-weight:600;">Schema = 3 related tables together</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="diagram-caption">A schema is the full structural blueprint — it can be as simple as one table or as complex as dozens of interrelated tables.</div>
+  </div>
+
+  <div class="info-box green">
+    ✅ <b>Summary:</b> A schema defines the structure (not the data). It can be a single table or a collection of related tables. It lives at the Conceptual Level and is implemented in SQL using DDL commands (CREATE, ALTER, DROP).
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+
+<!-- ════════════════════ REVISION VIEW ════════════════════ -->
+<div id="view-revision" class="view">
+
+  <!-- Card 1 -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">1</div>
+      What is a Schema?
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">The <b>logical representation</b> of a database — its structural blueprint.</span></div>
+      <div class="rev-kv"><span class="rk">Physical storage:</span><span class="rv">Data on disk = raw binary files (not tables). Schema is the logical <i>view</i> on top of those files.</span></div>
+      <div class="rev-kv"><span class="rk">In RDBMS:</span><span class="rv">The logical representation = <b>Tables (Relations)</b> with named columns and data types.</span></div>
+      <div class="rev-kv"><span class="rk">Key distinction:</span><span class="rv">Schema = <b>structure only</b>. No actual data rows — just the skeleton (table name, columns, types, constraints).</span></div>
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">2</div>
+      Schema Design Examples
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">What it means:</span><span class="rv">Defining an entity and listing its attributes (columns) with data types.</span></div>
+      <div class="rev-row">
+        <div style="background:var(--bluebg); border:1px solid var(--lblue); border-radius:8px; padding:10px 12px; font-size:12.5px;">
+          <b style="color:var(--blue);">Student Schema</b><br>
+          🔑 RollNo — INTEGER<br>
+          Name — VARCHAR(50)<br>
+          Address — VARCHAR(100)
+        </div>
+        <div style="background:var(--greenl); border:1px solid #a5d6a7; border-radius:8px; padding:10px 12px; font-size:12.5px;">
+          <b style="color:var(--green);">Course Schema</b><br>
+          🔑 CourseID — INTEGER<br>
+          CourseName — VARCHAR(80)<br>
+          Duration — INTEGER
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3 -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">3</div>
+      Three-Schema Architecture Connection
+    </div>
+    <div class="rev-card-body">
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
+        <div style="background:var(--orangel); border-left:4px solid var(--orange); padding:9px 14px; border-radius:0 8px 8px 0; font-size:13px;">
+          <b style="color:var(--orange);">Level 3 — External Schema:</b> What individual users/apps see (customized views).
+        </div>
+        <div style="background:var(--indigol); border-left:4px solid var(--indigo); padding:9px 14px; border-radius:0 8px 8px 0; font-size:13px; border:1px solid #9fa8da;">
+          <b style="color:var(--indigo);">Level 2 — Conceptual Schema ⭐:</b> The logical representation of the entire DB. <b>This is what "schema" means.</b> All tables, columns, and relationships. Independent of physical storage.
+        </div>
+        <div style="background:var(--gray); border-left:4px solid var(--mdgray); padding:9px 14px; border-radius:0 8px 8px 0; font-size:13px;">
+          <b style="color:var(--mdgray);">Level 1 — Internal Schema:</b> Physical file storage, indexes, disk blocks. Hidden from users.
+        </div>
+      </div>
+      <div class="rev-kv"><span class="rk">Exam point:</span><span class="rv">Schema = Conceptual Level = Logical Representation. This is the middle layer of the three-schema architecture.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 4 -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">4</div>
+      How to Implement a Schema (DDL + SQL)
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Language used:</span><span class="rv"><b>SQL</b> (Structured Query Language) — specifically the <b>DDL</b> subset.</span></div>
+      <div class="rev-kv"><span class="rk">What is DDL?</span><span class="rv">Data Definition Language — the part of SQL that defines and manages <b>structure</b> (not data).</span></div>
+      <div style="overflow-x:auto; margin:10px 0;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead><tr style="background:var(--navy); color:#fff;"><th style="padding:8px 12px; text-align:left;">DDL Command</th><th style="padding:8px 12px; text-align:left;">Purpose</th><th style="padding:8px 12px; text-align:left;">Reversible?</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:8px 12px; font-family:'Space Mono',monospace; font-weight:700; color:var(--green); background:var(--greenl);">CREATE TABLE</td><td style="padding:8px 12px; border-bottom:1px solid #e8eaf6;">Create a new table (schema)</td><td style="padding:8px 12px; border-bottom:1px solid #e8eaf6; color:var(--green);">Yes — drop it</td></tr>
+            <tr style="background:#f5f7ff;"><td style="padding:8px 12px; font-family:'Space Mono',monospace; font-weight:700; color:var(--orange);">ALTER TABLE</td><td style="padding:8px 12px; border-bottom:1px solid #e8eaf6;">Modify existing table structure</td><td style="padding:8px 12px; border-bottom:1px solid #e8eaf6; color:var(--orange);">Partially</td></tr>
+            <tr><td style="padding:8px 12px; font-family:'Space Mono',monospace; font-weight:700; color:var(--red); background:var(--redl);">DROP TABLE</td><td style="padding:8px 12px;">Delete table + all its data</td><td style="padding:8px 12px; color:var(--red);">❌ No — permanent</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="rev-kv" style="margin-top:8px;"><span class="rk">Common data types:</span><span class="rv"><b>INTEGER</b> (roll no, IDs) &nbsp;|&nbsp; <b>VARCHAR(n)</b> (names, addresses) &nbsp;|&nbsp; <b>CHAR(n)</b> (fixed text) &nbsp;|&nbsp; <b>DATE</b> (dates) &nbsp;|&nbsp; <b>FLOAT</b> (decimals)</span></div>
+    </div>
+  </div>
+
+  <!-- Card 5 -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);">
+      <div class="rev-num">5</div>
+      Scope of a Schema
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">A schema is the <b>structural blueprint</b> of a database — not limited to a single table.</span></div>
+      <div class="rev-kv"><span class="rk">Single-table schema:</span><span class="rv">Schema contains just one table. E.g. a simple contacts list.</span></div>
+      <div class="rev-kv"><span class="rk">Multi-table schema:</span><span class="rv">Schema = a <b>collection of related tables</b> linked by keys. E.g. Student + Course + Enrollment = one university schema.</span></div>
+      <div class="rev-kv"><span class="rk">What schema includes:</span><span class="rv">Table names, column names, data types, primary keys, foreign keys, constraints — the full structural definition.</span></div>
+      <div class="rev-kv"><span class="rk">What schema excludes:</span><span class="rv">Actual data rows. Schema = empty skeleton. Data is filled in later using DML (INSERT, UPDATE, DELETE).</span></div>
+    </div>
+  </div>
+
+  <!-- Quick Reference -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">★</div>
+      Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Schema</td><td>The logical representation / structural blueprint of a database.</td></tr>
+          <tr><td>Logical Representation</td><td>How users and developers see data — as tables with columns — independent of physical storage.</td></tr>
+          <tr><td>Physical Storage</td><td>How data actually exists on disk — as binary files, not tables.</td></tr>
+          <tr><td>Conceptual Schema</td><td>The middle layer in Three-Schema Architecture — the logical schema. This is what "schema" means in DBMS.</td></tr>
+          <tr><td>DDL</td><td>Data Definition Language — SQL subset used to define and manage schema structure (CREATE, ALTER, DROP).</td></tr>
+          <tr><td>CREATE TABLE</td><td>DDL command to create a new table with defined columns and data types.</td></tr>
+          <tr><td>ALTER TABLE</td><td>DDL command to modify an existing table's structure (add/remove/change columns).</td></tr>
+          <tr><td>DROP TABLE</td><td>DDL command to permanently delete a table and all its data. Irreversible.</td></tr>
+          <tr><td>INTEGER</td><td>Data type for whole numbers — used for IDs, roll numbers, counts.</td></tr>
+          <tr><td>VARCHAR(n)</td><td>Variable-length text data type — stores strings up to n characters. Used for names, addresses.</td></tr>
+          <tr><td>Entity</td><td>A real-world object or concept represented as a table in the schema (e.g. Student, Course).</td></tr>
+          <tr><td>Attribute</td><td>A property/column of an entity (e.g. Student's Name, RollNo, Address).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+
+</div><!-- /main -->
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
