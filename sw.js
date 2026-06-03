@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v45';
+const CACHE_NAME = 'practice-hub-v46';
 const urlsToCache = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const urlsToCache = [
   './pages/computer/DBMS_Schema.html',
   './pages/computer/DBMS_Three_Schema_Architecture.html',
   './pages/computer/DBMS_Data_Independence.html',
+  './pages/computer/computer_networks.html',
   './pages/computer/1_computer_networks.html',
   './pages/tools/alphabets.html',
   './pages/tools/multiplication.html',
