@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 7: Integrity Constraints — Domain, Entity Integrity, Referential Integrity, and Key Constraints explained with diagrams and revision notes.">
+<meta name="robots" content="index, follow">
+<title>Integrity Constraints — DBMS Topic 7 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Integrity_Constraints.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --lblue:#42A5F5; --cyan:#00ACC1;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --bluebg:#E3F2FD; --text:#1A1A1A; --white:#fff;
+    --dkgray:#424242; --mdgray:#757575;
+    --teal:#00695C; --tealL:#E0F2F1;
+    --indigo:#283593; --indigol:#E8EAF6;
+    --amber:#FF8F00; --amberl:#FFF8E1;
+    --rose:#AD1457; --rosel:#FCE4EC;
+    --brown:#4E342E; --brownl:#EFEBE9;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--amber);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--amber);}
+  .toggle-wrap{display:flex;background:var(--amberl);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--amber);color:#fff;box-shadow:0 2px 12px rgba(255,143,0,.35);}
+
+  .hero{background:linear-gradient(135deg,#3e2723 0%,#bf360c 50%,#e65100 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(255,204,128,.18) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,58px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#ffcc80;}
+  .hero-sub{color:rgba(255,255,255,.65);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.amber {background:var(--amberl); border-color:var(--amber); color:#4e2600;}
+  .info-box.blue  {background:var(--bluebg); border-color:var(--blue);  color:var(--navy);}
+  .info-box.green {background:var(--greenl); border-color:var(--green); color:var(--dkgray);}
+  .info-box.teal  {background:var(--tealL);  border-color:var(--teal);  color:var(--teal);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .cmp-card{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+  .cmp-card-head{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;}
+  .cmp-card-body{padding:14px 16px;font-size:13.5px;line-height:1.65;}
+
+  /* ── 4 TYPES OVERVIEW ── */
+  .four-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+  .type-card{border-radius:10px;overflow:hidden;}
+  .type-head{padding:11px 16px;font-weight:700;font-size:13px;color:#fff;display:flex;align-items:center;gap:10px;}
+  .type-head .th-badge{font-family:'Space Mono',monospace;font-size:9px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:3px;letter-spacing:.06em;}
+  .type-body{padding:12px 16px;font-size:13px;line-height:1.65;}
+  .type-key{font-weight:700;margin-bottom:4px;}
+
+  /* ── DOMAIN CONSTRAINT ── */
+  .domain-demo{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .dd-side{padding:18px 20px;}
+  .dd-title{font-weight:700;font-size:13px;padding:7px 12px;border-radius:6px;margin-bottom:12px;text-align:center;}
+  .dd-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;}
+  .dd-val{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;padding:4px 12px;border-radius:6px;min-width:60px;text-align:center;}
+  .dd-result{font-size:12px;font-weight:600;}
+
+  .code-block{background:#1e2a3a;border-radius:10px;padding:16px 20px;margin:12px 0;font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.9;overflow-x:auto;}
+  .kw{color:#80cbc4;font-weight:700;} .fn{color:#82b1ff;} .dt{color:#ffcc80;}
+  .cm{color:#78909c;font-style:italic;} .st{color:#a5d6a7;} .pk{color:#ef9a9a;font-weight:700;}
+  .ck{color:#f48fb1;font-weight:700;}
+
+  /* ── ENTITY INTEGRITY ── */
+  .pk-table-wrap{padding:16px;overflow-x:auto;}
+  .pk-demo{width:100%;border-collapse:collapse;font-size:13px;}
+  .pk-demo th{padding:8px 12px;text-align:left;font-size:12px;letter-spacing:.04em;}
+  .pk-demo td{padding:8px 12px;border-bottom:1px solid #e8eaf6;}
+  .pk-demo tr:last-child td{border-bottom:none;}
+  .pk-badge{display:inline-block;background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px;vertical-align:middle;font-family:'Space Mono',monospace;}
+  .null-badge{background:var(--redl);color:var(--red);border:1px solid #ef9a9a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+  .dup-badge{background:var(--redl);color:var(--red);border:1px solid #ef9a9a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+  .ok-badge{background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+  .violation-row td{background:#fff5f5!important;}
+
+  /* ── REFERENTIAL INTEGRITY ── */
+  .ref-wrap{padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .ref-tables{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:0;width:100%;}
+  .ref-table{border-radius:8px;overflow:hidden;}
+  .ref-table-title{padding:8px 12px;font-weight:700;font-size:12.5px;color:#fff;text-align:center;}
+  .ref-mini{width:100%;border-collapse:collapse;font-size:12px;}
+  .ref-mini th{padding:5px 10px;text-align:left;font-weight:700;font-size:11.5px;}
+  .ref-mini td{padding:5px 10px;border-top:1px solid rgba(0,0,0,.07);}
+  .ref-mini tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .ref-conn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;padding-top:36px;}
+  .ref-line{width:2px;height:30px;background:var(--mdgray);}
+  .ref-arrow-lbl{font-size:10px;color:var(--mdgray);font-weight:700;white-space:nowrap;writing-mode:vertical-rl;text-orientation:mixed;padding:4px 0;}
+  .fk-tag{background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;}
+  .violation-note{background:var(--redl);border:1.5px solid var(--red);border-radius:8px;padding:10px 16px;font-size:12.5px;font-weight:600;color:var(--red);text-align:center;width:100%;}
+  .ok-note{background:var(--greenl);border:1.5px solid var(--green);border-radius:8px;padding:10px 16px;font-size:12.5px;font-weight:600;color:var(--green);text-align:center;width:100%;}
+
+  /* ── CANDIDATE KEY ── */
+  .candidate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;}
+  .ck-card{border-radius:9px;padding:12px;text-align:center;font-size:12.5px;}
+  .ck-icon{font-size:24px;margin-bottom:6px;}
+  .ck-name{font-weight:700;margin-bottom:4px;}
+  .ck-ex{font-size:11.5px;color:var(--mdgray);}
+
+  /* ── SUMMARY LADDER ── */
+  .ladder{display:flex;flex-direction:column;gap:0;align-items:stretch;padding:16px 20px;}
+  .ladder-item{display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:10px;margin-bottom:8px;}
+  .ladder-letter{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:#fff;flex-shrink:0;}
+  .ladder-content .lc-title{font-weight:700;font-size:14px;margin-bottom:3px;}
+  .ladder-content .lc-sub{font-size:12.5px;color:var(--dkgray);line-height:1.5;}
+  .ladder-key{font-family:'Space Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:auto;flex-shrink:0;white-space:nowrap;}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:140px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:165px;}
+
+  @media(max-width:620px){
+    .compare-grid,.rev-row,.four-grid,.domain-demo,.ref-tables,.candidate-grid{grid-template-columns:1fr;}
+    .ref-conn{flex-direction:row;padding:0;padding-left:0;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .candidate-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <a href="dbms.html" style="color:var(--amber);font-size:13px;font-weight:700;text-decoration:none;font-family:'Space Mono',monospace;padding:4px 10px;border-radius:6px;background:var(--amberl);border:1px solid rgba(255,143,0,.3);transition:background .2s;" onmouseover="this.style.background='#ffe0b2'" onmouseout="this.style.background='var(--amberl)'">← DBMS Hub</a>
+    <span class="chapter-tag">CH — 07</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Integrity Constraints</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 7 • LECTURE NOTES</div>
+    <h1>Integrity <span>Constraints</span></h1>
+    <p class="hero-sub">The four rules that guard database quality — Domain, Entity, Referential, and Key constraints — and how they keep your data accurate and consistent.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ══════════ DESCRIPTIVE ══════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--amber);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">What are Integrity Constraints?</h2>
+  </div>
+  <p class="prose">Integrity constraints are a <b>set of rules applied to a database</b>. When you create tables and perform operations like inserting, updating, or deleting data, you cannot just input random or meaningless data. Constraints act as a strict gatekeeper — only valid, well-structured data gets in.</p>
+  <p class="prose">Think of constraints like a form validator on a website. If you try to enter your age as "-5" or leave a required field blank, the system rejects it immediately. Integrity constraints do exactly the same thing at the database level.</p>
+
+  <div class="info-box amber">
+    🔒 <b>Purpose:</b> Integrity constraints maintain the <b>accuracy, consistency, and reliability</b> of data in the database. They preserve overall data quality and prevent garbage data from corrupting the system.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🗺️ Overview — Four Types of Integrity Constraints</div>
+    <div class="four-grid">
+      <div class="type-card" style="border:2px solid var(--orange);">
+        <div class="type-head" style="background:var(--orange);">
+          <span>A &nbsp;—&nbsp; Domain Constraint</span>
+          <span class="th-badge">CHECK</span>
+        </div>
+        <div class="type-body" style="background:var(--orangel);">
+          <div class="type-key" style="color:var(--orange);">Based on: Column Data Type</div>
+          Defines valid values for each column. Prevents invalid entries like negative age or wrong-length phone numbers.
+        </div>
+      </div>
+      <div class="type-card" style="border:2px solid var(--blue);">
+        <div class="type-head" style="background:var(--blue);">
+          <span>B &nbsp;—&nbsp; Entity Integrity</span>
+          <span class="th-badge">PRIMARY KEY</span>
+        </div>
+        <div class="type-body" style="background:var(--bluebg);">
+          <div class="type-key" style="color:var(--blue);">Based on: Primary Key</div>
+          Every table must have a primary key. That key must be UNIQUE and NOT NULL — no exceptions.
+        </div>
+      </div>
+      <div class="type-card" style="border:2px solid var(--green);">
+        <div class="type-head" style="background:var(--green);">
+          <span>C &nbsp;—&nbsp; Referential Integrity</span>
+          <span class="th-badge">FOREIGN KEY</span>
+        </div>
+        <div class="type-body" style="background:var(--greenl);">
+          <div class="type-key" style="color:var(--green);">Based on: Foreign Key</div>
+          Any value in a child table's FK column must already exist in the parent table. No orphan references allowed.
+        </div>
+      </div>
+      <div class="type-card" style="border:2px solid var(--purple);">
+        <div class="type-head" style="background:var(--purple);">
+          <span>D &nbsp;—&nbsp; Key Constraints</span>
+          <span class="th-badge">CANDIDATE KEY</span>
+        </div>
+        <div class="type-body" style="background:var(--purplel);">
+          <div class="type-key" style="color:var(--purple);">Based on: Candidate Key</div>
+          At least one attribute (or combination) must hold completely unique values across all records in the table.
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Four constraints — each targeting a different aspect of data quality: column values, row identity, table relationships, and uniqueness.</div>
+  </div>
+
+  <!-- 2A: Domain -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">A</div>
+    <h2 style="color:var(--navy);">Domain Constraints</h2>
+  </div>
+  <p class="prose">A domain constraint is tied to the <b>attributes (columns)</b> of a table. When you define a column, you assign it a <b>data type (domain)</b> — like <code>INTEGER</code> for numbers or <code>VARCHAR</code> for text. The domain constraint ensures that only values matching that domain are accepted.</p>
+  <p class="prose">But data types alone aren't enough. You also need business rules — for example, age must be greater than zero, a mobile number must be exactly 10 digits. In SQL, these custom domain rules are implemented using the <b>CHECK</b> constraint.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔍 Domain Constraint — Valid vs Invalid Values</div>
+    <div class="domain-demo">
+      <div class="dd-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="dd-title" style="background:var(--redl);color:var(--red);">❌ Rejected by Domain Constraint</div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--redl);color:var(--red);">-5</div><div class="dd-result" style="color:var(--red);">Age = -5 → Invalid (must be &gt; 0)</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--redl);color:var(--red);">0</div><div class="dd-result" style="color:var(--red);">Age = 0 → Invalid (must be &gt; 0)</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--redl);color:var(--red);">"abc"</div><div class="dd-result" style="color:var(--red);">Age = text → Wrong data type</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--redl);color:var(--red);">123456</div><div class="dd-result" style="color:var(--red);">Phone = 6 digits → must be 10</div></div>
+      </div>
+      <div class="dd-side" style="background:#fafafa;">
+        <div class="dd-title" style="background:var(--greenl);color:var(--green);">✓ Accepted by Domain Constraint</div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--greenl);color:var(--green);">21</div><div class="dd-result" style="color:var(--green);">Age = 21 → Valid (INTEGER &gt; 0)</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--greenl);color:var(--green);">18</div><div class="dd-result" style="color:var(--green);">Age = 18 → Valid</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--greenl);color:var(--green);">"Ravi"</div><div class="dd-result" style="color:var(--green);">Name = text → Valid VARCHAR</div></div>
+        <div class="dd-row"><div class="dd-val" style="background:var(--greenl);color:var(--green);">9876543210</div><div class="dd-result" style="color:var(--green);">Phone = 10 digits → Valid</div></div>
+      </div>
+    </div>
+    <div class="diagram-caption">Domain constraints block invalid column values at the point of entry — before they can corrupt the database.</div>
+  </div>
+
+  <p class="prose">Here is how domain constraints are implemented in SQL using the <b>CHECK</b> keyword:</p>
+  <div class="code-block">
+<span class="kw">CREATE TABLE</span> <span class="fn">Student</span> (<br>
+&nbsp;&nbsp;RollNo &nbsp;&nbsp;&nbsp;<span class="dt">INTEGER</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="pk">PRIMARY KEY</span>,<br>
+&nbsp;&nbsp;Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">50</span>) &nbsp;<span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;Age &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">INTEGER</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">CHECK (Age &gt; 0)</span>, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- domain constraint</span><br>
+&nbsp;&nbsp;Phone &nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">CHAR</span>(<span class="st">10</span>) &nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">CHECK (LENGTH(Phone) = 10)</span> &nbsp;<span class="cm">-- exactly 10 digits</span><br>
+);</div>
+
+  <!-- 2B: Entity Integrity -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">B</div>
+    <h2 style="color:var(--navy);">Entity Integrity Constraints</h2>
+  </div>
+  <p class="prose">Entity integrity is all about the <b>Primary Key</b>. Every table must have a primary key so that each row can be <b>uniquely identified</b>. Without it, you can't tell two identical-looking records apart, and the entire relational model breaks down.</p>
+
+  <div class="info-box blue">
+    📌 <b>Two mandatory properties of a Primary Key:</b><br>
+    1. <b>UNIQUE</b> — No two rows can have the same primary key value.<br>
+    2. <b>NOT NULL</b> — A primary key column can never be empty (NULL).
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🔑 Entity Integrity — Primary Key Rules in Action</div>
+    <div class="pk-table-wrap">
+      <table class="pk-demo">
+        <thead style="background:var(--blue);color:#fff;">
+          <tr>
+            <th>RollNo <span style="font-family:'Space Mono',monospace;font-size:9px;background:rgba(255,255,255,.25);padding:1px 6px;border-radius:3px;">PK</span></th>
+            <th>Name</th><th>Age</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><b>101</b></td><td>Ravi</td><td>20</td><td><span class="ok-badge">✓ OK</span></td></tr>
+          <tr><td><b>102</b></td><td>Priya</td><td>21</td><td><span class="ok-badge">✓ OK</span></td></tr>
+          <tr><td><b>103</b></td><td>Amit</td><td>19</td><td><span class="ok-badge">✓ OK</span></td></tr>
+          <tr class="violation-row"><td><b>102</b></td><td>Sana</td><td>22</td><td><span class="dup-badge">✕ DUPLICATE PK</span></td></tr>
+          <tr class="violation-row"><td><b style="color:var(--red);">NULL</b></td><td>Guest</td><td>25</td><td><span class="null-badge">✕ NULL NOT ALLOWED</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--redl);border:1px solid #ef9a9a;border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);font-weight:600;">✕ Row 4 rejected: RollNo 102 already exists (UNIQUE violated)</div>
+        <div style="background:var(--redl);border:1px solid #ef9a9a;border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);font-weight:600;">✕ Row 5 rejected: RollNo is NULL (NOT NULL violated)</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Entity Integrity = Primary Key must be UNIQUE + NOT NULL. Both violations are shown above — the DB engine rejects both inserts.</div>
+  </div>
+
+  <!-- 2C: Referential Integrity -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">C</div>
+    <h2 style="color:var(--navy);">Referential Integrity Constraints</h2>
+  </div>
+  <p class="prose">Referential integrity is built on the <b>Foreign Key</b> relationship between two tables: a <b>Parent (Master) table</b> and a <b>Child table</b>. The rule is simple but strict: <b>any value entered into the child table's FK column must already exist in the parent table.</b></p>
+  <p class="prose">If you try to insert a reference in the child table that doesn't exist in the parent table — that's a referential integrity violation, and the database will reject the operation.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔗 Referential Integrity — Parent-Child Relationship</div>
+    <div class="ref-wrap">
+      <div class="ref-tables" style="width:100%;">
+        <!-- Parent: Department -->
+        <div class="ref-table" style="border:2px solid var(--blue);">
+          <div class="ref-table-title" style="background:var(--blue);">👑 PARENT — Department</div>
+          <table class="ref-mini">
+            <thead style="background:var(--bluebg);"><tr><th>🔑 DeptID</th><th>DeptName</th></tr></thead>
+            <tbody>
+              <tr><td><b>D01</b></td><td>Computer Science</td></tr>
+              <tr><td><b>D02</b></td><td>Electronics</td></tr>
+              <tr><td><b>D03</b></td><td>Mechanical</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Arrow -->
+        <div class="ref-conn">
+          <div style="text-align:center;font-size:10px;color:var(--mdgray);font-weight:700;margin-bottom:4px;">FK links</div>
+          <div style="font-size:22px;color:var(--mdgray);">→</div>
+          <div style="text-align:center;font-size:10px;color:var(--mdgray);font-weight:700;margin-top:4px;">must exist in parent</div>
+        </div>
+        <!-- Child: Student -->
+        <div class="ref-table" style="border:2px solid var(--green);">
+          <div class="ref-table-title" style="background:var(--green);">👶 CHILD — Student</div>
+          <table class="ref-mini">
+            <thead style="background:var(--greenl);"><tr><th>🔑 RollNo</th><th>Name</th><th>DeptID <span class="fk-tag">FK</span></th></tr></thead>
+            <tbody>
+              <tr><td>101</td><td>Ravi</td><td style="color:var(--green);font-weight:700;">D01 ✓</td></tr>
+              <tr><td>102</td><td>Priya</td><td style="color:var(--green);font-weight:700;">D02 ✓</td></tr>
+              <tr style="background:#fff5f5;"><td>103</td><td>Amit</td><td style="color:var(--red);font-weight:700;">D99 ✕</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="violation-note">✕ VIOLATION: DeptID 'D99' does not exist in Department table → INSERT rejected by Referential Integrity Constraint</div>
+      <div class="ok-note">✓ DeptID 'D01' and 'D02' exist in parent → Those inserts succeed</div>
+    </div>
+    <div class="diagram-caption">The child table's FK must point to a real value in the parent table. Orphan references (pointing to non-existent parents) are blocked.</div>
+  </div>
+
+  <div class="info-box green">
+    🌍 <b>Real-world example:</b> On an e-commerce site, an Order must belong to a registered Customer. If you try to place an order with a CustomerID that doesn't exist in the Customers table — referential integrity blocks it instantly.
+  </div>
+
+  <!-- 2D: Key Constraints -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">D</div>
+    <h2 style="color:var(--navy);">Key Constraints</h2>
+  </div>
+  <p class="prose">Key constraints are related to the <b>Candidate Key</b> concept. The rule is: in any table, there must be <b>at least one attribute (or combination of attributes) that contains completely unique values</b> for every single record.</p>
+  <p class="prose">Certain real-world attributes are inherently unique — they naturally serve as candidate keys for any individual. These are the building blocks of key constraints.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🗝️ Key Constraints — Naturally Unique Attributes (Candidate Keys)</div>
+    <div class="candidate-grid">
+      <div class="ck-card" style="background:var(--indigol);border:2px solid var(--indigo);">
+        <div class="ck-icon">🪪</div>
+        <div class="ck-name" style="color:var(--indigo);">Aadhaar Number</div>
+        <div class="ck-ex">12-digit unique ID per Indian citizen</div>
+      </div>
+      <div class="ck-card" style="background:var(--orangel);border:2px solid var(--orange);">
+        <div class="ck-icon">🚗</div>
+        <div class="ck-name" style="color:var(--orange);">Driving License No.</div>
+        <div class="ck-ex">Unique per licensed driver in a region</div>
+      </div>
+      <div class="ck-card" style="background:var(--purplel);border:2px solid var(--purple);">
+        <div class="ck-icon">📱</div>
+        <div class="ck-name" style="color:var(--purple);">Phone Number</div>
+        <div class="ck-ex">One number registered to one person</div>
+      </div>
+      <div class="ck-card" style="background:var(--tealL);border:2px solid var(--teal);">
+        <div class="ck-icon">📧</div>
+        <div class="ck-name" style="color:var(--teal);">Email ID</div>
+        <div class="ck-ex">Unique per account in any system</div>
+      </div>
+    </div>
+    <div style="padding:0 16px 14px;">
+      <div style="background:var(--purplel);border:1.5px solid var(--purple);border-radius:8px;padding:11px 16px;font-size:13px;line-height:1.65;color:var(--dkgray);">
+        <b style="color:var(--purple);">Key Constraint Rule:</b> At least one of these unique attributes (or a combination of columns) must exist in every table. This attribute becomes a <b>Candidate Key</b> — a candidate for being chosen as the Primary Key. From all candidate keys, one is selected as the official Primary Key.
+      </div>
+    </div>
+    <div class="diagram-caption">Any attribute that is inherently unique across all records qualifies as a Candidate Key. Key Constraints require at least one such attribute per table.</div>
+  </div>
+
+  <!-- Section 3: Summary -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Summary — All Four Constraints at a Glance</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📋 All Four Integrity Constraints — Quick Reference Ladder</div>
+    <div class="ladder">
+      <div class="ladder-item" style="background:var(--orangel);border:1.5px solid var(--orange);">
+        <div class="ladder-letter" style="background:var(--orange);">A</div>
+        <div class="ladder-content">
+          <div class="lc-title" style="color:var(--orange);">Domain Constraint</div>
+          <div class="lc-sub">Enforces valid values for each column based on data type and business rules. Implemented with CHECK.</div>
+        </div>
+        <div class="ladder-key" style="background:var(--orangel);color:var(--orange);border:1px solid #ffcc80;">CHECK</div>
+      </div>
+      <div class="ladder-item" style="background:var(--bluebg);border:1.5px solid var(--blue);">
+        <div class="ladder-letter" style="background:var(--blue);">B</div>
+        <div class="ladder-content">
+          <div class="lc-title" style="color:var(--blue);">Entity Integrity</div>
+          <div class="lc-sub">Every table needs a Primary Key. PK must be UNIQUE + NOT NULL — no exceptions.</div>
+        </div>
+        <div class="ladder-key" style="background:var(--bluebg);color:var(--blue);border:1px solid #90caf9;">PRIMARY KEY</div>
+      </div>
+      <div class="ladder-item" style="background:var(--greenl);border:1.5px solid var(--green);">
+        <div class="ladder-letter" style="background:var(--green);">C</div>
+        <div class="ladder-content">
+          <div class="lc-title" style="color:var(--green);">Referential Integrity</div>
+          <div class="lc-sub">FK values in child table must exist in parent table. No orphan references allowed.</div>
+        </div>
+        <div class="ladder-key" style="background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;">FOREIGN KEY</div>
+      </div>
+      <div class="ladder-item" style="background:var(--purplel);border:1.5px solid var(--purple);">
+        <div class="ladder-letter" style="background:var(--purple);">D</div>
+        <div class="ladder-content">
+          <div class="lc-title" style="color:var(--purple);">Key Constraints</div>
+          <div class="lc-sub">At least one uniquely-valued attribute (candidate key) must exist per table.</div>
+        </div>
+        <div class="ladder-key" style="background:var(--purplel);color:var(--purple);border:1px solid #ce93d8;">CANDIDATE KEY</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Mastering these four constraints requires understanding Candidate Keys, Primary Keys, and Foreign Keys — the foundation before tackling the E-R Model.</div>
+  </div>
+
+  <div class="info-box teal">
+    🎯 <b>Key Takeaway:</b> To fully master integrity constraints, you must first have a solid grasp of <b>Candidate Keys, Primary Keys, and Foreign Keys</b>. These constraints form the foundational logic of all relational databases and are essential prerequisites before studying the E-R Model.
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+<!-- ══════════════ REVISION VIEW ══════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--amber);">
+      <div class="rev-num">1</div>What are Integrity Constraints?
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">A <b>set of rules applied to a database</b> to ensure data quality during insert, update, and delete operations.</span></div>
+      <div class="rev-kv"><span class="rk">Purpose:</span><span class="rv">Prevent random or invalid data from entering. Maintain <b>accuracy, consistency, and reliability</b>.</span></div>
+      <div class="rev-kv"><span class="rk">Analogy:</span><span class="rv">Like a form validator on a website — bad input is rejected before it can cause damage.</span></div>
+      <div class="rev-kv"><span class="rk">Types (4):</span><span class="rv">Domain, Entity Integrity, Referential Integrity, Key Constraints.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">A</div>Domain Constraint
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Based on:</span><span class="rv">Column attributes and their data types (domain).</span></div>
+      <div class="rev-kv"><span class="rk">What it does:</span><span class="rv">Ensures column values match the defined data type AND custom business rules.</span></div>
+      <div class="rev-kv"><span class="rk">SQL keyword:</span><span class="rv"><b>CHECK</b> constraint.</span></div>
+      <div class="rev-kv"><span class="rk">Example 1:</span><span class="rv"><code style="font-family:monospace;background:#fbe9e7;padding:1px 5px;border-radius:3px;font-size:12px;">CHECK (Age &gt; 0)</code> — rejects -5, 0, or text in Age column.</span></div>
+      <div class="rev-kv"><span class="rk">Example 2:</span><span class="rv"><code style="font-family:monospace;background:#fbe9e7;padding:1px 5px;border-radius:3px;font-size:12px;">CHECK (LENGTH(Phone) = 10)</code> — ensures phone is exactly 10 digits.</span></div>
+      <div class="rev-kv"><span class="rk">Data types used:</span><span class="rv">INTEGER, VARCHAR, CHAR, DATE, FLOAT — each is a domain constraint in itself.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">B</div>Entity Integrity Constraint
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Based on:</span><span class="rv">Primary Key.</span></div>
+      <div class="rev-kv"><span class="rk">Rule:</span><span class="rv">Every table <b>must have at least one primary key</b> to uniquely identify each row.</span></div>
+      <div class="rev-kv"><span class="rk">Two properties:</span><span class="rv"><b>UNIQUE</b> — no two rows can share the same PK value. <b>NOT NULL</b> — PK column can never be empty.</span></div>
+      <div class="rev-kv"><span class="rk">Violation example:</span><span class="rv">Inserting RollNo = 102 when 102 already exists → rejected. Inserting RollNo = NULL → rejected.</span></div>
+      <div class="rev-kv"><span class="rk">Why it matters:</span><span class="rv">Without a PK, two identical rows can't be told apart — the relational model breaks down.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);">
+      <div class="rev-num">C</div>Referential Integrity Constraint
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Based on:</span><span class="rv">Foreign Key (FK).</span></div>
+      <div class="rev-kv"><span class="rk">Tables involved:</span><span class="rv"><b>Parent (Master)</b> table and <b>Child</b> table.</span></div>
+      <div class="rev-kv"><span class="rk">Rule:</span><span class="rv">Any FK value in the child table <b>must already exist</b> in the parent table's PK column. No orphan references.</span></div>
+      <div class="rev-kv"><span class="rk">Violation example:</span><span class="rv">Student has DeptID = 'D99'. If 'D99' doesn't exist in Department table → INSERT rejected.</span></div>
+      <div class="rev-kv"><span class="rk">Real-world:</span><span class="rv">Order must reference an existing Customer. Blog post must reference an existing Author.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">D</div>Key Constraints
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Based on:</span><span class="rv">Candidate Key.</span></div>
+      <div class="rev-kv"><span class="rk">Rule:</span><span class="rv">Every table must have at least one attribute (or attribute combination) with <b>completely unique values</b> across all records.</span></div>
+      <div class="rev-kv"><span class="rk">Examples:</span><span class="rv">Aadhaar number, Driving License, Phone number, Email ID — all inherently unique.</span></div>
+      <div class="rev-kv"><span class="rk">Candidate Key:</span><span class="rv">Any attribute that is naturally unique qualifies. One is chosen as Primary Key; the rest remain as alternate keys.</span></div>
+      <div class="rev-kv"><span class="rk">Composite key:</span><span class="rv">A <b>combination</b> of two attributes can also form a unique key — e.g. (FirstName + DOB) might be unique together.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">3</div>Summary & Key Takeaway
+    </div>
+    <div class="rev-card-body">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:var(--navy);color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">Type</th>
+            <th style="padding:8px 12px;text-align:left;">Based On</th>
+            <th style="padding:8px 12px;text-align:left;">SQL Keyword</th>
+            <th style="padding:8px 12px;text-align:left;">Core Rule</th>
+          </tr></thead>
+          <tbody>
+            <tr style="background:var(--orangel);"><td style="padding:8px 12px;font-weight:700;color:var(--orange);">Domain</td><td style="padding:8px 12px;">Column data type</td><td style="padding:8px 12px;font-family:monospace;font-weight:700;color:var(--orange);">CHECK</td><td style="padding:8px 12px;">Valid values only for each column</td></tr>
+            <tr style="background:var(--bluebg);"><td style="padding:8px 12px;font-weight:700;color:var(--blue);">Entity</td><td style="padding:8px 12px;">Primary Key</td><td style="padding:8px 12px;font-family:monospace;font-weight:700;color:var(--blue);">PRIMARY KEY</td><td style="padding:8px 12px;">PK must be UNIQUE + NOT NULL</td></tr>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;color:var(--green);">Referential</td><td style="padding:8px 12px;">Foreign Key</td><td style="padding:8px 12px;font-family:monospace;font-weight:700;color:var(--green);">FOREIGN KEY</td><td style="padding:8px 12px;">FK value must exist in parent table</td></tr>
+            <tr style="background:var(--purplel);"><td style="padding:8px 12px;font-weight:700;color:var(--purple);">Key</td><td style="padding:8px 12px;">Candidate Key</td><td style="padding:8px 12px;font-family:monospace;font-weight:700;color:var(--purple);">UNIQUE</td><td style="padding:8px 12px;">At least one unique attribute per table</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--tealL);border:1px solid var(--teal);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--teal);margin-top:12px;">
+        🎯 <b>Before E-R Model:</b> Master <b>Candidate Key, Primary Key, and Foreign Key</b> first — these are the building blocks of all four integrity constraints.
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">★</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Integrity Constraint</td><td>A rule applied to a database to ensure data accuracy, consistency, and reliability.</td></tr>
+          <tr><td>Domain Constraint</td><td>Ensures column values match their defined data type and business rules (implemented via CHECK).</td></tr>
+          <tr><td>CHECK</td><td>SQL keyword to implement domain constraints — e.g. CHECK(Age &gt; 0).</td></tr>
+          <tr><td>Entity Integrity</td><td>Every table must have a Primary Key that is UNIQUE and NOT NULL.</td></tr>
+          <tr><td>Primary Key</td><td>Uniquely identifies each row. Must be UNIQUE + NOT NULL.</td></tr>
+          <tr><td>Referential Integrity</td><td>FK value in child table must already exist in the parent table's PK column.</td></tr>
+          <tr><td>Foreign Key (FK)</td><td>A column in the child table that references the Primary Key of the parent table.</td></tr>
+          <tr><td>Parent Table</td><td>The master/referenced table in a FK relationship.</td></tr>
+          <tr><td>Child Table</td><td>The table containing the Foreign Key that references the parent.</td></tr>
+          <tr><td>Key Constraint</td><td>At least one uniquely-valued attribute (Candidate Key) must exist in every table.</td></tr>
+          <tr><td>Candidate Key</td><td>Any attribute (or combination) that is naturally unique — eligible to become the Primary Key.</td></tr>
+          <tr><td>Orphan Reference</td><td>A FK value in the child table that has no matching PK in the parent — a referential integrity violation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
