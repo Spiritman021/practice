@@ -27,6 +27,14 @@
         .back { display: inline-block; margin-bottom: 14px; color: #1d4ed8; text-decoration: none; font-weight: 800; }
         h1 { margin: 0 0 10px; font-size: clamp(1.9rem, 4vw, 2.75rem); }
         .intro { margin: 0 0 18px; color: #475569; line-height: 1.65; }
+        .stats-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+        .count-pill, .time-pill { display: inline-block; padding: 9px 12px; border-radius: 999px; font-weight: 800; }
+        .count-pill { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+        .time-pill { background: #ecfdf5; border: 1px solid #6ee7b7; color: #047857; }
+        .timer-box { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 20px; padding: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+        .timer-display { color: #1e3a8a; font-size: 1.3rem; font-weight: 800; min-width: 88px; }
+        .timer-btn { border: 0; border-radius: 8px; padding: 9px 12px; background: #2563eb; color: #fff; cursor: pointer; font: inherit; font-weight: 800; }
+        .timer-btn.secondary { background: #475569; }
         .toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin: 0 0 20px; padding: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
         .toc a { color: #1d4ed8; text-decoration: none; font-weight: 800; }
         section { margin-bottom: 18px; padding: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05); counter-increment: vocab-group; }
@@ -55,6 +63,15 @@
         <a class="back" href="vocab.html">Back to Daily Vocabulary</a>
         <h1>Daily Class Vocab - 3 June 2026</h1>
         <p class="intro">Extracted from the provided PDF. Words and idioms are kept in the same grouped categories, with English-to-English meaning and Hindi meaning for each entry.</p>
+        <div class="stats-row">
+            <span class="count-pill">Total vocab words: 134</span>
+            <span class="time-pill">Estimated reading time: 11 min</span>
+        </div>
+        <div class="timer-box" aria-label="Reading timer">
+            <span class="timer-display" id="reading-timer">00:00</span>
+            <button class="timer-btn" id="timer-toggle" type="button">Start Timer</button>
+            <button class="timer-btn secondary" id="timer-reset" type="button">Reset</button>
+        </div>
 
         <nav class="toc" aria-label="Vocabulary groups">
             <a href="#argumentative">Argumentative / Angry</a>
@@ -284,5 +301,40 @@
             </div>
         </section>
     </main>
+    <script>
+        let readingSeconds = 0;
+        let readingTimerId = null;
+        const timerDisplay = document.getElementById('reading-timer');
+        const timerToggle = document.getElementById('timer-toggle');
+        const timerReset = document.getElementById('timer-reset');
+
+        function renderReadingTimer() {
+            const minutes = String(Math.floor(readingSeconds / 60)).padStart(2, '0');
+            const seconds = String(readingSeconds % 60).padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }
+
+        timerToggle.addEventListener('click', () => {
+            if (readingTimerId) {
+                clearInterval(readingTimerId);
+                readingTimerId = null;
+                timerToggle.textContent = 'Start Timer';
+                return;
+            }
+            timerToggle.textContent = 'Pause Timer';
+            readingTimerId = setInterval(() => {
+                readingSeconds += 1;
+                renderReadingTimer();
+            }, 1000);
+        });
+
+        timerReset.addEventListener('click', () => {
+            clearInterval(readingTimerId);
+            readingTimerId = null;
+            readingSeconds = 0;
+            timerToggle.textContent = 'Start Timer';
+            renderReadingTimer();
+        });
+    </script>
 </body>
 </html>
