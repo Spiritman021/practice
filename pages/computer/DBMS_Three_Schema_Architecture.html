@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Schema Architecture — DBMS Chapter 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0D1B4B;
+    --blue:   #1565C0;
+    --lblue:  #42A5F5;
+    --cyan:   #00ACC1;
+    --red:    #C62828;
+    --redl:   #FFEBEE;
+    --green:  #2E7D32;
+    --greenl: #E8F5E9;
+    --orange: #E65100;
+    --orangel:#FFF3E0;
+    --purple: #6A1B9A;
+    --purplel:#F3E5F5;
+    --bluebg: #E3F2FD;
+    --text:   #1A1A1A;
+    --white:  #ffffff;
+    --dkgray: #424242;
+    --mdgray: #757575;
+    --teal:   #00695C;
+    --tealL:  #E0F2F1;
+    --indigo: #283593;
+    --indigol:#E8EAF6;
+    --amber:  #FF8F00;
+    --amberl: #FFF8E1;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  /* TOPBAR */
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--teal);}
+  .toggle-wrap{display:flex;background:var(--tealL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 12px rgba(0,105,92,.35);}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#004d40 0%,#00695c 45%,#00838f 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(178,235,242,.18) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,58px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#80cbc4;}
+  .hero-sub{color:rgba(255,255,255,.65);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  /* MAIN */
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* SEC HEADER */
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  /* PROSE */
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  /* INFO BOX */
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.teal  {background:var(--tealL); border-color:var(--teal);  color:var(--teal);}
+  .info-box.blue  {background:var(--bluebg);border-color:var(--blue);  color:var(--navy);}
+  .info-box.amber {background:var(--amberl);border-color:var(--amber); color:#5d4037;}
+  .info-box.green {background:var(--greenl);border-color:var(--green); color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+
+  /* DIAGRAM */
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  /* COMPARE GRID */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .cmp-card{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+  .cmp-card-head{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;}
+  .cmp-card-body{padding:14px 16px;font-size:13.5px;line-height:1.65;}
+
+  /* ── THREE SCHEMA TOWER ── */
+  .tower-wrap{padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:0;}
+  .tower-layer{width:100%;max-width:580px;border-radius:12px;padding:18px 22px;position:relative;transition:transform .2s;}
+  .tower-layer:hover{transform:scale(1.01);}
+  .tl-top{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+  .tl-badge{font-family:'Space Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:3px;white-space:nowrap;}
+  .tl-title{font-weight:700;font-size:15px;}
+  .tl-body{font-size:13px;line-height:1.65;}
+  .tl-who{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;}
+  .tower-arrow{font-size:28px;color:var(--mdgray);line-height:1;padding:4px 0;text-align:center;}
+  .tower-divider{width:2px;height:24px;background:var(--mdgray);margin:0 auto;}
+
+  /* ── ROLE VIEWS ── */
+  .role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px;}
+  .role-card{border-radius:10px;overflow:hidden;}
+  .role-head{padding:10px 14px;font-weight:700;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px;}
+  .role-body{padding:12px 14px;font-size:12.5px;line-height:1.6;}
+  .role-perm{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px;}
+
+  /* ── ABSTRACTION ANALOGY ── */
+  .analogy-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .an-side{padding:20px;}
+  .an-icon{font-size:36px;text-align:center;margin-bottom:8px;}
+  .an-title{font-weight:700;font-size:13px;text-align:center;margin-bottom:10px;}
+  .an-steps{display:flex;flex-direction:column;gap:6px;}
+  .an-step{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.55;}
+  .an-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+  /* ── TABLE vs FILE ── */
+  .tvf-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .tvf-side{padding:20px;}
+  .tvf-title{font-weight:700;font-size:13px;margin-bottom:12px;padding:8px 12px;border-radius:6px;text-align:center;}
+  .mini-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px;}
+  .mini-table th{padding:6px 8px;font-weight:700;text-align:left;font-size:11px;}
+  .mini-table td{padding:5px 8px;border-top:1px solid rgba(0,0,0,.07);}
+  .mini-table tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .file-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+  .file-item{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11.5px;padding:6px 10px;border-radius:6px;}
+
+  /* ── WHO WORKS WHERE ── */
+  .who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px;}
+  .who-card{border-radius:10px;overflow:hidden;text-align:center;}
+  .who-head{padding:10px;font-weight:700;font-size:12px;color:#fff;}
+  .who-icon{font-size:28px;padding:12px 0 4px;}
+  .who-body{padding:0 10px 12px;font-size:12px;line-height:1.6;}
+  .who-tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;margin-top:6px;}
+
+  /* ── DBA BOX ── */
+  .dba-box{display:flex;gap:14px;padding:16px 20px;align-items:flex-start;flex-wrap:wrap;}
+  .dba-icon{font-size:42px;flex-shrink:0;}
+  .dba-content{flex:1;min-width:200px;}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:140px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  /* QR TABLE */
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:155px;}
+
+  @media(max-width:620px){
+    .compare-grid,.rev-row,.role-grid,.who-grid,.analogy-wrap,.tvf-wrap{grid-template-columns:1fr;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .tower-layer{padding:14px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 05</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Three Schema Architecture</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 5 • LECTURE NOTES</div>
+    <h1>Three Schema<br><span>Architecture</span></h1>
+    <p class="hero-sub">Three levels of abstraction — External, Conceptual, and Physical — and how they achieve data independence for users, designers, and DBAs.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ══════════════ DESCRIPTIVE VIEW ══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1: Schema recap -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">What is a Schema? (Quick Recap)</h2>
+  </div>
+  <p class="prose">A <b>schema</b> is the <b>structure</b> used to store data. In a relational database, this means defining <b>2-dimensional tables</b> made of rows and columns. It also specifies the characteristics of each column — for example, declaring a "roll number" as an <b>INTEGER</b> of 2-byte or 4-byte size.</p>
+  <div class="info-box teal">
+    📌 Schema = Structure of the database. It defines <b>what tables exist, what columns they have, and what data types those columns use</b>. The actual data rows come later — the schema is just the skeleton.
+  </div>
+
+  <!-- Section 2: Main Motive -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--amber);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">The Main Motive: Data Independence & Abstraction</h2>
+  </div>
+  <p class="prose">The Three-Schema Architecture was introduced in <b>1970</b> with one primary goal: achieving <b>data independence</b> and <b>data abstraction</b>. These two concepts are the core reason this architecture exists.</p>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--teal);">🙈 Data Abstraction</div>
+      <div class="cmp-card-body" style="background:var(--tealL);">
+        <b>Hiding physical storage details from the user.</b><br><br>
+        When you use <b>Gmail</b>, your emails are physically stored somewhere — Delhi, USA, some data center — in some specific file format. But Google <i>hides</i> all of that from you. You just see your inbox. That hiding is data abstraction.
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--indigo);">🔗 Data Independence</div>
+      <div class="cmp-card-body" style="background:var(--indigol);">
+        <b>Users and physical data should not interact directly.</b><br><br>
+        The three layers sit in between — so if the physical storage changes (new server, new file format), the user experience stays exactly the same. Users access data through the abstraction layers, not the raw files.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: The Three Levels -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--navy);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">The Three Levels of Abstraction</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🏛️ Three-Schema Architecture — Complete Tower</div>
+    <div class="tower-wrap">
+
+      <!-- External -->
+      <div class="tower-layer" style="background:var(--orangel);border:2px solid var(--orange);">
+        <div class="tl-top">
+          <span class="tl-badge" style="background:var(--orange);color:#fff;">LEVEL 3 — EXTERNAL</span>
+          <span class="tl-title" style="color:var(--orange);">External Schema &nbsp;/&nbsp; View Level</span>
+        </div>
+        <div class="tl-body" style="color:var(--dkgray);">
+          <b>Purpose:</b> Defines how data is <b>shown to the user</b>. Each user or user group gets a customized view — only the data relevant to their role is visible. Enforces authorization (read-only vs read-write).<br><br>
+          <b>Examples:</b> Student portal (marks, fees), Faculty portal (enter marks, apply leave), Admin portal (all records).<br><br>
+          <b>Technology:</b> Built using PHP, Java, HTML, front-end frameworks.
+        </div>
+        <div class="tl-who" style="background:var(--orange);color:#fff;">👨‍💻 Front-end / Interface Designers</div>
+      </div>
+
+      <div class="tower-arrow">⇕</div>
+
+      <!-- Conceptual -->
+      <div class="tower-layer" style="background:var(--indigol);border:3px solid var(--indigo);box-shadow:0 4px 20px rgba(40,53,147,.15);">
+        <div class="tl-top">
+          <span class="tl-badge" style="background:var(--indigo);color:#fff;">LEVEL 2 — CONCEPTUAL ⭐</span>
+          <span class="tl-title" style="color:var(--indigo);">Conceptual Schema &nbsp;/&nbsp; Logical Level</span>
+        </div>
+        <div class="tl-body" style="color:var(--dkgray);">
+          <b>Purpose:</b> Defines the <b>complete logical blueprint</b> of the database — all tables, columns, relationships, and constraints. Like an architectural blueprint before building a house.<br><br>
+          <b>Defines:</b> Which tables to keep, column names and data types, how tables relate to each other (e.g. Student ↔ Course via Enrollment).<br><br>
+          <b>Model used:</b> The <b>E-R (Entity-Relationship) Model</b> is the primary tool at this level.
+        </div>
+        <div class="tl-who" style="background:var(--indigo);color:#fff;">🗂️ Database Designers</div>
+      </div>
+
+      <div class="tower-arrow">⇕</div>
+
+      <!-- Physical -->
+      <div class="tower-layer" style="background:#f3e5f5;border:2px solid var(--purple);">
+        <div class="tl-top">
+          <span class="tl-badge" style="background:var(--purple);color:#fff;">LEVEL 1 — INTERNAL</span>
+          <span class="tl-title" style="color:var(--purple);">Physical Schema &nbsp;/&nbsp; Internal Level</span>
+        </div>
+        <div class="tl-body" style="color:var(--dkgray);">
+          <b>Purpose:</b> Decides <b>where and how data is physically stored</b> on disk. This layer is completely hidden from users and designers.<br><br>
+          <b>Defines:</b> Actual hard disks, file names, file sizes, fragmentation, whether storage is <b>centralized</b> (one location) or <b>distributed</b> (multiple global servers).<br><br>
+          <b>Examples:</b> Deciding which server rack in which data center holds which table's data.
+        </div>
+        <div class="tl-who" style="background:var(--purple);color:#fff;">🔧 Database Administrators (DBA)</div>
+      </div>
+
+    </div>
+    <div style="background:var(--tealL);border-top:1px solid #b2dfdb;padding:9px 16px;font-size:12.5px;color:var(--teal);text-align:center;font-weight:600;">
+      🔑 Users interact only with the External Level. Physical reality is completely hidden by the two layers above it.
+    </div>
+    <div class="diagram-caption">Three levels of abstraction introduced in 1970 — External (what users see), Conceptual (logical blueprint), Physical (actual storage).</div>
+  </div>
+
+  <!-- 3A: External Level Deep Dive -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">A</div>
+    <h2 style="color:var(--navy);">External Schema — Role-Based Views</h2>
+  </div>
+  <p class="prose">The external level is all about <b>what different users see</b> when they log in. Not everyone gets the same view — the system shows each user only the data relevant to their role. This is where <b>authorization</b> is enforced.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">👥 External Schema — Role-Based Views (University Example)</div>
+    <div class="role-grid">
+      <div class="role-card" style="border:1.5px solid #a5d6a7;">
+        <div class="role-head" style="background:var(--green);">👨‍🎓 Student View</div>
+        <div class="role-body" style="background:var(--greenl);">
+          <b>Can see:</b><br>
+          • Own marks & attendance<br>
+          • Own fee structure<br>
+          • Course timetable<br><br>
+          <b>Cannot see:</b><br>
+          • Other students' records<br>
+          • Faculty salary<br><br>
+          <span class="role-perm" style="background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;">READ ONLY</span>
+        </div>
+      </div>
+      <div class="role-card" style="border:1.5px solid #90caf9;">
+        <div class="role-head" style="background:var(--blue);">👩‍🏫 Faculty View</div>
+        <div class="role-body" style="background:var(--bluebg);">
+          <b>Can see & do:</b><br>
+          • Enter / update student marks<br>
+          • Apply for leave<br>
+          • View own salary<br>
+          • Course assignments<br><br>
+          <b>Cannot see:</b><br>
+          • Other faculty salary<br><br>
+          <span class="role-perm" style="background:var(--bluebg);color:var(--blue);border:1px solid #90caf9;">READ + WRITE (limited)</span>
+        </div>
+      </div>
+      <div class="role-card" style="border:1.5px solid #ce93d8;">
+        <div class="role-head" style="background:var(--purple);">👔 Dean / Admin View</div>
+        <div class="role-body" style="background:var(--purplel);">
+          <b>Can see & do:</b><br>
+          • All student records<br>
+          • All faculty records<br>
+          • Department reports<br>
+          • Budget & financials<br><br>
+          &nbsp;<br>
+          <span class="role-perm" style="background:var(--purplel);color:var(--purple);border:1px solid #ce93d8;">FULL READ + WRITE</span>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The same database — three completely different views. Authorization at the External Level ensures users see only what they're permitted to see.</div>
+  </div>
+
+  <!-- 3B: Conceptual Level -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">B</div>
+    <h2 style="color:var(--navy);">Conceptual Schema — The Logical Blueprint</h2>
+  </div>
+  <p class="prose">The conceptual schema is like the <b>architectural blueprint</b> of a building — before construction begins, an architect draws out every room, wall, and connection. Similarly, a database designer creates the conceptual schema before writing a single line of code — defining every table, every column, and every relationship.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">📐 Conceptual Schema — University Database Blueprint</div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <!-- Student table -->
+        <div style="border-radius:8px;overflow:hidden;border:2px solid var(--blue);">
+          <div style="background:var(--blue);color:#fff;padding:8px 12px;font-weight:700;font-size:12.5px;">📋 Student</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <tr style="background:var(--bluebg);"><td style="padding:5px 10px;font-weight:700;color:var(--navy);">🔑 RollNo</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">INT</td></tr>
+            <tr><td style="padding:5px 10px;">Name</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">VARCHAR(50)</td></tr>
+            <tr style="background:var(--bluebg);"><td style="padding:5px 10px;">Age</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">INT</td></tr>
+            <tr><td style="padding:5px 10px;">DeptID</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--red);">FK →</td></tr>
+          </table>
+        </div>
+        <!-- Course table -->
+        <div style="border-radius:8px;overflow:hidden;border:2px solid var(--green);">
+          <div style="background:var(--green);color:#fff;padding:8px 12px;font-weight:700;font-size:12.5px;">📚 Course</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <tr style="background:var(--greenl);"><td style="padding:5px 10px;font-weight:700;color:var(--navy);">🔑 CourseID</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">INT</td></tr>
+            <tr><td style="padding:5px 10px;">CourseName</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">VARCHAR(80)</td></tr>
+            <tr style="background:var(--greenl);"><td style="padding:5px 10px;">Duration</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">INT</td></tr>
+          </table>
+        </div>
+        <!-- Dept table -->
+        <div style="border-radius:8px;overflow:hidden;border:2px solid var(--teal);">
+          <div style="background:var(--teal);color:#fff;padding:8px 12px;font-weight:700;font-size:12.5px;">🏢 Department</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <tr style="background:var(--tealL);"><td style="padding:5px 10px;font-weight:700;color:var(--navy);">🔑 DeptID</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">INT</td></tr>
+            <tr><td style="padding:5px 10px;">DeptName</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">VARCHAR(50)</td></tr>
+            <tr style="background:var(--tealL);"><td style="padding:5px 10px;">HOD</td><td style="padding:5px 8px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--orange);">VARCHAR(50)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mdgray);">
+        <span style="background:var(--bluebg);border:1px solid var(--lblue);color:var(--blue);padding:3px 10px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;">Student.DeptID</span>
+        <span>→ FK links to →</span>
+        <span style="background:var(--tealL);border:1px solid var(--teal);color:var(--teal);padding:3px 10px;border-radius:4px;font-weight:700;font-family:'Space Mono',monospace;">Department.DeptID</span>
+      </div>
+
+      <div style="background:var(--indigol);border:1px solid #c5cae9;border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--indigo);">
+        🗺️ <b>E-R Model</b> is the primary tool used to design the Conceptual Schema — it maps out entities (Student, Course, Dept) and their relationships before any SQL is written.
+      </div>
+    </div>
+    <div class="diagram-caption">The conceptual schema defines all tables, columns, data types, and foreign-key relationships — the full logical blueprint of the database.</div>
+  </div>
+
+  <!-- 3C: Physical Level -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">C</div>
+    <h2 style="color:var(--navy);">Physical Schema — Where Data Actually Lives</h2>
+  </div>
+  <p class="prose">The physical schema is the lowest level — it decides <b>exactly where and how data is stored on hardware</b>. This is the domain of <b>Database Administrators (DBAs)</b>, who have full control over servers, disks, and storage strategies.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔧 Physical Schema — DBA's Domain</div>
+    <div class="dba-box">
+      <div class="dba-icon">🔧</div>
+      <div class="dba-content">
+        <div style="font-weight:700;font-size:15px;color:var(--purple);margin-bottom:10px;">Database Administrator (DBA)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;font-size:12.5px;border:1px solid #ce93d8;">
+            <b style="color:var(--purple);">Decides:</b><br>
+            • Which hard disks to use<br>
+            • File names & file sizes<br>
+            • Index structures<br>
+            • Fragmentation strategy
+          </div>
+          <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;font-size:12.5px;border:1px solid #ce93d8;">
+            <b style="color:var(--purple);">Storage models:</b><br>
+            • <b>Centralized</b> — all data on one server<br>
+            • <b>Distributed</b> — data spread across multiple global servers<br>
+            • Replication, backups, RAID
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The DBA operates at the physical level — completely invisible to users and even to most developers.</div>
+  </div>
+
+  <!-- Section 4: The Biggest Trick -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">The Biggest Trick: Tables vs. Files</h2>
+  </div>
+
+  <div class="info-box amber">
+    🤔 <b>Most common confusion:</b> Students think data is stored as tables on the hard disk. It is not. Data is stored as files. The DBMS converts those files into tables when you query them.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">💡 What You See vs What's Actually on Disk</div>
+    <div class="tvf-wrap">
+      <div class="tvf-side" style="border-right:1px solid #e0e0e0;">
+        <div class="tvf-title" style="background:var(--bluebg);color:var(--blue);">👁️ What the User Sees (Table)</div>
+        <p style="font-size:12px;color:var(--mdgray);margin-bottom:8px;">When you search IRCTC for trains:</p>
+        <table class="mini-table">
+          <thead style="background:var(--blue);color:#fff;"><tr><th>Train No.</th><th>Name</th><th>Departs</th><th>Seats</th></tr></thead>
+          <tbody>
+            <tr><td>12301</td><td>Rajdhani</td><td>16:55</td><td>45</td></tr>
+            <tr><td>12951</td><td>Mumbai Raj.</td><td>17:00</td><td>12</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:11.5px;color:var(--blue);margin-top:8px;font-weight:600;">Neat rows & columns — easy to read</p>
+      </div>
+      <div class="tvf-side">
+        <div class="tvf-title" style="background:#fce4ec;color:var(--red);">💾 What's on the Hard Disk (Files)</div>
+        <p style="font-size:12px;color:var(--mdgray);margin-bottom:8px;">Physical reality on the server:</p>
+        <div class="file-list">
+          <div class="file-item" style="background:#f5f5f5;color:var(--dkgray);">📄 trains_001.ibd &nbsp;&nbsp; 2.4 GB</div>
+          <div class="file-item" style="background:#f5f5f5;color:var(--dkgray);">📄 trains_002.ibd &nbsp;&nbsp; 2.1 GB</div>
+          <div class="file-item" style="background:#f5f5f5;color:var(--dkgray);">📄 bookings.ibd &nbsp;&nbsp;&nbsp; 8.7 GB</div>
+          <div class="file-item" style="background:#f5f5f5;color:var(--dkgray);">📄 users.ibd &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.2 GB</div>
+        </div>
+        <p style="font-size:11.5px;color:var(--red);margin-top:8px;font-weight:600;">Binary files — not human-readable</p>
+      </div>
+    </div>
+    <div style="background:var(--tealL);border-top:1px solid #b2dfdb;padding:10px 16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">⚙️</span>
+      <span style="font-size:12.5px;color:var(--teal);font-weight:600;">The DBMS reads the physical files and converts them into the table format you see — guided by the rules in the Conceptual and Physical schemas.</span>
+    </div>
+    <div class="diagram-caption">Data is NEVER stored as tables on disk. Tables are a logical abstraction created by the DBMS on top of physical files.</div>
+  </div>
+
+  <!-- Section 5: Who Works Where -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">5</div>
+    <h2 style="color:var(--navy);">Who Works at Each Level?</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">👷 Roles at Each Schema Level</div>
+    <div class="who-grid">
+      <div class="who-card" style="border:2px solid var(--orange);">
+        <div class="who-head" style="background:var(--orange);">External Level</div>
+        <div class="who-icon">👨‍💻</div>
+        <div class="who-body" style="background:var(--orangel);">
+          <b>Front-End / Interface Designers</b><br>
+          Build user-facing views using PHP, Java, HTML, React etc. Define what each role can see and interact with.
+          <div class="who-tag" style="background:var(--orangel);color:var(--orange);border:1px solid #ffcc80;">UI / UX + Auth Layer</div>
+        </div>
+      </div>
+      <div class="who-card" style="border:2px solid var(--indigo);">
+        <div class="who-head" style="background:var(--indigo);">Conceptual Level</div>
+        <div class="who-icon">🗂️</div>
+        <div class="who-body" style="background:var(--indigol);">
+          <b>Database Designers</b><br>
+          Design the logical structure — ER diagrams, table definitions, relationships. Don't worry about physical storage.
+          <div class="who-tag" style="background:var(--indigol);color:var(--indigo);border:1px solid #9fa8da;">Schema / ER Design</div>
+        </div>
+      </div>
+      <div class="who-card" style="border:2px solid var(--purple);">
+        <div class="who-head" style="background:var(--purple);">Physical Level</div>
+        <div class="who-icon">🔧</div>
+        <div class="who-body" style="background:var(--purplel);">
+          <b>Database Administrators (DBA)</b><br>
+          Full control over physical storage — servers, disks, file systems, backups, distribution across data centers.
+          <div class="who-tag" style="background:var(--purplel);color:var(--purple);border:1px solid #ce93d8;">DBA — Full Control</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Each level has distinct professionals — front-end devs, DB designers, and DBAs — each operating independently within their layer.</div>
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+
+<!-- ══════════════ REVISION VIEW ══════════════ -->
+<div id="view-revision" class="view">
+
+  <!-- Card 1: Schema -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">1</div>Schema — Quick Recap
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">The <b>structure</b> used to store data. In RDBMS = 2D tables (rows + columns).</span></div>
+      <div class="rev-kv"><span class="rk">Also defines:</span><span class="rv">Column characteristics — e.g. roll number is INTEGER of 2-byte or 4-byte size.</span></div>
+      <div class="rev-kv"><span class="rk">Introduced:</span><span class="rv">Three-Schema Architecture introduced in <b>1970</b>.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 2: Motive -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--amber);">
+      <div class="rev-num">2</div>Main Motive — Data Independence & Abstraction
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Data Abstraction:</span><span class="rv">Hiding physical storage details from the user. Example: Gmail hides server location and file format — you just see your inbox.</span></div>
+      <div class="rev-kv"><span class="rk">Data Independence:</span><span class="rv">Users and physical data don't interact directly. Three layers sit between them — so changing physical storage doesn't affect user experience.</span></div>
+      <div class="rev-kv"><span class="rk">Goal:</span><span class="rv">Users can access data without knowing how or where the DB operates physically.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 3: Three Levels -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">3</div>Three Levels of Abstraction
+    </div>
+    <div class="rev-card-body">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--orangel);border-left:4px solid var(--orange);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13px;">
+          <b style="color:var(--orange);">Level 3 — External Schema (View Level):</b><br>
+          How data is <b>shown to users</b>. Role-based views — each user sees only their permitted data. Enforces authorization (read vs read-write). Built by front-end devs (PHP, Java, HTML).
+        </div>
+        <div style="background:var(--indigol);border-left:4px solid var(--indigo);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13px;border:1px solid #c5cae9;">
+          <b style="color:var(--indigo);">Level 2 — Conceptual Schema ⭐ (Logical Level):</b><br>
+          The <b>complete logical blueprint</b> — all tables, columns, data types, relationships. Like a building's architectural blueprint. Uses <b>E-R Model</b>. Designed by DB designers.
+        </div>
+        <div style="background:var(--purplel);border-left:4px solid var(--purple);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13px;">
+          <b style="color:var(--purple);">Level 1 — Physical Schema (Internal Level):</b><br>
+          <b>Where and how</b> data is physically stored — actual disks, file names, file sizes, fragmentation, centralized vs distributed. Managed by <b>DBA</b>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: External Deep Dive -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">A</div>External Schema — Key Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">What it does:</span><span class="rv">Shows each user a <b>customized view</b> of the database based on their role.</span></div>
+      <div class="rev-kv"><span class="rk">University example:</span><span class="rv">Student → sees own marks/fees (read-only). Faculty → enters marks, applies leave. Dean → full access.</span></div>
+      <div class="rev-kv"><span class="rk">Apps example:</span><span class="rv">Paytm, Amazon, university portals — what you see on the front page is the external schema in action.</span></div>
+      <div class="rev-kv"><span class="rk">Authorization:</span><span class="rv">Student can READ marks but cannot UPDATE them. Different roles = different permissions.</span></div>
+      <div class="rev-kv"><span class="rk">Who builds it:</span><span class="rv">Front-end / interface designers using PHP, Java, HTML.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 5: Conceptual -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">B</div>Conceptual Schema — Key Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">What it is:</span><span class="rv">The complete <b>logical blueprint</b> of the entire database.</span></div>
+      <div class="rev-kv"><span class="rk">Defines:</span><span class="rv">What tables exist, their columns, data types (roll no = INT, name = VARCHAR), and relationships between tables (FK links).</span></div>
+      <div class="rev-kv"><span class="rk">Analogy:</span><span class="rv">Like an <b>architectural blueprint</b> — the full design plan given to a builder before construction begins.</span></div>
+      <div class="rev-kv"><span class="rk">Tool used:</span><span class="rv"><b>E-R (Entity-Relationship) Model</b> — primary tool for conceptual schema design.</span></div>
+      <div class="rev-kv"><span class="rk">Who designs it:</span><span class="rv"><b>Database Designers</b> — they focus on logical structure without worrying about physical storage location.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 6: Physical -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">C</div>Physical Schema — Key Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">What it controls:</span><span class="rv">Actual hard disks, file names, file sizes, fragmentation, storage distribution.</span></div>
+      <div class="rev-kv"><span class="rk">Centralized:</span><span class="rv">All data stored in one physical location / server.</span></div>
+      <div class="rev-kv"><span class="rk">Distributed:</span><span class="rv">Data spread across multiple servers in different global locations.</span></div>
+      <div class="rev-kv"><span class="rk">Who manages it:</span><span class="rv"><b>DBA (Database Administrator)</b> — has complete control and decides specific drives and locations.</span></div>
+      <div class="rev-kv"><span class="rk">Hidden from:</span><span class="rv">Users, developers, and even database designers. Completely invisible above the physical level.</span></div>
+    </div>
+  </div>
+
+  <!-- Card 7: Tables vs Files -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);">
+      <div class="rev-num">4</div>The Key Trick — Tables vs. Files
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Common myth:</span><span class="rv">Data is stored as tables on the hard disk. ❌ <b>WRONG.</b></span></div>
+      <div class="rev-kv"><span class="rk">Reality:</span><span class="rv">Data is stored as <b>binary files</b> on disk (e.g. trains.ibd, bookings.ibd). Not as rows and columns.</span></div>
+      <div class="rev-kv"><span class="rk">What DBMS does:</span><span class="rv">Acts as a layer on top of files — reads the binary files and presents them as neat tables using the rules defined in the Physical and Conceptual schemas.</span></div>
+      <div class="rev-kv"><span class="rk">Example:</span><span class="rv">IRCTC search → you see a table of trains. The server actually read binary .ibd files. The DBMS converted them to the table you see.</span></div>
+    </div>
+  </div>
+
+  <!-- Quick Reference -->
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">★</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Schema</td><td>The structure used to store data — tables, columns, data types in RDBMS.</td></tr>
+          <tr><td>Three-Schema Arch.</td><td>A 1970 standard with three levels (External, Conceptual, Physical) to achieve data independence and abstraction.</td></tr>
+          <tr><td>Data Abstraction</td><td>Hiding physical storage details (location, file format) from the user.</td></tr>
+          <tr><td>Data Independence</td><td>Users and physical data don't interact directly — layers sit between them.</td></tr>
+          <tr><td>External Schema</td><td>How data is shown to users — role-based views with authorization. Level 3.</td></tr>
+          <tr><td>Conceptual Schema</td><td>The complete logical blueprint — all tables, columns, types, relationships. Level 2. ⭐</td></tr>
+          <tr><td>Physical Schema</td><td>Where/how data is stored on actual disks. Managed by DBA. Level 1.</td></tr>
+          <tr><td>E-R Model</td><td>Entity-Relationship Model — primary tool for designing the Conceptual Schema.</td></tr>
+          <tr><td>DBA</td><td>Database Administrator — manages the Physical Schema; full control over storage.</td></tr>
+          <tr><td>Centralized Storage</td><td>All data on one physical server/location.</td></tr>
+          <tr><td>Distributed Storage</td><td>Data spread across multiple servers/global locations.</td></tr>
+          <tr><td>Tables vs Files</td><td>Users see tables; disk stores binary files. DBMS converts files → tables at query time.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+
+</div><!-- /main -->
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

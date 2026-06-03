@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Independence — DBMS Chapter 6</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --lblue:#42A5F5; --cyan:#00ACC1;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --bluebg:#E3F2FD; --text:#1A1A1A; --white:#fff;
+    --dkgray:#424242; --mdgray:#757575;
+    --teal:#00695C; --tealL:#E0F2F1;
+    --indigo:#283593; --indigol:#E8EAF6;
+    --amber:#FF8F00; --amberl:#FFF8E1;
+    --pink:#880E4F; --pinkl:#FCE4EC;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  /* TOPBAR */
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--pink);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--pink);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--pink);}
+  .toggle-wrap{display:flex;background:var(--pinkl);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--pink);color:#fff;box-shadow:0 2px 12px rgba(136,14,79,.3);}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#4a0072 0%,#6a1b9a 45%,#880e4f 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(240,98,146,.2) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--cyan);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,58px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#f48fb1;}
+  .hero-sub{color:rgba(255,255,255,.65);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  /* MAIN */
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  /* SEC HEADER */
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  /* PROSE */
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  /* INFO BOX */
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.pink  {background:var(--pinkl); border-color:var(--pink);  color:var(--pink);}
+  .info-box.blue  {background:var(--bluebg);border-color:var(--blue);  color:var(--navy);}
+  .info-box.green {background:var(--greenl);border-color:var(--green); color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .info-box.indigo{background:var(--indigol);border-color:var(--indigo);color:var(--indigo);}
+  .info-box.teal  {background:var(--tealL); border-color:var(--teal);  color:var(--teal);}
+
+  /* DIAGRAM */
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  /* COMPARE */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .cmp-card{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+  .cmp-card-head{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;}
+  .cmp-card-body{padding:14px 16px;font-size:13.5px;line-height:1.65;}
+
+  /* ── SCHEMA TOWER (compact) ── */
+  .schema-tower{display:flex;flex-direction:column;align-items:center;gap:0;padding:20px 24px;}
+  .st-layer{width:100%;max-width:520px;border-radius:10px;padding:13px 18px;text-align:center;}
+  .st-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.1em;opacity:.75;margin-bottom:3px;}
+  .st-name{font-weight:700;font-size:13.5px;}
+  .st-sub{font-size:11.5px;margin-top:3px;opacity:.8;}
+  .st-arrow{font-size:22px;color:var(--mdgray);padding:2px 0;text-align:center;}
+
+  /* ── WHAT IS HIDDEN ── */
+  .hidden-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .hid-side{padding:20px;}
+  .hid-title{font-weight:700;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:12px;}
+  .hid-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;font-size:13px;line-height:1.55;}
+  .hid-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+
+  /* ── LOGICAL INDEPENDENCE ── */
+  .li-flow{display:flex;flex-direction:column;align-items:center;gap:0;padding:20px;}
+  .li-box{width:100%;max-width:500px;border-radius:10px;padding:14px 18px;}
+  .li-box-title{font-weight:700;font-size:13px;margin-bottom:6px;}
+  .li-box-body{font-size:12.5px;line-height:1.6;}
+  .li-arrow{font-size:20px;color:var(--mdgray);padding:3px 0;text-align:center;width:100%;max-width:500px;}
+  .li-shield{background:var(--greenl);border:2px dashed var(--green);border-radius:10px;padding:10px 18px;width:100%;max-width:500px;text-align:center;font-size:12.5px;font-weight:700;color:var(--green);}
+
+  /* ── VIEW DEMO ── */
+  .view-demo{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0;padding:20px;}
+  .vd-table-wrap{border-radius:8px;overflow:hidden;}
+  .vd-title{font-weight:700;font-size:12px;padding:7px 12px;color:#fff;font-family:'Space Mono',monospace;}
+  .vd-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  .vd-table th{padding:5px 8px;text-align:left;font-weight:700;}
+  .vd-table td{padding:5px 8px;border-top:1px solid rgba(0,0,0,.07);}
+  .vd-table tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .vd-mid{padding:0 12px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .vd-badge{background:var(--greenl);border:1.5px solid var(--green);color:var(--green);font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:6px;text-align:center;white-space:nowrap;}
+  .vd-arrow{font-size:20px;color:var(--mdgray);}
+  .faded-col{color:#bbb !important;}
+
+  /* ── PHYSICAL INDEPENDENCE ── */
+  .pi-flow{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px;}
+  .pi-box{border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;}
+  .pi-box-title{font-weight:700;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .disk-icon{font-size:28px;}
+  .pi-change{background:var(--pinkl);border:1.5px dashed var(--pink);border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--pink);text-align:center;margin-top:8px;}
+  .pi-result{background:var(--greenl);border:1.5px solid var(--green);border-radius:8px;padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--green);text-align:center;margin-top:8px;}
+
+  /* ── TRANSPARENCY ── */
+  .transp-wrap{display:flex;align-items:center;justify-content:center;gap:0;padding:24px 20px;flex-wrap:nowrap;overflow-x:auto;}
+  .tr-box{border-radius:12px;padding:16px 14px;text-align:center;min-width:110px;flex-shrink:0;}
+  .tr-icon{font-size:28px;margin-bottom:6px;}
+  .tr-title{font-weight:700;font-size:12.5px;}
+  .tr-sub{font-size:11px;margin-top:4px;line-height:1.4;opacity:.85;}
+  .tr-arrow{font-size:18px;color:var(--mdgray);padding:0 6px;flex-shrink:0;}
+  .tr-shield{border-radius:12px;padding:16px 18px;text-align:center;min-width:130px;flex-shrink:0;}
+
+  /* ── GOOGLE EXAMPLE ── */
+  .google-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .gw-side{padding:18px 20px;}
+  .gw-title{font-weight:700;font-size:13px;margin-bottom:10px;padding:7px 12px;border-radius:6px;}
+  .timeline-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;font-size:13px;line-height:1.5;}
+  .tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:140px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:160px;}
+
+  @media(max-width:620px){
+    .compare-grid,.rev-row,.hidden-grid,.pi-flow,.view-demo,.google-wrap{grid-template-columns:1fr;}
+    .vd-mid{flex-direction:row;padding:8px 0;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .transp-wrap{flex-wrap:wrap;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 06</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Data Independence</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 6 • LECTURE NOTES</div>
+    <h1>Data <span>Independence</span></h1>
+    <p class="hero-sub">How DBMS shields users from physical and logical complexity — Logical Independence, Physical Independence, and the Transparency principle.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ══════════════ DESCRIPTIVE VIEW ══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--pink);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">Introduction — What is Data Independence?</h2>
+  </div>
+  <p class="prose">Data independence (also called <b>data abstraction</b>) builds on the Three-Schema Architecture covered in the previous chapter. Its core idea is simple: <b>make the user completely independent from the complex internal details of how data is stored and managed.</b></p>
+  <p class="prose">A user has one simple expectation — their data should be available <b>24×7, from any location, at any time</b>. They don't want to know about servers, file formats, table structures, or indexes. Data independence fulfills this demand by acting as a clean abstraction layer between the user and the backend reality.</p>
+
+  <div class="info-box pink">
+    🎯 <b>Goal of Data Independence:</b> Changes at any internal layer of the database (physical or logical) should have <b>zero effect on the user experience</b>. The user always sees a stable, fast, seamlessly accessible interface.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🏛️ Where Data Independence Fits — Three-Schema Recap</div>
+    <div class="schema-tower">
+      <div class="st-layer" style="background:var(--orangel);border:2px solid var(--orange);">
+        <div class="st-label" style="color:var(--orange);">LEVEL 3 — EXTERNAL</div>
+        <div class="st-name" style="color:var(--orange);">View Level &nbsp;/&nbsp; User Interface</div>
+        <div class="st-sub" style="color:var(--dkgray);">What the user sees — web app, mobile app, portal</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0;">
+        <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--green));max-width:180px;"></div>
+        <div style="background:var(--greenl);border:1.5px solid var(--green);border-radius:20px;padding:3px 14px;font-size:11px;font-weight:700;color:var(--green);white-space:nowrap;">⬆ Logical Independence</div>
+        <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--green),transparent);max-width:180px;"></div>
+      </div>
+      <div class="st-layer" style="background:var(--indigol);border:2.5px solid var(--indigo);">
+        <div class="st-label" style="color:var(--indigo);">LEVEL 2 — CONCEPTUAL ⭐</div>
+        <div class="st-name" style="color:var(--indigo);">Logical Structure &nbsp;/&nbsp; Tables & Relationships</div>
+        <div class="st-sub" style="color:var(--dkgray);">All tables, columns, constraints, foreign keys</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0;">
+        <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--blue));max-width:180px;"></div>
+        <div style="background:var(--bluebg);border:1.5px solid var(--blue);border-radius:20px;padding:3px 14px;font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap;">⬆ Physical Independence</div>
+        <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--blue),transparent);max-width:180px;"></div>
+      </div>
+      <div class="st-layer" style="background:var(--purplel);border:2px solid var(--purple);">
+        <div class="st-label" style="color:var(--purple);">LEVEL 1 — PHYSICAL</div>
+        <div class="st-name" style="color:var(--purple);">Physical Storage &nbsp;/&nbsp; Files & Disks</div>
+        <div class="st-sub" style="color:var(--dkgray);">Hard disks, file formats, indexes, data structures</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Logical Independence = shield between Conceptual and External levels. Physical Independence = shield between Physical and Conceptual levels.</div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">What is Hidden from the User?</h2>
+  </div>
+  <p class="prose">Data independence hides <b>two major categories</b> of information from end users. They never need to know any of this to use the application normally.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🙈 Two Categories of Hidden Information</div>
+    <div class="hidden-grid">
+      <div class="hid-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="hid-title" style="background:var(--purplel);color:var(--purple);">💾 Physical Storage Details</div>
+        <div class="hid-item"><div class="hid-icon">📍</div><div>Where is the data physically stored? Which data center, which server, which country?</div></div>
+        <div class="hid-item"><div class="hid-icon">🗂️</div><div>What file format is used? (binary files, .ibd, etc.)</div></div>
+        <div class="hid-item"><div class="hid-icon">🏗️</div><div>What internal data structures are used? (B-trees, hash indexes, etc.)</div></div>
+        <div class="hid-item"><div class="hid-icon">🔍</div><div>What indexes have been applied to speed up queries?</div></div>
+        <div class="hid-item"><div class="hid-icon">💿</div><div>Is data centralized on one disk or distributed across many servers?</div></div>
+      </div>
+      <div class="hid-side" style="background:#fafafa;">
+        <div class="hid-title" style="background:var(--indigol);color:var(--indigo);">🗄️ Logical Structure Details</div>
+        <div class="hid-item"><div class="hid-icon">🔢</div><div>How many tables exist in the database?</div></div>
+        <div class="hid-item"><div class="hid-icon">📋</div><div>What are the table names and column names?</div></div>
+        <div class="hid-item"><div class="hid-icon">🔗</div><div>How are the tables related to each other? (foreign keys, joins)</div></div>
+        <div class="hid-item"><div class="hid-icon">🔑</div><div>What constraints exist? (primary keys, NOT NULL, unique, etc.)</div></div>
+        <div class="hid-item"><div class="hid-icon">📐</div><div>What is the full schema structure used by the backend?</div></div>
+      </div>
+    </div>
+    <div style="background:var(--pinkl);border-top:1px solid #f48fb1;padding:9px 16px;font-size:12.5px;color:var(--pink);text-align:center;font-weight:600;">
+      The user just opens an app and gets their data. All of the above complexity is completely invisible to them.
+    </div>
+    <div class="diagram-caption">Two layers of complexity are hidden — physical (where/how stored) and logical (tables, relations, constraints).</div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--navy);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Types of Data Independence</h2>
+  </div>
+  <div class="info-box indigo">
+    📌 There are <b>two types</b> of data independence — one for each boundary between schema levels. Each ensures that changes at one level do not "cascade upward" and break the layer above it.
+  </div>
+
+  <!-- 3A: Logical Data Independence -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">A</div>
+    <h2 style="color:var(--navy);">Logical Data Independence</h2>
+  </div>
+  <p class="prose">Logical data independence means: <b>changes to the Conceptual Schema (logical tables) do NOT affect the External Schema (user-facing views/applications).</b></p>
+  <p class="prose">Imagine the backend team adds a new column to a table, or changes a column name, or restructures a relationship. With logical data independence, the front-end web app doesn't need to be rewritten — it keeps running exactly as before.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🛡️ Logical Independence — How Changes Are Shielded</div>
+    <div class="li-flow">
+      <div class="li-box" style="background:var(--orangel);border:2px solid var(--orange);">
+        <div class="li-box-title" style="color:var(--orange);">👁️ External Level — Web/Mobile App</div>
+        <div class="li-box-body" style="color:var(--dkgray);">
+          Student portal shows: Name, Age, Course.<br>
+          <b>This view doesn't change</b> — even if the underlying table is modified.
+        </div>
+      </div>
+      <div class="li-arrow">⬆&nbsp; Logical Independence Shield &nbsp;⬇</div>
+      <div class="li-shield">✓ View is a virtual table — shows only 3 columns from a 50-column table. Changes to the other 47 columns are invisible here.</div>
+      <div class="li-arrow">⬇</div>
+      <div class="li-box" style="background:var(--indigol);border:2px solid var(--indigo);">
+        <div class="li-box-title" style="color:var(--indigo);">🗄️ Conceptual Level — Student Table (Full Schema)</div>
+        <div class="li-box-body" style="color:var(--dkgray);">
+          Admin adds column "Mobile Number" → table now has 4 columns.<br>
+          Admin deletes old row, changes constraints, restructures a relationship.<br>
+          <b>These changes happen here — but don't touch the view above.</b>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The View acts as a protective barrier — the app only sees what it was designed to see, regardless of what changes below it.</div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 View Mechanism — How Logical Independence Works in Practice</div>
+    <div class="view-demo">
+      <!-- Physical table: all cols -->
+      <div class="vd-table-wrap" style="border:2px solid var(--indigo);">
+        <div class="vd-title" style="background:var(--indigo);">Full Table (50 columns)</div>
+        <table class="vd-table">
+          <thead style="background:var(--indigol);"><tr><th style="padding:5px 8px;">RollNo</th><th style="padding:5px 8px;">Name</th><th style="padding:5px 8px;">Age</th><th style="padding:5px 8px;color:var(--pink);">Mobile ★NEW</th><th style="padding:5px 8px;color:#bbb;">…47 more cols</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Ravi</td><td>20</td><td style="color:var(--pink);">9876543210</td><td class="faded-col">…</td></tr>
+            <tr><td>102</td><td>Priya</td><td>21</td><td style="color:var(--pink);">9123456789</td><td class="faded-col">…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Middle: VIEW filter -->
+      <div class="vd-mid">
+        <div class="vd-badge">VIEW<br>filters →<br>3 cols only</div>
+        <div class="vd-arrow">→</div>
+      </div>
+
+      <!-- View: only 3 cols -->
+      <div class="vd-table-wrap" style="border:2px solid var(--green);">
+        <div class="vd-title" style="background:var(--green);">Student View (3 columns)</div>
+        <table class="vd-table">
+          <thead style="background:var(--greenl);"><tr><th style="padding:5px 8px;">RollNo</th><th style="padding:5px 8px;">Name</th><th style="padding:5px 8px;">Age</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Ravi</td><td>20</td></tr>
+            <tr><td>102</td><td>Priya</td><td>21</td></tr>
+          </tbody>
+        </table>
+        <div style="background:var(--greenl);padding:5px 8px;font-size:11px;font-weight:700;color:var(--green);">✓ Unchanged — Mobile column invisible</div>
+      </div>
+    </div>
+    <div class="diagram-caption">A View is a virtual table — it shows only selected columns. New columns added to the base table are hidden from the view, keeping the app unaffected.</div>
+  </div>
+
+  <div class="info-box green">
+    🌍 <b>Real-world use:</b> University Management Systems, Amazon, Flipkart make logical schema changes daily — adding columns, new tables, restructured relations. Thanks to logical data independence, the web interface you use stays perfectly stable and never needs a rewrite.
+  </div>
+
+  <!-- 3B: Physical Data Independence -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">B</div>
+    <h2 style="color:var(--navy);">Physical Data Independence</h2>
+  </div>
+  <p class="prose">Physical data independence means: <b>changes to the Physical Schema (how/where data is stored on disk) do NOT affect the Conceptual Schema (the logical table structure).</b></p>
+  <p class="prose">If a DBA migrates the database from one hard disk to another, switches from sequential file access to linked access, adds new indexes, or restructures storage — the logical table names, column names, and relationships stay <b>completely unchanged.</b></p>
+
+  <div class="diagram">
+    <div class="diagram-title">💾 Physical Independence — DBA Changes, Tables Stay the Same</div>
+    <div class="pi-flow">
+      <div class="pi-box" style="background:var(--purplel);border:2px solid var(--purple);">
+        <div class="pi-box-title" style="color:var(--purple);"><span class="disk-icon">💿</span> DBA Makes Physical Changes</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--dkgray);">
+          • Moves database from <b>Hard Disk 1 → Hard Disk 2</b><br>
+          • Adds new indexes for faster querying<br>
+          • Changes from sequential → linked file access<br>
+          • Redistributes data across multiple global servers<br>
+          • Modifies storage fragmentation strategy
+        </div>
+        <div class="pi-change">Physical Schema = CHANGED</div>
+      </div>
+      <div class="pi-box" style="background:var(--indigol);border:2px solid var(--indigo);">
+        <div class="pi-box-title" style="color:var(--indigo);"><span class="disk-icon">🗄️</span> Conceptual Schema — Untouched</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--dkgray);">
+          <b>Student</b> (RollNo, Name, Age) — same<br>
+          <b>Course</b> (CourseID, Name, Duration) — same<br>
+          <b>Enrollment</b> (RollNo FK, CourseID FK) — same<br><br>
+          All table names, column names, data types, and relationships remain <b>identical</b> before and after any physical change.
+        </div>
+        <div class="pi-result">Conceptual Schema = UNCHANGED ✓</div>
+      </div>
+    </div>
+    <div class="diagram-caption">No matter how much the DBA rearranges the physical storage, the logical table structure seen by designers and developers never changes.</div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🌍 Real-World Scale — Google's Physical Changes Over 10 Years</div>
+    <div class="google-wrap">
+      <div class="gw-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="gw-title" style="background:var(--purplel);color:var(--purple);">💾 Physical Backend (Hidden from users)</div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--purple);"></div><div>Migrated petabytes of data across new data centers</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--purple);"></div><div>Changed storage file formats and compression algorithms</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--purple);"></div><div>Added thousands of new index structures for speed</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--purple);"></div><div>Distributed data across global servers in new regions</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--purple);"></div><div>Swapped hard disks, replaced hardware, changed RAID configurations</div></div>
+      </div>
+      <div class="gw-side" style="background:#fafafa;">
+        <div class="gw-title" style="background:var(--greenl);color:var(--green);">👤 User Experience (What you saw)</div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--green);"></div><div>Gmail inbox loaded exactly as before</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--green);"></div><div>All emails, attachments, contacts — fully intact</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--green);"></div><div>Search worked the same or got faster</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--green);"></div><div>Zero downtime noticed by users</div></div>
+        <div class="timeline-item"><div class="tl-dot" style="background:var(--green);"></div><div>No rewrite needed — app stayed exactly the same</div></div>
+      </div>
+    </div>
+    <div style="background:var(--tealL);border-top:1px solid #b2dfdb;padding:9px 16px;font-size:12.5px;color:var(--teal);text-align:center;font-weight:600;">
+      10 years of massive physical changes → Zero impact on user experience. That is Physical Data Independence at scale.
+    </div>
+    <div class="diagram-caption">Google, Amazon, and every major tech company continuously change their physical infrastructure — users never notice because of Physical Data Independence.</div>
+  </div>
+
+  <!-- Section 4: Transparency -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">Conclusion — Transparency & Efficiency</h2>
+  </div>
+  <p class="prose">Data independence ultimately provides <b>Transparency</b>. Transparency means the user <i>feels</i> like their data is right there with them — instantly accessible — even though it is stored thousands of kilometres away on servers they'll never see.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">✨ Transparency — The End Result of Data Independence</div>
+    <div class="transp-wrap">
+      <div class="tr-box" style="background:var(--greenl);border:2px solid var(--green);">
+        <div class="tr-icon">👤</div>
+        <div class="tr-title" style="color:var(--green);">User (Delhi)</div>
+        <div class="tr-sub" style="color:var(--dkgray);">Opens Gmail<br>Sees inbox<br>instantly</div>
+      </div>
+      <div class="tr-arrow">→</div>
+      <div class="tr-shield" style="background:var(--pinkl);border:2px dashed var(--pink);">
+        <div style="font-size:22px;margin-bottom:6px;">🛡️</div>
+        <div style="font-weight:700;font-size:12.5px;color:var(--pink);">DATA INDEPENDENCE</div>
+        <div style="font-size:11px;color:var(--dkgray);margin-top:4px;line-height:1.5;">
+          Physical changes ✓<br>
+          Logical changes ✓<br>
+          All hidden from user
+        </div>
+      </div>
+      <div class="tr-arrow">→</div>
+      <div class="tr-box" style="background:var(--purplel);border:2px solid var(--purple);">
+        <div class="tr-icon">🗄️</div>
+        <div class="tr-title" style="color:var(--purple);">Reality</div>
+        <div class="tr-sub" style="color:var(--dkgray);">Data on servers<br>in 5 countries<br>Engineers changing<br>storage daily</div>
+      </div>
+    </div>
+    <div class="diagram-caption">The user feels their data is right there. In reality, engineers are constantly optimizing storage and schemas. Data Independence is what makes this gap invisible.</div>
+  </div>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--green);">⚡ What Engineers Do (Daily)</div>
+      <div class="cmp-card-body" style="background:var(--greenl);">
+        Constantly changing physical drives, adding indexes, restructuring schemas, migrating servers, distributing data globally — all to make access <b>faster and more efficient</b>.
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--pink);">👤 What Users Experience</div>
+      <div class="cmp-card-body" style="background:var(--pinkl);">
+        A completely <b>stable, fast, and seamless</b> application. Zero awareness of backend changes. Data always available 24×7. This is <b>Transparency</b>.
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+<!-- ══════════════ REVISION VIEW ══════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--pink);">
+      <div class="rev-num">1</div>Introduction — Data Independence
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Also called:</span><span class="rv">Data Abstraction. Builds on Three-Schema Architecture.</span></div>
+      <div class="rev-kv"><span class="rk">Core goal:</span><span class="rv">Make the user completely <b>independent</b> from complex internal details of data storage.</span></div>
+      <div class="rev-kv"><span class="rk">User expectation:</span><span class="rv">Data available <b>24×7, from any location, at any time</b> — through a simple web/mobile app.</span></div>
+      <div class="rev-kv"><span class="rk">What it does:</span><span class="rv">Ensures changes at any internal level (physical or logical) have zero effect on the user experience.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">2</div>What is Hidden from the User?
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-row">
+        <div style="background:var(--purplel);border:1px solid #ce93d8;border-radius:8px;padding:10px 12px;font-size:13px;">
+          <b style="color:var(--purple);">Physical Details Hidden:</b><br>
+          • Where data is physically stored<br>
+          • File formats used<br>
+          • Internal data structures<br>
+          • Indexes applied<br>
+          • Centralized vs distributed
+        </div>
+        <div style="background:var(--indigol);border:1px solid #9fa8da;border-radius:8px;padding:10px 12px;font-size:13px;">
+          <b style="color:var(--indigo);">Logical Details Hidden:</b><br>
+          • How many tables exist<br>
+          • Table/column names<br>
+          • Table relationships (FKs)<br>
+          • Constraints (PK, NOT NULL)<br>
+          • Full schema structure
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);">
+      <div class="rev-num">A</div>Logical Data Independence
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">Changes at the <b>Conceptual Level</b> (logical structure) do NOT affect the <b>External Level</b> (user views/apps).</span></div>
+      <div class="rev-kv"><span class="rk">Example:</span><span class="rv">Admin adds "Mobile Number" column to Student table → front-end app still shows only Name, Age, Course. App needs zero rewrite.</span></div>
+      <div class="rev-kv"><span class="rk">Mechanism:</span><span class="rv"><b>Views</b> (virtual tables). A table may have 50 columns, but a View shows only 5. Changes to the hidden 45 columns are invisible to the view.</span></div>
+      <div class="rev-kv"><span class="rk">Real-world:</span><span class="rv">Amazon, UMS, Flipkart make daily logical schema changes. Their web interfaces never break.</span></div>
+      <div class="rev-kv"><span class="rk">Boundary:</span><span class="rv">Between <b>Conceptual Level ↔ External Level</b>.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">B</div>Physical Data Independence
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">Changes at the <b>Physical Level</b> (storage) do NOT affect the <b>Conceptual Level</b> (logical tables).</span></div>
+      <div class="rev-kv"><span class="rk">Example:</span><span class="rv">DBA moves database from Hard Disk 1 → Hard Disk 2. Table names, column names, relationships — all stay identical.</span></div>
+      <div class="rev-kv"><span class="rk">What DBA can change:</span><span class="rv">Hard disk location, file access method (sequential → linked), add indexes, change data structures, switch centralized → distributed.</span></div>
+      <div class="rev-kv"><span class="rk">Real-world:</span><span class="rv">Google migrated petabytes across new data centers over 10 years. Gmail users noticed zero change.</span></div>
+      <div class="rev-kv"><span class="rk">Boundary:</span><span class="rv">Between <b>Physical Level ↔ Conceptual Level</b>.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">4</div>Conclusion — Transparency
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">End result:</span><span class="rv"><b>Transparency</b> — the user feels data is right there, instantly accessible, even though it's stored thousands of km away.</span></div>
+      <div class="rev-kv"><span class="rk">Engineers' reality:</span><span class="rv">Changing physical drives, adding indexes, restructuring schemas, migrating servers — constantly, daily.</span></div>
+      <div class="rev-kv"><span class="rk">User's reality:</span><span class="rv">Completely stable, fast, 24×7 application. Zero awareness of any backend changes.</span></div>
+      <div class="rev-kv"><span class="rk">Gmail analogy:</span><span class="rv">Your emails feel like they're on your phone. In reality they're on servers in the USA, India, Europe — changing location constantly. Data Independence makes this invisible.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">★</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Data Independence</td><td>The ability to change one schema level without affecting the levels above it.</td></tr>
+          <tr><td>Data Abstraction</td><td>Another name for data independence — hiding internal complexity from users.</td></tr>
+          <tr><td>Logical Data Ind.</td><td>Changes to Conceptual Schema do NOT affect External Schema (views/apps).</td></tr>
+          <tr><td>Physical Data Ind.</td><td>Changes to Physical Schema do NOT affect Conceptual Schema (logical tables).</td></tr>
+          <tr><td>View (Virtual Table)</td><td>A virtual table showing a subset of columns from the real table — the mechanism behind logical independence.</td></tr>
+          <tr><td>Transparency</td><td>The user feels data is instantly and locally available, even though it's stored remotely and changing constantly.</td></tr>
+          <tr><td>Sequential Access</td><td>File access method that reads records one-by-one in order.</td></tr>
+          <tr><td>Linked Access</td><td>File access method using pointers/links between records — faster for random access.</td></tr>
+          <tr><td>Index</td><td>A data structure that speeds up data retrieval — added/modified at the physical level without affecting logical schema.</td></tr>
+          <tr><td>Storage Manager</td><td>Component responsible for saving data properly and efficiently at the physical level.</td></tr>
+          <tr><td>Centralized Storage</td><td>All data on one server/location.</td></tr>
+          <tr><td>Distributed Storage</td><td>Data spread across multiple global servers — changing this doesn't affect conceptual tables.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
