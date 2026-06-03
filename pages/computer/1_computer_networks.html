@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UGC NET — Computer Networks</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f2f7;
+  --white: #ffffff;
+  --border: #e0e4ef;
+  --navy: #1a2340;
+  --accent: #7c3aed;
+  --accent-light: #ede9fe;
+  --red: #e11d48;
+  --red-light: #fff1f4;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --text: #1e2535;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --body: 'Nunito', sans-serif;
+}
+
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── STICKY NAVBAR ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 52px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-badge {
+  background: var(--red);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+}
+
+.nav-breadcrumb {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.nav-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.nav-btn:not(.active):hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ── HERO BANNER ── */
+.hero {
+  background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 40%, #c026d3 75%, #be123c 100%);
+  padding: 52px 48px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.hero-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.1);
+}
+
+.hero h1 {
+  font-family: var(--sans);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 span { color: #f9a8d4; }
+
+.hero-sub {
+  font-size: 0.97rem;
+  color: rgba(255,255,255,0.78);
+  max-width: 520px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.hero-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-chip {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ── MAIN CONTENT ── */
+.content-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* panels */
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── SECTION BLOCK ── */
+.section-block {
+  margin-bottom: 48px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.sec-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sec-num.colored { background: var(--accent); }
+.sec-num.red { background: var(--red); }
+.sec-num.green { background: var(--green); }
+.sec-num.amber { background: var(--amber); }
+
+.section-heading h2 {
+  font-family: var(--sans);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* body text */
+.body-text {
+  font-size: 0.94rem;
+  line-height: 1.8;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.body-text:last-child { margin-bottom: 0; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-left: 4px solid;
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.callout-red   { border-color: var(--red);   background: var(--red-light);   color: #9f1239; }
+.callout-blue  { border-color: var(--blue);  background: var(--blue-light);  color: #1e40af; }
+.callout-green { border-color: var(--green); background: var(--green-light); color: #14532d; }
+.callout-amber { border-color: var(--amber); background: var(--amber-light); color: #78350f; }
+
+.callout strong { font-weight: 700; }
+
+/* ── DIAGRAM BOX ── */
+.diagram-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.diagram-header {
+  background: var(--navy);
+  padding: 11px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.3px;
+}
+
+.diagram-body {
+  padding: 24px 20px;
+}
+
+.diagram-note {
+  padding: 10px 18px 14px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+/* Three-schema diagram */
+.schema-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.schema-level {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 10px;
+  border: 2px solid;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.schema-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.schema-title {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.schema-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.schema-ext  { border-color: #f59e0b; background: #fffbeb; }
+.schema-ext .schema-label  { color: #b45309; }
+.schema-ext .schema-title  { color: #92400e; }
+
+.schema-con  { border-color: #818cf8; background: #eef2ff; }
+.schema-con .schema-label  { color: #4338ca; }
+.schema-con .schema-title  { color: #3730a3; }
+
+.schema-phy  { border-color: #c084fc; background: #faf5ff; }
+.schema-phy .schema-label  { color: #7e22ce; }
+.schema-phy .schema-title  { color: #6b21a8; }
+
+.schema-bridge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  gap: 0;
+  flex-direction: column;
+}
+
+.bridge-line {
+  width: 2px;
+  height: 10px;
+  background: var(--border);
+}
+
+.bridge-pill {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bridge-logical { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+.bridge-physical { border-color: #60a5fa; color: #1d4ed8; background: #eff6ff; }
+
+/* ── TWO COL BOX ── */
+.two-col-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.col-box {
+  padding: 18px;
+}
+
+.col-box:first-child { border-right: 1px solid var(--border); }
+
+.col-box-title {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.col-box-title.pink   { color: var(--red); }
+.col-box-title.slate  { color: #475569; }
+
+.col-box ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.col-box ul li {
+  font-size: 0.83rem;
+  color: #374151;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.col-box ul li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-light);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.col-box.pink-bg  { background: #fff5f7; }
+.col-box.slate-bg { background: #f8fafc; }
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; margin: 20px 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  font-family: var(--sans);
+  background: var(--white);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+thead tr { background: var(--navy); }
+
+th {
+  text-align: left;
+  padding: 11px 16px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+}
+
+td {
+  padding: 10px 16px;
+  color: #374151;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9ff; }
+
+td.mono { font-family: var(--mono); font-size: 0.8rem; }
+td.must { color: var(--red); font-weight: 600; }
+td.good { color: var(--amber); font-weight: 600; }
+td.nice { color: var(--green); font-weight: 600; }
+
+/* ── OSI VISUAL ── */
+.osi-stack { display: flex; flex-direction: column; gap: 3px; margin: 4px 0; }
+
+.osi-row {
+  display: flex;
+  border-radius: 7px;
+  overflow: hidden;
+  transition: transform 0.15s;
+  cursor: default;
+}
+.osi-row:hover { transform: translateX(5px); }
+
+.osi-n {
+  width: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+.osi-name {
+  width: 130px;
+  padding: 10px 12px;
+  font-family: var(--sans); font-size: 0.8rem; font-weight: 700;
+  display: flex; align-items: center;
+  flex-shrink: 0;
+}
+
+.osi-detail {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 0.77rem;
+  color: #4b5563;
+  display: flex; align-items: center;
+}
+
+.osi-proto {
+  width: 180px;
+  padding: 10px 12px;
+  font-family: var(--mono); font-size: 0.7rem;
+  color: #6b7280;
+  display: flex; align-items: center;
+  flex-shrink: 0;
+}
+
+.r7 { background:#fff0f0; } .r7 .osi-n,.r7 .osi-name { color:#b91c1c; }
+.r6 { background:#fff7ed; } .r6 .osi-n,.r6 .osi-name { color:#c2410c; }
+.r5 { background:#fffbeb; } .r5 .osi-n,.r5 .osi-name { color:#a16207; }
+.r4 { background:#f0fdf4; } .r4 .osi-n,.r4 .osi-name { color:#15803d; }
+.r3 { background:#eff6ff; } .r3 .osi-n,.r3 .osi-name { color:#1d4ed8; }
+.r2 { background:#f5f3ff; } .r2 .osi-n,.r2 .osi-name { color:#6d28d9; }
+.r1 { background:#fef2f2; } .r1 .osi-n,.r1 .osi-name { color:#991b1b; }
+
+/* ── REV CARDS GRID ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.rev-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.rev-card-title {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bullet-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+
+.bullet-list li {
+  font-size: 0.8rem;
+  color: #374151;
+  padding-left: 14px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.bullet-list li::before {
+  content: '›';
+  position: absolute; left: 0;
+  color: var(--accent); font-weight: 700;
+}
+
+.bullet-list li .val {
+  font-family: var(--mono);
+  color: var(--amber);
+  font-size: 0.77rem;
+}
+
+/* ── CHEAT DIVIDER ── */
+.cheat-div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 16px;
+}
+
+.cheat-div span {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+.cheat-div::before, .cheat-div::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── PRIORITY BOX ── */
+.priority-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 14px 0;
+}
+
+/* ── FINAL TIPS ── */
+.final-tips {
+  background: linear-gradient(135deg, #f0fdf4, #eff6ff);
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 26px;
+  margin-top: 32px;
+}
+
+.final-tips h3 {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 16px;
+}
+
+/* tags */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.tag {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 10px;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  border-radius: 4px; color: #475569;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .hero { padding: 36px 24px 36px; }
+  .two-col-box { grid-template-columns: 1fr; }
+  .two-col-box .col-box:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .osi-proto { display: none; }
+  .navbar { padding: 0 16px; }
+  .content-wrap { padding: 28px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 01</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">UGC NET Prep</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc', this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev', this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO BANNER -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">OSI MODEL</span>
+    <span class="hero-tag">LECTURE NOTES</span>
+  </div>
+  <h1>COMPUTER <span>NETWORKS</span></h1>
+  <p class="hero-sub">Complete OSI model coverage — Physical to Application layer, Routing, Security, and exam strategy for UGC NET &amp; GATE.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content-wrap">
+
+  <!-- ══════════════ DESCRIPTIVE PANEL ══════════════ -->
+  <div id="panel-desc" class="panel active">
+
+    <!-- SECTION 0: Foundation -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num">0</div>
+        <h2>Overall Strategy &amp; Foundation</h2>
+      </div>
+      <p class="body-text">
+        The entire Computer Networks syllabus for both UGC NET and GATE revolves around the <strong>7 layers of the OSI Model</strong>. Before diving into any specific topic, build a solid understanding of what each layer does and <em>why</em> it exists — this mental model makes every other concept far easier to retain.
+      </p>
+      <p class="body-text">
+        Whether you have months to prepare or just days, the OSI model is the skeleton on which everything else hangs. Know the PDU (Protocol Data Unit) at each layer, the key protocols, and the hardware devices associated.
+      </p>
+      <div class="callout callout-blue">
+        🎯 <strong>Golden Rule:</strong> For every layer, know its basic functionality, the protocols that live there, and the data unit (PDU) used. This alone covers ~40% of UGC NET questions.
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-header">🏛 OSI Model — 7 Layer Reference</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Layer</th><th>PDU</th><th>Key Device</th><th>Main Protocols</th></tr></thead>
+              <tbody>
+                <tr><td>7</td><td>Application</td><td>Data</td><td>Gateway</td><td class="mono">DNS, HTTP, SMTP, FTP</td></tr>
+                <tr><td>6</td><td>Presentation</td><td>Data</td><td>—</td><td class="mono">SSL/TLS, JPEG, MPEG</td></tr>
+                <tr><td>5</td><td>Session</td><td>Data</td><td>—</td><td class="mono">NetBIOS, RPC</td></tr>
+                <tr><td>4</td><td>Transport</td><td>Segment</td><td>—</td><td class="mono">TCP, UDP</td></tr>
+                <tr><td>3</td><td>Network</td><td>Packet</td><td>Router</td><td class="mono">IP, ICMP, RIP, OSPF</td></tr>
+                <tr><td>2</td><td>Data Link</td><td>Frame</td><td>Switch / Bridge</td><td class="mono">Ethernet, ARP, PPP</td></tr>
+                <tr><td>1</td><td>Physical</td><td>Bits</td><td>Hub / Repeater</td><td class="mono">Ethernet cable, Wi-Fi</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Physical Layer -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num red">1</div>
+        <h2>Physical Layer</h2>
+      </div>
+      <p class="body-text">
+        The Physical Layer is the foundation — it deals with the actual transmission of raw bits over a physical medium. For <strong>UGC NET</strong>, this layer is highly important because it produces many straightforward theory questions. For <strong>GATE</strong>, it is comparatively less critical. Importantly, <em>no numerical problems</em> come from this layer.
+      </p>
+      <p class="body-text">
+        Focus your study on the types of cables (coaxial, twisted pair, fiber optic), network topologies (bus, star, ring, mesh, hybrid), and the different modes of transmission — simplex, half-duplex, and full-duplex.
+      </p>
+      <div class="callout callout-amber">
+        💡 <strong>Key Concepts:</strong> Encoding schemes like <strong>Manchester Encoding</strong> and <strong>Differential Manchester Encoding</strong> are classic UGC NET question topics — understand how they represent 0s and 1s, not just the names.
+      </div>
+      <p class="body-text">
+        Also understand the basic distinction between LAN, MAN, WAN, and Wireless LAN, and know which hardware devices operate at this layer (hubs, repeaters) versus at higher layers.
+      </p>
+      <div class="tags">
+        <span class="tag">Cables</span><span class="tag">Topologies</span><span class="tag">Manchester Encoding</span>
+        <span class="tag">LAN/MAN/WAN</span><span class="tag">Transmission Modes</span><span class="tag">Modulation</span>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Data Link Layer -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num colored">2</div>
+        <h2>Data Link Layer (DLL)</h2>
+      </div>
+      <p class="body-text">
+        The Data Link Layer has one of the heaviest topic loads in the entire syllabus. GATE expects deep mathematical knowledge of efficiency and throughput, but for UGC NET, your focus should be on conceptual understanding and — critically — <strong>memorising frame formats and header fields</strong>, as these are very heavily tested.
+      </p>
+      <p class="body-text">
+        For <strong>Transmission Protocols</strong>, understand the three sliding window protocols: Stop and Wait (sender waits for ACK before sending next frame), Go-Back-N (retransmits all frames from the errored one), and Selective Repeat (retransmits only the errored frame).
+      </p>
+      <div class="diagram-box">
+        <div class="diagram-header">📊 Sliding Window Protocol Comparison</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Protocol</th><th>Sender Window</th><th>Receiver Window</th><th>On Error</th></tr></thead>
+              <tbody>
+                <tr><td>Stop &amp; Wait</td><td class="mono">1</td><td class="mono">1</td><td>Retransmit 1 frame</td></tr>
+                <tr><td>Go-Back-N (n-bit)</td><td class="mono">2ⁿ − 1</td><td class="mono">1</td><td>Retransmit ALL from error</td></tr>
+                <tr><td>Selective Repeat (n-bit)</td><td class="mono">2ⁿ⁻¹</td><td class="mono">2ⁿ⁻¹</td><td>Retransmit ONLY errored</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p class="body-text">
+        For <strong>MAC Protocols</strong>, study Pure Aloha (max efficiency ~18.4%), Slotted Aloha (~36.8%), CSMA/CD (used in wired Ethernet — detects and aborts on collision), and CSMA/CA (used in wireless — avoids collision). These efficiency figures are commonly asked directly.
+      </p>
+      <p class="body-text">
+        For <strong>Error Control</strong>, CRC (Cyclic Redundancy Check) is the most important — understand the concept of polynomial division over binary data. Also know Checksum and Parity.
+      </p>
+      <div class="callout callout-red">
+        🔑 <strong>Crucial Tip:</strong> Memorise the Ethernet frame format (IEEE 802.3) completely — Preamble (7B), SFD (1B), Dest MAC (6B), Src MAC (6B), Type/Length (2B), Data (46–1500B), CRC (4B). Frame formats are very heavily tested in UGC NET.
+      </div>
+    </div>
+
+    <!-- SECTION 3: Network Layer -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num" style="background:#1d4ed8">3</div>
+        <h2>Network Layer</h2>
+      </div>
+      <p class="body-text">
+        The Network Layer is responsible for logical addressing and routing packets from source to destination across multiple networks. Two areas dominate: <strong>IP Addressing</strong> and <strong>Routing Protocols</strong>.
+      </p>
+      <p class="body-text">
+        For <strong>IP Addressing</strong>, you must understand both Classful (Class A/B/C/D/E) and Classless (CIDR) addressing. UGC NET keeps this at a basic level — you don't need the complex variable-length subnetting required by GATE.
+      </p>
+      <div class="diagram-box">
+        <div class="diagram-header">📐 IP Address Classes — Classful Addressing</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Class</th><th>First Octet</th><th>Default Mask</th><th>Max Hosts</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td class="must">A</td><td>1 – 126</td><td class="mono">255.0.0.0 (/8)</td><td>16,777,214</td><td>Large organisations</td></tr>
+                <tr><td class="must">B</td><td>128 – 191</td><td class="mono">255.255.0.0 (/16)</td><td>65,534</td><td>Medium organisations</td></tr>
+                <tr><td class="must">C</td><td>192 – 223</td><td class="mono">255.255.255.0 (/24)</td><td>254</td><td>Small organisations</td></tr>
+                <tr><td class="good">D</td><td>224 – 239</td><td>—</td><td>—</td><td>Multicast</td></tr>
+                <tr><td>E</td><td>240 – 255</td><td>—</td><td>—</td><td>Experimental / Research</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="diagram-note">127.x.x.x = Loopback (localhost). Private: 10.x, 172.16–31.x, 192.168.x</div>
+      </div>
+      <p class="body-text">
+        For <strong>Routing Protocols</strong>, understand Distance Vector Routing (each router shares its table with direct neighbours — e.g., RIP) and Link State Routing (each router broadcasts link states to all routers, builds a global map — e.g., OSPF).
+      </p>
+      <div class="callout callout-blue">
+        🔑 <strong>Crucial Tip:</strong> Study the IPv4 header fields (Version, IHL, TTL, Protocol, Checksum, Source/Dest IP, etc.) and IPv6 header fields thoroughly — these are absolutely essential for UGC NET and GATE both.
+      </div>
+    </div>
+
+    <!-- SECTION 4: Transport Layer -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num green">4</div>
+        <h2>Transport Layer</h2>
+      </div>
+      <p class="body-text">
+        The Transport Layer ensures end-to-end communication between processes on different hosts. TCP (Transmission Control Protocol) is connection-oriented, reliable, and uses flow control and error recovery. UDP (User Datagram Protocol) is connectionless, faster but unreliable, used where speed matters more than reliability.
+      </p>
+      <p class="body-text">
+        For GATE, advanced topics like congestion control, timers, and the three-way handshake are critical. For <strong>UGC NET, focus only on TCP and UDP header fields and port numbers</strong>.
+      </p>
+      <div class="diagram-box">
+        <div class="diagram-header">⚖️ TCP vs UDP — Quick Comparison</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr></thead>
+              <tbody>
+                <tr><td>Connection</td><td>Connection-oriented (3-way handshake)</td><td>Connectionless</td></tr>
+                <tr><td>Reliability</td><td>Reliable — ACK, retransmit</td><td>Unreliable — no ACK</td></tr>
+                <tr><td>Speed</td><td>Slower (overhead)</td><td>Faster (lightweight)</td></tr>
+                <tr><td>Header Size</td><td class="mono">20–60 bytes</td><td class="mono">8 bytes (fixed)</td></tr>
+                <tr><td>Use Case</td><td>HTTP, FTP, SMTP, SSH</td><td>DNS, DHCP, VoIP, Video</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Upper Layers -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num amber">5</div>
+        <h2>Session, Presentation &amp; Application Layers</h2>
+      </div>
+      <p class="body-text">
+        The <strong>Session Layer</strong> manages sessions between applications — establishing, maintaining, and terminating them. The <strong>Presentation Layer</strong> handles data translation, encryption/decryption, and compression. For UGC NET, just knowing their basic functions is sufficient.
+      </p>
+      <p class="body-text">
+        The <strong>Application Layer</strong> is where user-facing protocols live. DNS is the single most important protocol here and is asked very frequently. Beyond DNS, know HTTP, SMTP, and FTP — and their port numbers by heart.
+      </p>
+      <div class="diagram-box">
+        <div class="diagram-header">🌐 Application Layer Protocols — Must Know</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Protocol</th><th>Full Form</th><th>Port</th><th>Use</th></tr></thead>
+              <tbody>
+                <tr><td class="mono must">DNS</td><td>Domain Name System</td><td class="mono must">53</td><td>Name → IP resolution</td></tr>
+                <tr><td class="mono must">HTTP</td><td>HyperText Transfer Protocol</td><td class="mono must">80</td><td>Web browsing</td></tr>
+                <tr><td class="mono must">HTTPS</td><td>HTTP Secure</td><td class="mono must">443</td><td>Secure web (SSL/TLS)</td></tr>
+                <tr><td class="mono must">SMTP</td><td>Simple Mail Transfer Protocol</td><td class="mono must">25</td><td>Send email</td></tr>
+                <tr><td class="mono must">FTP</td><td>File Transfer Protocol</td><td class="mono must">20 / 21</td><td>File transfer</td></tr>
+                <tr><td class="mono">SSH</td><td>Secure Shell</td><td class="mono">22</td><td>Secure remote login</td></tr>
+                <tr><td class="mono">Telnet</td><td>Telnet</td><td class="mono">23</td><td>Remote login (insecure)</td></tr>
+                <tr><td class="mono">POP3</td><td>Post Office Protocol v3</td><td class="mono">110</td><td>Download email</td></tr>
+                <tr><td class="mono">IMAP</td><td>Internet Message Access Protocol</td><td class="mono">143</td><td>Server-side email</td></tr>
+                <tr><td class="mono">DHCP</td><td>Dynamic Host Config Protocol</td><td class="mono">67 / 68</td><td>Automatic IP assignment</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Network Security -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num" style="background:#0f766e">6</div>
+        <h2>Network Security</h2>
+      </div>
+      <p class="body-text">
+        Network Security is an essential and high-yield part of the syllabus. Core concepts revolve around <strong>cryptography</strong> — specifically the distinction between symmetric and asymmetric key systems.
+      </p>
+      <div class="diagram-box">
+        <div class="diagram-header">🔐 Symmetric vs Asymmetric Cryptography</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Symmetric Key</th><th>Asymmetric Key</th></tr></thead>
+              <tbody>
+                <tr><td>Keys used</td><td>Same key for encrypt + decrypt</td><td>Public key encrypts, Private key decrypts</td></tr>
+                <tr><td>Speed</td><td>Fast</td><td>Slow</td></tr>
+                <tr><td>Key distribution</td><td>Difficult (must share securely)</td><td>Easy (public key is open)</td></tr>
+                <tr><td>Algorithms</td><td class="mono">DES, 3DES, AES, RC4</td><td class="mono">RSA, DSA, ECC</td></tr>
+                <tr><td>Use case</td><td>Bulk data encryption</td><td>Key exchange, digital signatures</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-blue">
+        🔑 <strong>RSA Algorithm:</strong> Choose large primes p and q → n = p×q → φ(n) = (p−1)(q−1). Public key = (e, n), Private key = (d, n), where e·d ≡ 1 mod φ(n). Security relies on the computational difficulty of factorising large numbers.
+      </div>
+    </div>
+
+  </div><!-- end descriptive panel -->
+
+  <!-- ══════════════ REVISION PANEL ══════════════ -->
+  <div id="panel-rev" class="panel">
+
+    <div class="callout callout-green" style="margin-bottom:28px">
+      ⚡ <strong>Speed Mode — </strong> All key facts, tables, and must-memorise content. No fluff. Perfect for last-day revision before UGC NET.
+    </div>
+
+    <!-- OSI FULL REFERENCE -->
+    <div class="cheat-div"><span>OSI Model — Complete Reference</span></div>
+    <div class="diagram-box">
+      <div class="diagram-header">🏛 OSI 7-Layer Stack with Protocols</div>
+      <div class="diagram-body">
+        <div class="osi-stack">
+          <div class="osi-row r7">
+            <div class="osi-n">7</div>
+            <div class="osi-name">Application</div>
+            <div class="osi-detail">User-facing protocols — DNS, HTTP, SMTP, FTP</div>
+            <div class="osi-proto">DNS:53 · HTTP:80 · FTP:21</div>
+          </div>
+          <div class="osi-row r6">
+            <div class="osi-n">6</div>
+            <div class="osi-name">Presentation</div>
+            <div class="osi-detail">Data translation, encryption, compression</div>
+            <div class="osi-proto">SSL/TLS · JPEG · MPEG</div>
+          </div>
+          <div class="osi-row r5">
+            <div class="osi-n">5</div>
+            <div class="osi-name">Session</div>
+            <div class="osi-detail">Establish, manage, and terminate sessions</div>
+            <div class="osi-proto">NetBIOS · RPC</div>
+          </div>
+          <div class="osi-row r4">
+            <div class="osi-n">4</div>
+            <div class="osi-name">Transport</div>
+            <div class="osi-detail">End-to-end delivery — TCP (reliable) vs UDP (fast)</div>
+            <div class="osi-proto">TCP · UDP</div>
+          </div>
+          <div class="osi-row r3">
+            <div class="osi-n">3</div>
+            <div class="osi-name">Network</div>
+            <div class="osi-detail">Logical addressing &amp; routing — IP, Router</div>
+            <div class="osi-proto">IP · ICMP · RIP · OSPF</div>
+          </div>
+          <div class="osi-row r2">
+            <div class="osi-n">2</div>
+            <div class="osi-name">Data Link</div>
+            <div class="osi-detail">Frames, MAC addressing, error detection</div>
+            <div class="osi-proto">Ethernet · PPP · ARP</div>
+          </div>
+          <div class="osi-row r1">
+            <div class="osi-n">1</div>
+            <div class="osi-name">Physical</div>
+            <div class="osi-detail">Raw bits over medium — cables, signals, hubs</div>
+            <div class="osi-proto">Cable · Wi-Fi · DSL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREE SCHEMA DIAGRAM -->
+    <div class="cheat-div"><span>Three-Schema Architecture</span></div>
+    <div class="diagram-box">
+      <div class="diagram-header">🏛 Where Data Independence Fits</div>
+      <div class="diagram-body">
+        <div class="schema-stack">
+          <div class="schema-level schema-ext">
+            <div class="schema-label">Level 3 — External</div>
+            <div class="schema-title">View Level / User Interface</div>
+            <div class="schema-desc">What the user sees — web app, mobile app, portal</div>
+          </div>
+          <div class="schema-bridge">
+            <div class="bridge-line"></div>
+            <div class="bridge-pill bridge-logical">↑ Logical Independence</div>
+            <div class="bridge-line"></div>
+          </div>
+          <div class="schema-level schema-con">
+            <div class="schema-label">Level 2 — Conceptual 🧩</div>
+            <div class="schema-title">Logical Structure / Tables &amp; Relationships</div>
+            <div class="schema-desc">All tables, columns, constraints, foreign keys</div>
+          </div>
+          <div class="schema-bridge">
+            <div class="bridge-line"></div>
+            <div class="bridge-pill bridge-physical">↑ Physical Independence</div>
+            <div class="bridge-line"></div>
+          </div>
+          <div class="schema-level schema-phy">
+            <div class="schema-label">Level 1 — Physical</div>
+            <div class="schema-title">Physical Storage / Files &amp; Disks</div>
+            <div class="schema-desc">Hard disks, file formats, indexes, data structures</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Logical Independence = shield between Conceptual and External. Physical Independence = shield between Physical and Conceptual.</div>
+    </div>
+
+    <!-- PORT NUMBERS -->
+    <div class="cheat-div"><span>Must-Know Port Numbers</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Protocol</th><th>Port</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>FTP (Data)</td><td class="mono must">20</td><td>Active mode data transfer</td></tr>
+            <tr><td>FTP (Control)</td><td class="mono must">21</td><td>Commands &amp; control</td></tr>
+            <tr><td>SSH</td><td class="mono must">22</td><td>Secure shell / remote login</td></tr>
+            <tr><td>Telnet</td><td class="mono must">23</td><td>Insecure remote login</td></tr>
+            <tr><td>SMTP</td><td class="mono must">25</td><td>Send mail</td></tr>
+            <tr><td>DNS</td><td class="mono must">53</td><td>Name resolution (TCP + UDP)</td></tr>
+            <tr><td>HTTP</td><td class="mono must">80</td><td>Web traffic</td></tr>
+            <tr><td>POP3</td><td class="mono good">110</td><td>Receive mail (download &amp; delete)</td></tr>
+            <tr><td>IMAP</td><td class="mono good">143</td><td>Receive mail (server-side management)</td></tr>
+            <tr><td>HTTPS</td><td class="mono must">443</td><td>Secure web (SSL/TLS)</td></tr>
+            <tr><td>DHCP Server</td><td class="mono good">67</td><td>IP assignment server side</td></tr>
+            <tr><td>DHCP Client</td><td class="mono good">68</td><td>IP assignment client side</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDING WINDOW -->
+    <div class="cheat-div"><span>Sliding Window Protocols</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Protocol</th><th>Sender Window</th><th>Receiver Window</th><th>On Error</th></tr></thead>
+          <tbody>
+            <tr><td>Stop &amp; Wait</td><td class="mono">1</td><td class="mono">1</td><td>Retransmit 1</td></tr>
+            <tr><td>Go-Back-N (n bits)</td><td class="mono">2ⁿ − 1</td><td class="mono">1</td><td>Retransmit ALL from error</td></tr>
+            <tr><td>Selective Repeat (n bits)</td><td class="mono">2ⁿ⁻¹</td><td class="mono">2ⁿ⁻¹</td><td>Retransmit ONLY errored</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MAC PROTOCOLS -->
+    <div class="cheat-div"><span>MAC Protocols — Efficiency</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">Pure ALOHA</div>
+        <ul class="bullet-list">
+          <li>Max efficiency: <span class="val">18.4% (1/2e)</span></li>
+          <li>Transmit anytime; collision → wait random time</li>
+          <li>Vulnerable time: <span class="val">2 × frame time</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Slotted ALOHA</div>
+        <ul class="bullet-list">
+          <li>Max efficiency: <span class="val">36.8% (1/e)</span></li>
+          <li>Transmit only at slot boundaries</li>
+          <li>Vulnerable time: <span class="val">1 × frame time</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">CSMA/CD</div>
+        <ul class="bullet-list">
+          <li>Used in wired Ethernet (IEEE 802.3)</li>
+          <li>Sense before transmit; detect collision mid-send</li>
+          <li>Abort + jam signal + exponential back-off</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">CSMA/CA</div>
+        <ul class="bullet-list">
+          <li>Used in wireless (IEEE 802.11)</li>
+          <li>Avoid collision (can't detect in wireless)</li>
+          <li>Uses ACK + IFS + random back-off</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ETHERNET FRAME -->
+    <div class="cheat-div"><span>Ethernet Frame (IEEE 802.3) — Memorise This</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td class="must">Preamble</td><td class="mono">7 bytes</td><td>Synchronisation — alternating 1s and 0s</td></tr>
+            <tr><td class="must">SFD</td><td class="mono">1 byte</td><td>Start Frame Delimiter (10101011)</td></tr>
+            <tr><td class="must">Destination MAC</td><td class="mono">6 bytes</td><td>Destination MAC address</td></tr>
+            <tr><td class="must">Source MAC</td><td class="mono">6 bytes</td><td>Source MAC address</td></tr>
+            <tr><td class="good">Length / Type</td><td class="mono">2 bytes</td><td>Payload length or EtherType</td></tr>
+            <tr><td>Data + Padding</td><td class="mono">46–1500 bytes</td><td>Actual payload data</td></tr>
+            <tr><td class="must">CRC / FCS</td><td class="mono">4 bytes</td><td>Error detection checksum</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IPv4 HEADER -->
+    <div class="cheat-div"><span>IPv4 Header Key Fields</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Version</td><td class="mono">4 bits</td><td>IPv4 = 4, IPv6 = 6</td></tr>
+            <tr><td class="must">IHL</td><td class="mono">4 bits</td><td>Header length in 32-bit words (min = 5)</td></tr>
+            <tr><td>Total Length</td><td class="mono">16 bits</td><td>Header + Data in bytes</td></tr>
+            <tr><td class="must">Flags</td><td class="mono">3 bits</td><td>DF = Don't Fragment; MF = More Fragments</td></tr>
+            <tr><td>Fragment Offset</td><td class="mono">13 bits</td><td>Position of this fragment</td></tr>
+            <tr><td class="must">TTL</td><td class="mono">8 bits</td><td>Hops remaining; decremented at each router</td></tr>
+            <tr><td class="must">Protocol</td><td class="mono">8 bits</td><td>TCP=6, UDP=17, ICMP=1</td></tr>
+            <tr><td>Checksum</td><td class="mono">16 bits</td><td>Header error check only (not data)</td></tr>
+            <tr><td class="must">Source IP</td><td class="mono">32 bits</td><td>Sender's IP address</td></tr>
+            <tr><td class="must">Destination IP</td><td class="mono">32 bits</td><td>Receiver's IP address</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TCP vs UDP headers -->
+    <div class="cheat-div"><span>TCP &amp; UDP Headers</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">TCP Header (20 bytes min)</div>
+        <ul class="bullet-list">
+          <li>Source Port <span class="val">16 bits</span></li>
+          <li>Destination Port <span class="val">16 bits</span></li>
+          <li>Sequence Number <span class="val">32 bits</span></li>
+          <li>ACK Number <span class="val">32 bits</span></li>
+          <li>Header Length <span class="val">4 bits</span></li>
+          <li>Flags: SYN, ACK, FIN, RST, PSH, URG</li>
+          <li>Window Size <span class="val">16 bits</span></li>
+          <li>Checksum <span class="val">16 bits</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">UDP Header (8 bytes — fixed)</div>
+        <ul class="bullet-list">
+          <li>Source Port <span class="val">16 bits</span></li>
+          <li>Destination Port <span class="val">16 bits</span></li>
+          <li>Length <span class="val">16 bits</span></li>
+          <li>Checksum <span class="val">16 bits</span></li>
+          <li style="color:#dc2626; font-weight:600">No sequence/ACK — no connection</li>
+          <li>Used: DNS, DHCP, VoIP, Video streaming</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="cheat-div"><span>Network Security — Quick Reference</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">Symmetric Key</div>
+        <ul class="bullet-list">
+          <li>Same key for encrypt + decrypt</li>
+          <li>Fast, but key distribution is hard</li>
+          <li>Algorithms: <span class="val">DES, 3DES, AES, RC4</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Asymmetric Key</div>
+        <ul class="bullet-list">
+          <li>Public key encrypts; private key decrypts</li>
+          <li>Slow, but easy key distribution</li>
+          <li>Algorithms: <span class="val">RSA, DSA, ECC</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">RSA Algorithm</div>
+        <ul class="bullet-list">
+          <li>Pick primes p, q → n = p × q</li>
+          <li>φ(n) = (p−1)(q−1)</li>
+          <li>Public key: <span class="val">(e, n)</span></li>
+          <li>Private key: <span class="val">(d, n)</span> where e·d ≡ 1 mod φ(n)</li>
+          <li>Security: hard to factorise large n</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Digital Signature</div>
+        <ul class="bullet-list">
+          <li>Sender hashes message, encrypts with <em>private</em> key</li>
+          <li>Receiver decrypts with sender's <em>public</em> key</li>
+          <li>Provides: Authentication + Non-repudiation</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FINAL TIPS -->
+    <div class="final-tips">
+      <h3>⚡ Last-Minute Priorities — Maximise Your Score</h3>
+      <div class="cards-grid" style="margin-top:0">
+        <div class="rev-card" style="border-color:#86efac">
+          <div class="rev-card-title" style="color:#15803d">🔥 Must-Do (High Yield)</div>
+          <ul class="bullet-list">
+            <li>Ethernet frame format (IEEE 802.3)</li>
+            <li>IPv4 + IPv6 header fields</li>
+            <li>TCP + UDP headers</li>
+            <li>All port numbers (especially DNS:53)</li>
+            <li>OSI layer functions &amp; PDUs</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#fcd34d">
+          <div class="rev-card-title" style="color:#d97706">📌 Also Cover</div>
+          <ul class="bullet-list">
+            <li>Sliding window (GBN vs SR window sizes)</li>
+            <li>ALOHA efficiencies: 18.4% / 36.8%</li>
+            <li>IP address classes + ranges</li>
+            <li>RSA key pairs concept</li>
+            <li>Distance Vector vs Link State</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#93c5fd">
+          <div class="rev-card-title" style="color:#1d4ed8">💡 Quick Memory Tricks</div>
+          <ul class="bullet-list">
+            <li>PDU mnemonic: Bit→Frame→Packet→Segment→Data</li>
+            <li>TTL decremented at EVERY router hop</li>
+            <li>Protocol field: TCP=6, UDP=17, ICMP=1</li>
+            <li>DNS = always port 53 (TCP + UDP)</li>
+            <li>UDP header = exactly 8 bytes always</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end revision panel -->
+
+</div><!-- end content-wrap -->
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
