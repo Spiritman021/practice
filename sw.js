@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v48';
+const CACHE_NAME = 'practice-hub-v49';
 const urlsToCache = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const urlsToCache = [
   './pages/computer/computer_networks.html',
   './pages/computer/1_computer_networks.html',
   './pages/vocab/vocab.html',
+  './pages/vocab/daily-class-vocab-1-june-2026.html',
   './pages/vocab/daily-class-vocab-2-june-2026.html',
   './pages/vocab/daily-class-vocab-3-june-2026.html',
   './pages/tools/alphabets.html',
