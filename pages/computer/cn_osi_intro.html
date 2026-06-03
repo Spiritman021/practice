@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 2: Introduction to Computer Networks and the OSI Model — protocols, mandatory vs optional functionalities, and all 7 layers explained with diagrams and revision notes.">
+<meta name="robots" content="index, follow">
+<title>Intro to Networks &amp; OSI Model — CN Topic 2 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_osi_intro.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f2f7;
+  --white: #ffffff;
+  --border: #e0e4ef;
+  --navy: #1a2340;
+  --accent: #7c3aed;
+  --accent-light: #ede9fe;
+  --red: #e11d48;
+  --red-light: #fff1f4;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --text: #1e2535;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --body: 'Nunito', sans-serif;
+}
+
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── NAVBAR ── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 52px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge {
+  background: var(--red); color: #fff;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px;
+}
+.nav-breadcrumb {
+  font-family: var(--sans); font-size: 13px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn {
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);
+}
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 35%, #7c3aed 70%, #0f766e 100%);
+  padding: 52px 48px 48px; position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; position: relative; z-index: 1; }
+.hero-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; padding: 4px 12px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.1);
+}
+.hero h1 {
+  font-family: var(--sans); font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800; color: #fff; line-height: 1.05;
+  letter-spacing: -1px; margin-bottom: 16px; position: relative; z-index: 1;
+}
+.hero h1 span { color: #93c5fd; }
+.hero-sub {
+  font-size: 0.97rem; color: rgba(255,255,255,0.78);
+  max-width: 560px; line-height: 1.6; position: relative; z-index: 1; margin-bottom: 24px;
+}
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-chip {
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  padding: 6px 16px; border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.4); color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+
+/* ── CONTENT ── */
+.content-wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── SECTION BLOCK ── */
+.section-block { margin-bottom: 48px; }
+.section-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.sec-num {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--navy); color: #fff;
+  font-family: var(--sans); font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sec-num.blue   { background: var(--blue); }
+.sec-num.red    { background: var(--red); }
+.sec-num.green  { background: var(--green); }
+.sec-num.amber  { background: var(--amber); }
+.sec-num.purple { background: var(--accent); }
+.sec-num.teal   { background: #0f766e; }
+
+.section-heading h2 { font-family: var(--sans); font-size: 1.2rem; font-weight: 700; color: var(--text); }
+
+.body-text { font-size: 0.94rem; line-height: 1.8; color: #374151; margin-bottom: 16px; }
+.body-text:last-child { margin-bottom: 0; }
+
+/* ── CALLOUTS ── */
+.callout { border-left: 4px solid; border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 18px 0; font-size: 0.88rem; line-height: 1.65; }
+.callout-red   { border-color: var(--red);   background: var(--red-light);   color: #9f1239; }
+.callout-blue  { border-color: var(--blue);  background: var(--blue-light);  color: #1e40af; }
+.callout-green { border-color: var(--green); background: var(--green-light); color: #14532d; }
+.callout-amber { border-color: var(--amber); background: var(--amber-light); color: #78350f; }
+.callout-purple{ border-color: var(--accent);background: #f5f3ff;            color: #4c1d95; }
+.callout strong { font-weight: 700; }
+
+/* ── DIAGRAM BOX ── */
+.diagram-box { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+.diagram-header { background: var(--navy); padding: 11px 18px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: 0.3px; }
+.diagram-body { padding: 24px 20px; }
+.diagram-note { padding: 10px 18px 14px; font-size: 0.8rem; color: var(--text-muted); font-style: italic; text-align: center; border-top: 1px solid var(--border); }
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; margin: 4px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; font-family: var(--sans); background: var(--white); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+thead tr { background: var(--navy); }
+th { text-align: left; padding: 11px 16px; color: rgba(255,255,255,0.85); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.3px; }
+td { padding: 10px 16px; color: #374151; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9ff; }
+td.mono { font-family: var(--mono); font-size: 0.8rem; }
+td.must { color: var(--red); font-weight: 600; }
+td.good { color: var(--amber); font-weight: 600; }
+
+/* ── ANALOGY BOX ── */
+.analogy-box {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0;
+}
+.ana-col { padding: 20px; }
+.ana-col:first-child { border-right: 1px solid var(--border); background: #fef9f0; }
+.ana-col:last-child { background: #f0f9ff; }
+.ana-title { font-family: var(--sans); font-size: 0.8rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.ana-title.amber { color: var(--amber); }
+.ana-title.blue  { color: var(--blue); }
+.ana-body { font-size: 0.85rem; color: #374151; line-height: 1.6; }
+
+/* ── FLOW DIAGRAM ── */
+.flow-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 8px 0; }
+.flow-box {
+  width: 100%; max-width: 580px;
+  border: 2px solid; border-radius: 10px; padding: 14px 20px;
+  text-align: center; background: var(--white);
+}
+.flow-box-title { font-family: var(--sans); font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+.flow-box-desc  { font-size: 0.78rem; color: var(--text-muted); }
+.flow-arrow {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; padding: 6px 0; color: var(--text-light);
+  font-size: 18px; line-height: 1;
+}
+.flow-label {
+  font-family: var(--mono); font-size: 10px; color: var(--text-light);
+  letter-spacing: 0.5px; margin-top: 2px;
+}
+
+.fb-sender  { border-color: #60a5fa; }
+.fb-sender .flow-box-title  { color: #1d4ed8; }
+.fb-network { border-color: #a78bfa; }
+.fb-network .flow-box-title { color: #6d28d9; }
+.fb-receiver{ border-color: #34d399; }
+.fb-receiver .flow-box-title{ color: #059669; }
+
+/* ── FUNC CARDS ── */
+.func-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+.func-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.func-card-head { padding: 10px 16px; font-family: var(--sans); font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.func-card-body { padding: 12px 16px 14px; font-size: 0.82rem; color: #374151; line-height: 1.6; }
+
+.fc-must .func-card-head { background: #fff1f4; color: var(--red); border-bottom: 1px solid #fecdd3; }
+.fc-opt  .func-card-head { background: #fffbeb; color: var(--amber); border-bottom: 1px solid #fde68a; }
+
+/* ── OSI VISUAL ── */
+.osi-stack { display: flex; flex-direction: column; gap: 3px; }
+.osi-row { display: flex; border-radius: 7px; overflow: hidden; transition: transform 0.15s; cursor: default; }
+.osi-row:hover { transform: translateX(5px); }
+.osi-n { width: 32px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.osi-name { width: 140px; padding: 11px 12px; font-family: var(--sans); font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; flex-shrink: 0; }
+.osi-func { flex: 1; padding: 11px 14px; font-size: 0.77rem; color: #4b5563; display: flex; align-items: center; }
+.osi-key  { width: 160px; padding: 11px 12px; font-family: var(--mono); font-size: 0.7rem; color: #6b7280; display: flex; align-items: center; flex-shrink: 0; }
+
+.r7 { background:#fff0f0; } .r7 .osi-n,.r7 .osi-name { color:#b91c1c; }
+.r6 { background:#fff7ed; } .r6 .osi-n,.r6 .osi-name { color:#c2410c; }
+.r5 { background:#fffbeb; } .r5 .osi-n,.r5 .osi-name { color:#a16207; }
+.r4 { background:#f0fdf4; } .r4 .osi-n,.r4 .osi-name { color:#15803d; }
+.r3 { background:#eff6ff; } .r3 .osi-n,.r3 .osi-name { color:#1d4ed8; }
+.r2 { background:#f5f3ff; } .r2 .osi-n,.r2 .osi-name { color:#6d28d9; }
+.r1 { background:#fef2f2; } .r1 .osi-n,.r1 .osi-name { color:#991b1b; }
+
+/* ── CARDS GRID ── */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
+.rev-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.rev-card-title { font-family: var(--sans); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.bullet-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.bullet-list li { font-size: 0.81rem; color: #374151; padding-left: 14px; position: relative; line-height: 1.55; }
+.bullet-list li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.bullet-list li .val { font-family: var(--mono); color: var(--amber); font-size: 0.77rem; }
+.bullet-list li .tag-g { font-family: var(--mono); color: var(--green); font-size: 0.77rem; }
+.bullet-list li .tag-r { font-family: var(--mono); color: var(--red); font-size: 0.77rem; }
+
+/* ── CHEAT DIVIDER ── */
+.cheat-div { display: flex; align-items: center; gap: 12px; margin: 32px 0 16px; }
+.cheat-div span { font-family: var(--sans); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-light); white-space: nowrap; }
+.cheat-div::before, .cheat-div::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── PRIORITY BOX ── */
+.priority-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 14px 0; }
+
+/* ── FINAL TIPS ── */
+.final-tips { background: linear-gradient(135deg, #f0fdf4, #eff6ff); border: 1px solid #bbf7d0; border-radius: 14px; padding: 26px; margin-top: 32px; }
+.final-tips h3 { font-family: var(--sans); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 16px; }
+
+/* tags */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.tag { font-family: var(--mono); font-size: 10px; padding: 3px 10px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .hero { padding: 36px 24px 36px; }
+  .analogy-box, .func-grid { grid-template-columns: 1fr; }
+  .analogy-box .ana-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .osi-key { display: none; }
+  .navbar { padding: 0 16px; }
+  .content-wrap { padding: 28px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="computer_networks.html" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;padding:5px 11px;border-radius:6px;background:var(--accent-light);border:1px solid rgba(124,58,237,.25);transition:background .2s;white-space:nowrap;" onmouseover="this.style.background='#ddd6fe'" onmouseout="this.style.background='var(--accent-light)'">← CN Hub</a>
+    <span class="nav-badge">CN — 02</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Intro &amp; OSI Model</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc', this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev', this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 2</span>
+    <span class="hero-tag">OSI MODEL</span>
+  </div>
+  <h1>INTRO TO <span>NETWORKS</span> &amp; OSI MODEL</h1>
+  <p class="hero-sub">What is a computer network, why protocols exist, mandatory vs optional functionalities, and how the OSI model organises all of it into 7 clean layers.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- ══════════ DESCRIPTIVE PANEL ══════════ -->
+  <div id="panel-desc" class="panel active">
+
+    <!-- SECTION 1: What is a CN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num blue">1</div>
+        <h2>What is a Computer Network?</h2>
+      </div>
+      <p class="body-text">
+        A computer network is a collection of various computing devices — homogeneous (same type) or heterogeneous (different types) — connected together with one primary goal: to allow these devices to <strong>share data and resources</strong>.
+      </p>
+      <p class="body-text">
+        At the most basic level, data is transmitted from a <strong>sender</strong> machine to a <strong>receiver</strong> machine through either a wired or wireless connection. The physical distance between them is irrelevant — it could be one metre apart in the same room, or a user in India accessing a server located in the USA.
+      </p>
+      <div class="callout callout-blue">
+        🧠 <strong>Key Distinction:</strong> When a process communicates with another process on the <em>same</em> machine (e.g., pressing a key and seeing it on screen), that is <strong>inter-process communication</strong>, handled entirely by the OS kernel — <em>not</em> a computer network. A network only comes into play when the client and server are on <strong>physically separate machines</strong>.
+      </div>
+      <div class="diagram-box">
+        <div class="diagram-header">🔄 Basic Communication Flow</div>
+        <div class="diagram-body">
+          <div class="flow-wrap">
+            <div class="flow-box fb-sender">
+              <div class="flow-box-title">Sender Machine</div>
+              <div class="flow-box-desc">User / Client process — originates the data</div>
+            </div>
+            <div class="flow-arrow">↓<div class="flow-label">WIRED / WIRELESS MEDIUM</div></div>
+            <div class="flow-box fb-network">
+              <div class="flow-box-title">Network (Protocol Stack)</div>
+              <div class="flow-box-desc">Data passes through multiple functionalities — error control, routing, encryption…</div>
+            </div>
+            <div class="flow-arrow">↓<div class="flow-label">RECEIVED &amp; DECODED</div></div>
+            <div class="flow-box fb-receiver">
+              <div class="flow-box-title">Receiver Machine</div>
+              <div class="flow-box-desc">Server / Client process — receives and understands the data</div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-note">The network makes physically separated machines feel like they share the same local environment.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Protocols -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num red">2</div>
+        <h2>Why Do We Need Protocols?</h2>
+      </div>
+      <p class="body-text">
+        Transmitting data is only half the job — the receiver must be able to <strong>understand</strong> what was sent. Without a common agreement on how data is structured and interpreted, raw bits received by the other machine are meaningless.
+      </p>
+
+      <div class="analogy-box">
+        <div class="ana-col">
+          <div class="ana-title amber">🗣️ Real-World Analogy</div>
+          <div class="ana-body">Imagine a Punjabi speaker calling a Telugu speaker. Both can hear each other perfectly — the physical connection (the phone call) works. But without a shared language, neither can understand the other's message.</div>
+        </div>
+        <div class="ana-col">
+          <div class="ana-title blue">💻 In Networking Terms</div>
+          <div class="ana-body">Two machines can have a perfect physical connection, but without a common <strong>protocol</strong>, the receiver cannot make sense of the received bits. The protocol is the agreed-upon "language" that both sides understand.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-purple">
+        📌 <strong>Definition:</strong> A <strong>protocol</strong> is a set of rules and instructions running on <em>both</em> the sender's and receiver's machines that ensures structured, meaningful communication between them.
+      </div>
+    </div>
+
+    <!-- SECTION 3: Core functionality -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num purple">3</div>
+        <h2>The Core Goal of a Network (Abstraction)</h2>
+      </div>
+      <p class="body-text">
+        When you open Google, your browser fetches data from a server potentially thousands of kilometres away. It happens so fast that it <em>feels</em> like opening a file stored locally on your own machine (like playing a movie from your D: drive in VLC).
+      </p>
+      <p class="body-text">
+        This is the core promise of a computer network: <strong>to make physically separated client and server processes feel as though they are running on the exact same machine</strong>. The complexity of the network — routing, error correction, addressing — is hidden from the user through abstraction.
+      </p>
+      <div class="callout callout-green">
+        ✅ <strong>Core Functionality:</strong> A computer network provides an environment where the user experience of accessing remote data is indistinguishable from accessing local data. All complexity is abstracted away by the protocol stack.
+      </div>
+    </div>
+
+    <!-- SECTION 4: Mandatory vs Optional -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num amber">4</div>
+        <h2>Network Functionalities: Mandatory vs Optional</h2>
+      </div>
+      <p class="body-text">
+        There are over <strong>70 different functionalities</strong> used across various network scenarios. They are divided into two main categories: those that are always required, and those that are added only when a specific application demands them (because adding optional features increases system complexity and transmission time).
+      </p>
+
+      <div class="func-grid">
+        <div class="func-card fc-must">
+          <div class="func-card-head">🔴 Mandatory Functionalities</div>
+          <div class="func-card-body">Cannot be skipped — every data transfer must go through these.</div>
+        </div>
+        <div class="func-card fc-opt">
+          <div class="func-card-head">🟡 Optional Functionalities</div>
+          <div class="func-card-body">Only added when required by the specific application or use case.</div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-header">⚙️ Mandatory Functionalities — Always Present</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Functionality</th><th>What it does</th><th>Why it matters</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="must">Error Control</td>
+                  <td>Ensures the received message is exactly what was sent, without corruption from noise or tampering.</td>
+                  <td>If an error is found, the system attempts correction or requests retransmission.</td>
+                </tr>
+                <tr>
+                  <td class="must">Flow Control</td>
+                  <td>Manages how much data is sent at once so the receiver's buffer is never overwhelmed.</td>
+                  <td>Prevents network congestion and data loss due to buffer overflow.</td>
+                </tr>
+                <tr>
+                  <td class="must">Multiplexing / Demultiplexing</td>
+                  <td>Routes incoming data to the correct process on the receiving machine.</td>
+                  <td>Ensures an incoming email goes to your mail app, not your web browser — managed at the Transport Layer.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-box" style="margin-top:16px">
+        <div class="diagram-header">💡 Optional Functionalities — Added When Needed</div>
+        <div class="diagram-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Functionality</th><th>What it does</th><th>When it is used</th><th>When skipped</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="good">Encryption / Decryption</td>
+                  <td>Scrambles data so intruders cannot read it in transit.</td>
+                  <td>Online banking (HTTPS), sensitive logins</td>
+                  <td>Normal browsing (HTTP) — no sensitive data</td>
+                </tr>
+                <tr>
+                  <td class="good">Checkpoints</td>
+                  <td>Saves progress markers during large downloads so a failed transfer can resume from the last checkpoint.</td>
+                  <td>Downloading a 500 MB file — resumes from 300 MB if broken</td>
+                  <td>Sending a few bytes of text (e.g., WhatsApp message)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="diagram-note">Adding optional functionalities increases protocol overhead and total transmission time — only use them when the benefit outweighs the cost.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Need for OSI -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num green">5</div>
+        <h2>The Need for the OSI Model</h2>
+      </div>
+      <p class="body-text">
+        With over 70 functionalities available and different applications needing different combinations, networks needed a <strong>standardised framework</strong> to organise them all systematically. Without a standard, different manufacturers and systems would be incompatible.
+      </p>
+      <p class="body-text">
+        The answer was the <strong>OSI Model</strong> — Open Systems Interconnection — a theoretical model that takes all network functionalities and divides them into <strong>7 well-defined layers</strong>. Every message sent must pass through each layer sequentially, following standard protocols at each step.
+      </p>
+      <div class="callout callout-blue">
+        📖 <strong>OSI = Open Systems Interconnection.</strong> The word "Open" means the model is vendor-neutral and publicly available — any manufacturer can build hardware or software compliant with it, ensuring interoperability across the world.
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-header">🏛 The 7 Layers of the OSI Model</div>
+        <div class="diagram-body">
+          <div class="osi-stack">
+            <div class="osi-row r7">
+              <div class="osi-n">7</div>
+              <div class="osi-name">Application</div>
+              <div class="osi-func">User-facing protocols — what the app uses to communicate</div>
+              <div class="osi-key">DNS · HTTP · SMTP · FTP</div>
+            </div>
+            <div class="osi-row r6">
+              <div class="osi-n">6</div>
+              <div class="osi-name">Presentation</div>
+              <div class="osi-func">Data translation, encryption/decryption, compression</div>
+              <div class="osi-key">SSL/TLS · JPEG · MPEG</div>
+            </div>
+            <div class="osi-row r5">
+              <div class="osi-n">5</div>
+              <div class="osi-name">Session</div>
+              <div class="osi-func">Establishes, manages, and terminates sessions</div>
+              <div class="osi-key">NetBIOS · RPC</div>
+            </div>
+            <div class="osi-row r4">
+              <div class="osi-n">4</div>
+              <div class="osi-name">Transport</div>
+              <div class="osi-func">End-to-end delivery, multiplexing/demux, flow + error control</div>
+              <div class="osi-key">TCP · UDP</div>
+            </div>
+            <div class="osi-row r3">
+              <div class="osi-n">3</div>
+              <div class="osi-name">Network</div>
+              <div class="osi-func">Logical addressing &amp; routing across networks</div>
+              <div class="osi-key">IP · ICMP · RIP · OSPF</div>
+            </div>
+            <div class="osi-row r2">
+              <div class="osi-n">2</div>
+              <div class="osi-name">Data Link</div>
+              <div class="osi-func">Frames, MAC addressing, error detection on local link</div>
+              <div class="osi-key">Ethernet · PPP · ARP</div>
+            </div>
+            <div class="osi-row r1">
+              <div class="osi-n">1</div>
+              <div class="osi-name">Physical</div>
+              <div class="osi-func">Raw bit transmission over physical medium</div>
+              <div class="osi-key">Cable · Wi-Fi · DSL</div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-note">Data travels DOWN the layers on the sender side (7→1) and UP on the receiver side (1→7). Each layer adds/removes its own header.</div>
+      </div>
+
+      <div class="callout callout-amber">
+        📚 <strong>Models to Know:</strong> OSI model and TCP/IP model are the two primary models studied for academic exams, UGC NET, and GATE. OSI is the theoretical standard; TCP/IP is what the real internet actually uses.
+      </div>
+    </div>
+
+  </div><!-- end desc -->
+
+  <!-- ══════════ REVISION PANEL ══════════ -->
+  <div id="panel-rev" class="panel">
+
+    <div class="callout callout-green" style="margin-bottom:28px">
+      ⚡ <strong>Speed Mode — </strong> All key definitions, comparisons, and OSI facts at a glance. Perfect for last-day revision.
+    </div>
+
+    <!-- KEY DEFINITIONS -->
+    <div class="cheat-div"><span>Core Definitions</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">Computer Network</div>
+        <ul class="bullet-list">
+          <li>Collection of computing devices (homo/heterogeneous)</li>
+          <li>Main goal: <span class="tag-g">share data and resources</span></li>
+          <li>Sender → Medium → Receiver</li>
+          <li>Distance is irrelevant (1m or 10,000 km)</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Protocol</div>
+        <ul class="bullet-list">
+          <li>Set of rules running on <em>both</em> sender and receiver</li>
+          <li>Acts as a <span class="val">common language</span> between machines</li>
+          <li>Without it: connection exists but no understanding</li>
+          <li>Analogy: Punjabi speaker ↔ Telugu speaker</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Network vs IPC</div>
+        <ul class="bullet-list">
+          <li><span class="tag-g">IPC</span> = same machine, handled by OS kernel</li>
+          <li><span class="val">Network</span> = different physical machines</li>
+          <li>Key: pressing key → monitor = IPC, not network</li>
+          <li>India user → USA server = Computer Network</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Core Network Goal</div>
+        <ul class="bullet-list">
+          <li>Make remote data feel <span class="tag-g">like local access</span></li>
+          <li>Abstraction hides all network complexity</li>
+          <li>Fetching Google = feels like opening local file</li>
+          <li>Client &amp; server feel co-located</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MANDATORY VS OPTIONAL -->
+    <div class="cheat-div"><span>Mandatory vs Optional Functionalities</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Functionality</th><th>What It Does</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td class="must" rowspan="3">Mandatory</td><td>Error Control</td><td>Ensures received data = sent data; detects corruption</td><td>Retransmit corrupted packet</td></tr>
+            <tr><td>Flow Control</td><td>Limits data rate so receiver buffer doesn't overflow</td><td>Prevents network congestion</td></tr>
+            <tr><td>Mux / Demux</td><td>Routes data to the correct process on receiver</td><td>Email → mail app, not browser</td></tr>
+            <tr><td class="good" rowspan="2">Optional</td><td>Encryption / Decryption</td><td>Scrambles data so intruders can't read it</td><td>HTTPS (yes) vs HTTP (no)</td></tr>
+            <tr><td>Checkpoints</td><td>Resume interrupted large downloads from last saved point</td><td>500 MB file resumes at 300 MB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="callout callout-amber" style="margin-top:12px">
+      ⚠️ Adding optional functionalities <strong>increases system complexity and transmission time</strong> — only used when the use case demands it.
+    </div>
+
+    <!-- OSI STACK -->
+    <div class="cheat-div"><span>OSI Model — 7 Layers</span></div>
+    <div class="diagram-box">
+      <div class="diagram-header">🏛 OSI Stack — Sender side: 7→1 | Receiver side: 1→7</div>
+      <div class="diagram-body">
+        <div class="osi-stack">
+          <div class="osi-row r7">
+            <div class="osi-n">7</div>
+            <div class="osi-name">Application</div>
+            <div class="osi-func">User apps communicate using protocols here</div>
+            <div class="osi-key">DNS · HTTP · FTP · SMTP</div>
+          </div>
+          <div class="osi-row r6">
+            <div class="osi-n">6</div>
+            <div class="osi-name">Presentation</div>
+            <div class="osi-func">Translate, encrypt/decrypt, compress data</div>
+            <div class="osi-key">SSL · JPEG · MPEG · ASCII</div>
+          </div>
+          <div class="osi-row r5">
+            <div class="osi-n">5</div>
+            <div class="osi-name">Session</div>
+            <div class="osi-func">Establish, manage, terminate sessions; checkpoints</div>
+            <div class="osi-key">NetBIOS · RPC · PPTP</div>
+          </div>
+          <div class="osi-row r4">
+            <div class="osi-n">4</div>
+            <div class="osi-name">Transport</div>
+            <div class="osi-func">End-to-end delivery; mux/demux; flow &amp; error control</div>
+            <div class="osi-key">TCP · UDP</div>
+          </div>
+          <div class="osi-row r3">
+            <div class="osi-n">3</div>
+            <div class="osi-name">Network</div>
+            <div class="osi-func">Logical IP addressing; routing packets across networks</div>
+            <div class="osi-key">IP · ICMP · RIP · OSPF</div>
+          </div>
+          <div class="osi-row r2">
+            <div class="osi-n">2</div>
+            <div class="osi-name">Data Link</div>
+            <div class="osi-func">MAC addressing; framing; error detection on local link</div>
+            <div class="osi-key">Ethernet · ARP · PPP</div>
+          </div>
+          <div class="osi-row r1">
+            <div class="osi-n">1</div>
+            <div class="osi-name">Physical</div>
+            <div class="osi-func">Raw bit transmission over cable, wireless, fibre</div>
+            <div class="osi-key">Cable · Wi-Fi · Fibre</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">PDU per layer: Physical=Bits · Data Link=Frame · Network=Packet · Transport=Segment · Session/Presentation/Application=Data</div>
+    </div>
+
+    <!-- KEY FACTS -->
+    <div class="cheat-div"><span>Key Exam Facts</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">OSI Full Form</div>
+        <ul class="bullet-list">
+          <li><span class="val">Open Systems Interconnection</span></li>
+          <li>"Open" = vendor-neutral, publicly defined</li>
+          <li>Theoretical / reference model only</li>
+          <li>Real internet uses <span class="tag-g">TCP/IP model</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">OSI Layer Count</div>
+        <ul class="bullet-list">
+          <li>Total layers: <span class="val">7</span></li>
+          <li>Sender sends data: <span class="val">layer 7 → layer 1</span></li>
+          <li>Receiver reads data: <span class="val">layer 1 → layer 7</span></li>
+          <li>Each layer adds its own header (encapsulation)</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Why 70+ Functionalities?</div>
+        <ul class="bullet-list">
+          <li>Different scenarios need different features</li>
+          <li>OSI groups all 70+ into <span class="val">7 organised layers</span></li>
+          <li>Standardises how all vendors implement networking</li>
+          <li>Ensures interoperability worldwide</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">OSI vs TCP/IP</div>
+        <ul class="bullet-list">
+          <li>OSI: <span class="val">7 layers</span> — theoretical / academic</li>
+          <li>TCP/IP: <span class="val">4 layers</span> — practical / internet</li>
+          <li>Both studied for GATE &amp; UGC NET</li>
+          <li>OSI is more detailed for exam MCQs</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FINAL TIPS -->
+    <div class="final-tips">
+      <h3>⚡ Last-Minute Must-Know Points</h3>
+      <div class="cards-grid" style="margin-top:0">
+        <div class="rev-card" style="border-color:#86efac">
+          <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+          <ul class="bullet-list">
+            <li>Protocol = common language for machines</li>
+            <li>Network ≠ IPC (IPC = same machine, OS)</li>
+            <li>OSI = Open Systems Interconnection, 7 layers</li>
+            <li>Mandatory: Error Control, Flow Control, Mux/Demux</li>
+            <li>Optional: Encryption, Checkpoints</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#fcd34d">
+          <div class="rev-card-title" style="color:#d97706">📌 Layer Mnemonics</div>
+          <ul class="bullet-list">
+            <li><span class="val">Top→Bottom:</span> All People Seem To Need Data Processing</li>
+            <li>Application · Presentation · Session · Transport · Network · Data Link · Physical</li>
+            <li><span class="val">Bottom→Top:</span> Please Do Not Throw Sausage Pizza Away</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#93c5fd">
+          <div class="rev-card-title" style="color:#1d4ed8">💡 Encryption Tip</div>
+          <ul class="bullet-list">
+            <li>HTTPS = encryption ON (banking, login)</li>
+            <li>HTTP = encryption OFF (normal browsing)</li>
+            <li>Checkpoint used for: large file downloads only</li>
+            <li>Skipped for: small data like WhatsApp messages</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end revision -->
+
+</div><!-- end content-wrap -->
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
