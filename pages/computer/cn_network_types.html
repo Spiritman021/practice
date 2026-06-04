@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UGC NET — Types of Computer Networks</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+  --pan: #0891b2; --lan: #16a34a; --can: #7c3aed; --man: #d97706; --wan: #e11d48;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #064e3b 0%, #0891b2 30%, #7c3aed 65%, #be123c 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events: none; }
+.hero-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; position: relative; z-index: 1; }
+.hero-tag { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.1); }
+.hero h1 { font-family: var(--sans); font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: -1px; margin-bottom: 16px; position: relative; z-index: 1; }
+.hero h1 span { color: #6ee7f7; }
+.hero-sub { font-size: 0.97rem; color: rgba(255,255,255,0.78); max-width: 560px; line-height: 1.6; position: relative; z-index: 1; margin-bottom: 24px; }
+.hero-chips { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-chip { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.4); color: #fff; background: rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* SECTION */
+.section-block { margin-bottom: 48px; }
+.section-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.sec-badge { height: 36px; padding: 0 16px; border-radius: 20px; color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; letter-spacing: 1px; flex-shrink: 0; }
+.sb-pan  { background: var(--pan); }
+.sb-lan  { background: var(--lan); }
+.sb-can  { background: var(--can); }
+.sb-man  { background: var(--man); }
+.sb-wan  { background: var(--wan); }
+.sb-base { background: var(--navy); }
+.section-heading h2 { font-family: var(--sans); font-size: 1.2rem; font-weight: 700; color: var(--text); }
+
+.body-text { font-size: 0.94rem; line-height: 1.8; color: #374151; margin-bottom: 16px; }
+.body-text:last-child { margin-bottom: 0; }
+
+/* CALLOUTS */
+.callout { border-left: 4px solid; border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 18px 0; font-size: 0.88rem; line-height: 1.65; }
+.callout-red    { border-color: var(--red);   background: var(--red-light);   color: #9f1239; }
+.callout-blue   { border-color: var(--blue);  background: var(--blue-light);  color: #1e40af; }
+.callout-green  { border-color: var(--green); background: var(--green-light); color: #14532d; }
+.callout-amber  { border-color: var(--amber); background: var(--amber-light); color: #78350f; }
+.callout-purple { border-color: var(--accent);background: #f5f3ff;            color: #4c1d95; }
+.callout-cyan   { border-color: var(--pan);   background: #ecfeff;            color: #164e63; }
+.callout strong { font-weight: 700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+.diagram-header { background: var(--navy); padding: 11px 18px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: 0.3px; }
+.diagram-body { padding: 24px 20px; }
+.diagram-note { padding: 10px 18px 14px; font-size: 0.8rem; color: var(--text-muted); font-style: italic; text-align: center; border-top: 1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x: auto; margin: 4px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; font-family: var(--sans); background: var(--white); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+thead tr { background: var(--navy); }
+th { text-align: left; padding: 11px 16px; color: rgba(255,255,255,0.85); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.3px; }
+td { padding: 10px 16px; color: #374151; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9ff; }
+td.mono { font-family: var(--mono); font-size: 0.8rem; }
+
+/* NETWORK DETAIL CARD */
+.net-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+.net-card-head { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.net-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.net-title-wrap {}
+.net-full { font-family: var(--sans); font-size: 1rem; font-weight: 700; color: var(--text); }
+.net-range { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.net-card-body { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.net-stat { padding: 14px 16px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.net-stat:nth-child(3n) { border-right: none; }
+.net-stat:nth-last-child(-n+3) { border-bottom: none; }
+.net-stat-label { font-family: var(--sans); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin-bottom: 5px; }
+.net-stat-val { font-size: 0.83rem; color: #374151; font-weight: 500; line-height: 1.4; }
+
+.nc-pan .net-icon { background: #ecfeff; }
+.nc-pan .net-full { color: var(--pan); }
+.nc-lan .net-icon { background: #f0fdf4; }
+.nc-lan .net-full { color: var(--lan); }
+.nc-can .net-icon { background: #f5f3ff; }
+.nc-can .net-full { color: var(--can); }
+.nc-man .net-icon { background: #fffbeb; }
+.nc-man .net-full { color: var(--man); }
+.nc-wan .net-icon { background: #fff1f4; }
+.nc-wan .net-full { color: var(--wan); }
+
+/* RANGE SPECTRUM */
+.spectrum-wrap { padding: 8px 0 4px; }
+.spectrum-bar { position: relative; height: 48px; background: #f1f5f9; border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: flex; align-items: center; }
+.spec-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; font-weight: 700; color: #fff; letter-spacing: 0.5px; position: relative; }
+.spec-seg.s-pan { background: var(--pan); flex: 1; }
+.spec-seg.s-lan { background: var(--lan); flex: 2; }
+.spec-seg.s-can { background: var(--can); flex: 3; }
+.spec-seg.s-man { background: var(--man); flex: 6; }
+.spec-seg.s-wan { background: var(--wan); flex: 12; border-radius: 0 10px 10px 0; }
+.spec-labels { display: flex; gap: 0; }
+.spec-lbl { flex: 1; text-align: center; font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+
+/* ANALOGY */
+.analogy-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+.ana-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+.ana-card-emoji { font-size: 28px; margin-bottom: 8px; }
+.ana-card-type { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 6px; }
+.ana-card-title { font-family: var(--sans); font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+.ana-card-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+.ana-arrow { display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 20px; align-self: center; }
+
+/* CHEAT DIVIDER */
+.cheat-div { display: flex; align-items: center; gap: 12px; margin: 32px 0 16px; }
+.cheat-div span { font-family: var(--sans); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-light); white-space: nowrap; }
+.cheat-div::before, .cheat-div::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* CARDS GRID */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
+.rev-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.rev-card-title { font-family: var(--sans); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.bullet-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.bullet-list li { font-size: 0.81rem; color: #374151; padding-left: 14px; position: relative; line-height: 1.55; }
+.bullet-list li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.bullet-list li .val { font-family: var(--mono); color: var(--amber); font-size: 0.77rem; }
+.bullet-list li .tag-g { font-family: var(--mono); color: var(--green); font-size: 0.77rem; }
+.bullet-list li .tag-r { font-family: var(--mono); color: var(--red); font-size: 0.77rem; }
+.bullet-list li .tag-b { font-family: var(--mono); color: var(--blue); font-size: 0.77rem; }
+.bullet-list li .tag-p { font-family: var(--mono); color: var(--accent); font-size: 0.77rem; }
+
+.priority-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 14px 0; }
+
+.final-tips { background: linear-gradient(135deg, #f0fdf4, #eff6ff); border: 1px solid #bbf7d0; border-radius: 14px; padding: 26px; margin-top: 32px; }
+.final-tips h3 { font-family: var(--sans); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 16px; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.tag { font-family: var(--mono); font-size: 10px; padding: 3px 10px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; color: #475569; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .hero { padding: 36px 24px; }
+  .net-card-body { grid-template-columns: 1fr 1fr; }
+  .net-stat:nth-child(2n) { border-right: none; }
+  .net-stat:nth-child(3n) { border-right: 1px solid var(--border); }
+  .analogy-row { grid-template-columns: 1fr; }
+  .ana-arrow { display: none; }
+  .navbar { padding: 0 16px; }
+  .content-wrap { padding: 28px 16px 60px; }
+}
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 03</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Types of Networks</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc', this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev', this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="computer_networks.html">Computer Networks</a><span class="sep">›</span><span class="current">Topic 3: Types of Networks</span><a class="back-btn" href="computer_networks.html">← Back</a></nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 3</span>
+    <span class="hero-tag">PAN · LAN · CAN · MAN · WAN</span>
+  </div>
+  <h1>TYPES OF <span>NETWORKS</span></h1>
+  <p class="hero-sub">PAN, LAN, CAN, MAN, and WAN — classified by distance/range. Understand their technologies, speeds, ownership, and costs from a single room to the entire globe.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- ══════════ DESCRIPTIVE PANEL ══════════ -->
+  <div id="panel-desc" class="panel active">
+
+    <!-- SECTION 0: Basis -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-base">BASIS</div>
+        <h2>Fundamental Basis of Classification</h2>
+      </div>
+      <p class="body-text">
+        All five types of computer networks are primarily classified on one single criterion: <strong>Distance or Range</strong> — how far the network can physically extend. As the range increases, the complexity, cost, maintenance difficulty, error rate, and ownership model all change accordingly.
+      </p>
+      <div class="callout callout-purple">
+        📐 <strong>Key Rule:</strong> The basis of comparison between PAN, LAN, CAN, MAN, and WAN is always <em>distance/range</em>. Everything else — speed, cost, ownership, error rate — follows from this.
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-header">📏 Range Spectrum — PAN to WAN</div>
+        <div class="diagram-body">
+          <div class="spectrum-wrap">
+            <div class="spectrum-bar">
+              <div class="spec-seg s-pan">PAN</div>
+              <div class="spec-seg s-lan">LAN</div>
+              <div class="spec-seg s-can">CAN</div>
+              <div class="spec-seg s-man">MAN</div>
+              <div class="spec-seg s-wan">WAN</div>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Network</th><th>Full Form</th><th>Range</th><th>Typical Use</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--pan);font-weight:700">PAN</td><td>Personal Area Network</td><td class="mono">1 – 100 m</td><td>Single person, one room</td></tr>
+                <tr><td style="color:var(--lan);font-weight:700">LAN</td><td>Local Area Network</td><td class="mono">Up to 1–2 km</td><td>Home, school, small office</td></tr>
+                <tr><td style="color:var(--can);font-weight:700">CAN</td><td>Campus Area Network</td><td class="mono">1 – 5 km</td><td>University campus, tech park</td></tr>
+                <tr><td style="color:var(--man);font-weight:700">MAN</td><td>Metropolitan Area Network</td><td class="mono">5 – 50 km</td><td>Entire metro city</td></tr>
+                <tr><td style="color:var(--wan);font-weight:700">WAN</td><td>Wide Area Network</td><td class="mono">Countries / Continents</td><td>Internet, global ISPs</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: PAN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-pan">PAN</div>
+        <h2>Personal Area Network</h2>
+      </div>
+      <p class="body-text">
+        A PAN is the smallest type of network, designed for use by a <strong>single individual</strong> within a very short range — typically inside a single room. The range extends from 1 metre up to a maximum of about 100 metres.
+      </p>
+      <p class="body-text">
+        The technologies used are wireless (Bluetooth, Infrared) or wired (USB). Common examples include connecting a mobile phone to a Bluetooth headset, connecting a phone to a laptop via mobile hotspot, or syncing devices via USB cable.
+      </p>
+      <div class="net-card nc-pan">
+        <div class="net-card-head">
+          <div class="net-icon">📱</div>
+          <div class="net-title-wrap">
+            <div class="net-full">Personal Area Network — PAN</div>
+            <div class="net-range">Range: 1 m – 100 m (typically one room)</div>
+          </div>
+        </div>
+        <div class="net-card-body">
+          <div class="net-stat">
+            <div class="net-stat-label">Technology</div>
+            <div class="net-stat-val">Bluetooth, Infrared, USB, Wi-Fi Hotspot</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Speed</div>
+            <div class="net-stat-val">High (very short distance)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Ownership</div>
+            <div class="net-stat-val">Private — individual only</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Maintenance</div>
+            <div class="net-stat-val">Very Easy — inbuilt hardware/software</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Error Rate</div>
+            <div class="net-stat-val">Very Low</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Cost</div>
+            <div class="net-stat-val">Very Low — no extra devices needed</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-cyan">
+        💡 Because the devices are so close, signal quality is very high, errors are minimal, and no routers or switches are needed — keeping setup cost near zero.
+      </div>
+    </div>
+
+    <!-- SECTION 2: LAN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-lan">LAN</div>
+        <h2>Local Area Network</h2>
+      </div>
+      <p class="body-text">
+        A LAN covers a slightly larger area — typically up to 1 to 2 kilometres — and is the most commonly encountered network type in everyday life. It is used in <strong>homes, schools, and small offices</strong> where multiple devices need to share resources like internet access, printers, or files.
+      </p>
+      <p class="body-text">
+        The dominant technology today is <strong>Ethernet</strong> (wired) and <strong>Wi-Fi</strong> (wireless). Historically, technologies like Token Ring were used, but Ethernet has completely replaced them as the standard.
+      </p>
+      <div class="net-card nc-lan">
+        <div class="net-card-head">
+          <div class="net-icon">🏠</div>
+          <div class="net-title-wrap">
+            <div class="net-full">Local Area Network — LAN</div>
+            <div class="net-range">Range: Up to 1–2 km (home, school, office)</div>
+          </div>
+        </div>
+        <div class="net-card-body">
+          <div class="net-stat">
+            <div class="net-stat-label">Technology</div>
+            <div class="net-stat-val">Ethernet (IEEE 802.3), Wi-Fi (IEEE 802.11)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Speed</div>
+            <div class="net-stat-val">High</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Ownership</div>
+            <div class="net-stat-val">Private — individual or organisation</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Maintenance</div>
+            <div class="net-stat-val">Easy — basic networking devices needed</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Error Rate</div>
+            <div class="net-stat-val">Low</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Cost</div>
+            <div class="net-stat-val">Low</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-green">
+        📡 Historically, <strong>Token Ring</strong> was used in LANs. Today, <strong>Ethernet</strong> is the undisputed standard. For exams, remember IEEE 802.3 = Ethernet (wired LAN), IEEE 802.11 = Wi-Fi.
+      </div>
+    </div>
+
+    <!-- SECTION 3: CAN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-can">CAN</div>
+        <h2>Campus Area Network</h2>
+      </div>
+      <p class="body-text">
+        A CAN is slightly larger than a standard LAN and is designed to connect <strong>multiple buildings</strong> within a geographically bounded area such as a university campus (IITs, Stanford) or a large corporate tech park (like a Microsoft or Google campus). Range is typically 1 to 5 kilometres.
+      </p>
+      <p class="body-text">
+        Think of a CAN as multiple LANs stitched together. Since multiple buildings are now involved, more networking infrastructure (routers, switches, cabling between buildings) is required, which raises the cost and maintenance effort above what a LAN needs.
+      </p>
+      <div class="net-card nc-can">
+        <div class="net-card-head">
+          <div class="net-icon">🏫</div>
+          <div class="net-title-wrap">
+            <div class="net-full">Campus Area Network — CAN</div>
+            <div class="net-range">Range: 1–5 km (university or corporate campus)</div>
+          </div>
+        </div>
+        <div class="net-card-body">
+          <div class="net-stat">
+            <div class="net-stat-label">Technology</div>
+            <div class="net-stat-val">Ethernet, Wi-Fi (interconnected LANs)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Speed</div>
+            <div class="net-stat-val">High</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Ownership</div>
+            <div class="net-stat-val">Private — university or company</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Maintenance</div>
+            <div class="net-stat-val">Moderate — multiple buildings, more devices</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Error Rate</div>
+            <div class="net-stat-val">Moderate</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Cost</div>
+            <div class="net-stat-val">Moderate — more hardware needed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: MAN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-man">MAN</div>
+        <h2>Metropolitan Area Network</h2>
+      </div>
+      <p class="body-text">
+        A MAN spans a range of 5 to 50 kilometres and is designed to connect multiple LANs and CANs <strong>across an entire metro city</strong> — such as Mumbai, Kolkata, or Chennai. Cable TV networks and city-wide broadband infrastructure are classic examples.
+      </p>
+      <p class="body-text">
+        Due to the large distances involved, high-capacity fibre-optic technologies are used. Setting up a MAN requires installing devices and transmission equipment at regular intervals across the city, making maintenance complex and expensive.
+      </p>
+      <div class="net-card nc-man">
+        <div class="net-card-head">
+          <div class="net-icon">🏙️</div>
+          <div class="net-title-wrap">
+            <div class="net-full">Metropolitan Area Network — MAN</div>
+            <div class="net-range">Range: 5–50 km (entire metro city)</div>
+          </div>
+        </div>
+        <div class="net-card-body">
+          <div class="net-stat">
+            <div class="net-stat-label">Technology</div>
+            <div class="net-stat-val">FDDI (Fiber Distributed Data Interface), ATM</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Speed</div>
+            <div class="net-stat-val">Moderate (distance-dependent)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Ownership</div>
+            <div class="net-stat-val">Private or Public</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Maintenance</div>
+            <div class="net-stat-val">Difficult — towers &amp; devices city-wide</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Error Rate</div>
+            <div class="net-stat-val">High</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Cost</div>
+            <div class="net-stat-val">High</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-amber">
+        🔧 <strong>FDDI</strong> = Fiber Distributed Data Interface. <strong>ATM</strong> = Asynchronous Transfer Mode. These are the classic MAN technologies asked in exams — remember both full forms.
+      </div>
+    </div>
+
+    <!-- SECTION 5: WAN -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-wan">WAN</div>
+        <h2>Wide Area Network</h2>
+      </div>
+      <p class="body-text">
+        A WAN is the largest type of network, spanning across <strong>countries and continents</strong>. The most well-known example is the <strong>Internet</strong> itself (also called the World Wide Web). WANs connect MANs, CANs, and LANs across the globe.
+      </p>
+      <p class="body-text">
+        WAN infrastructure is provided by major telecommunication companies (ISPs like Airtel, Jio, AT&amp;T) using <strong>leased lines</strong> and historically <strong>dial-up connections</strong>. Because of the massive scale — billions of users, countless devices, intercontinental cables — maintenance is extraordinarily complex and the error rate and cost are the highest of all network types.
+      </p>
+      <div class="net-card nc-wan">
+        <div class="net-card-head">
+          <div class="net-icon">🌍</div>
+          <div class="net-title-wrap">
+            <div class="net-full">Wide Area Network — WAN</div>
+            <div class="net-range">Range: Countries &amp; Continents — the Internet is the biggest WAN</div>
+          </div>
+        </div>
+        <div class="net-card-body">
+          <div class="net-stat">
+            <div class="net-stat-label">Technology</div>
+            <div class="net-stat-val">Leased Lines, Dial-up, ISP infrastructure (Airtel, Jio)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Speed</div>
+            <div class="net-stat-val">Comparatively Low</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Ownership</div>
+            <div class="net-stat-val">Mostly Public (can be private)</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Maintenance</div>
+            <div class="net-stat-val">Very Difficult — global scale</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Error Rate</div>
+            <div class="net-stat-val">Very High</div>
+          </div>
+          <div class="net-stat">
+            <div class="net-stat-label">Cost</div>
+            <div class="net-stat-val">Very High</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: Telephone Analogy -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-badge sb-base">ANALOGY</div>
+        <h2>Historical Analogy — Telephone Networks</h2>
+      </div>
+      <p class="body-text">
+        The scale and concept of modern computer networks were heavily inspired by old telephone networks of the 1980s and 1990s. The three telephone call types map perfectly to three network types — making this a memorable and exam-friendly analogy.
+      </p>
+      <div class="analogy-row">
+        <div class="ana-card">
+          <div class="ana-card-emoji">📞</div>
+          <div class="ana-card-type">PCO — Local Call</div>
+          <div class="ana-card-title" style="color:var(--lan)">≈ LAN</div>
+          <div class="ana-card-desc">Calls within the same city — short local range</div>
+        </div>
+        <div class="ana-card">
+          <div class="ana-card-emoji">📟</div>
+          <div class="ana-card-type">STD — Inter-city Call</div>
+          <div class="ana-card-title" style="color:var(--man)">≈ MAN</div>
+          <div class="ana-card-desc">State-to-state calls — larger metro/regional range</div>
+        </div>
+        <div class="ana-card">
+          <div class="ana-card-emoji">🌐</div>
+          <div class="ana-card-type">ISD — International Call</div>
+          <div class="ana-card-title" style="color:var(--wan)">≈ WAN</div>
+          <div class="ana-card-desc">Cross-country international calls — global range</div>
+        </div>
+      </div>
+      <div class="callout callout-blue">
+        🧠 <strong>Memory Hook:</strong> PCO = LAN · STD = MAN · ISD = WAN. This analogy is often directly tested in UGC NET MCQs.
+      </div>
+    </div>
+
+  </div><!-- end desc -->
+
+  <!-- ══════════ REVISION PANEL ══════════ -->
+  <div id="panel-rev" class="panel">
+
+    <div class="callout callout-green" style="margin-bottom:28px">
+      ⚡ <strong>Speed Mode — </strong> All key facts, comparison tables, and memory hooks. Perfect for last-day revision.
+    </div>
+
+    <!-- MASTER COMPARISON TABLE -->
+    <div class="cheat-div"><span>Master Comparison Table</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Property</th><th style="color:#67e8f9">PAN</th><th style="color:#86efac">LAN</th><th style="color:#c4b5fd">CAN</th><th style="color:#fcd34d">MAN</th><th style="color:#fca5a5">WAN</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Full Form</strong></td><td>Personal Area</td><td>Local Area</td><td>Campus Area</td><td>Metropolitan Area</td><td>Wide Area</td></tr>
+            <tr><td><strong>Range</strong></td><td class="mono">1–100 m</td><td class="mono">1–2 km</td><td class="mono">1–5 km</td><td class="mono">5–50 km</td><td class="mono">Worldwide</td></tr>
+            <tr><td><strong>Technology</strong></td><td>Bluetooth, IR, USB</td><td>Ethernet, Wi-Fi</td><td>Ethernet, Wi-Fi</td><td>FDDI, ATM</td><td>Leased lines, Dial-up</td></tr>
+            <tr><td><strong>Speed</strong></td><td>Very High</td><td>High</td><td>High</td><td>Moderate</td><td>Low</td></tr>
+            <tr><td><strong>Ownership</strong></td><td>Private</td><td>Private</td><td>Private</td><td>Private/Public</td><td>Mostly Public</td></tr>
+            <tr><td><strong>Maintenance</strong></td><td>Very Easy</td><td>Easy</td><td>Moderate</td><td>Difficult</td><td>Very Difficult</td></tr>
+            <tr><td><strong>Error Rate</strong></td><td>Very Low</td><td>Low</td><td>Moderate</td><td>High</td><td>Very High</td></tr>
+            <tr><td><strong>Cost</strong></td><td>Very Low</td><td>Low</td><td>Moderate</td><td>High</td><td>Very High</td></tr>
+            <tr><td><strong>Example</strong></td><td>Phone + BT headset</td><td>Home/office Wi-Fi</td><td>IIT campus, Microsoft campus</td><td>City-wide cable TV</td><td>The Internet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INDIVIDUAL CARDS -->
+    <div class="cheat-div"><span>Per-Network Quick Facts</span></div>
+    <div class="cards-grid">
+      <div class="rev-card" style="border-top: 3px solid var(--pan)">
+        <div class="rev-card-title" style="color:var(--pan)">PAN — Personal Area</div>
+        <ul class="bullet-list">
+          <li>Range: <span class="val">1 m – 100 m</span></li>
+          <li>Tech: <span class="tag-b">Bluetooth · IR · USB</span></li>
+          <li>Ownership: <span class="tag-g">Private</span> (one person)</li>
+          <li>Speed / Error / Cost: <span class="tag-g">Very High / Very Low / Very Low</span></li>
+          <li>Example: Phone ↔ BT headset, hotspot</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top: 3px solid var(--lan)">
+        <div class="rev-card-title" style="color:var(--lan)">LAN — Local Area</div>
+        <ul class="bullet-list">
+          <li>Range: <span class="val">Up to 1–2 km</span></li>
+          <li>Tech: <span class="tag-b">Ethernet (802.3) · Wi-Fi (802.11)</span></li>
+          <li>Ownership: <span class="tag-g">Private</span></li>
+          <li>Speed / Error / Cost: <span class="tag-g">High / Low / Low</span></li>
+          <li>Historical tech: <span class="val">Token Ring</span> (now obsolete)</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top: 3px solid var(--can)">
+        <div class="rev-card-title" style="color:var(--can)">CAN — Campus Area</div>
+        <ul class="bullet-list">
+          <li>Range: <span class="val">1 – 5 km</span></li>
+          <li>Multiple buildings on same campus</li>
+          <li>Examples: IIT, Stanford, Microsoft campus</li>
+          <li>Ownership: <span class="tag-g">Private</span> (university / company)</li>
+          <li>Everything moderate: cost, error, maintenance</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top: 3px solid var(--man)">
+        <div class="rev-card-title" style="color:var(--man)">MAN — Metropolitan Area</div>
+        <ul class="bullet-list">
+          <li>Range: <span class="val">5 – 50 km</span></li>
+          <li>Tech: <span class="tag-b">FDDI · ATM</span></li>
+          <li>Ownership: <span class="val">Private or Public</span></li>
+          <li>Speed / Error / Cost: <span class="val">Moderate / High / High</span></li>
+          <li>Analogy: <span class="tag-g">STD call</span> (inter-city phone)</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top: 3px solid var(--wan)">
+        <div class="rev-card-title" style="color:var(--wan)">WAN — Wide Area</div>
+        <ul class="bullet-list">
+          <li>Range: <span class="val">Countries / Continents</span></li>
+          <li>Tech: <span class="tag-b">Leased Lines · Dial-up</span></li>
+          <li>Ownership: <span class="val">Mostly Public</span></li>
+          <li>Speed / Error / Cost: <span class="tag-r">Low / Very High / Very High</span></li>
+          <li>Analogy: <span class="tag-g">ISD call</span> · Example: <span class="val">Internet</span></li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top: 3px solid var(--navy)">
+        <div class="rev-card-title">Telephone Analogy</div>
+        <ul class="bullet-list">
+          <li><span class="tag-g">PCO</span> (local call) = <span class="tag-g">LAN</span></li>
+          <li><span class="val">STD</span> (inter-city call) = <span class="val">MAN</span></li>
+          <li><span class="tag-r">ISD</span> (international call) = <span class="tag-r">WAN</span></li>
+          <li>Inspired by 1980s–90s phone networks</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- KEY TECHNOLOGIES -->
+    <div class="cheat-div"><span>Technologies to Remember for Each</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Network</th><th>Primary Technology</th><th>IEEE Standard (if any)</th><th>Exam Note</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--pan);font-weight:700">PAN</td><td>Bluetooth, IR, USB</td><td>IEEE 802.15 (Bluetooth)</td><td>No router/switch needed</td></tr>
+            <tr><td style="color:var(--lan);font-weight:700">LAN</td><td>Ethernet, Wi-Fi</td><td>802.3 (Ethernet), 802.11 (Wi-Fi)</td><td>Token Ring = old, Ethernet = current</td></tr>
+            <tr><td style="color:var(--can);font-weight:700">CAN</td><td>Ethernet, Wi-Fi (extended)</td><td>—</td><td>Connects multiple buildings</td></tr>
+            <tr><td style="color:var(--man);font-weight:700">MAN</td><td>FDDI, ATM</td><td>IEEE 802.6 (DQDB)</td><td>FDDI = Fiber Distributed Data Interface</td></tr>
+            <tr><td style="color:var(--wan);font-weight:700">WAN</td><td>Leased Lines, Dial-up, SONET</td><td>—</td><td>ISPs (Airtel, Jio) provide WAN access</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FINAL TIPS -->
+    <div class="final-tips">
+      <h3>⚡ Last-Minute Must-Know Points</h3>
+      <div class="cards-grid" style="margin-top:0">
+        <div class="rev-card" style="border-color:#86efac">
+          <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+          <ul class="bullet-list">
+            <li>Basis of classification = <span class="tag-g">Distance / Range</span></li>
+            <li>Internet = biggest example of WAN</li>
+            <li>LAN tech = Ethernet (802.3) + Wi-Fi (802.11)</li>
+            <li>MAN tech = FDDI + ATM (memorise full forms)</li>
+            <li>PAN = no extra devices, just inbuilt hardware</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#fcd34d">
+          <div class="rev-card-title" style="color:#d97706">📌 Ownership Pattern</div>
+          <ul class="bullet-list">
+            <li>PAN, LAN, CAN = always <span class="tag-g">Private</span></li>
+            <li>MAN = <span class="val">Private OR Public</span></li>
+            <li>WAN = <span class="tag-r">Mostly Public</span> (Internet)</li>
+            <li>As range ↑, ownership shifts toward public</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#93c5fd">
+          <div class="rev-card-title" style="color:#1d4ed8">💡 Trend Rule</div>
+          <ul class="bullet-list">
+            <li>Range ↑ → Speed ↓</li>
+            <li>Range ↑ → Error Rate ↑</li>
+            <li>Range ↑ → Cost ↑</li>
+            <li>Range ↑ → Maintenance Difficulty ↑</li>
+            <li>PAN→LAN→CAN→MAN→WAN follows this strictly</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end revision -->
+
+</div>
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
