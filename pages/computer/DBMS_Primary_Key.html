@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 9: Primary Key — Learn why normal attributes fail, Candidate Keys are not enough, and how system-assigned Unique + Not Null Primary Key ensures row identity.">
+<meta name="robots" content="index, follow">
+<title>Primary Key — DBMS Topic 9 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Primary_Key.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --lblue:#42A5F5; --cyan:#00ACC1;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --bluebg:#E3F2FD; --text:#1A1A1A; --white:#fff;
+    --dkgray:#424242; --mdgray:#757575;
+    --teal:#00695C; --tealL:#E0F2F1;
+    --indigo:#283593; --indigol:#E8EAF6;
+    --amber:#FF8F00; --amberl:#FFF8E1;
+    --gold:#F9A825; --goldl:#FFFDE7;
+    --brown:#5D4037; --brownl:#EFEBE9;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  /* TOPBAR */
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--gold);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--gold);}
+  .toggle-wrap{display:flex;background:var(--goldl);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--gold);color:#fff;box-shadow:0 2px 12px rgba(249,168,37,.4);}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#3e2723 0%,#5d4037 40%,#f9a825 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(255,236,153,.2) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--cyan);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(38px,6vw,62px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#ffecb3;}
+  .hero-sub{color:rgba(255,255,255,.7);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  /* MAIN */
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.gold   {background:var(--goldl);  border-color:var(--gold);  color:#5d3e00;}
+  .info-box.blue   {background:var(--bluebg); border-color:var(--blue);  color:var(--navy);}
+  .info-box.green  {background:var(--greenl); border-color:var(--green); color:var(--dkgray);}
+  .info-box.red    {background:var(--redl);   border-color:var(--red);   color:var(--dkgray);}
+  .info-box.teal   {background:var(--tealL);  border-color:var(--teal);  color:var(--teal);}
+  .info-box.orange {background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  /* ── LOCK & KEY ANALOGY ── */
+  .lock-wrap{display:flex;align-items:center;justify-content:center;gap:0;padding:28px 20px;flex-wrap:wrap;}
+  .lock-box{border-radius:12px;padding:18px 20px;text-align:center;min-width:130px;flex-shrink:0;}
+  .lock-icon{font-size:40px;margin-bottom:8px;}
+  .lock-title{font-weight:700;font-size:13.5px;margin-bottom:4px;}
+  .lock-sub{font-size:12px;line-height:1.5;opacity:.85;}
+  .lock-eq{font-size:28px;color:var(--mdgray);padding:0 14px;font-weight:700;}
+
+  /* ── ATTRIBUTE FAILURE TABLE ── */
+  .attr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+  .attr-col{padding:16px;}
+  .attr-col-title{font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:6px;margin-bottom:10px;text-align:center;}
+  .attr-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12.5px;line-height:1.55;}
+  .attr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+  /* ── CANDIDATE vs PRIMARY ── */
+  .cvp-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .cvp-side{padding:20px;}
+  .cvp-title{font-weight:700;font-size:13px;padding:9px 14px;border-radius:8px;margin-bottom:12px;text-align:center;}
+  .cvp-prop{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:9px 12px;border-radius:8px;font-size:13px;}
+  .cvp-icon{font-size:18px;flex-shrink:0;}
+  .cvp-prop b{display:block;font-size:12px;margin-bottom:2px;}
+
+  /* ── NULL PROBLEM ── */
+  .null-demo{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .null-card{border-radius:10px;overflow:hidden;}
+  .null-head{padding:9px 14px;font-weight:700;font-size:12.5px;color:#fff;}
+  .null-body{padding:10px 14px;font-size:12.5px;line-height:1.65;}
+  .null-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--redl);color:var(--red);border:1px solid #ef9a9a;}
+  .ok-badge{display:inline-block;font-family:'Space Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;}
+
+  /* ── STUDENT PK DEMO TABLE ── */
+  .pk-demo-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .pk-demo-table th{padding:8px 12px;text-align:left;font-weight:700;font-size:11.5px;}
+  .pk-demo-table td{padding:8px 12px;border-top:1px solid rgba(0,0,0,.07);}
+  .pk-demo-table tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .pk-col{background:#fffde7 !important;font-weight:700;color:var(--gold);}
+  .null-cell{color:var(--red);font-weight:700;font-style:italic;}
+  .err-row td{background:#fff5f5 !important;}
+
+  /* ── WHY ASSIGNED ── */
+  .assign-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px;}
+  .asgn-card{border-radius:10px;overflow:hidden;text-align:center;}
+  .asgn-head{padding:10px;font-weight:700;font-size:13px;color:#fff;}
+  .asgn-icon{font-size:30px;padding:14px 0 6px;}
+  .asgn-body{padding:0 12px 12px;font-size:12.5px;line-height:1.6;}
+  .asgn-pk{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;display:inline-block;margin-top:6px;}
+
+  /* ── GOLDEN RULES ── */
+  .golden-wrap{display:flex;flex-direction:column;gap:10px;padding:16px 20px;}
+  .golden-rule{display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:10px;}
+  .gr-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+  .gr-content .gr-title{font-weight:700;font-size:13.5px;margin-bottom:3px;}
+  .gr-content .gr-sub{font-size:12.5px;color:var(--dkgray);line-height:1.5;}
+  .gr-badge{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;margin-left:auto;flex-shrink:0;white-space:nowrap;}
+
+  /* ── PK ANATOMY ── */
+  .pk-anatomy{display:flex;flex-direction:column;align-items:center;gap:0;padding:20px;}
+  .pk-circle{width:130px;height:130px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:4px solid var(--gold);background:var(--goldl);}
+  .pk-circle .pc-key{font-size:32px;margin-bottom:4px;}
+  .pk-circle .pc-title{font-weight:700;font-size:13px;color:var(--gold);}
+  .pk-props{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;justify-content:center;}
+  .pk-prop{border-radius:10px;padding:12px 18px;text-align:center;min-width:130px;}
+  .pk-prop .pp-icon{font-size:24px;margin-bottom:4px;}
+  .pk-prop .pp-title{font-weight:700;font-size:13px;margin-bottom:3px;}
+  .pk-prop .pp-sub{font-size:12px;line-height:1.5;}
+  .pk-conn{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;justify-content:center;width:100%;}
+  .pk-conn-line{display:flex;flex-direction:column;align-items:center;}
+  .pk-conn-line .cl-vert{width:2px;height:20px;background:var(--mdgray);}
+  .pk-conn-line .cl-label{font-size:10px;color:var(--mdgray);}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:148px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:165px;}
+
+  @media(max-width:620px){
+    .cvp-wrap,.null-demo,.attr-grid,.assign-grid,.rev-row{grid-template-columns:1fr;}
+    .lock-wrap{gap:8px;}
+    .pk-props,.pk-conn{gap:8px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .assign-grid{grid-template-columns:1fr 1fr;}
+  }
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 09</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>What is a Primary Key?</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 9: Primary Key</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 9 • LECTURE NOTES</div>
+    <h1>What is a<br><span>Primary Key?</span></h1>
+    <p class="hero-sub">Why normal attributes fail as identifiers, why Candidate Keys aren't enough, and why a Primary Key must be both Unique AND Not Null — with real-world examples.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ═══════════════ DESCRIPTIVE VIEW ═══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--gold);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">Importance & The Lock–Key Analogy</h2>
+  </div>
+  <p class="prose">The concept of keys is one of the most <b>foundational topics in DBMS</b> — heavily tested in college exams, placement interviews, and competitive exams like GATE and IBPS SO. It is deeply connected to Normalization and SQL.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔐 The Lock & Key Analogy</div>
+    <div class="lock-wrap">
+      <div class="lock-box" style="background:var(--brownl);border:2px solid var(--brown);">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title" style="color:var(--brown);">Lock = Student Record</div>
+        <div class="lock-sub" style="color:var(--dkgray);">One specific student among 50,000 in the university database</div>
+      </div>
+      <div class="lock-eq">⟷</div>
+      <div class="lock-box" style="background:var(--goldl);border:2px solid var(--gold);">
+        <div class="lock-icon">🔑</div>
+        <div class="lock-title" style="color:var(--gold);">Key = Primary Key</div>
+        <div class="lock-sub" style="color:var(--dkgray);">One specific value that opens exactly that one record — and no other</div>
+      </div>
+      <div class="lock-eq">=</div>
+      <div class="lock-box" style="background:var(--greenl);border:2px solid var(--green);">
+        <div class="lock-icon">✅</div>
+        <div class="lock-title" style="color:var(--green);">Exact Match</div>
+        <div class="lock-sub" style="color:var(--dkgray);">The right key opens the right lock — one-to-one, no ambiguity</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Just as a specific key opens only its lock, a Primary Key value uniquely identifies only one row in the entire table.</div>
+  </div>
+
+  <div class="info-box gold">
+    📚 Keys connect directly to <b>Normalization</b> (decomposing tables without data loss), <b>SQL queries</b> (WHERE clause lookups), and <b>Foreign Keys</b> (referential integrity). Mastering keys is non-negotiable.
+  </div>
+
+  <!-- Section 2 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">Why Normal Attributes Fail as Keys (Duplicacy)</h2>
+  </div>
+  <p class="prose">Imagine a university with 50,000 students. You record attributes like Name, Age, Date of Birth, Father's Name, and Mother's Name. <b>None of these can reliably identify a unique student</b> — because duplicates are possible in every single one of them.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">❌ Normal Attributes — Why They Can't Be Keys</div>
+    <div class="attr-grid">
+      <div class="attr-col" style="border-right:1px solid #f0f0f0;background:#fafafa;">
+        <div class="attr-col-title" style="background:var(--redl);color:var(--red);">Name — Fails</div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>Two students can have identical first and last names — e.g. "Rahul Sharma" is very common.</div></div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>In a country of 1.4 billion, name uniqueness cannot be guaranteed in any university.</div></div>
+      </div>
+      <div class="attr-col" style="border-right:1px solid #f0f0f0;background:#fafafa;">
+        <div class="attr-col-title" style="background:var(--redl);color:var(--red);">Date of Birth — Fails</div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>Multiple students can share the exact same birthday — birthday twins are common.</div></div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>In a batch of 500, statistically many students share DOB (Birthday Paradox).</div></div>
+      </div>
+      <div class="attr-col" style="background:#fafafa;">
+        <div class="attr-col-title" style="background:var(--redl);color:var(--red);">Father's / Mother's Name — Fails</div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>Two siblings enrolled in the same college will have <i>identical</i> parent names.</div></div>
+        <div class="attr-item"><div class="attr-dot" style="background:var(--red);"></div><div>Common parent names repeat across thousands of unrelated families.</div></div>
+      </div>
+    </div>
+    <div style="background:var(--redl);border-top:1px solid #ffcdd2;padding:9px 16px;font-size:12.5px;color:var(--red);font-weight:600;text-align:center;">
+      ✕ None of these attributes guarantee uniqueness across all rows — they cannot reliably identify a single student.
+    </div>
+    <div class="diagram-caption">Regular attributes can have duplicate values — making them useless as row identifiers in a large dataset.</div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Candidate Keys — Unique But Not Enough</h2>
+  </div>
+  <p class="prose">Attributes that <b>do not contain duplicate values</b> are called <b>Candidate Keys</b>. Their defining property is <b>uniqueness</b>. For a student, these include Phone Number, Aadhaar, PAN Card, Driving License, Registration Number, Roll Number, and Email ID.</p>
+  <p class="prose">But uniqueness alone is not sufficient. Candidate keys have a critical weakness — they can sometimes be <b>empty (NULL)</b> or contain shared/incorrect data.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">⚠️ The NULL Problem — Why Candidate Keys Alone Aren't Enough</div>
+    <div class="null-demo">
+      <div class="null-card" style="border:1.5px solid #ef9a9a;">
+        <div class="null-head" style="background:var(--red);">📱 Phone Number Issue</div>
+        <div class="null-body" style="background:var(--redl);">
+          <div style="margin-bottom:6px;">• Student might provide a <b>wrong number</b> or leave it empty.</div>
+          <div style="margin-bottom:6px;">• Two siblings in the same college might share the <b>same parent's phone</b>.</div>
+          <div>• Result: <span class="null-badge">NULL</span> or <span class="null-badge">DUPLICATE</span> → search returns wrong/no results.</div>
+        </div>
+      </div>
+      <div class="null-card" style="border:1.5px solid #ef9a9a;">
+        <div class="null-head" style="background:var(--red);">🪪 Aadhaar / PAN Issue</div>
+        <div class="null-body" style="background:var(--redl);">
+          <div style="margin-bottom:6px;">• <b>Not all 50,000 students</b> in a university have an Aadhaar or PAN card yet.</div>
+          <div style="margin-bottom:6px;">• A first-year student aged 17 may not have applied for PAN.</div>
+          <div>• If column is NOT NULL, valid students are blocked. If allowed NULL: <span class="null-badge">NULL</span> → broken identity.</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--amberl);border-top:1px solid #ffe082;padding:9px 16px;font-size:12.5px;color:#5d3e00;font-weight:600;text-align:center;">
+      🔑 Candidate Key property = <b>Unique only</b>. It can still be NULL. That's the gap a Primary Key fills.
+    </div>
+    <div class="diagram-caption">Candidate Keys are unique — but they can be null or sometimes practically shared. A Primary Key eliminates this weakness.</div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--gold);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">The Primary Key: Unique + Not Null</h2>
+  </div>
+  <p class="prose">A <b>Primary Key</b> is a Candidate Key that satisfies <b>two strict, non-negotiable properties simultaneously</b>: it must be <b>Unique</b> AND <b>Not Null</b>. Out of all candidate keys, the designer picks exactly one — the most appropriate — as the Primary Key.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔑 Primary Key — Two Mandatory Properties</div>
+    <div class="pk-anatomy">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;">
+        <div class="pk-prop" style="background:var(--bluebg);border:2px solid var(--blue);">
+          <div class="pp-icon">🔢</div>
+          <div class="pp-title" style="color:var(--blue);">UNIQUE</div>
+          <div class="pp-sub" style="color:var(--dkgray);">No two rows can ever have the same Primary Key value. Each row gets a one-of-a-kind identifier.</div>
+        </div>
+        <div style="font-size:28px;color:var(--gold);font-weight:700;">+</div>
+        <div class="pk-prop" style="background:var(--greenl);border:2px solid var(--green);">
+          <div class="pp-icon">🚫</div>
+          <div class="pp-title" style="color:var(--green);">NOT NULL</div>
+          <div class="pp-sub" style="color:var(--dkgray);">The field can <b>never</b> be left empty. Every row must have a valid PK value — always.</div>
+        </div>
+        <div style="font-size:28px;color:var(--gold);font-weight:700;">=</div>
+        <div class="pk-prop" style="background:var(--goldl);border:3px solid var(--gold);">
+          <div class="pp-icon">⭐</div>
+          <div class="pp-title" style="color:var(--gold);">PRIMARY KEY</div>
+          <div class="pp-sub" style="color:var(--dkgray);">The chosen candidate. The official, guaranteed row identifier. One per table — no exceptions.</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">UNIQUE ensures no confusion between rows. NOT NULL ensures every row always has an identity. Together = Primary Key.</div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 Why Aadhaar Fails as PK — But Roll Number Works</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:18px 20px;border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div style="font-weight:700;font-size:13px;padding:8px 12px;border-radius:6px;background:var(--redl);color:var(--red);margin-bottom:12px;text-align:center;">❌ Aadhaar as Primary Key — Fails</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--dkgray);">
+          If Aadhaar is set as PK with NOT NULL constraint, and a student doesn't have one:<br><br>
+          • College must either <b>deny admission</b> to the student, or<br>
+          • Fill the column with <b>garbage values</b> like <code style="font-family:monospace;background:#fee;padding:1px 4px;border-radius:3px;font-size:11px;">$</code>, <code style="font-family:monospace;background:#fee;padding:1px 4px;border-radius:3px;font-size:11px;">#</code>, or <code style="font-family:monospace;background:#fee;padding:1px 4px;border-radius:3px;font-size:11px;">XXXX</code> — which defeats the purpose entirely.<br><br>
+          Not all 50,000 students are guaranteed to have an Aadhaar. <b>Inappropriate as PK.</b>
+        </div>
+      </div>
+      <div style="padding:18px 20px;background:#fafafa;">
+        <div style="font-weight:700;font-size:13px;padding:8px 12px;border-radius:6px;background:var(--greenl);color:var(--green);margin-bottom:12px;text-align:center;">✓ Roll/Registration Number — Perfect PK</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--dkgray);">
+          • <b>Automatically generated</b> by the system at the time of admission.<br>
+          • <b>Always unique</b> — the system ensures no two students get the same number.<br>
+          • <b>Always assigned</b> — no student ever leaves without one. Never NULL.<br>
+          • The student didn't choose it — the system gave it. <b>Perfect Primary Key.</b>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The best Primary Key is one the system generates and assigns — not one collected from the user.</div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">5</div>
+    <h2 style="color:var(--navy);">Primary Keys Are Assigned, Not Taken</h2>
+  </div>
+  <p class="prose">A golden rule of database design: <b>we never take the Primary Key value from the user — the system gives it to them.</b> You don't get to choose your roll number when joining college; the college assigns it automatically. This guarantees both uniqueness and non-nullness with zero chance of user error.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🌍 Real-World Examples — System-Assigned Primary Keys</div>
+    <div class="assign-grid">
+      <div class="asgn-card" style="border:2px solid var(--blue);">
+        <div class="asgn-head" style="background:var(--blue);">🎓 University</div>
+        <div class="asgn-icon" style="background:var(--bluebg);">🎓</div>
+        <div class="asgn-body" style="background:var(--bluebg);">
+          Registration Number automatically generated at admission. Student never chooses it.
+          <div class="asgn-pk" style="background:var(--bluebg);color:var(--blue);border:1px solid var(--lblue);">REG/2024/CS/001</div>
+        </div>
+      </div>
+      <div class="asgn-card" style="border:2px solid var(--indigo);">
+        <div class="asgn-head" style="background:var(--indigo);">🛂 Passport Office</div>
+        <div class="asgn-icon" style="background:var(--indigol);">🛂</div>
+        <div class="asgn-body" style="background:var(--indigol);">
+          Passport Number auto-generated when application is approved. You receive it — you don't pick it.
+          <div class="asgn-pk" style="background:var(--indigol);color:var(--indigo);border:1px solid #9fa8da;">P1234567</div>
+        </div>
+      </div>
+      <div class="asgn-card" style="border:2px solid var(--teal);">
+        <div class="asgn-head" style="background:var(--teal);">🚗 License Office</div>
+        <div class="asgn-icon" style="background:var(--tealL);">🚗</div>
+        <div class="asgn-body" style="background:var(--tealL);">
+          Driving License Number automatically assigned after test. System ensures no duplicates across all states.
+          <div class="asgn-pk" style="background:var(--tealL);color:var(--teal);border:1px solid #80cbc4;">DL-09-2024-0012345</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">In every system, the Primary Key is generated and assigned by the system — never chosen by the user. This guarantees Unique + Not Null without any user involvement.</div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">6</div>
+    <h2 style="color:var(--navy);">Candidate Key vs Primary Key — Side by Side</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⚖️ Candidate Key vs Primary Key — Full Comparison</div>
+    <div class="cvp-wrap">
+      <div class="cvp-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="cvp-title" style="background:var(--indigol);color:var(--indigo);">🗝️ Candidate Key</div>
+        <div class="cvp-prop" style="background:var(--greenl);">
+          <div class="cvp-icon">✅</div>
+          <div><b style="color:var(--green);">Unique</b> — values never repeat across rows.</div>
+        </div>
+        <div class="cvp-prop" style="background:var(--redl);">
+          <div class="cvp-icon">⚠️</div>
+          <div><b style="color:var(--red);">Can be NULL</b> — field can be left empty.</div>
+        </div>
+        <div class="cvp-prop" style="background:var(--indigol);">
+          <div class="cvp-icon">📦</div>
+          <div><b style="color:var(--indigo);">Multiple allowed</b> — a table can have many candidate keys.</div>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--mdgray);font-style:italic;padding:0 4px;">Examples: Phone, Aadhaar, PAN, Email, Voter ID…</div>
+      </div>
+      <div class="cvp-side" style="background:#fafafa;">
+        <div class="cvp-title" style="background:var(--goldl);color:var(--gold);">⭐ Primary Key</div>
+        <div class="cvp-prop" style="background:var(--greenl);">
+          <div class="cvp-icon">✅</div>
+          <div><b style="color:var(--green);">Unique</b> — values never repeat across rows.</div>
+        </div>
+        <div class="cvp-prop" style="background:var(--greenl);">
+          <div class="cvp-icon">✅</div>
+          <div><b style="color:var(--green);">NOT NULL</b> — field <i>can never</i> be left empty. Always has a value.</div>
+        </div>
+        <div class="cvp-prop" style="background:var(--amberl);">
+          <div class="cvp-icon">☝️</div>
+          <div><b style="color:var(--amber);">Only ONE</b> — a table can have exactly one Primary Key.</div>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--mdgray);font-style:italic;padding:0 4px;">Best choice: Roll Number, Registration Number (system-assigned)</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Primary Key = Candidate Key + NOT NULL constraint + Only one per table. It is the most important constraint in relational database design.</div>
+  </div>
+
+  <!-- Section 7: Golden Rules -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--gold);color:#fff;">7</div>
+    <h2 style="color:var(--navy);">Golden Rules for Exams</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⭐ Golden Rules — Exam-Ready Facts</div>
+    <div class="golden-wrap">
+      <div class="golden-rule" style="background:var(--indigol);border:1.5px solid var(--indigo);">
+        <div class="gr-num" style="background:var(--indigo);">1</div>
+        <div class="gr-content">
+          <div class="gr-title" style="color:var(--indigo);">Candidate Key property = Unique ONLY</div>
+          <div class="gr-sub">A Candidate Key guarantees uniqueness but <b>can still be NULL</b>. It is not required to always have a value.</div>
+        </div>
+        <div class="gr-badge" style="background:var(--indigol);color:var(--indigo);border:1px solid #9fa8da;">UNIQUE</div>
+      </div>
+      <div class="golden-rule" style="background:var(--goldl);border:1.5px solid var(--gold);">
+        <div class="gr-num" style="background:var(--gold);">2</div>
+        <div class="gr-content">
+          <div class="gr-title" style="color:var(--gold);">Primary Key property = Unique + Not Null</div>
+          <div class="gr-sub">A Primary Key must be both unique AND non-empty. <b>Both conditions are mandatory</b> — one without the other is not a Primary Key.</div>
+        </div>
+        <div class="gr-badge" style="background:var(--goldl);color:var(--gold);border:1px solid #ffe082;">UNIQUE + NOT NULL</div>
+      </div>
+      <div class="golden-rule" style="background:var(--bluebg);border:1.5px solid var(--blue);">
+        <div class="gr-num" style="background:var(--blue);">3</div>
+        <div class="gr-content">
+          <div class="gr-title" style="color:var(--blue);">Multiple Candidate Keys — One Primary Key</div>
+          <div class="gr-sub">A table can have <b>many</b> Candidate Keys (Phone, Aadhaar, PAN, Email…) but <b>only ONE</b> Primary Key. No DBMS allows more than one.</div>
+        </div>
+        <div class="gr-badge" style="background:var(--bluebg);color:var(--blue);border:1px solid #90caf9;">1 PK ONLY</div>
+      </div>
+      <div class="golden-rule" style="background:var(--greenl);border:1.5px solid var(--green);">
+        <div class="gr-num" style="background:var(--green);">4</div>
+        <div class="gr-content">
+          <div class="gr-title" style="color:var(--green);">System Assigns PK — User Never Chooses It</div>
+          <div class="gr-sub">The Primary Key is <b>generated by the system</b>, not provided by the user. This guarantees it's always unique and never null.</div>
+        </div>
+        <div class="gr-badge" style="background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;">AUTO-ASSIGNED</div>
+      </div>
+      <div class="golden-rule" style="background:var(--tealL);border:1.5px solid var(--teal);">
+        <div class="gr-num" style="background:var(--teal);">5</div>
+        <div class="gr-content">
+          <div class="gr-title" style="color:var(--teal);">No DBMS Allows Two Primary Keys</div>
+          <div class="gr-sub">Oracle, SQL Server, MySQL, IBM DB2 — none of them permit more than one Primary Key per table. If one attribute uniquely identifies rows, there's no reason for another.</div>
+        </div>
+        <div class="gr-badge" style="background:var(--tealL);color:var(--teal);border:1px solid #80cbc4;">ALL DBMS</div>
+      </div>
+    </div>
+    <div class="diagram-caption">These five rules appear directly in GATE, UGC NET, IBPS SO, and placement interviews — memorize them exactly.</div>
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+
+<!-- ═══════════════ REVISION VIEW ═══════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--gold);">
+      <div class="rev-num">1</div>Keys — Importance & Analogy
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Why important:</span><span class="rv">Foundational in DBMS — tested in college exams, placements, GATE, IBPS SO. Directly connected to Normalization and SQL.</span></div>
+      <div class="rev-kv"><span class="rk">Lock-Key analogy:</span><span class="rv">A specific key opens a specific lock. A Primary Key value uniquely opens exactly one row — no other.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);">
+      <div class="rev-num">2</div>Why Normal Attributes Fail as Keys
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Problem:</span><span class="rv">Normal attributes like Name, Age, DOB, Father's Name can be <b>duplicated</b> across different students.</span></div>
+      <div class="rev-kv"><span class="rk">Name:</span><span class="rv">"Rahul Sharma" may appear hundreds of times in a 50,000-student database.</span></div>
+      <div class="rev-kv"><span class="rk">DOB:</span><span class="rv">Multiple students can share the same birthday — statistically inevitable in large batches.</span></div>
+      <div class="rev-kv"><span class="rk">Parent names:</span><span class="rv">Siblings enrolled together have <i>identical</i> parent names.</span></div>
+      <div class="rev-kv"><span class="rk">Conclusion:</span><span class="rv">No normal attribute guarantees uniqueness → cannot serve as a reliable row identifier.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">3</div>Candidate Key — Unique But Can Be Null
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">Attributes with no duplicate values — inherently unique. Phone, Aadhaar, PAN, Email, Driving License, Roll No.</span></div>
+      <div class="rev-kv"><span class="rk">Property:</span><span class="rv"><b>Unique only</b>. Can still be NULL (empty).</span></div>
+      <div class="rev-kv"><span class="rk">Phone NULL issue:</span><span class="rv">Student may enter wrong number, leave blank, or two siblings share one parent's phone.</span></div>
+      <div class="rev-kv"><span class="rk">Aadhaar/PAN issue:</span><span class="rv">Not all 50,000 students have Aadhaar or PAN cards — especially younger students. Can't enforce NOT NULL.</span></div>
+      <div class="rev-kv"><span class="rk">Gap:</span><span class="rv">Uniqueness alone ≠ perfect identifier. The NULL possibility breaks row identification.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--gold);">
+      <div class="rev-num">4</div>Primary Key — Unique + Not Null
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">A Candidate Key with <b>two mandatory properties: UNIQUE + NOT NULL</b>. Chosen by the designer — one per table.</span></div>
+      <div class="rev-kv"><span class="rk">Not Null means:</span><span class="rv">The field can <b>never</b> be empty. Every inserted row must provide a PK value.</span></div>
+      <div class="rev-kv"><span class="rk">Why Aadhaar fails as PK:</span><span class="rv">Not all students have one. If forced NOT NULL → college must deny admission or fill garbage values.</span></div>
+      <div class="rev-kv"><span class="rk">Best PK for students:</span><span class="rv"><b>Registration Number</b> (university) or <b>Roll Number</b> (college) — system-generated, always unique, never null.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">5</div>Primary Keys Are Assigned, Not Taken
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Golden rule:</span><span class="rv"><b>Never take the PK value from the user — the system generates and assigns it.</b></span></div>
+      <div class="rev-kv"><span class="rk">University:</span><span class="rv">Registration Number auto-assigned at admission. Student doesn't choose it.</span></div>
+      <div class="rev-kv"><span class="rk">Passport Office:</span><span class="rv">Passport Number auto-generated when approved.</span></div>
+      <div class="rev-kv"><span class="rk">License Office:</span><span class="rv">License Number auto-generated after test clearance.</span></div>
+      <div class="rev-kv"><span class="rk">Why this works:</span><span class="rv">System-generated → guaranteed unique (no collision) + guaranteed assigned (never null). User error eliminated.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">★</div>Golden Rules — Exam Quick Reference
+    </div>
+    <div class="rev-card-body">
+      <div style="overflow-x:auto;margin-bottom:14px;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:var(--navy);color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">Property</th>
+            <th style="padding:8px 12px;text-align:center;">Candidate Key</th>
+            <th style="padding:8px 12px;text-align:center;">Primary Key</th>
+          </tr></thead>
+          <tbody>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;color:var(--green);">Unique</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✓ YES</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✓ YES</td></tr>
+            <tr style="background:#f5f7ff;"><td style="padding:8px 12px;font-weight:700;color:var(--red);">Not Null</td><td style="padding:8px 12px;text-align:center;color:var(--red);font-weight:700;">✕ Not required</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✓ Mandatory</td></tr>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;color:var(--indigo);">Count per table</td><td style="padding:8px 12px;text-align:center;color:var(--indigo);font-weight:700;">Many (multiple)</td><td style="padding:8px 12px;text-align:center;color:var(--gold);font-weight:700;">Exactly ONE</td></tr>
+            <tr style="background:#f5f7ff;"><td style="padding:8px 12px;font-weight:700;color:var(--teal);">Value source</td><td style="padding:8px 12px;text-align:center;">May come from user</td><td style="padding:8px 12px;text-align:center;color:var(--teal);font-weight:700;">System-generated</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--goldl);border:1.5px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:13px;color:#5d3e00;">
+        📝 <b>Exam formula:</b> &nbsp; Primary Key = Candidate Key that is <b>Unique + Not Null + System-assigned + Only ONE per table</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">📖</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Primary Key</td><td>A Candidate Key that is UNIQUE + NOT NULL. Exactly one per table. System-assigned.</td></tr>
+          <tr><td>Candidate Key</td><td>Any attribute that is unique across all rows. Can be NULL. Multiple allowed per table.</td></tr>
+          <tr><td>Alternate Key</td><td>All Candidate Keys that were NOT chosen as Primary Key. Still unique — just secondary.</td></tr>
+          <tr><td>UNIQUE constraint</td><td>No two rows can have the same value for this attribute.</td></tr>
+          <tr><td>NOT NULL constraint</td><td>The column can never be left empty — every row must supply a value.</td></tr>
+          <tr><td>NULL</td><td>An absent or unknown value. A Candidate Key can be null; a Primary Key cannot.</td></tr>
+          <tr><td>System-assigned PK</td><td>The Primary Key value is generated by the DBMS/application — never entered by the user.</td></tr>
+          <tr><td>Registration Number</td><td>Best PK for a university student table — auto-generated, always unique, always assigned.</td></tr>
+          <tr><td>Why Aadhaar fails as PK</td><td>Not all students have one → enforcing NOT NULL would block valid students or require garbage values.</td></tr>
+          <tr><td>Garbage Value</td><td>A meaningless placeholder (like "$" or "#") entered to satisfy NOT NULL — indicates wrong PK choice.</td></tr>
+          <tr><td>Lock-Key analogy</td><td>A specific key opens a specific lock = a PK value uniquely opens exactly one row.</td></tr>
+          <tr><td>One PK per table</td><td>Every DBMS (Oracle, SQL Server, MySQL, DB2) allows exactly one Primary Key per table — no exceptions.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

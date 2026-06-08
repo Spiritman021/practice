@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 4: TCP/IP Protocol Suite — Master the practical internet model (4-layer vs 5-layer), layer-by-layer functionalities, encapsulation, decapsulation, and network architectures.">
+<meta name="robots" content="index, follow">
+<title>TCP/IP Protocol Suite — CN Topic 4 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_tcpip_model.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+  /* layer colours */
+  --l-app:  #dc2626; --l-trans: #16a34a; --l-net: #2563eb; --l-na: #7c3aed;
+  --l-phy:  #b45309; --l-dll:  #0f766e;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── NAVBAR ── */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* ── HERO ── */
+.hero { background: linear-gradient(135deg, #0c4a6e 0%, #1d4ed8 35%, #7c3aed 65%, #0f766e 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#86efac; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:560px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* ── CONTENT ── */
+.content-wrap { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SECTION ── */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-blue   { background:var(--blue); }
+.sn-red    { background:var(--red); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-purple { background:var(--accent); }
+.sn-teal   { background:var(--teal); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* ── CALLOUTS ── */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout strong { font-weight:700; }
+
+/* ── DIAGRAM BOX ── */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+
+/* ── SIDE-BY-SIDE MODEL DIAGRAM ── */
+.model-compare { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.model-col { display:flex; flex-direction:column; gap:3px; }
+.model-col-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; text-align:center; padding:8px; border-radius:7px; margin-bottom:4px; }
+.mct-osi  { background:var(--navy); color:#fff; }
+.mct-tcp  { background:var(--blue); color:#fff; }
+
+.m-row { border-radius:7px; overflow:hidden; transition:transform 0.15s; }
+.m-row:hover { transform:translateX(4px); }
+.m-row-inner { display:flex; align-items:center; padding:10px 14px; gap:10px; }
+.m-num { font-family:var(--mono); font-size:10px; font-weight:700; width:18px; flex-shrink:0; }
+.m-name { font-family:var(--sans); font-size:0.78rem; font-weight:700; flex:1; }
+.m-pdu  { font-family:var(--mono); font-size:0.68rem; color:#6b7280; }
+
+.mr7 { background:#fff0f0; } .mr7 .m-num,.mr7 .m-name { color:#b91c1c; }
+.mr6 { background:#fff7ed; } .mr6 .m-num,.mr6 .m-name { color:#c2410c; }
+.mr5 { background:#fffbeb; } .mr5 .m-num,.mr5 .m-name { color:#a16207; }
+.mr4 { background:#f0fdf4; } .mr4 .m-num,.mr4 .m-name { color:#15803d; }
+.mr3 { background:#eff6ff; } .mr3 .m-num,.mr3 .m-name { color:#1d4ed8; }
+.mr2 { background:#f5f3ff; } .mr2 .m-num,.mr2 .m-name { color:#6d28d9; }
+.mr1 { background:#fef2f2; } .mr1 .m-num,.mr1 .m-name { color:#991b1b; }
+
+.tcp-app  { background:#fff0f0; min-height:98px; display:flex; align-items:center; }
+.tcp-app .m-name,.tcp-app .m-num { color:#b91c1c; }
+.tcp-trans { background:#f0fdf4; }
+.tcp-trans .m-name,.tcp-trans .m-num { color:#15803d; }
+.tcp-inet { background:#eff6ff; }
+.tcp-inet .m-name,.tcp-inet .m-num { color:#1d4ed8; }
+.tcp-na   { background:#f5f3ff; min-height:66px; display:flex; align-items:center; }
+.tcp-na .m-name,.tcp-na .m-num { color:#6d28d9; }
+
+.map-label { font-family:var(--mono); font-size:9px; color:var(--text-light); margin-top:2px; }
+
+/* ── LAYER DETAIL CARD ── */
+.layer-card { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:16px 0; }
+.layer-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--border); }
+.layer-badge { height:32px; padding:0 14px; border-radius:20px; color:#fff; font-family:var(--mono); font-size:11px; font-weight:700; display:flex; align-items:center; letter-spacing:0.5px; flex-shrink:0; }
+.layer-card-head-title { font-family:var(--sans); font-size:0.95rem; font-weight:700; }
+.layer-card-head-sub   { font-family:var(--mono); font-size:10px; color:var(--text-muted); margin-top:2px; }
+.layer-card-body { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; }
+.lc-stat { padding:14px 16px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); }
+.lc-stat:nth-child(3n)       { border-right:none; }
+.lc-stat:nth-last-child(-n+3){ border-bottom:none; }
+.lc-stat-label { font-family:var(--sans); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-light); margin-bottom:5px; }
+.lc-stat-val   { font-size:0.82rem; color:#374151; font-weight:500; line-height:1.4; }
+.lc-stat-val.mono { font-family:var(--mono); font-size:0.78rem; }
+
+/* ── ENCAPSULATION FLOW ── */
+.encap-flow { display:flex; flex-direction:column; gap:3px; }
+.encap-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; }
+.encap-layer { font-family:var(--sans); font-size:0.78rem; font-weight:700; width:140px; flex-shrink:0; }
+.encap-header { font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); flex:1; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.hdr-box { border:1.5px solid; border-radius:4px; padding:2px 8px; font-size:0.68rem; font-weight:600; }
+.hdr-new  { }
+.hdr-prev { opacity:0.55; }
+.encap-pdu { font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 10px; border-radius:12px; flex-shrink:0; }
+
+.ea-row  { background:#fff0f0; } .ea-row .encap-layer { color:#b91c1c; }
+.et-row  { background:#f0fdf4; } .et-row .encap-layer { color:#15803d; }
+.ei-row  { background:#eff6ff; } .ei-row .encap-layer { color:#1d4ed8; }
+.ena-row { background:#f5f3ff; } .ena-row .encap-layer { color:#6d28d9; }
+
+/* ── ARCH CARDS ── */
+.arch-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+.arch-card { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.arch-card-head { padding:14px 18px; border-bottom:1px solid var(--border); }
+.arch-card-title { font-family:var(--sans); font-size:0.9rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+.arch-card-body { padding:16px 18px; font-size:0.85rem; color:#374151; line-height:1.65; }
+.arch-diagram { display:flex; align-items:center; justify-content:center; gap:10px; padding:16px; flex-wrap:wrap; }
+.arch-node { width:48px; height:48px; border-radius:10px; border:2px solid; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.arch-line { width:24px; height:2px; background:var(--border); }
+.arch-central { width:60px; height:60px; border-radius:12px; border:2px solid; display:flex; align-items:center; justify-content:center; font-size:26px; }
+.arch-spoke { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.arch-spoke-label { font-family:var(--mono); font-size:9px; color:var(--text-muted); }
+
+/* ── REV CARDS ── */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g { font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r { font-family:var(--mono); color:var(--red); font-size:0.77rem; }
+.bullet-list li .tag-b { font-family:var(--mono); color:var(--blue); font-size:0.77rem; }
+.bullet-list li .tag-p { font-family:var(--mono); color:var(--accent); font-size:0.77rem; }
+
+.priority-box { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:14px 0; }
+
+.final-tips { background:linear-gradient(135deg,#f0fdf4,#eff6ff); border:1px solid #bbf7d0; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--green); margin-bottom:16px; }
+
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero { padding:36px 24px; }
+  .model-compare { grid-template-columns:1fr; }
+  .layer-card-body { grid-template-columns:1fr 1fr; }
+  .lc-stat:nth-child(2n)       { border-right:none; }
+  .lc-stat:nth-child(3n)       { border-right:1px solid var(--border); }
+  .arch-grid { grid-template-columns:1fr; }
+  .navbar { padding:0 16px; }
+  .content-wrap { padding:28px 16px 60px; }
+}
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 04</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">TCP/IP Protocol Suite</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="computer_networks.html">Computer Networks</a><span class="sep">›</span><span class="current">Topic 4: TCP/IP Protocol Suite</span><a class="back-btn" href="computer_networks.html">← Back</a></nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 4</span>
+    <span class="hero-tag">TCP/IP · OSI COMPARISON</span>
+  </div>
+  <h1>TCP/IP <span>PROTOCOL SUITE</span></h1>
+  <p class="hero-sub">The practical internet model — 4-layer vs 5-layer architecture, layer-by-layer functionalities, encapsulation flow, router behaviour, and network architectures.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- ═══════════ DESCRIPTIVE PANEL ═══════════ -->
+  <div id="panel-desc" class="panel active">
+
+    <!-- SECTION 1: Introduction -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-blue">1</div>
+        <h2>Introduction to TCP/IP</h2>
+      </div>
+      <p class="body-text">
+        TCP/IP — also called the <strong>Internet Protocol Suite</strong> — is the actual, practical model implemented in the real-world internet. While the OSI model is invaluable for <em>theoretically understanding</em> how networks function, TCP/IP is what the internet truly runs on.
+      </p>
+      <p class="body-text">
+        TCP/IP was developed by <strong>ARPANET</strong> and funded by <strong>DARPA</strong> (the US Defense Advanced Research Projects Agency). In contrast, the OSI model was developed by <strong>ISO</strong> (International Organization for Standardization). This origin story explains why TCP/IP became the real internet standard — it was built by the people who actually built the internet.
+      </p>
+      <div class="callout callout-blue">
+        🏛 <strong>Origin:</strong> TCP/IP → ARPANET / DARPA (USA Defense). &nbsp; OSI → ISO (International Standards Body). One is practical; one is theoretical. Both are essential for exams.
+      </div>
+      <div class="tags">
+        <span class="tag">Internet Protocol Suite</span>
+        <span class="tag">ARPANET</span>
+        <span class="tag">DARPA</span>
+        <span class="tag">ISO</span>
+        <span class="tag">Practical Model</span>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Architecture -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-purple">2</div>
+        <h2>Architecture: 4-Layer vs 5-Layer Models</h2>
+      </div>
+      <p class="body-text">
+        Unlike the rigid 7-layer OSI model, TCP/IP is described using either a <strong>4-layer</strong> or <strong>5-layer</strong> architecture depending on the textbook. Both describe the same network — the difference is only in how the bottom layer is divided.
+      </p>
+      <p class="body-text">
+        <strong>Tanenbaum</strong> (Computer Networks) typically uses the 4-layer model. <strong>Forouzan</strong> (Data Communications and Networking) uses the 5-layer model. Both are valid for exam purposes.
+      </p>
+
+      <div class="diagram-box">
+        <div class="diagram-header">🏛 TCP/IP vs OSI — Side-by-Side Comparison</div>
+        <div class="diagram-body">
+          <div class="model-compare">
+            <!-- OSI COLUMN -->
+            <div class="model-col">
+              <div class="model-col-title mct-osi">OSI Model — 7 Layers</div>
+              <div class="m-row mr7"><div class="m-row-inner"><div class="m-num">7</div><div class="m-name">Application</div><div class="m-pdu">Data</div></div></div>
+              <div class="m-row mr6"><div class="m-row-inner"><div class="m-num">6</div><div class="m-name">Presentation</div><div class="m-pdu">Data</div></div></div>
+              <div class="m-row mr5"><div class="m-row-inner"><div class="m-num">5</div><div class="m-name">Session</div><div class="m-pdu">Data</div></div></div>
+              <div class="m-row mr4"><div class="m-row-inner"><div class="m-num">4</div><div class="m-name">Transport</div><div class="m-pdu">Segment</div></div></div>
+              <div class="m-row mr3"><div class="m-row-inner"><div class="m-num">3</div><div class="m-name">Network</div><div class="m-pdu">Packet</div></div></div>
+              <div class="m-row mr2"><div class="m-row-inner"><div class="m-num">2</div><div class="m-name">Data Link</div><div class="m-pdu">Frame</div></div></div>
+              <div class="m-row mr1"><div class="m-row-inner"><div class="m-num">1</div><div class="m-name">Physical</div><div class="m-pdu">Bits</div></div></div>
+            </div>
+            <!-- TCP/IP COLUMN -->
+            <div class="model-col">
+              <div class="model-col-title mct-tcp">TCP/IP — 4 Layers</div>
+              <div class="m-row tcp-app">
+                <div class="m-row-inner" style="flex-direction:column;align-items:flex-start;gap:4px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="m-num" style="color:#b91c1c">4</div>
+                    <div class="m-name" style="color:#b91c1c">Application Layer</div>
+                    <div class="m-pdu">Data</div>
+                  </div>
+                  <div class="map-label">▲ Absorbs OSI layers 5, 6, 7</div>
+                </div>
+              </div>
+              <div class="m-row tcp-trans"><div class="m-row-inner"><div class="m-num">3</div><div class="m-name">Transport Layer</div><div class="m-pdu">Segment</div></div></div>
+              <div class="m-row tcp-inet"><div class="m-row-inner"><div class="m-num">2</div><div class="m-name">Internet Layer</div><div class="m-pdu">Packet</div></div></div>
+              <div class="m-row tcp-na">
+                <div class="m-row-inner" style="flex-direction:column;align-items:flex-start;gap:4px">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="m-num" style="color:#6d28d9">1</div>
+                    <div class="m-name" style="color:#6d28d9">Network Access Layer</div>
+                    <div class="m-pdu">Frame/Bits</div>
+                  </div>
+                  <div class="map-label">▲ Combines OSI layers 1 &amp; 2</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-note">5-layer model = split the Network Access Layer back into separate Physical + Data Link layers. Everything else stays the same.</div>
+      </div>
+
+      <div class="callout callout-amber">
+        📚 <strong>Textbook Rule:</strong> Tanenbaum → 4 layers. Forouzan → 5 layers. The 5-layer model just separates Physical and Data Link from the combined Network Access layer. Functionally identical.
+      </div>
+    </div>
+
+    <!-- SECTION 3: Layer Functionalities -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-red">3</div>
+        <h2>Layer-by-Layer Functionalities</h2>
+      </div>
+      <p class="body-text">
+        Each layer in the TCP/IP model has a well-defined responsibility, its own set of protocols, and a specific PDU (Protocol Data Unit) name. Understanding these is essential for both conceptual clarity and exam questions.
+      </p>
+
+      <!-- Application Layer -->
+      <div class="layer-card">
+        <div class="layer-card-head">
+          <div class="layer-badge" style="background:var(--l-app)">APPLICATION</div>
+          <div>
+            <div class="layer-card-head-title">Application Layer (Layer 4 in TCP/IP)</div>
+            <div class="layer-card-head-sub">Absorbs OSI layers 5 (Session) + 6 (Presentation) + 7 (Application)</div>
+          </div>
+        </div>
+        <div class="layer-card-body">
+          <div class="lc-stat">
+            <div class="lc-stat-label">Function</div>
+            <div class="lc-stat-val">Process-to-process delivery. Handles encoding, synchronisation, encryption/decryption, and session maintenance (absorbing Session &amp; Presentation roles).</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">Protocols</div>
+            <div class="lc-stat-val mono">SMTP · FTP · Telnet · DNS · HTTP</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">PDU Name</div>
+            <div class="lc-stat-val mono" style="color:var(--l-app);font-weight:700">Data</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transport Layer -->
+      <div class="layer-card">
+        <div class="layer-card-head">
+          <div class="layer-badge" style="background:var(--l-trans)">TRANSPORT</div>
+          <div>
+            <div class="layer-card-head-title">Transport Layer / Host-to-Host Layer (Layer 3)</div>
+            <div class="layer-card-head-sub">Equivalent to OSI Transport Layer (Layer 4)</div>
+          </div>
+        </div>
+        <div class="layer-card-body">
+          <div class="lc-stat">
+            <div class="lc-stat-label">Function</div>
+            <div class="lc-stat-val">Host-to-host delivery. Decides whether communication is connection-oriented (reliable) or connectionless (fast). Also called the Host-to-Host Layer.</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">Protocols</div>
+            <div class="lc-stat-val mono">TCP · UDP · SCTP</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">PDU Name</div>
+            <div class="lc-stat-val mono" style="color:var(--l-trans);font-weight:700">Segment</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Internet Layer -->
+      <div class="layer-card">
+        <div class="layer-card-head">
+          <div class="layer-badge" style="background:var(--l-net)">INTERNET</div>
+          <div>
+            <div class="layer-card-head-title">Internet Layer (Layer 2)</div>
+            <div class="layer-card-head-sub">Equivalent to OSI Network Layer (Layer 3)</div>
+          </div>
+        </div>
+        <div class="layer-card-body">
+          <div class="lc-stat">
+            <div class="lc-stat-label">Function</div>
+            <div class="lc-stat-val">Source-to-destination delivery across multiple networks. Main job: IP addressing — adds source and destination IP addresses to the data header.</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">Protocols</div>
+            <div class="lc-stat-val mono">IPv4 · IPv6 · ICMP · IGMP</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">PDU Name</div>
+            <div class="lc-stat-val mono" style="color:var(--l-net);font-weight:700">Packet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network Access Layer -->
+      <div class="layer-card">
+        <div class="layer-card-head">
+          <div class="layer-badge" style="background:var(--l-na)">NETWORK ACCESS</div>
+          <div>
+            <div class="layer-card-head-title">Network Access Layer (Layer 1)</div>
+            <div class="layer-card-head-sub">Combines OSI Physical (L1) + Data Link (L2) layers</div>
+          </div>
+        </div>
+        <div class="layer-card-body">
+          <div class="lc-stat">
+            <div class="lc-stat-label">Function</div>
+            <div class="lc-stat-val">Node-to-node delivery within the same local network. Manages MAC protocols, error control, and flow control on the local link.</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">Protocols</div>
+            <div class="lc-stat-val mono">Ethernet · Wi-Fi · PPP · ARP</div>
+          </div>
+          <div class="lc-stat">
+            <div class="lc-stat-label">PDU Name</div>
+            <div class="lc-stat-val mono" style="color:var(--l-na);font-weight:700">Frame / Bits</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-teal">
+        🔑 <strong>Delivery Scopes — Easy to Mix Up:</strong> Node-to-node (Network Access) → Host-to-host (Transport) → Source-to-destination across networks (Internet) → Process-to-process (Application).
+      </div>
+    </div>
+
+    <!-- SECTION 4: Data Flow & Encapsulation -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-green">4</div>
+        <h2>Data Flow, Encapsulation &amp; Routers</h2>
+      </div>
+      <p class="body-text">
+        When a user sends data, it travels <strong>top-down</strong> through the TCP/IP layers on the sender's side. At each layer, a header specific to that layer is <em>prepended</em> to the data — this process is called <strong>encapsulation</strong>. Think of it like putting a letter into an envelope, then that envelope into a bigger one, layer by layer.
+      </p>
+      <p class="body-text">
+        The layers behave like a <strong>stack (LIFO — Last In, First Out)</strong>: the last header added on the sender side is the first one removed on the receiver side, working bottom-up during <strong>decapsulation</strong>.
+      </p>
+
+      <div class="diagram-box">
+        <div class="diagram-header">📦 Encapsulation — Sender Side (Top → Bottom)</div>
+        <div class="diagram-body">
+          <div class="encap-flow">
+            <div class="encap-row ea-row">
+              <div class="encap-layer">Application</div>
+              <div class="encap-header">
+                <div class="hdr-box hdr-new" style="border-color:#dc2626;color:#dc2626">User Data</div>
+              </div>
+              <div class="encap-pdu" style="background:#fff0f0;color:#b91c1c">DATA</div>
+            </div>
+            <div class="encap-row et-row">
+              <div class="encap-layer">Transport</div>
+              <div class="encap-header">
+                <div class="hdr-box hdr-new" style="border-color:#16a34a;color:#16a34a">TCP/UDP Header</div>
+                <div class="hdr-box hdr-prev" style="border-color:#dc2626;color:#dc2626">User Data</div>
+              </div>
+              <div class="encap-pdu" style="background:#f0fdf4;color:#15803d">SEGMENT</div>
+            </div>
+            <div class="encap-row ei-row">
+              <div class="encap-layer">Internet</div>
+              <div class="encap-header">
+                <div class="hdr-box hdr-new" style="border-color:#2563eb;color:#2563eb">IP Header</div>
+                <div class="hdr-box hdr-prev" style="border-color:#16a34a;color:#16a34a">TCP/UDP Hdr</div>
+                <div class="hdr-box hdr-prev" style="border-color:#dc2626;color:#dc2626">Data</div>
+              </div>
+              <div class="encap-pdu" style="background:#eff6ff;color:#1d4ed8">PACKET</div>
+            </div>
+            <div class="encap-row ena-row">
+              <div class="encap-layer">Network Access</div>
+              <div class="encap-header">
+                <div class="hdr-box hdr-new" style="border-color:#7c3aed;color:#7c3aed">Frame Header</div>
+                <div class="hdr-box hdr-prev" style="border-color:#2563eb;color:#2563eb">IP Hdr</div>
+                <div class="hdr-box hdr-prev" style="border-color:#16a34a;color:#16a34a">TCP Hdr</div>
+                <div class="hdr-box hdr-prev" style="border-color:#dc2626;color:#dc2626">Data</div>
+                <div class="hdr-box hdr-new" style="border-color:#7c3aed;color:#7c3aed">FCS</div>
+              </div>
+              <div class="encap-pdu" style="background:#f5f3ff;color:#6d28d9">FRAME</div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-note">Receiver does the reverse: bottom-up decapsulation — each layer strips its own header and passes the rest up.</div>
+      </div>
+
+      <div class="callout callout-purple">
+        🔀 <strong>Routers</strong> only process the bottom <em>two</em> layers: Network Access and Internet. They strip the frame header, read the IP packet to determine the next hop, create a new frame header, and forward. They do not touch Transport or Application data.
+      </div>
+    </div>
+
+    <!-- SECTION 5: Network Architectures -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-teal">5</div>
+        <h2>Supported Network Architectures</h2>
+      </div>
+      <p class="body-text">
+        TCP/IP supports two primary types of network architecture. The choice of architecture affects how data flows, where control is centralised, and how the network scales.
+      </p>
+
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-card-head">
+            <div class="arch-card-title" style="color:var(--blue)">🖥️ Client-Server Architecture</div>
+          </div>
+          <div class="arch-diagram">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="arch-central" style="border-color:var(--blue);background:#eff6ff;font-size:28px">🖥️</div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--blue);font-weight:700">SERVER</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div class="arch-line"></div>
+                <div class="arch-node" style="border-color:var(--border);background:#f8fafc;">💻</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div class="arch-line"></div>
+                <div class="arch-node" style="border-color:var(--border);background:#f8fafc;">📱</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div class="arch-line"></div>
+                <div class="arch-node" style="border-color:var(--border);background:#f8fafc;">🖨️</div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-card-body">
+            <strong>Centralised.</strong> One main server holds data and resources. All clients connect to it to send requests and receive responses. The server is the single point of authority.
+            <br><br>Example: A company's internal file server where all employees fetch documents.
+          </div>
+        </div>
+        <div class="arch-card">
+          <div class="arch-card-head">
+            <div class="arch-card-title" style="color:var(--green)">🔗 Peer-to-Peer Architecture</div>
+          </div>
+          <div class="arch-diagram">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div class="arch-node" style="border-color:var(--green);background:#f0fdf4;">💻</div>
+                <div style="font-family:var(--mono);font-size:8px;color:var(--green)">PEER</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div class="arch-node" style="border-color:var(--green);background:#f0fdf4;">📱</div>
+                <div style="font-family:var(--mono);font-size:8px;color:var(--green)">PEER</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div class="arch-node" style="border-color:var(--green);background:#f0fdf4;">🖥️</div>
+                <div style="font-family:var(--mono);font-size:8px;color:var(--green)">PEER</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div class="arch-node" style="border-color:var(--green);background:#f0fdf4;">💻</div>
+                <div style="font-family:var(--mono);font-size:8px;color:var(--green)">PEER</div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-card-body">
+            <strong>Decentralised.</strong> No central authority. All devices (peers) are mutually connected and can both send and receive data in a distributed manner.
+            <br><br>Example: BitTorrent file sharing — each device contributes and receives simultaneously.
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-blue">
+        💡 <strong>Key Difference:</strong> Client-Server = one central authority, easy to manage, single point of failure. Peer-to-Peer = no central authority, highly resilient, harder to manage.
+      </div>
+    </div>
+
+  </div><!-- end desc -->
+
+  <!-- ═══════════ REVISION PANEL ═══════════ -->
+  <div id="panel-rev" class="panel">
+
+    <div class="callout callout-green" style="margin-bottom:28px">
+      ⚡ <strong>Speed Mode — </strong> All key facts, layer tables, encapsulation summary, and must-know comparisons. Perfect for last-day revision.
+    </div>
+
+    <!-- ORIGIN -->
+    <div class="cheat-div"><span>Origin &amp; Key Facts</span></div>
+    <div class="cards-grid">
+      <div class="rev-card">
+        <div class="rev-card-title">TCP/IP vs OSI — Who Made What</div>
+        <ul class="bullet-list">
+          <li>TCP/IP developed by: <span class="tag-b">ARPANET / DARPA</span></li>
+          <li>OSI developed by: <span class="tag-g">ISO</span></li>
+          <li>TCP/IP = <span class="tag-g">Practical</span> (real internet)</li>
+          <li>OSI = <span class="val">Theoretical</span> (reference model)</li>
+          <li>TCP/IP also called: <span class="tag-b">Internet Protocol Suite</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">4-Layer vs 5-Layer</div>
+        <ul class="bullet-list">
+          <li>4-Layer: <span class="tag-b">Tanenbaum</span> textbook</li>
+          <li>5-Layer: <span class="tag-g">Forouzan</span> textbook</li>
+          <li>Difference: 5-layer splits Network Access into Physical + Data Link</li>
+          <li>Functionally: <span class="tag-g">identical</span></li>
+          <li>OSI = <span class="val">7 layers</span>, TCP/IP = <span class="val">4 or 5</span></li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Router Behaviour</div>
+        <ul class="bullet-list">
+          <li>Router uses only <span class="tag-r">bottom 2 layers</span></li>
+          <li>Network Access + Internet Layer</li>
+          <li>Strips frame header → reads IP → creates new frame</li>
+          <li>Does NOT touch Transport or Application data</li>
+        </ul>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-title">Encapsulation Rule</div>
+        <ul class="bullet-list">
+          <li>Sender: <span class="tag-b">top → bottom</span> (7→1 / 4→1)</li>
+          <li>Receiver: <span class="tag-g">bottom → top</span> (1→7 / 1→4)</li>
+          <li>Each layer adds its own header</li>
+          <li>Stack = <span class="val">LIFO architecture</span></li>
+          <li>Last added = first removed (decapsulation)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LAYER TABLE -->
+    <div class="cheat-div"><span>TCP/IP Layers — Master Reference</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Layer Name</th><th>Alt Name</th><th>OSI Equiv.</th><th>PDU</th><th>Key Protocols</th><th>Delivery Scope</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--l-app);font-weight:700">4</td>
+              <td>Application</td>
+              <td class="mono">—</td>
+              <td>L5 + L6 + L7</td>
+              <td class="mono must">Data</td>
+              <td class="mono">SMTP · FTP · Telnet · DNS · HTTP</td>
+              <td>Process-to-process</td>
+            </tr>
+            <tr>
+              <td style="color:var(--l-trans);font-weight:700">3</td>
+              <td>Transport</td>
+              <td class="mono">Host-to-Host</td>
+              <td>L4</td>
+              <td class="mono good">Segment</td>
+              <td class="mono">TCP · UDP · SCTP</td>
+              <td>Host-to-host</td>
+            </tr>
+            <tr>
+              <td style="color:var(--l-net);font-weight:700">2</td>
+              <td>Internet</td>
+              <td class="mono">—</td>
+              <td>L3</td>
+              <td class="mono" style="color:var(--blue);font-weight:600">Packet</td>
+              <td class="mono">IPv4 · IPv6 · ICMP · IGMP</td>
+              <td>Source-to-destination</td>
+            </tr>
+            <tr>
+              <td style="color:var(--l-na);font-weight:700">1</td>
+              <td>Network Access</td>
+              <td class="mono">—</td>
+              <td>L1 + L2</td>
+              <td class="mono" style="color:var(--accent);font-weight:600">Frame / Bits</td>
+              <td class="mono">Ethernet · Wi-Fi · ARP · PPP</td>
+              <td>Node-to-node</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OSI MAPPING -->
+    <div class="cheat-div"><span>OSI → TCP/IP Layer Mapping</span></div>
+    <div class="priority-box">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>OSI Layer</th><th>OSI #</th><th>Maps to TCP/IP Layer</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>Application</td><td>7</td><td rowspan="3" style="color:var(--l-app);font-weight:700;vertical-align:middle">Application Layer</td><td rowspan="3">All three collapsed into one. TCP/IP app layer handles encoding, encryption, sessions too.</td></tr>
+            <tr><td>Presentation</td><td>6</td></tr>
+            <tr><td>Session</td><td>5</td></tr>
+            <tr><td>Transport</td><td>4</td><td style="color:var(--l-trans);font-weight:700">Transport Layer</td><td>1:1 mapping</td></tr>
+            <tr><td>Network</td><td>3</td><td style="color:var(--l-net);font-weight:700">Internet Layer</td><td>1:1 mapping (name changes)</td></tr>
+            <tr><td>Data Link</td><td>2</td><td rowspan="2" style="color:var(--l-na);font-weight:700;vertical-align:middle">Network Access Layer</td><td rowspan="2">Combined. 5-layer model splits these apart.</td></tr>
+            <tr><td>Physical</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ARCHITECTURES -->
+    <div class="cheat-div"><span>Network Architectures</span></div>
+    <div class="cards-grid">
+      <div class="rev-card" style="border-top:3px solid var(--blue)">
+        <div class="rev-card-title" style="color:var(--blue)">Client-Server</div>
+        <ul class="bullet-list">
+          <li>Centralised — one main server</li>
+          <li>All clients connect to server</li>
+          <li>Server = single point of authority</li>
+          <li>Easy to manage, single point of failure</li>
+          <li>Example: company intranet, web server</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-top:3px solid var(--green)">
+        <div class="rev-card-title" style="color:var(--green)">Peer-to-Peer (P2P)</div>
+        <ul class="bullet-list">
+          <li>Decentralised — no central authority</li>
+          <li>All peers mutually connected</li>
+          <li>Each device can be both client and server</li>
+          <li>Resilient, but harder to manage</li>
+          <li>Example: BitTorrent, blockchain</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FINAL TIPS -->
+    <div class="final-tips">
+      <h3>⚡ Last-Minute Must-Know Points</h3>
+      <div class="cards-grid" style="margin-top:0">
+        <div class="rev-card" style="border-color:#86efac">
+          <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+          <ul class="bullet-list">
+            <li>TCP/IP = Internet Protocol Suite</li>
+            <li>DARPA (not ISO) funded TCP/IP</li>
+            <li>4-layer: App + Transport + Internet + Net Access</li>
+            <li>App layer absorbs OSI layers 5, 6, 7</li>
+            <li>Net Access layer = OSI L1 + L2 combined</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#fcd34d">
+          <div class="rev-card-title" style="color:#d97706">📌 PDU Names (Memorise)</div>
+          <ul class="bullet-list">
+            <li>Application → <span class="val">Data</span></li>
+            <li>Transport → <span class="val">Segment</span></li>
+            <li>Internet → <span class="val">Packet</span></li>
+            <li>Network Access → <span class="val">Frame / Bits</span></li>
+            <li>Same as OSI PDUs (just 4 instead of 7)</li>
+          </ul>
+        </div>
+        <div class="rev-card" style="border-color:#93c5fd">
+          <div class="rev-card-title" style="color:#1d4ed8">💡 Protocol Quick Map</div>
+          <ul class="bullet-list">
+            <li>App: <span class="tag-b">SMTP · FTP · Telnet · DNS</span></li>
+            <li>Transport: <span class="tag-g">TCP · UDP · SCTP</span></li>
+            <li>Internet: <span class="tag-b">IPv4 · IPv6 · ICMP · IGMP</span></li>
+            <li>Net Access: <span class="tag-p">Ethernet · Wi-Fi · ARP</span></li>
+            <li>Router = only layers 1 + 2 (Net Access + Internet)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end revision -->
+
+</div>
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
