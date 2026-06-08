@@ -1,607 +1,1175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f8fafc">
-    <meta name="description" content="Practice Hub helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
+    <meta name="theme-color" content="#1a237e">
+    <meta name="description" content="Practice Hub India helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
     <meta name="keywords" content="government exam preparation, SSC CGL, bank exam, railway exam, multiplication tables, mock test, focus training">
     <meta name="robots" content="index, follow">
-        <meta property="og:title" content="Practice Hub">
-    <meta property="og:description" content="Practice Hub helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
+    <meta property="og:title" content="Practice Hub India">
+    <meta property="og:description" content="Practice Hub India helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://spiritman021.github.io/practice/">
     <meta property="og:image" content="https://spiritman021.github.io/practice/icon-512.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Practice Hub">
-    <meta name="twitter:description" content="Practice Hub helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
+    <meta name="twitter:title" content="Practice Hub India">
+    <meta name="twitter:description" content="Practice Hub India helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.">
     <meta name="twitter:image" content="https://spiritman021.github.io/practice/icon-512.png">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Practice Hub</title>
+    <title>Practice Hub India – भारत सरकार – Bharat-Project – v1.0.0 (Beta)</title>
     <link rel="canonical" href="https://spiritman021.github.io/practice/">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --bg-dark: #f8fafc;
-            --card-bg: #ffffff;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --secondary: #8b5cf6;
-            --secondary-hover: #7c3aed;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-
+        /* ── RESET & BASE ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-height: 100vh;
+            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
+            font-size: 12px;
+            background: #fff;
+            color: #000;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TITLE BAR ── */
+        .title-bar {
+            background: #1a1a6e;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .title-bar .title-left { display: flex; align-items: center; gap: 6px; }
+        .title-bar .win-btns { display: flex; gap: 4px; }
+        .title-bar .win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+        .win-btn.min { background: #ffbd44; }
+        .win-btn.max { background: #00ca4e; }
+        .win-btn.cls { background: #ff605c; }
+
+        /* ── HEADER ── */
+        .header {
+            background: #fff;
+            border-bottom: 3px solid #1a237e;
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .header-emblem { display: flex; align-items: center; gap: 8px; }
+        .emblem-img {
+            width: 48px; height: 56px;
+            background: linear-gradient(135deg, #ff9800, #ffeb3b, #4caf50);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            border: 1px solid #ddd;
+        }
+        .ministry-text { font-size: 10px; line-height: 1.4; }
+        .ministry-text .bold { font-weight: bold; font-size: 11px; color: #1a237e; }
+        .ministry-text .gov { font-size: 10px; color: #333; font-weight: 600; }
+
+        .header-center { flex: 1; text-align: center; }
+        .vscode-logo { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .vscode-icon { font-size: 28px; color: #1a237e; }
+        .vscode-title h1 { font-size: 20px; font-weight: 800; color: #1a237e; letter-spacing: 0.5px; margin: 0; }
+        .vscode-title .version { font-size: 10px; color: #555; font-weight: 600; }
+        .vscode-tagline { color: #c62828; font-weight: 800; font-size: 11px; margin-top: 2px; }
+        .vscode-warning { font-size: 10px; color: #b71c1c; font-weight: bold; margin-top: 2px; }
+
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .badge { border: 2px solid; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold; text-align: center; line-height: 1.3; }
+        .badge-digital { border-color: #1565c0; color: #1565c0; }
+        .badge-g20 { border-color: #1a237e; color: #1a237e; background: #e8eaf6; }
+        .badge-nic { border-color: #c62828; color: #c62828; }
+        .pm-photo {
+            width: 48px; height: 56px;
+            background: #fffbeb;
+            border-radius: 4px; border: 2px solid #ff9800;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+
+        /* ── MENU BAR ── */
+        .menu-bar {
+            background: #1a237e;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .menu-bar::-webkit-scrollbar { display: none; }
+        .menu-item {
+            padding: 6px 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 600;
+            border-right: 1px solid #283593;
+            transition: background 0.15s;
+        }
+        .menu-item:hover { background: #283593; }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            background: #e8eaf6;
+            border-bottom: 1px solid #9fa8da;
+            display: flex;
+            align-items: center;
+            padding: 4px 10px;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .tb-btn {
+            display: flex; align-items: center; gap: 3px;
+            padding: 4px 10px;
+            border: 1px solid #9fa8da;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 800;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .tb-btn:hover { background: #c5cae9; }
+        .tb-btn.green { background: #16a34a; color: #fff; border-color: #15803d; }
+        .tb-btn.orange { background: #f57c00; color: #fff; border-color: #e65100; }
+        .tb-separator { width: 1px; height: 20px; background: #9fa8da; margin: 0 4px; }
+        .search-box {
+            padding: 4px 8px;
+            border: 1px solid #9fa8da;
+            border-radius: 4px;
+            width: 180px;
+            font-size: 10px;
+            font-family: inherit;
+            outline: none;
+        }
+        .search-box:focus { border-color: #1a237e; box-shadow: 0 0 4px rgba(26, 35, 126, 0.2); }
+        .tb-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+        .dev-mode-btn { background: #1565c0; color: #fff; padding: 4px 10px; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold; }
+        .beta-btn { background: #f57f17; color: #fff; padding: 4px 10px; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold; }
+        .last-updated { font-size: 10px; color: #475569; font-weight: 600; }
+
+        /* ── ALERT BAR ── */
+        .alert-bar {
+            background: #ffcdd2;
+            border-bottom: 1px solid #e53935;
+            padding: 4px 12px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .alert-bar::-webkit-scrollbar { display: none; }
+        .alert-bar .alert-label { background: #b71c1c; color: #fff; padding: 2px 6px; border-radius: 2px; font-weight: bold; font-size: 9px; white-space: nowrap; }
+        .alert-bar .alert-text { color: #b71c1c; font-weight: bold; flex: 1; min-width: 380px; }
+        .alert-bar .click-here { background: #e53935; color: #fff; padding: 2px 8px; border-radius: 2px; font-size: 9px; cursor: pointer; font-weight: bold; white-space: nowrap; text-decoration: none; }
+        .date-time { margin-left: auto; font-size: 10px; font-weight: bold; color: #334155; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+
+        /* ── MAIN LAYOUT ── */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+
+        /* ── ACTIVITY BAR ── */
+        .activity-bar {
+            width: 44px;
+            background: #1a237e;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background-image:
-                radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 85% 25%, rgba(16, 185, 129, 0.12) 0%, transparent 45%);
-            padding: 2rem;
+            padding: 8px 0;
+            gap: 6px;
+            flex-shrink: 0;
+            user-select: none;
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 4rem;
-            animation: fadeInDown 0.8s ease-out;
+        .act-icon {
+            width: 36px; height: 36px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #c5cae9;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 15px;
+            gap: 2px;
+            transition: all 0.1s;
         }
+        .act-icon .act-label { font-size: 7px; color: #9fa8da; white-space: nowrap; font-weight: 600; text-transform: uppercase; }
+        .act-icon:hover, .act-icon.active { background: #283593; color: #fff; }
 
-        .header h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #2563eb, #0ea5e9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
-        }
-
-        .header p {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            max-w-md: 600px;
-            margin: 0 auto;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-main);
-            border: 1px solid #e2e8f0;
-            backdrop-filter: blur(2px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 220px;
+            background: #f8fafc;
+            border-right: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            position: relative;
+            flex-shrink: 0;
             overflow: hidden;
-            animation: fadeInUp 0.8s ease-out backwards;
+            transition: width 0.2s ease;
+        }
+        .sidebar.collapsed { width: 0; border-right: none; }
+        .sidebar-header {
+            background: #e2e8f0;
+            padding: 6px 10px;
+            font-weight: bold;
+            font-size: 10px;
+            color: #334155;
+            border-bottom: 1px solid #cbd5e1;
+            display: flex; justify-content: space-between; align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar-section { padding: 6px 10px; font-weight: 800; font-size: 11px; color: #1a237e; border-bottom: 1px solid #e2e8f0; background: #f1f5f9; }
+        .file-tree { flex: 1; overflow-y: auto; font-size: 11px; padding: 4px 0; }
+        .tree-item {
+            padding: 4px 10px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis;
+            color: #334155;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .tree-item:hover { background: #e2e8f0; color: #0f172a; }
+        .tree-item.active { background: #1a237e; color: #fff; }
+        .tree-item .indent { display: inline-block; }
+        .tree-item .icon { font-size: 11px; width: 14px; text-align: center; }
+        .folder-icon { color: #eab308; }
+        .file-icon { color: #64748b; }
+        .html-icon { color: #f97316; }
+        .json-icon { color: #ca8a04; }
+        .md-icon { color: #2563eb; }
+
+        .sidebar-bottom {
+            border-top: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            font-size: 10px;
+            background: #f1f5f9;
+        }
+        .sidebar-bottom .sb-title { font-weight: bold; font-size: 10px; color: #1a237e; margin-bottom: 4px; text-transform: uppercase; }
+        .error-item { display: flex; align-items: center; gap: 4px; padding: 2px 0; font-weight: 600; }
+        .error-item .err-icon { font-size: 12px; }
+
+        /* ── EDITOR AREA ── */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #fff;
         }
 
-        .card:nth-child(2) {
-            animation-delay: 0.2s;
+        /* Tab bar */
+        .tab-bar {
+            background: #e2e8f0;
+            border-bottom: 1px solid #cbd5e1;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 8px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .tab {
+            padding: 6px 12px;
+            border: 1px solid #cbd5e1;
+            border-bottom: none;
+            background: #f1f5f9;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+            border-radius: 4px 4px 0 0;
+            margin-right: 2px;
+            color: #475569;
+            transition: all 0.15s;
+        }
+        .tab.active { background: #fff; border-color: #9fa8da; font-weight: 800; color: #1a237e; border-top: 2px solid #1a237e; }
+        .tab .close { color: #94a3b8; font-size: 12px; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; }
+        .tab .close:hover { background: #cbd5e1; color: #ef4444; }
+        
+        .breadcrumb-bar {
+            background: #fff;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+            flex-shrink: 0;
         }
 
-        .card:nth-child(3) {
-            animation-delay: 0.4s;
+        /* Tab views */
+        .tab-view {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
         }
+        .tab-view.active { display: flex; flex-direction: column; }
 
-        .card:nth-child(4) {
-            animation-delay: 0.6s;
+        /* Welcome Preview View */
+        .welcome-view {
+            padding: 24px 20px 44px;
         }
-
-        .card:nth-child(5) {
-            animation-delay: 0.8s;
-        }
-
-        .card:nth-child(6) {
-            animation-delay: 1s;
-        }
-
-        .card:nth-child(7) {
-            animation-delay: 1.2s;
-        }
-
-        .card:nth-child(8) {
-            animation-delay: 1.4s;
-        }
-
-        .card:nth-child(9) {
-            animation-delay: 1.6s;
-        }
-
-        .card:nth-child(10) {
-            animation-delay: 1.8s;
-        }
-
-        .card:nth-child(11) {
-            animation-delay: 2s;
-        }
-
-        .card:nth-child(12) {
-            animation-delay: 2.2s;
-        }
-
-        .card:nth-child(13) {
-            animation-delay: 2.4s;
-        }
-        .card:nth-child(14) {
-            animation-delay: 2.6s;
-        }
-        .card:nth-child(15) {
-            animation-delay: 2.8s;
-        }
-        .card:nth-child(16) {
-            animation-delay: 3s;
-        }
-        .card:nth-child(17) {
-            animation-delay: 3.2s;
-        }
-        .card:nth-child(18) {
-            animation-delay: 3.4s;
-        }
-        .card:nth-child(19) {
-            animation-delay: 3.6s;
-        }
-        .card:nth-child(20) {
-            animation-delay: 3.8s;
-        }
-        .card:nth-child(21) {
-            animation-delay: 4s;
-        }
-        .card:nth-child(22) {
-            animation-delay: 4.2s;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .welcome-hero { text-align: center; margin-bottom: 24px; }
+        .welcome-hero h2 { font-size: 28px; font-weight: 800; color: #1a237e; margin-bottom: 8px; }
+        .welcome-hero p { font-size: 12.5px; color: #475569; max-width: 650px; margin: 0 auto; line-height: 1.6; }
+        
+        /* Grid Container for tools */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
         .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 16px 24px -12px rgba(15, 23, 42, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             border-color: #cbd5e1;
         }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
         .card-icon {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            margin-bottom: 2px;
             display: inline-block;
-            transition: transform 0.4s ease;
+            transition: transform 0.3s ease;
         }
-
         .card:hover .card-icon {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.1) rotate(4deg);
         }
-
-        .card-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .card-desc {
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.6;
-            flex-grow: 1;
-        }
-
+        .card-title { font-size: 15px; font-weight: 800; color: #1e3a8a; }
+        .card-desc { color: #475569; font-size: 11.5px; line-height: 1.5; flex-grow: 1; }
         .card-btn {
             display: inline-block;
-            padding: 0.8rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
+            letter-spacing: 0.5px;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            color: #fff;
+            text-decoration: none;
+            margin-top: 4px;
         }
+        .btn-indigo { background: #2563eb; }
+        .btn-indigo:hover { background: #1d4ed8; }
+        .btn-green { background: #16a34a; }
+        .btn-green:hover { background: #15803d; }
+        .btn-amber { background: #b45309; }
+        .btn-amber:hover { background: #92400e; }
+        .btn-blue { background: #3b82f6; }
+        .btn-blue:hover { background: #2563eb; }
+        .btn-purple { background: #8b5cf6; }
+        .btn-purple:hover { background: #7c3aed; }
+        .btn-teal { background: #0f766e; }
+        .btn-teal:hover { background: #115e59; }
+        .btn-violet { background: #7c3aed; }
+        .btn-violet:hover { background: #6d28d9; }
+        .btn-rose { background: #be123c; }
+        .btn-rose:hover { background: #9f1239; }
+        .btn-cyan { background: #0891b2; }
+        .btn-cyan:hover { background: #0e7490; }
+        .btn-white { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+        .btn-white:hover { background: #e2e8f0; }
+        .btn-sky { background: #0284c7; }
+        .btn-sky:hover { background: #0369a1; }
+        .btn-slate { background: #334155; }
+        .btn-slate:hover { background: #1e293b; }
+        .btn-yellow { background: #ca8a04; }
+        .btn-yellow:hover { background: #a16207; }
 
-        .btn-blue {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        /* Code Editor View */
+        .code-view {
+            background: #fff;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            padding: 8px 0;
+            overflow: auto;
         }
-
-        .card:hover .btn-blue {
-            background: var(--primary-hover);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-        }
-
-        .btn-purple {
-            background: var(--secondary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-        }
-
-        .card:hover .btn-purple {
-            background: var(--secondary-hover);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-teal {
-            background: #0f766e;
-            color: white;
-            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
-        }
-
-        .card:hover .btn-teal {
-            background: #115e59;
-            box-shadow: 0 6px 20px rgba(15, 118, 110, 0.45);
-        }
-
-        .btn-amber {
-            background: #b45309;
-            color: white;
-            box-shadow: 0 4px 15px rgba(180, 83, 9, 0.3);
-        }
-
-        .card:hover .btn-amber {
-            background: #92400e;
-            box-shadow: 0 6px 20px rgba(180, 83, 9, 0.45);
-        }
-
-        .btn-indigo {
-            background: #2563eb;
-            color: white;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
-
-        .card:hover .btn-indigo {
-            background: #1d4ed8;
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
-        }
-
-        .btn-violet {
-            background: #7c3aed;
-            color: white;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-
-        .card:hover .btn-violet {
-            background: #6d28d9;
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
-        }
-
-        .btn-rose {
-            background: #be123c;
-            color: white;
-            box-shadow: 0 4px 15px rgba(190, 18, 60, 0.3);
-        }
-
-        .card:hover .btn-rose {
-            background: #9f1239;
-            box-shadow: 0 6px 20px rgba(190, 18, 60, 0.45);
-        }
-
-        .btn-cyan {
-            background: #0891b2;
-            color: white;
-            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
-        }
-
-        .card:hover .btn-cyan {
-            background: #0e7490;
-            box-shadow: 0 6px 20px rgba(8, 145, 178, 0.45);
-        }
-
-        .btn-white {
+        .code-line { display: flex; min-height: 20px; line-height: 20px; }
+        .code-line:hover { background: #f1f5f9; }
+        .line-num {
+            min-width: 36px;
+            text-align: right;
+            padding-right: 10px;
+            color: #94a3b8;
             background: #f8fafc;
-            color: #020617;
-            box-shadow: 0 4px 15px rgba(248, 250, 252, 0.25);
+            border-right: 1px solid #e2e8f0;
+            user-select: none;
+            font-size: 11px;
         }
+        .line-code { padding: 0 10px; white-space: pre; color: #334155; }
+        .kw { color: #0000ff; font-weight: bold; }
+        .kw2 { color: #7c3aed; }
+        .fn { color: #795e26; }
+        .str { color: #a31515; }
+        .str2 { color: #0f766e; }
+        .comment { color: #008000; font-style: italic; }
+        .tag { color: #800000; font-weight: bold; }
+        .attr { color: #ff0000; }
+        .val { color: #0000ff; }
 
-        .card:hover .btn-white {
-            background: #e2e8f0;
-            box-shadow: 0 6px 20px rgba(248, 250, 252, 0.38);
+        /* Markdown View */
+        .md-view {
+            padding: 20px 24px;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.6;
         }
+        .md-view h2 { font-size: 18px; color: #1a237e; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin: 18px 0 10px; }
+        .md-view h3 { font-size: 14.5px; color: #0f766e; margin: 14px 0 6px; }
+        .md-view p { margin-bottom: 12px; }
+        .md-view ul { margin-left: 20px; margin-bottom: 12px; }
+        .md-view li { margin-bottom: 4px; }
+        .md-view code { font-family: monospace; background: #e2e8f0; padding: 2px 4px; border-radius: 3px; font-size: 12px; }
 
-        .btn-sky {
-            background: #0284c7;
-            color: white;
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        /* ── PANEL (terminal) ── */
+        .panel {
+            border-top: 2px solid #cbd5e1;
+            background: #1e1e1e;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            height: 160px;
+            transition: height 0.2s ease;
         }
-
-        .card:hover .btn-sky {
-            background: #0369a1;
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+        .panel.collapsed { height: 0; border-top: none; }
+        .panel-tabs {
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            border-bottom: 1px solid #444;
+            gap: 2px;
+            user-select: none;
         }
-
-        .btn-slate {
-            background: #334155;
-            color: white;
-            box-shadow: 0 4px 15px rgba(51, 65, 85, 0.3);
+        .panel-tab { padding: 6px 12px; color: #aaa; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .panel-tab.active { color: #fff; border-bottom: 2px solid #f9a825; }
+        .panel-tab:hover { color: #fff; }
+        .panel-controls { margin-left: auto; display: flex; align-items: center; gap: 8px; color: #aaa; }
+        .panel-controls .ctrl-btn { cursor: pointer; font-size: 12px; padding: 2px; }
+        .panel-controls .ctrl-btn:hover { color: #fff; }
+        .terminal {
+            flex: 1;
+            padding: 8px 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 11.5px;
+            color: #cccccc;
+            overflow-y: auto;
+            line-height: 1.5;
         }
+        .terminal .t-green { color: #4ec9b0; }
+        .terminal .t-yellow { color: #ce9178; }
+        .terminal .t-white { color: #fff; }
+        .terminal .t-cursor { display: inline-block; width: 6px; height: 12px; background: #aaa; vertical-align: middle; margin-left: 2px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-        .card:hover .btn-slate {
-            background: #1e293b;
-            box-shadow: 0 6px 20px rgba(51, 65, 85, 0.45);
+        /* ── RIGHT PANEL ── */
+        .right-panel {
+            width: 200px;
+            background: #f0f4ff;
+            border-left: 2px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+            transition: width 0.2s ease;
         }
-
-        .btn-green {
-            background: #16a34a;
-            color: white;
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+        .right-panel.collapsed { width: 0; border-left: none; }
+        .rp-card {
+            border-bottom: 1px solid #cbd5e1;
+            padding: 10px;
+            font-size: 11px;
         }
-
-        .card:hover .btn-green {
-            background: #15803d;
-            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
+        .rp-card-header {
+            display: flex; align-items: center; gap: 6px;
+            font-weight: bold;
+            font-size: 11.5px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #cbd5e1;
+            color: #1a237e;
         }
-
-        .btn-yellow {
-            background: #ca8a04;
-            color: white;
-            box-shadow: 0 4px 15px rgba(202, 138, 4, 0.3);
+        .rp-card-header .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .dot-red { background: #e53935; }
+        .dot-yellow { background: #f9a825; }
+        .dot-blue { background: #1565c0; }
+        .rp-card p { color: #334155; line-height: 1.5; margin-bottom: 6px; font-weight: 500; }
+        .rp-btn {
+            display: block; width: 100%;
+            background: #1a237e; color: #fff;
+            border: none; border-radius: 4px;
+            padding: 4px 8px; font-size: 10px;
+            cursor: pointer; text-align: center;
+            font-weight: bold;
+            font-family: inherit;
         }
+        .rp-btn:hover { background: #283593; }
+        .rp-btn.outline { background: #fff; color: #1a237e; border: 1px solid #1a237e; }
+        .rp-btn.outline:hover { background: #e8eaf6; }
 
-        .card:hover .btn-yellow {
-            background: #a16207;
-            box-shadow: 0 6px 20px rgba(202, 138, 4, 0.45);
+        /* ── STATUS BAR ── */
+        .status-bar {
+            background: #1a237e;
+            color: #c5cae9;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            user-select: none;
         }
+        .status-bar .flag-in { font-size: 11px; }
+        .status-right { margin-left: auto; display: flex; gap: 12px; }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ── FOOTER ── */
+        .footer {
+            background: #e8eaf6;
+            border-top: 1px solid #cbd5e1;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #475569;
+            flex-shrink: 0;
+            user-select: none;
         }
+        .footer a { color: #1a237e; text-decoration: none; font-weight: bold; }
+        .footer a:hover { text-decoration: underline; }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ── RESPONSIVE MEDIA QUERIES ── */
+        @media (max-width: 992px) {
+            .right-panel { display: none; }
+            .badge-g20, .badge-nic { display: none; }
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 3rem;
-            }
-            .grid-container {
-                grid-template-columns: 1fr;
-                max-width: 400px;
-            }
+            .header-right { display: none; }
+            .sidebar { display: none; }
+            .activity-bar { display: none; }
+            .panel { display: none; }
+            .header { padding: 6px 10px; }
+            .vscode-title h1 { font-size: 16px; }
+            .vscode-tagline { font-size: 10px; }
+            .vscode-warning { font-size: 8.5px; }
+            .emblem-img { width: 36px; height: 42px; font-size: 16px; }
+            .ministry-text .bold { font-size: 9px; }
+            .ministry-text .gov { font-size: 8px; }
+            .title-bar span { display: none; }
+            .tb-right { display: none; }
+            .grid-container { grid-template-columns: 1fr; }
+            .welcome-hero h2 { font-size: 20px; }
         }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
-    <link rel="stylesheet" href="mobile-overrides.css">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Practice Hub","url":"https://spiritman021.github.io/practice/","description":"Practice Hub helps government job aspirants practice tables, speed math, mock tests, and focus drills in one place.","isPartOf":{"@type":"WebSite","name":"Practice Hub","url":"https://spiritman021.github.io/practice/"}}</script>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Practice Hub</h1>
-        <p>Choose a subject below to begin your learning journey. Enhance your skills through interactive exercises.</p>
+<!-- TITLE BAR -->
+<div class="title-bar">
+    <div class="title-left">
+        <div class="win-btns">
+            <div class="win-btn cls" title="बंद करें"></div>
+            <div class="win-btn min" title="न्यूनतम करें"></div>
+            <div class="win-btn max" title="अधिकतम करें"></div>
+        </div>
+        <span style="margin-left:8px; font-weight:600; letter-spacing:0.3px;">Practice Hub India – भारत सरकार द्वारा विकसित – फ़ाइल: index.html – Practice-Hub-Project – v1.0.0 (Beta)</span>
+    </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="header-emblem">
+        <div class="emblem-img">🏛️</div>
+        <div class="ministry-text">
+            <div class="bold">राष्ट्रीय अभ्यास एवं शिक्षण विभाग</div>
+            <div style="font-size:8px;color:#555;font-weight:600;">NATIONAL DEPARTMENT OF PRACTICE AND LEARNING</div>
+            <div class="gov">भारत सरकार &nbsp;(GOVT. OF INDIA)</div>
+            <div style="font-size:8px;color:#555;font-style:italic;font-weight:bold;">सत्यमेव जयते</div>
+        </div>
     </div>
 
-    <div class="grid-container">
-        <a href="pages/computer/computer.html" class="card">
-            <div class="card-icon">💻</div>
-            <h2 class="card-title">Computer Subject</h2>
-            <p class="card-desc">Start Computer Science notes with DBMS fundamentals, comparisons, and architecture.</p>
-            <div class="card-btn btn-indigo">Open Computer</div>
-        </a>
-
-        <a href="pages/vocab/vocab.html" class="card">
-            <div class="card-icon">📚</div>
-            <h2 class="card-title">Daily Vocabulary</h2>
-            <p class="card-desc">Read date-wise vocab PDFs with grouped words, idioms, English meanings, and Hindi meanings.</p>
-            <div class="card-btn btn-green">Open Vocab</div>
-        </a>
-
-        <a href="pages/grammar/grammar.html" class="card">
-            <div class="card-icon">✍️</div>
-            <h2 class="card-title">English Grammar</h2>
-            <p class="card-desc">Master grammatical connectors, sentence structures, and rules with detailed explanations and Hindi translations.</p>
-            <div class="card-btn btn-amber">Open Grammar</div>
-        </a>
-
-        <a href="pages/120rulesgrammar/120rulesgrammar.html" class="card">
-            <div class="card-icon">📜</div>
-            <h2 class="card-title">120 Rules of Grammar</h2>
-            <p class="card-desc">Master the essential 120 rules of English grammar with conceptual breakdowns, difference guides, memory tricks, and examples.</p>
-            <div class="card-btn btn-blue">Open 120 Rules</div>
-        </a>
-
-        <a href="pages/tools/alphabets.html" class="card">
-            <div class="card-icon">🔤</div>
-            <h2 class="card-title">Alphabet Practice</h2>
-            <p class="card-desc">Master your letters with engaging alphabet recognition and typing exercises designed for quick learning.</p>
-            <div class="card-btn btn-blue">Start Alphabet Test</div>
-        </a>
-
-        <a href="pages/tools/multiplication.html" class="card">
-            <div class="card-icon">✖️</div>
-            <h2 class="card-title">Multiplication</h2>
-            <p class="card-desc">Sharpen your math skills by practicing multiplication tables and factorization challenges.</p>
-            <div class="card-btn btn-purple">Start Math Practice</div>
-        </a>
-
-        <a href="pages/tools/table-hunt.html" class="card">
-            <div class="card-icon">🎯</div>
-            <h2 class="card-title">Table Hunt</h2>
-            <p class="card-desc">Pick tables from 1 to 30, identify matching numbers, and skip the unwanted ones in a quick drill.</p>
-            <div class="card-btn btn-teal">Start Table Hunt</div>
-        </a>
-
-        <a href="pages/tools/consecutive-products.html" class="card">
-            <div class="card-icon">🔢</div>
-            <h2 class="card-title">Consecutive Products</h2>
-            <p class="card-desc">Learn and practice products of consecutive numbers from 1 × 2 through 24 × 25.</p>
-            <div class="card-btn btn-amber">Start Practice</div>
-        </a>
-
-        <a href="pages/tools/squares.html" class="card">
-            <div class="card-icon">²</div>
-            <h2 class="card-title">Squares</h2>
-            <p class="card-desc">Learn and practice square values from 1² through 30² with quick reverse drills.</p>
-            <div class="card-btn btn-indigo">Start Squares</div>
-        </a>
-
-        <a href="pages/tools/cubes.html" class="card">
-            <div class="card-icon">³</div>
-            <h2 class="card-title">Cubes</h2>
-            <p class="card-desc">Build speed with cube values from 1³ through 20³ using focused practice modes.</p>
-            <div class="card-btn btn-violet">Start Cubes</div>
-        </a>
-
-        <a href="pages/tools/reverse-table.html" class="card">
-            <div class="card-icon">÷</div>
-            <h2 class="card-title">Reverse Table</h2>
-            <p class="card-desc">Boost division speed by recognizing which multiplication table creates each product.</p>
-            <div class="card-btn btn-rose">Start Reverse Drill</div>
-        </a>
-
-        <a href="pages/tools/multiplication-division-mcq.html" class="card">
-            <div class="card-icon">📝</div>
-            <h2 class="card-title">MCQ Mock Test</h2>
-            <p class="card-desc">Generate fresh multiplication and division MCQs with options in a full mock-test view.</p>
-            <div class="card-btn btn-cyan">Start MCQ Mock</div>
-        </a>
-
-        <a href="pages/tools/focus-meditation.html" class="card">
-            <div class="card-icon">◎</div>
-            <h2 class="card-title">Focus Meditation</h2>
-            <p class="card-desc">Open a high-contrast center-focus meditation image with fullscreen support.</p>
-            <div class="card-btn btn-white">Start Focus</div>
-        </a>
-
-        <a href="pages/tools/focus-breathing.html" class="card">
-            <div class="card-icon">◯</div>
-            <h2 class="card-title">Breathing Focus</h2>
-            <p class="card-desc">Follow a guided breathing circle to steady attention and reduce mental noise.</p>
-            <div class="card-btn btn-sky">Start Breathing</div>
-        </a>
-
-        <a href="pages/tools/focus-dot-tracking.html" class="card">
-            <div class="card-icon">•</div>
-            <h2 class="card-title">Dot Tracking</h2>
-            <p class="card-desc">Track a moving dot with your eyes to train sustained visual focus.</p>
-            <div class="card-btn btn-slate">Start Tracking</div>
-        </a>
-
-        <a href="pages/tools/focus-number-scan.html" class="card">
-            <div class="card-icon">25</div>
-            <h2 class="card-title">Number Scan</h2>
-            <p class="card-desc">Find numbers in order to practice scanning, attention switching, and calm speed.</p>
-            <div class="card-btn btn-green">Start Scan</div>
-        </a>
-
-        <a href="pages/tools/focus-symbol-flash.html" class="card">
-            <div class="card-icon">A#7</div>
-            <h2 class="card-title">Symbol Scan</h2>
-            <p class="card-desc">Scan a grid of alphabets, numbers, and symbols, then tap the current target.</p>
-            <div class="card-btn btn-yellow">Start Scan</div>
-        </a>
-
-        <a href="pages/tools/focus-stroop-tap.html" class="card">
-            <div class="card-icon">INK</div>
-            <h2 class="card-title">Stroop Tap</h2>
-            <p class="card-desc">Tap the ink color and ignore the written word to sharpen inhibition and control.</p>
-            <div class="card-btn btn-cyan">Start Stroop</div>
-        </a>
-
-        <a href="pages/tools/focus-sequence-memory.html" class="card">
-            <div class="card-icon">123</div>
-            <h2 class="card-title">Sequence Memory</h2>
-            <p class="card-desc">Memorize a highlighted tile sequence and repeat it in order across growing rounds.</p>
-            <div class="card-btn btn-indigo">Start Memory</div>
-        </a>
-
-        <a href="pages/tools/focus-5-4-3-2-1.html" class="card">
-            <div class="card-icon">5-4-3</div>
-            <h2 class="card-title">Grounding Focus</h2>
-            <p class="card-desc">Use the 5-4-3-2-1 method to calm your mind and improve concentration before practice.</p>
-            <div class="card-btn btn-sky">Start Grounding</div>
-        </a>
-
-        <a href="pages/tools/focus-candle-gaze.html" class="card">
-            <div class="card-icon">🕯️</div>
-            <h2 class="card-title">Candle Gaze</h2>
-            <p class="card-desc">A calm flame-focus meditation to improve visual stability and attention control.</p>
-            <div class="card-btn btn-amber">Start Candle</div>
-        </a>
-
-        <a href="pages/tools/focus-body-scan.html" class="card">
-            <div class="card-icon">☁︎</div>
-            <h2 class="card-title">Body Scan</h2>
-            <p class="card-desc">A guided relaxation scan from feet to head for focus reset before study.</p>
-            <div class="card-btn btn-teal">Start Scan</div>
-        </a>
-
-        <a href="pages/tools/fractions.html" class="card">
-            <div class="card-icon">1/2</div>
-            <h2 class="card-title">Fractions Table</h2>
-            <p class="card-desc">Quick fraction to percentage and decimal conversions from 1/2 to 1/20.</p>
-            <div class="card-btn btn-teal">Open Table</div>
-        </a>
-
-        <a href="pages/articles/articles.html" class="card">
-            <div class="card-icon">📘</div>
-            <h2 class="card-title">Articles & Guide</h2>
-            <p class="card-desc">Simple tool-wise guidance specially for government job preparation students.</p>
-            <div class="card-btn btn-blue">Read Guide</div>
-        </a>
-
+    <div class="header-center">
+        <div class="vscode-logo">
+            <span class="vscode-icon">📊</span>
+            <div class="vscode-title">
+                <h1>Practice Hub India</h1>
+                <div class="version">(v1.0.0 Beta Workspace)</div>
+            </div>
+        </div>
+        <div class="vscode-tagline">◀ अभ्यास करें, निपुण बनें | Practice More, Achieve More ▶</div>
+        <div class="vscode-warning">
+            यह पोर्टल भारत के सरकारी परीक्षा अभ्यर्थियों के अभ्यास हेतु बनाया गया है | अनधिकृत उपयोग दंडनीय है |
+        </div>
     </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
+    <div class="header-right">
+        <div class="badge badge-digital">🇮🇳 Digital India<br><small>Power To Empower</small></div>
+        <div class="badge badge-g20">G20<br><small>भारत 2026</small><br><small>वसुधैव कुटुम्बकम्</small></div>
+        <div class="badge badge-nic">NIC<br><small>National</small><br><small>Informatics</small><br><small>Centre</small></div>
+        <div class="pm-photo">👤</div>
+    </div>
+</div>
+
+<!-- MENU BAR -->
+<div class="menu-bar">
+    <div class="menu-item" onclick="switchTab('welcome-tab')">होम (Welcome)</div>
+    <div class="menu-item" onclick="toggleSidebar()">फ़ाइलें एक्सप्लोरर (Toggle Sidebar)</div>
+    <div class="menu-item" onclick="switchTab('code-tab')">स्रोत कोड (index.html Code)</div>
+    <div class="menu-item" onclick="switchTab('readme-tab')">दिशानिर्देश (README.md)</div>
+    <div class="menu-item" onclick="toggleTerminal()">टर्मिनल (Toggle Terminal)</div>
+    <div class="menu-item" onclick="location.href='pages/vocab/vocab.html'">शब्दावली (Vocabulary)</div>
+    <div class="menu-item" onclick="location.href='pages/computer/computer.html'">कंप्यूटर (Computer)</div>
+    <div class="menu-item" onclick="location.href='pages/grammar/grammar.html'">व्याकरण (Grammar)</div>
+    <div class="menu-item" onclick="alert('सेटिंग्स पैनल जल्द ही उपलब्ध होगा |')">सेटिंग्स ⚙</div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+    <button class="tb-btn green" onclick="switchTab('welcome-tab')">▶ पोर्टल चलाएं</button>
+    <button class="tb-btn" onclick="toggleSidebar()">📁 एक्सप्लोरर</button>
+    <button class="tb-btn" onclick="toggleTerminal()">🖥 टर्मिनल</button>
+    <button class="tb-btn" onclick="location.href='pages/tools/table-hunt.html'">🎯 टेबल हंट</button>
+    <button class="tb-btn" onclick="location.href='pages/vocab/vocab.html'">📚 शब्दकोश</button>
+    <span style="font-size:10px; font-weight:800; color:#475569; margin-left:6px;">खोजें:</span>
+    <input type="text" class="search-box" id="card-search" placeholder="मॉड्यूल खोजें (जैसे: table, focus)..." onkeyup="filterCards()">
+    <span class="tb-separator"></span>
+    <div class="tb-right">
+        <button class="dev-mode-btn" onclick="alert('डेवलपर मोड सक्रिय है |')">डेवलपर मोड</button>
+        <button class="beta-btn">Beta Version</button>
+        <span class="last-updated">Last Updated: 08/06/2026 &nbsp;02:20 PM</span>
+    </div>
+</div>
+
+<!-- ALERT BAR -->
+<div class="alert-bar">
+    <span class="alert-label">महत्वपूर्ण सूचना:</span>
+    <span class="alert-text">सरकारी परीक्षा (SSC, Bank, Railway) अभ्यास मॉक टेस्ट, पहाड़े अभ्यास, OWS, phrasal verbs और एकाग्रता उपकरण लाइव हैं |</span>
+    <a href="pages/articles/articles.html" class="click-here">दिशानिर्देश पढ़ें</a>
+    <div class="date-time">
+        <span id="live-date">🔊 दिनांक: 08/06/2026</span>
+        <span id="live-time">समय: 14:24:00 PM &nbsp;🔊</span>
+    </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+
+    <!-- ACTIVITY BAR -->
+    <div class="activity-bar">
+        <div class="act-icon active" title="एक्सप्लोरर" onclick="toggleSidebar()">📁<span class="act-label">एक्सप्लोरर</span></div>
+        <div class="act-icon" title="खोजें" onclick="document.getElementById('card-search').focus()">🔍<span class="act-label">खोजें</span></div>
+        <div class="act-icon" title="शब्दावली" onclick="location.href='pages/vocab/vocab.html'">📚<span class="act-label">शब्दावली</span></div>
+        <div class="act-icon" title="कंप्यूटर" onclick="location.href='pages/computer/computer.html'">💻<span class="act-label">कंप्यूटर</span></div>
+        <div class="act-icon" title="व्याकरण" onclick="location.href='pages/grammar/grammar.html'">✍️<span class="act-label">व्याकरण</span></div>
+        <div style="flex:1"></div>
+        <div class="act-icon" title="सेटिंग्स" onclick="alert('Settings configured via settings.json')">⚙<span class="act-label">सेटिंग्स</span></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="project-sidebar">
+        <div class="sidebar-header">
+            <span>फ़ाइल एक्सप्लोरर</span>
+            <span style="cursor:pointer;color:#666">⋯</span>
+        </div>
+        <div class="sidebar-section">कार्यस्थान: PRACTICE-HUB</div>
+        <div class="file-tree">
+            <!-- Pages Folder -->
+            <div class="tree-item"><span class="indent" style="width:4px"></span><span class="icon">▾</span> <span class="folder-icon">📂</span> pages</div>
+            
+            <!-- Computer Folder -->
+            <div class="tree-item"><span class="indent" style="width:14px"></span><span class="icon">▾</span> <span class="folder-icon">📂</span> computer</div>
+            <a href="pages/computer/computer.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> computer.html</a>
+            <a href="pages/computer/dbms.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> dbms.html</a>
+            <a href="pages/computer/dbms-topic-1-introduction.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> dbms-intro.html</a>
+            
+            <!-- Vocab Folder -->
+            <div class="tree-item"><span class="indent" style="width:14px"></span><span class="icon">▾</span> <span class="folder-icon">📂</span> vocab</div>
+            <a href="pages/vocab/vocab.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> vocab.html</a>
+            <a href="pages/vocab/daily-class-vocab-8-june-2026.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> vocab-8-june.html</a>
+            <a href="pages/vocab/weekly-vocab-magazine-25-30-may-2026.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> weekly-magazine.html</a>
+
+            <!-- Grammar Folders -->
+            <div class="tree-item"><span class="indent" style="width:14px"></span><span class="icon">▾</span> <span class="folder-icon">📂</span> grammar</div>
+            <a href="pages/grammar/grammar.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> grammar.html</a>
+            
+            <div class="tree-item"><span class="indent" style="width:14px"></span><span class="icon">▾</span> <span class="folder-icon">📂</span> 120rulesgrammar</div>
+            <a href="pages/120rulesgrammar/120rulesgrammar.html" class="tree-item"><span class="indent" style="width:28px"></span><span class="icon html-icon">🔶</span> 120rules.html</a>
+
+            <!-- Tools Folder -->
+            <div class="tree-item"><span class="indent" style="width:14px"></span><span class="icon">▸</span> <span class="folder-icon">📂</span> tools</div>
+            
+            <!-- Root Files -->
+            <div class="tree-item" onclick="switchTab('welcome-tab')"><span class="indent" style="width:4px"></span><span class="icon html-icon">🔶</span> Welcome.html</div>
+            <div class="tree-item active" onclick="switchTab('code-tab')"><span class="indent" style="width:4px"></span><span class="icon html-icon">🔶</span> index.html</div>
+            <div class="tree-item" onclick="switchTab('readme-tab')"><span class="indent" style="width:4px"></span><span class="icon md-icon">📄</span> README.md</div>
+            <div class="tree-item" onclick="alert('settings.json is read-only')"><span class="indent" style="width:4px"></span><span class="icon json-icon">⚙</span> settings.json</div>
+            <div class="tree-item" onclick="alert('sw.js runs in background')"><span class="indent" style="width:4px"></span><span class="icon file-icon">⚙</span> sw.js</div>
+        </div>
+        <div class="sidebar-bottom">
+            <div class="sb-title">सूचना पैनल (Diagnostics)</div>
+            <div class="error-item"><span class="err-icon" style="color:#16a34a">✓</span> 0 Errors</div>
+            <div class="error-item"><span class="err-icon" style="color:#16a34a">✓</span> 0 Warnings</div>
+            <div class="error-item"><span class="err-icon" style="color:#2563eb">ℹ</span> System Ready</div>
+        </div>
+    </div>
+
+    <!-- EDITOR AREA -->
+    <div class="editor-area">
+        <!-- Tab bar -->
+        <div class="tab-bar">
+            <div class="tab active" id="welcome-tab" onclick="switchTab('welcome-tab')">📊 Welcome.html <span class="close" onclick="closeTab(event, 'welcome-tab')">×</span></div>
+            <div class="tab" id="code-tab" onclick="switchTab('code-tab')">🔶 index.html <span class="close" onclick="closeTab(event, 'code-tab')">×</span></div>
+            <div class="tab" id="readme-tab" onclick="switchTab('readme-tab')">📄 README.md <span class="close" onclick="closeTab(event, 'readme-tab')">×</span></div>
+        </div>
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-bar" id="breadcrumb-text">PRACTICE-HUB &gt; pages &gt; Welcome.html</div>
+
+        <!-- Tab 1 View: Welcome Page (Cards) -->
+        <div class="tab-view active" id="welcome-view">
+            <div class="welcome-view">
+                <div class="welcome-hero">
+                    <h2>🎯 Practice Hub Workspace</h2>
+                    <p>सरकारी नौकरी की परीक्षाओं (SSC CGL, Banking, Railway) की तैयारी हेतु विशेष रूप से डिजाइन किया गया डिजिटल वर्कस्पेस | अभ्यास शुरू करने के लिए नीचे दिए गए मॉड्यूल में से एक का चयन करें |</p>
+                </div>
+                
+                <div class="grid-container" id="cards-container">
+                    <a href="pages/computer/computer.html" class="card">
+                        <div class="card-icon">💻</div>
+                        <h3 class="card-title">Computer Subject</h3>
+                        <p class="card-desc">Start Computer Science notes with DBMS fundamentals, comparisons, and architecture.</p>
+                        <div class="card-btn btn-indigo">Open Computer</div>
+                    </a>
+
+                    <a href="pages/vocab/vocab.html" class="card">
+                        <div class="card-icon">📚</div>
+                        <h3 class="card-title">Daily Vocabulary</h3>
+                        <p class="card-desc">Read date-wise vocab PDFs with grouped words, idioms, English meanings, and Hindi meanings.</p>
+                        <div class="card-btn btn-green">Open Vocab</div>
+                    </a>
+
+                    <a href="pages/grammar/grammar.html" class="card">
+                        <div class="card-icon">✍️</div>
+                        <h3 class="card-title">English Grammar</h3>
+                        <p class="card-desc">Master grammatical connectors, sentence structures, and rules with detailed explanations and Hindi translations.</p>
+                        <div class="card-btn btn-amber">Open Grammar</div>
+                    </a>
+
+                    <a href="pages/120rulesgrammar/120rulesgrammar.html" class="card">
+                        <div class="card-icon">📜</div>
+                        <h3 class="card-title">120 Rules of Grammar</h3>
+                        <p class="card-desc">Master the essential 120 rules of English grammar with conceptual breakdowns, difference guides, memory tricks, and examples.</p>
+                        <div class="card-btn btn-blue">Open 120 Rules</div>
+                    </a>
+
+                    <a href="pages/tools/alphabets.html" class="card">
+                        <div class="card-icon">🔤</div>
+                        <h3 class="card-title">Alphabet Practice</h3>
+                        <p class="card-desc">Master your letters with engaging alphabet recognition and typing exercises designed for quick learning.</p>
+                        <div class="card-btn btn-blue">Start Alphabet Test</div>
+                    </a>
+
+                    <a href="pages/tools/multiplication.html" class="card">
+                        <div class="card-icon">✖️</div>
+                        <h3 class="card-title">Multiplication</h3>
+                        <p class="card-desc">Sharpen your math skills by practicing multiplication tables and factorization challenges.</p>
+                        <div class="card-btn btn-purple">Start Math Practice</div>
+                    </a>
+
+                    <a href="pages/tools/table-hunt.html" class="card">
+                        <div class="card-icon">🎯</div>
+                        <h3 class="card-title">Table Hunt</h3>
+                        <p class="card-desc">Pick tables from 1 to 30, identify matching numbers, and skip the unwanted ones in a quick drill.</p>
+                        <div class="card-btn btn-teal">Start Table Hunt</div>
+                    </a>
+
+                    <a href="pages/tools/consecutive-products.html" class="card">
+                        <div class="card-icon">🔢</div>
+                        <h3 class="card-title">Consecutive Products</h3>
+                        <p class="card-desc">Learn and practice products of consecutive numbers from 1 × 2 through 24 × 25.</p>
+                        <div class="card-btn btn-amber">Start Practice</div>
+                    </a>
+
+                    <a href="pages/tools/squares.html" class="card">
+                        <div class="card-icon">²</div>
+                        <h3 class="card-title">Squares</h3>
+                        <p class="card-desc">Learn and practice square values from 1² through 30² with quick reverse drills.</p>
+                        <div class="card-btn btn-indigo">Start Squares</div>
+                    </a>
+
+                    <a href="pages/tools/cubes.html" class="card">
+                        <div class="card-icon">³</div>
+                        <h3 class="card-title">Cubes</h3>
+                        <p class="card-desc">Build speed with cube values from 1³ through 20³ using focused practice modes.</p>
+                        <div class="card-btn btn-violet">Start Cubes</div>
+                    </a>
+
+                    <a href="pages/tools/reverse-table.html" class="card">
+                        <div class="card-icon">÷</div>
+                        <h3 class="card-title">Reverse Table</h3>
+                        <p class="card-desc">Boost division speed by recognizing which multiplication table creates each product.</p>
+                        <div class="card-btn btn-rose">Start Reverse Drill</div>
+                    </a>
+
+                    <a href="pages/tools/multiplication-division-mcq.html" class="card">
+                        <div class="card-icon">📝</div>
+                        <h3 class="card-title">MCQ Mock Test</h3>
+                        <p class="card-desc">Generate fresh multiplication and division MCQs with options in a full mock-test view.</p>
+                        <div class="card-btn btn-cyan">Start MCQ Mock</div>
+                    </a>
+
+                    <a href="pages/tools/focus-meditation.html" class="card">
+                        <div class="card-icon">◎</div>
+                        <h3 class="card-title">Focus Meditation</h3>
+                        <p class="card-desc">Open a high-contrast center-focus meditation image with fullscreen support.</p>
+                        <div class="card-btn btn-white">Start Focus</div>
+                    </a>
+
+                    <a href="pages/tools/focus-breathing.html" class="card">
+                        <div class="card-icon">◯</div>
+                        <h3 class="card-title">Breathing Focus</h3>
+                        <p class="card-desc">Follow a guided breathing circle to steady attention and reduce mental noise.</p>
+                        <div class="card-btn btn-sky">Start Breathing</div>
+                    </a>
+
+                    <a href="pages/tools/focus-dot-tracking.html" class="card">
+                        <div class="card-icon">•</div>
+                        <h3 class="card-title">Dot Tracking</h3>
+                        <p class="card-desc">Track a moving dot with your eyes to train sustained visual focus.</p>
+                        <div class="card-btn btn-slate">Start Tracking</div>
+                    </a>
+
+                    <a href="pages/tools/focus-number-scan.html" class="card">
+                        <div class="card-icon">25</div>
+                        <h3 class="card-title">Number Scan</h3>
+                        <p class="card-desc">Find numbers in order to practice scanning, attention switching, and calm speed.</p>
+                        <div class="card-btn btn-green">Start Scan</div>
+                    </a>
+
+                    <a href="pages/tools/focus-symbol-flash.html" class="card">
+                        <div class="card-icon">A#7</div>
+                        <h3 class="card-title">Symbol Scan</h3>
+                        <p class="card-desc">Scan a grid of alphabets, numbers, and symbols, then tap the current target.</p>
+                        <div class="card-btn btn-yellow">Start Scan</div>
+                    </a>
+
+                    <a href="pages/tools/focus-stroop-tap.html" class="card">
+                        <div class="card-icon">INK</div>
+                        <h3 class="card-title">Stroop Tap</h3>
+                        <p class="card-desc">Tap the ink color and ignore the written word to sharpen inhibition and control.</p>
+                        <div class="card-btn btn-cyan">Start Stroop</div>
+                    </a>
+
+                    <a href="pages/tools/focus-sequence-memory.html" class="card">
+                        <div class="card-icon">123</div>
+                        <h3 class="card-title">Sequence Memory</h3>
+                        <p class="card-desc">Memorize a highlighted tile sequence and repeat it in order across growing rounds.</p>
+                        <div class="card-btn btn-indigo">Start Memory</div>
+                    </a>
+
+                    <a href="pages/tools/focus-5-4-3-2-1.html" class="card">
+                        <div class="card-icon">5-4-3</div>
+                        <h3 class="card-title">Grounding Focus</h3>
+                        <p class="card-desc">Use the 5-4-3-2-1 method to calm your mind and improve concentration before practice.</p>
+                        <div class="card-btn btn-sky">Start Grounding</div>
+                    </a>
+
+                    <a href="pages/tools/focus-candle-gaze.html" class="card">
+                        <div class="card-icon">🕯️</div>
+                        <h3 class="card-title">Candle Gaze</h3>
+                        <p class="card-desc">A calm flame-focus meditation to improve visual stability and attention control.</p>
+                        <div class="card-btn btn-amber">Start Candle</div>
+                    </a>
+
+                    <a href="pages/tools/focus-body-scan.html" class="card">
+                        <div class="card-icon">☁︎</div>
+                        <h3 class="card-title">Body Scan</h3>
+                        <p class="card-desc">A guided relaxation scan from feet to head for focus reset before study.</p>
+                        <div class="card-btn btn-teal">Start Scan</div>
+                    </a>
+
+                    <a href="pages/tools/fractions.html" class="card">
+                        <div class="card-icon">1/2</div>
+                        <h3 class="card-title">Fractions Table</h3>
+                        <p class="card-desc">Quick fraction to percentage and decimal conversions from 1/2 to 1/20.</p>
+                        <div class="card-btn btn-teal">Open Table</div>
+                    </a>
+
+                    <a href="pages/articles/articles.html" class="card">
+                        <div class="card-icon">📘</div>
+                        <h3 class="card-title">Articles & Guide</h3>
+                        <p class="card-desc">Simple tool-wise guidance specially for government job preparation students.</p>
+                        <div class="card-btn btn-blue">Read Guide</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2 View: index.html Mock Source Code -->
+        <div class="tab-view" id="code-view">
+            <div class="code-view">
+                <div class="code-line"><span class="line-num">1</span><span class="line-code"><span class="comment">&lt;!-- Practice Hub Welcome Page Source Code --&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">2</span><span class="line-code"><span class="tag">&lt;!DOCTYPE</span> <span class="attr">html</span><span class="tag">&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">3</span><span class="line-code"><span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="val">"hi"</span><span class="tag">&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">4</span><span class="line-code"><span class="tag">&lt;head&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">5</span><span class="line-code">    <span class="tag">&lt;title&gt;</span>Practice Hub India<span class="tag">&lt;/title&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">6</span><span class="line-code">    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="val">"UTF-8"</span><span class="tag">&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">7</span><span class="line-code">    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="val">"stylesheet"</span> <span class="attr">href</span>=<span class="val">"index.css"</span><span class="tag">&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">8</span><span class="line-code"><span class="tag">&lt;/head&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">9</span><span class="line-code"><span class="tag">&lt;body&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">10</span><span class="line-code">    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"welcome-hero"</span><span class="tag">&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">11</span><span class="line-code">        <span class="tag">&lt;h2&gt;</span>नमस्ते भारत! | Hello India!<span class="tag">&lt;/h2&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">12</span><span class="line-code">        <span class="tag">&lt;p&gt;</span>यह पोर्टल सरकारी नौकरियों के अभ्यर्थियों के लिए समर्पित है |<span class="tag">&lt;/p&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">13</span><span class="line-code">    <span class="tag">&lt;/div&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">14</span><span class="line-code">    <span class="comment">&lt;!-- 24 Active Practice cards list initialized --&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">15</span><span class="line-code">    <span class="kw">const</span> <span class="ident">vision</span> = <span class="str">"विकसित भारत 2047"</span>;</span></div>
+                <div class="code-line"><span class="line-num">16</span><span class="line-code">    <span class="kw">const</span> <span class="ident">mission</span> = <span class="str">"अभ्यास से सफलता"</span>;</span></div>
+                <div class="code-line"><span class="line-num">17</span><span class="line-code">    <span class="fn">initPracticeHub()</span>;</span></div>
+                <div class="code-line"><span class="line-num">18</span><span class="line-code"><span class="tag">&lt;/body&gt;</span></span></div>
+                <div class="code-line"><span class="line-num">19</span><span class="line-code"><span class="tag">&lt;/html&gt;</span></span></div>
+            </div>
+        </div>
+
+        <!-- Tab 3 View: README.md -->
+        <div class="tab-view" id="readme-view">
+            <div class="md-view">
+                <h2>📖 Practice Hub Guide & README</h2>
+                <p>Welcome to the official <strong>Practice Hub</strong> revision repository! This portal is built to serve as a offline-first, highly efficient revision workspace for competitive exams.</p>
+                
+                <h2>🎯 Key Features</h2>
+                <ul>
+                    <li><strong>Speed Math Tools</strong>: Practice multiplication tables (1-30), square roots, consecutive products, fraction/percentage conversion, and MCQ mock tests.</li>
+                    <li><strong>Vocab revision</strong>: Daily class summaries from lecture slides (June 2026 dates) structured with synonyms, antonyms, parts of speech, and idioms.</li>
+                    <li><strong>Diagnostics/Diagnostics Bar</strong>: Keeps track of errors and load status.</li>
+                    <li><strong>Active Reading Timer</strong>: Integrated stopwatch controls on reading pages to clock your reading speeds.</li>
+                </ul>
+
+                <h2>⚙️ Settings & Service Worker</h2>
+                <p>The site runs a custom background Service Worker (<code>sw.js</code>) caching all assets for offline usage. If you lose internet connection, all math tools, vocab revision pages, and guides remain fully accessible.</p>
+            </div>
+        </div>
+
+        <!-- PANEL (Terminal) -->
+        <div class="panel" id="bottom-panel">
+            <div class="panel-tabs">
+                <div class="panel-tab">समस्याएं (0)</div>
+                <div class="panel-tab">आउटपुट</div>
+                <div class="panel-tab">डिबग कंसोल</div>
+                <div class="panel-tab active">टर्मिनल (bash)</div>
+                <div class="panel-controls">
+                    <span class="ctrl-btn" onclick="clearTerminal()" title="टर्मिनल साफ़ करें">🗑</span>
+                    <span class="ctrl-btn" onclick="toggleTerminal()" title="पैनल बंद करें">×</span>
+                </div>
+            </div>
+            <div class="terminal" id="terminal-content">
+                <div>Practice Hub OS [Version 1.0.0]</div>
+                <div>(c) 2026 Government of India. Department of Digital Education.</div>
+                <div>&nbsp;</div>
+                <div>C:\Users\Aspirant&gt; <span class="t-white">python run_practice_hub.py</span></div>
+                <div class="t-green">[OK] Practice Hub database initialized successfully.</div>
+                <div class="t-yellow">[INFO] Caching 24 tools in background (v55 active)...</div>
+                <div class="t-white">Status: READY. Double click any file in the Explorer sidebar or select a card to begin practicing.</div>
+                <div id="terminal-typing-line">C:\Users\Aspirant&gt; <span class="t-cursor"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel" id="info-panel">
+        <div class="rp-card">
+            <div class="rp-card-header"><span class="dot dot-red"></span> महत्वपूर्ण सूचना</div>
+            <p>अभ्यर्थी ध्यान दें: सरकारी परीक्षाओं की तैयारी के लिए प्रतिदिन कम से कम 30 मिनट पहाड़े अभ्यास एवं शब्दावली पुनरीक्षण (Vocab Revision) अवश्य करें |</p>
+            <button class="rp-btn" onclick="alert('सहेजने के लिए धन्यवाद! अभ्यास करते रहें |')">मैंने पढ़ लिया (OK)</button>
+        </div>
+        <div class="rp-card">
+            <div class="rp-card-header"><span class="dot dot-yellow"></span> दैनिक लक्ष्य</div>
+            <p>1. 1 से 30 तक पहाड़े अभ्यास<br>2. 8 जून 2026 दैनिक शब्दावली पुनरीक्षण<br>3. 10 मिनट ब्रीदिंग फोकस drill</p>
+            <button class="rp-btn outline" onclick="location.href='pages/vocab/daily-class-vocab-8-june-2026.html'">आज का अभ्यास शुरू करें</button>
+        </div>
+        <div class="rp-card">
+            <div class="rp-card-header"><span class="dot dot-blue"></span> योगदान दें</div>
+            <p>यह परियोजना पूरी तरह से राष्ट्र सेवा में समर्पित है | किसी भी प्रकार के बग्स या सुझाव support@practicehub.gov.in पर भेजें |</p>
+            <button class="rp-btn" onclick="location.href='pages/articles/articles.html'">दिशानिर्देश देखें</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+    <span>भारत सरकार &nbsp; v1.0.0 (Beta) | &nbsp; <span class="flag-in">🇮🇳</span> &nbsp; मुख्य पृष्ठ</span>
+    <div class="status-right">
+        <span>Ln 1, Col 1</span>
+        <span>Spaces: 4</span>
+        <span>UTF-8</span>
+        <span>HTML5</span>
+        <span>टोल फ्री: 1800-11-PRACTICE (772284)</span>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <span>अंतिम अपडेट: 08/06/2026 &nbsp;02:20 PM</span>
+    <span>© 2026 भारत सरकार – राष्ट्रीय अभ्यास एवं शिक्षण विभाग – सभी अधिकार सुरक्षित</span>
+    <span>संपर्क करें: <a href="mailto:support@practicehub.gov.in">support@practicehub.gov.in</a></span>
+</div>
+
+<script>
+    // ── TAB SWITCHING ──
+    function switchTab(tabId) {
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        // Remove active class from all tab views
+        document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+        
+        // Add active class to selected tab
+        const activeTab = document.getElementById(tabId);
+        if (activeTab) {
+            activeTab.classList.add('active');
         }
-    </script>
+
+        // Show matching view
+        let viewId = 'welcome-view';
+        let breadcrumbPath = 'PRACTICE-HUB > pages > Welcome.html';
+        if (tabId === 'code-tab') {
+            viewId = 'code-view';
+            breadcrumbPath = 'PRACTICE-HUB > index.html';
+        } else if (tabId === 'readme-tab') {
+            viewId = 'readme-view';
+            breadcrumbPath = 'PRACTICE-HUB > README.md';
+        }
+        
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+            targetView.classList.add('active');
+        }
+        document.getElementById('breadcrumb-text').innerText = breadcrumbPath;
+    }
+
+    function closeTab(event, tabId) {
+        event.stopPropagation();
+        const tab = document.getElementById(tabId);
+        if (tab) {
+            tab.style.display = 'none';
+        }
+        // If closed tab was active, switch to welcome
+        if (tab.classList.contains('active')) {
+            switchTab('welcome-tab');
+        }
+    }
+
+    // ── SIDEBAR TOGGLING ──
+    function toggleSidebar() {
+        const sidebar = document.getElementById('project-sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+
+    // ── TERMINAL PANEL TOGGLING ──
+    function toggleTerminal() {
+        const panel = document.getElementById('bottom-panel');
+        panel.classList.toggle('collapsed');
+    }
+
+    function clearTerminal() {
+        const termContent = document.getElementById('terminal-content');
+        termContent.innerHTML = '<div>C:\\Users\\Aspirant&gt; <span class="t-cursor"></span></div>';
+    }
+
+    // ── SEARCH FILTER FOR PRACTICE CARDS ──
+    function filterCards() {
+        const query = document.getElementById('card-search').value.toLowerCase();
+        const cards = document.querySelectorAll('#cards-container .card');
+        
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title').innerText.toLowerCase();
+            const desc = card.querySelector('.card-desc').innerText.toLowerCase();
+            
+            if (title.includes(query) || desc.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // ── LIVE DATE & TIME CLOCK ──
+    function updateClock() {
+        const now = new Date();
+        // Format date: DD/MM/YYYY
+        const dd = String(now.getDate()).padStart(2, '0');
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const yyyy = now.getFullYear();
+        document.getElementById('live-date').innerText = `🔊 दिनांक: ${dd}/${mm}/${yyyy}`;
+
+        // Format time: HH:MM:SS AM/PM
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const strTime = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+        document.getElementById('live-time').innerText = `समय: ${strTime} &nbsp;🔊`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ── SERVICE WORKER REGISTRATION ──
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(registration => {
+                console.log('SW registered: ', registration);
+            }).catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+        });
+    }
+</script>
+
 </body>
 </html>
