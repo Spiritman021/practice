@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 5: The Physical Layer — Learn about Layer 1 role, bits to signals, guided vs unguided transmission media, physical topologies, L1 hardware (repeater, hub), and encoding schemes.">
+<meta name="robots" content="index, follow">
+<title>The Physical Layer — CN Topic 5 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_physical_layer.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --orange: #ea580c;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #431407 0%, #ea580c 30%, #b45309 60%, #7c3aed 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#fed7aa; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:560px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:860px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-blue   { background:var(--blue); }
+.sn-red    { background:var(--red); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-purple { background:var(--accent); }
+.sn-teal   { background:var(--teal); }
+.sn-orange { background:var(--orange); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-orange { border-color:var(--orange);background:#fff7ed;            color:#7c2d12; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+td.ok   { color:var(--green); font-weight:600; }
+
+/* OSI POSITION DIAGRAM */
+.osi-pos { display:flex; flex-direction:column; gap:3px; }
+.osi-row { display:flex; border-radius:7px; overflow:hidden; transition:transform 0.15s; }
+.osi-row:hover { transform:translateX(5px); }
+.osi-n { width:32px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; font-weight:700; flex-shrink:0; }
+.osi-name { width:140px; padding:10px 12px; font-family:var(--sans); font-size:0.78rem; font-weight:700; display:flex; align-items:center; flex-shrink:0; }
+.osi-info { flex:1; padding:10px 14px; font-size:0.76rem; color:#6b7280; display:flex; align-items:center; }
+.r7{background:#fff0f0;} .r7 .osi-n,.r7 .osi-name{color:#b91c1c;}
+.r6{background:#fff7ed;} .r6 .osi-n,.r6 .osi-name{color:#c2410c;}
+.r5{background:#fffbeb;} .r5 .osi-n,.r5 .osi-name{color:#a16207;}
+.r4{background:#f0fdf4;} .r4 .osi-n,.r4 .osi-name{color:#15803d;}
+.r3{background:#eff6ff;} .r3 .osi-n,.r3 .osi-name{color:#1d4ed8;}
+.r2{background:#f5f3ff;} .r2 .osi-n,.r2 .osi-name{color:#6d28d9;}
+.r1h{background:#fff7ed; border:2px solid var(--orange);} .r1h .osi-n,.r1h .osi-name{color:#c2410c;}
+
+/* BIT-TO-SIGNAL FLOW */
+.sig-flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; padding:8px 0; }
+.sig-box { border:2px solid; border-radius:10px; padding:12px 18px; text-align:center; min-width:100px; }
+.sig-box-label { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:0.5px; margin-bottom:5px; }
+.sig-box-val   { font-family:var(--sans); font-size:0.82rem; font-weight:700; }
+.sig-arrow { font-size:20px; color:var(--text-light); flex-shrink:0; }
+.sig-label { font-family:var(--mono); font-size:9px; color:var(--text-light); text-align:center; margin-top:3px; }
+
+/* MEDIA CARDS */
+.media-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.media-card { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.media-card-head { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.media-card-title { font-family:var(--sans); font-size:0.85rem; font-weight:700; }
+.media-card-body { padding:14px 16px; }
+.media-item { display:flex; align-items:flex-start; gap:10px; padding:7px 0; border-bottom:1px solid #f1f5f9; font-size:0.82rem; }
+.media-item:last-child { border-bottom:none; }
+.media-item-name { font-family:var(--mono); font-size:0.78rem; font-weight:600; width:90px; flex-shrink:0; }
+.media-item-desc { color:#374151; line-height:1.4; }
+
+/* TOPOLOGY VISUAL */
+.topo-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:16px 0; }
+.topo-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; text-align:center; }
+.topo-svg { width:100%; height:80px; margin-bottom:10px; }
+.topo-name { font-family:var(--sans); font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+.topo-desc { font-size:0.75rem; color:var(--text-muted); line-height:1.4; }
+
+/* HARDWARE CARDS */
+.hw-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.hw-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:18px; }
+.hw-card-top { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.hw-icon { font-size:28px; }
+.hw-name { font-family:var(--sans); font-size:0.9rem; font-weight:700; }
+.hw-desc { font-size:0.83rem; color:#374151; line-height:1.6; }
+
+/* TRANSMISSION MODE DIAGRAM */
+.tx-modes { display:flex; flex-direction:column; gap:12px; }
+.tx-row { display:flex; align-items:center; gap:14px; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 18px; }
+.tx-badge { font-family:var(--mono); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; flex-shrink:0; width:100px; text-align:center; }
+.tx-visual { flex:1; display:flex; align-items:center; gap:8px; }
+.tx-node { width:36px; height:36px; border-radius:8px; border:2px solid; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.tx-line { flex:1; height:2px; position:relative; display:flex; align-items:center; justify-content:center; }
+.tx-arrow { font-size:16px; }
+.tx-info { font-size:0.8rem; color:#374151; }
+.tx-example { font-family:var(--mono); font-size:0.72rem; color:var(--text-muted); margin-top:2px; }
+
+/* MUX DIAGRAM */
+.mux-visual { display:flex; align-items:center; gap:12px; justify-content:center; padding:8px 0; flex-wrap:wrap; }
+.mux-inputs { display:flex; flex-direction:column; gap:6px; }
+.mux-sig { font-family:var(--mono); font-size:11px; padding:5px 12px; border-radius:6px; font-weight:600; }
+.mux-box { width:52px; height:80px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:var(--sans); font-size:10px; font-weight:700; border:2px solid; writing-mode:vertical-rl; text-orientation:mixed; letter-spacing:1px; }
+.mux-channel { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.mux-line { height:3px; width:80px; border-radius:2px; }
+.mux-channel-label { font-family:var(--mono); font-size:9px; color:var(--text-muted); }
+
+/* ENCODING TABLE COLORS */
+.enc-dd { background:#eff6ff; color:#1d4ed8; }
+.enc-aa { background:#f0fdf4; color:#15803d; }
+.enc-ad { background:#fff7ed; color:#c2410c; }
+.enc-da { background:#f5f3ff; color:#6d28d9; }
+
+/* SIGNAL PROPS */
+.sig-props { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:16px 0; }
+.sig-prop-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:18px; text-align:center; }
+.sig-prop-icon { font-size:32px; margin-bottom:10px; }
+.sig-prop-name { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:6px; }
+.sig-prop-desc { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+.sig-prop-formula { font-family:var(--mono); font-size:11px; margin-top:8px; padding:4px 10px; background:#f8fafc; border-radius:5px; color:var(--text); display:inline-block; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);   font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);  font-size:0.77rem; }
+.bullet-list li .tag-p{ font-family:var(--mono); color:var(--accent);font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange);font-size:0.77rem; }
+.priority-box { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:14px 0; }
+.final-tips { background:linear-gradient(135deg,#f0fdf4,#eff6ff); border:1px solid #bbf7d0; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--green); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .media-grid,.hw-grid,.topo-grid,.sig-props{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+}
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 05</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Physical Layer</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="computer_networks.html">Computer Networks</a><span class="sep">›</span><span class="current">Topic 5: The Physical Layer</span><a class="back-btn" href="computer_networks.html">← Back</a></nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 5</span>
+    <span class="hero-tag">OSI LAYER 1</span>
+  </div>
+  <h1>THE <span>PHYSICAL LAYER</span></h1>
+  <p class="hero-sub">Bits to signals, cables, connectors, topologies, hardware devices, transmission modes, multiplexing, encoding, and signal properties — all at the hardware level.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ═══════════ DESCRIPTIVE PANEL ═══════════ -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Position in OSI -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Position &amp; Role in the OSI Model</h2>
+    </div>
+    <p class="body-text">
+      The Physical Layer is <strong>Layer 1</strong> — the bottommost layer of the OSI model. It holds a unique dual position: on the <strong>sender side</strong> it is the very last layer to process outgoing data (receives bits from Data Link above it, then pushes signals onto the wire). On the <strong>receiver side</strong> it is the very first layer to handle anything that arrives.
+    </p>
+    <p class="body-text">
+      Every layer above it deals with virtual, logical, or software-based constructs — packets, frames, sessions, data. The Physical Layer is the only layer that deals exclusively with <strong>tangible hardware</strong>: real cables, real connectors, real signals. No software abstraction here.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">🏛 Physical Layer — Position in OSI Stack</div>
+      <div class="diagram-body">
+        <div class="osi-pos">
+          <div class="osi-row r7"><div class="osi-n">7</div><div class="osi-name">Application</div><div class="osi-info">Software — user-facing protocols</div></div>
+          <div class="osi-row r6"><div class="osi-n">6</div><div class="osi-name">Presentation</div><div class="osi-info">Encoding, encryption, compression</div></div>
+          <div class="osi-row r5"><div class="osi-n">5</div><div class="osi-name">Session</div><div class="osi-info">Session management</div></div>
+          <div class="osi-row r4"><div class="osi-n">4</div><div class="osi-name">Transport</div><div class="osi-info">End-to-end delivery</div></div>
+          <div class="osi-row r3"><div class="osi-n">3</div><div class="osi-name">Network</div><div class="osi-info">Logical addressing, routing</div></div>
+          <div class="osi-row r2"><div class="osi-n">2</div><div class="osi-name">Data Link</div><div class="osi-info">Frames, MAC — passes bits ↓ to Physical</div></div>
+          <div class="osi-row r1h"><div class="osi-n">1</div><div class="osi-name">Physical ◀</div><div class="osi-info" style="color:var(--orange);font-weight:600">YOU ARE HERE — Hardware, signals, bits. Sender: last layer. Receiver: first layer.</div></div>
+        </div>
+      </div>
+      <div class="diagram-note">Sender: data travels 7 → 1 (Physical last). Receiver: signal arrives at layer 1 first, travels 1 → 7.</div>
+    </div>
+    <div class="callout callout-orange">
+      🔌 <strong>Key Distinction:</strong> All upper layers (L2–L7) handle logical/virtual data in software. The Physical Layer exclusively handles <em>tangible hardware</em> — actual wires, actual connectors, actual electrical or light signals.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Bits to Signals -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-orange">2</div>
+      <h2>Core Functionality: Bits to Signals</h2>
+    </div>
+    <p class="body-text">
+      The single most important job of the Physical Layer: take the continuous stream of <strong>0s and 1s</strong> coming from the Data Link Layer and convert them into <strong>physical signals</strong> that can actually travel across a transmission medium. On the receiving end, the reverse — catch signals and convert them back into bits.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">⚡ Sender &amp; Receiver Flow — Bits ↔ Signals</div>
+      <div class="diagram-body">
+        <div style="margin-bottom:18px">
+          <div style="font-family:var(--sans);font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">SENDER SIDE</div>
+          <div class="sig-flow">
+            <div>
+              <div class="sig-box" style="border-color:#6d28d9;background:#f5f3ff">
+                <div class="sig-box-label" style="color:#6d28d9">DATA LINK</div>
+                <div class="sig-box-val">0 1 0 1 1 0</div>
+              </div>
+              <div class="sig-label">Bits (logical)</div>
+            </div>
+            <div class="sig-arrow">→</div>
+            <div>
+              <div class="sig-box" style="border-color:var(--orange);background:#fff7ed">
+                <div class="sig-box-label" style="color:var(--orange)">PHYSICAL L.</div>
+                <div class="sig-box-val">Bit → Signal</div>
+              </div>
+              <div class="sig-label">Conversion</div>
+            </div>
+            <div class="sig-arrow">→</div>
+            <div>
+              <div class="sig-box" style="border-color:var(--amber);background:#fffbeb">
+                <div class="sig-box-label" style="color:var(--amber)">MEDIUM</div>
+                <div class="sig-box-val">⚡ / 💡 / 📡</div>
+              </div>
+              <div class="sig-label">Electrical / Light / Radio</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--sans);font-size:0.78rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">RECEIVER SIDE</div>
+          <div class="sig-flow">
+            <div>
+              <div class="sig-box" style="border-color:var(--amber);background:#fffbeb">
+                <div class="sig-box-label" style="color:var(--amber)">MEDIUM</div>
+                <div class="sig-box-val">⚡ / 💡 / 📡</div>
+              </div>
+              <div class="sig-label">Incoming signal</div>
+            </div>
+            <div class="sig-arrow">→</div>
+            <div>
+              <div class="sig-box" style="border-color:var(--orange);background:#fff7ed">
+                <div class="sig-box-label" style="color:var(--orange)">PHYSICAL L.</div>
+                <div class="sig-box-val">Signal → Bit</div>
+              </div>
+              <div class="sig-label">Conversion</div>
+            </div>
+            <div class="sig-arrow">→</div>
+            <div>
+              <div class="sig-box" style="border-color:#6d28d9;background:#f5f3ff">
+                <div class="sig-box-label" style="color:#6d28d9">DATA LINK</div>
+                <div class="sig-box-val">0 1 0 1 1 0</div>
+              </div>
+              <div class="sig-label">Bits restored</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Transmission Media, Cables & Connectors -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">3</div>
+      <h2>Transmission Media, Cables &amp; Connectors</h2>
+    </div>
+    <p class="body-text">
+      The Physical Layer decides how signals are sent across either <strong>guided (wired)</strong> or <strong>unguided (wireless)</strong> media. The type of cable directly determines what type of signal is used — copper carries electrical signals, optical fibre carries light pulses, and wireless uses radio or infrared waves.
+    </p>
+    <div class="media-grid">
+      <div class="media-card">
+        <div class="media-card-head">
+          <span style="font-size:20px">🔌</span>
+          <div class="media-card-title" style="color:var(--teal)">Cables (Guided Media)</div>
+        </div>
+        <div class="media-card-body">
+          <div class="media-item">
+            <div class="media-item-name" style="color:#b45309">Twisted Pair</div>
+            <div class="media-item-desc">Most common; copper wires twisted to reduce interference. UTP (Unshielded) &amp; STP (Shielded). Carries electrical signals.</div>
+          </div>
+          <div class="media-item">
+            <div class="media-item-name" style="color:var(--teal)">Coaxial Cable</div>
+            <div class="media-item-desc">Central copper conductor + insulation + metal shield. Higher bandwidth than twisted pair. Also electrical signals.</div>
+          </div>
+          <div class="media-item">
+            <div class="media-item-name" style="color:var(--blue)">Optical Fibre</div>
+            <div class="media-item-desc">Glass/plastic strands that carry <em>light pulses</em>. Highest bandwidth, immune to EMI, very long distance.</div>
+          </div>
+        </div>
+      </div>
+      <div class="media-card">
+        <div class="media-card-head">
+          <span style="font-size:20px">📡</span>
+          <div class="media-card-title" style="color:var(--accent)">Wireless (Unguided Media) &amp; Connectors</div>
+        </div>
+        <div class="media-card-body">
+          <div class="media-item">
+            <div class="media-item-name" style="color:var(--red)">Infrared</div>
+            <div class="media-item-desc">Short-range wireless (e.g., TV remote). Line-of-sight required. Cannot pass through walls.</div>
+          </div>
+          <div class="media-item">
+            <div class="media-item-name" style="color:var(--blue)">Radio / Wi-Fi</div>
+            <div class="media-item-desc">Longer range wireless. Omnidirectional. Used in Wi-Fi, Bluetooth, cellular networks.</div>
+          </div>
+          <div class="media-item">
+            <div class="media-item-name" style="color:var(--amber)">Connectors</div>
+            <div class="media-item-desc">Physical hardware to join cables: <strong>UTP connectors</strong> (RJ-45), <strong>BNC connectors</strong> (coaxial), <strong>MGRT connectors</strong>.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Physical Topologies -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">4</div>
+      <h2>Physical Topologies</h2>
+    </div>
+    <p class="body-text">
+      The Physical Layer dictates how devices are physically wired together. The layout pattern is called the <strong>topology</strong>. The connection type — whether a link is dedicated or shared — also falls here.
+    </p>
+    <div class="topo-grid">
+      <div class="topo-card">
+        <svg class="topo-svg" viewBox="0 0 120 80">
+          <!-- Star: center hub + 4 nodes -->
+          <circle cx="60" cy="40" r="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="60" y="44" text-anchor="middle" font-size="8" fill="#2563eb" font-family="monospace">HUB</text>
+          <circle cx="20" cy="15" r="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/><line x1="60" y1="40" x2="20" y2="15" stroke="#93c5fd" stroke-width="1.5"/>
+          <circle cx="100" cy="15" r="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/><line x1="60" y1="40" x2="100" y2="15" stroke="#93c5fd" stroke-width="1.5"/>
+          <circle cx="20" cy="65" r="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/><line x1="60" y1="40" x2="20" y2="65" stroke="#93c5fd" stroke-width="1.5"/>
+          <circle cx="100" cy="65" r="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/><line x1="60" y1="40" x2="100" y2="65" stroke="#93c5fd" stroke-width="1.5"/>
+        </svg>
+        <div class="topo-name">Star Topology</div>
+        <div class="topo-desc">All devices connect to a central hub/switch. Failure of one node doesn't affect others.</div>
+      </div>
+      <div class="topo-card">
+        <svg class="topo-svg" viewBox="0 0 120 80">
+          <!-- Mesh: 4 nodes fully connected -->
+          <circle cx="30" cy="20" r="7" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <circle cx="90" cy="20" r="7" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <circle cx="30" cy="60" r="7" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <circle cx="90" cy="60" r="7" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+          <line x1="30" y1="20" x2="90" y2="20" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="30" y1="60" x2="90" y2="60" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="30" y1="20" x2="30" y2="60" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="90" y1="20" x2="90" y2="60" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="30" y1="20" x2="90" y2="60" stroke="#fcd34d" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="90" y1="20" x2="30" y2="60" stroke="#fcd34d" stroke-width="1.5" stroke-dasharray="3,2"/>
+        </svg>
+        <div class="topo-name">Mesh Topology</div>
+        <div class="topo-desc">Every device has a dedicated point-to-point link to every other. Highly redundant.</div>
+      </div>
+      <div class="topo-card">
+        <svg class="topo-svg" viewBox="0 0 120 80">
+          <!-- Bus: horizontal backbone + taps -->
+          <line x1="10" y1="40" x2="110" y2="40" stroke="#6d28d9" stroke-width="3"/>
+          <circle cx="10" cy="40" r="4" fill="#7c3aed"/>
+          <circle cx="110" cy="40" r="4" fill="#7c3aed"/>
+          <circle cx="35" cy="20" r="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><line x1="35" y1="27" x2="35" y2="40" stroke="#a78bfa" stroke-width="1.5"/>
+          <circle cx="60" cy="20" r="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><line x1="60" y1="27" x2="60" y2="40" stroke="#a78bfa" stroke-width="1.5"/>
+          <circle cx="85" cy="20" r="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><line x1="85" y1="27" x2="85" y2="40" stroke="#a78bfa" stroke-width="1.5"/>
+          <circle cx="35" cy="60" r="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><line x1="35" y1="53" x2="35" y2="40" stroke="#a78bfa" stroke-width="1.5"/>
+          <circle cx="85" cy="60" r="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/><line x1="85" y1="53" x2="85" y2="40" stroke="#a78bfa" stroke-width="1.5"/>
+        </svg>
+        <div class="topo-name">Bus Topology</div>
+        <div class="topo-desc">All devices share a single backbone cable (multipoint). Failure of backbone = entire network down.</div>
+      </div>
+    </div>
+    <div class="callout callout-blue">
+      🔗 <strong>Connection Types:</strong> <strong>Point-to-Point</strong> = dedicated link, only two devices (used in Mesh). <strong>Multipoint</strong> = shared medium, many devices on one cable (used in Bus).
+    </div>
+  </div>
+
+  <!-- SECTION 5: Hardware Devices -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">5</div>
+      <h2>Hardware Devices at the Physical Layer</h2>
+    </div>
+    <p class="body-text">
+      Only two main networking hardware devices operate at the Physical Layer. Both work with raw signals — they have no knowledge of MAC addresses, IP addresses, or any higher-layer concepts.
+    </p>
+    <div class="hw-grid">
+      <div class="hw-card" style="border-top:3px solid var(--orange)">
+        <div class="hw-card-top">
+          <div class="hw-icon">🔁</div>
+          <div class="hw-name">Repeater</div>
+        </div>
+        <div class="hw-desc">
+          Signals weaken over long distances due to <strong>attenuation</strong> (loss of signal energy caused by noise and resistance in the medium). A repeater <em>regenerates</em> the signal back to its original strength so it can travel further. It does not interpret any data — just boosts the signal.
+          <br><br>
+          <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted)">Layer 1 only · No filtering · Amplifies noise too (analogue) or regenerates clean (digital)</span>
+        </div>
+      </div>
+      <div class="hw-card" style="border-top:3px solid var(--blue)">
+        <div class="hw-card-top">
+          <div class="hw-icon">🔀</div>
+          <div class="hw-name">Hub</div>
+        </div>
+        <div class="hw-desc">
+          A hub creates a <strong>multipoint connection</strong> — it connects multiple machines to the same shared medium. When one device sends data, the hub broadcasts it to every connected device (not just the intended one). This is why hubs are considered "dumb" devices and have been largely replaced by switches (which operate at Layer 2).
+          <br><br>
+          <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted)">Layer 1 · Broadcasts to all ports · No intelligence · Replaced by L2 switches</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Transmission Modes -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">6</div>
+      <h2>Transmission Modes</h2>
+    </div>
+    <p class="body-text">
+      The Physical Layer determines the <strong>direction of data flow</strong> between communicating devices. There are three modes:
+    </p>
+    <div class="tx-modes">
+      <div class="tx-row">
+        <div class="tx-badge" style="background:#fff0f0;color:#b91c1c;border:1.5px solid #fecaca">SIMPLEX</div>
+        <div class="tx-visual">
+          <div class="tx-node" style="border-color:#b91c1c;background:#fff0f0">📺</div>
+          <div class="tx-line" style="background:#fca5a5">
+            <span class="tx-arrow" style="color:#b91c1c">→→→</span>
+          </div>
+          <div class="tx-node" style="border-color:#b91c1c;background:#fff0f0">📡</div>
+        </div>
+        <div>
+          <div class="tx-info"><strong>One-way only.</strong> Receiver cannot send back. The sender always transmits; the receiver always receives.</div>
+          <div class="tx-example">Example: TV remote → TV · FM Radio · Keyboard → Computer</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-badge" style="background:#fffbeb;color:#b45309;border:1.5px solid #fde68a">HALF-DUPLEX</div>
+        <div class="tx-visual">
+          <div class="tx-node" style="border-color:var(--amber);background:#fffbeb">💬</div>
+          <div class="tx-line" style="background:#fde68a">
+            <span class="tx-arrow" style="color:var(--amber)">⇆</span>
+          </div>
+          <div class="tx-node" style="border-color:var(--amber);background:#fffbeb">💬</div>
+        </div>
+        <div>
+          <div class="tx-info"><strong>Two-way, but not simultaneously.</strong> Only one side can transmit at a time; the other must wait.</div>
+          <div class="tx-example">Example: Walkie-talkie — say "over" before other can speak</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-badge" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac">FULL-DUPLEX</div>
+        <div class="tx-visual">
+          <div class="tx-node" style="border-color:var(--green);background:#f0fdf4">📞</div>
+          <div class="tx-line" style="background:#86efac;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:11px;color:var(--green)">→→→</span>
+            <span style="font-size:11px;color:var(--green)">←←←</span>
+          </div>
+          <div class="tx-node" style="border-color:var(--green);background:#f0fdf4">📞</div>
+        </div>
+        <div>
+          <div class="tx-info"><strong>Two-way simultaneously.</strong> Both sides can send and receive at the same time.</div>
+          <div class="tx-example">Example: Phone call · Modern Ethernet · Video conferencing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: Multiplexing -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">7</div>
+      <h2>Multiplexing &amp; Demultiplexing</h2>
+    </div>
+    <p class="body-text">
+      If every machine needed its own dedicated physical cable/channel, networks would be prohibitively expensive. <strong>Multiplexing</strong> solves this by combining <em>n</em> signals from different sources into a <strong>single shared channel</strong>. At the receiver end, <strong>demultiplexing</strong> splits that combined signal back into the original <em>n</em> distinct signals.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">🔀 Multiplexing — Many Signals, One Channel</div>
+      <div class="diagram-body">
+        <div class="mux-visual">
+          <div class="mux-inputs">
+            <div class="mux-sig" style="background:#fff0f0;color:#b91c1c;border:1.5px solid #fca5a5">Signal 1</div>
+            <div class="mux-sig" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd">Signal 2</div>
+            <div class="mux-sig" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac">Signal 3</div>
+            <div class="mux-sig" style="background:#f5f3ff;color:#6d28d9;border:1.5px solid #c4b5fd">Signal n</div>
+          </div>
+          <div style="font-size:20px;color:var(--text-light)">→</div>
+          <div class="mux-box" style="background:#fff7ed;border-color:var(--orange);color:var(--orange)">MULTIPLEXER</div>
+          <div class="mux-channel">
+            <div class="mux-line" style="background:linear-gradient(90deg,#b91c1c,#1d4ed8,#15803d,#6d28d9)"></div>
+            <div class="mux-channel-label">Single combined channel</div>
+          </div>
+          <div class="mux-box" style="background:#f0fdf4;border-color:var(--green);color:var(--green)">DE-MUX</div>
+          <div style="font-size:20px;color:var(--text-light)">→</div>
+          <div class="mux-inputs">
+            <div class="mux-sig" style="background:#fff0f0;color:#b91c1c;border:1.5px solid #fca5a5">Signal 1</div>
+            <div class="mux-sig" style="background:#eff6ff;color:#1d4ed8;border:1.5px solid #93c5fd">Signal 2</div>
+            <div class="mux-sig" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac">Signal 3</div>
+            <div class="mux-sig" style="background:#f5f3ff;color:#6d28d9;border:1.5px solid #c4b5fd">Signal n</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Multiplexing saves cost — no need for a new cable per machine. One channel serves many.</div>
+    </div>
+    <div class="callout callout-purple">
+      📡 <strong>Three Multiplexing Techniques:</strong> <strong>FDM</strong> (Frequency Division Multiplexing) — signals share different frequency bands. <strong>TDM</strong> (Time Division Multiplexing) — signals take turns in time slots. <strong>WDM</strong> (Wavelength Division Multiplexing) — used in optical fibre, different wavelengths of light.
+    </div>
+    <div class="tags">
+      <span class="tag">FDM — Frequency Division</span>
+      <span class="tag">TDM — Time Division</span>
+      <span class="tag">WDM — Wavelength Division</span>
+    </div>
+  </div>
+
+  <!-- SECTION 8: Encoding -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-red">8</div>
+      <h2>Encoding</h2>
+    </div>
+    <p class="body-text">
+      Encoding is the process of converting data into an appropriate signal format for transmission. Not all data is the same type: computers generate <strong>digital data</strong> (discrete — distinct 0s and 1s), while voice or radio generate <strong>analog data</strong> (continuous wave forms). Depending on the source data type and the medium, four encoding combinations are used:
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">🔡 Four Types of Encoding</div>
+      <div class="diagram-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Encoding Type</th><th>Input</th><th>Output</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="enc-dd" style="font-weight:700">Digital → Digital</td><td>Digital data (bits)</td><td>Digital signal</td><td>Manchester encoding, NRZ, RZ</td></tr>
+              <tr><td class="enc-aa" style="font-weight:700">Analog → Analog</td><td>Analog data (voice/radio)</td><td>Analog signal</td><td>AM, FM, PM (radio modulation)</td></tr>
+              <tr><td class="enc-ad" style="font-weight:700">Analog → Digital</td><td>Analog data (voice)</td><td>Digital signal</td><td>PCM (Pulse Code Modulation) — telephone digitisation</td></tr>
+              <tr><td class="enc-da" style="font-weight:700">Digital → Analog</td><td>Digital data (bits)</td><td>Analog signal</td><td>ASK, FSK, PSK — used in modems</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="diagram-note">Digital data = discrete (0/1). Analog data = continuous waveform. Choice of encoding depends on source type and transmission medium.</div>
+    </div>
+    <div class="callout callout-amber">
+      💡 <strong>For UGC NET:</strong> Manchester Encoding and Differential Manchester Encoding are the most commonly asked Digital→Digital schemes. Know how they represent 0 and 1 using signal transitions.
+    </div>
+  </div>
+
+  <!-- SECTION 9: Signal Properties -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">9</div>
+      <h2>Signal Characteristics</h2>
+    </div>
+    <p class="body-text">
+      The Physical Layer manages the fundamental physical properties of the signals it transmits. Three core properties define every signal:
+    </p>
+    <div class="sig-props">
+      <div class="sig-prop-card">
+        <div class="sig-prop-icon">〰️</div>
+        <div class="sig-prop-name">Frequency</div>
+        <div class="sig-prop-desc">Number of complete wave cycles per second. Higher frequency = more data capacity.</div>
+        <div class="sig-prop-formula">f = 1/T &nbsp;·&nbsp; Unit: Hz</div>
+      </div>
+      <div class="sig-prop-card">
+        <div class="sig-prop-icon">📶</div>
+        <div class="sig-prop-name">Amplitude</div>
+        <div class="sig-prop-desc">Height of the wave (peak signal strength). Determines the power/loudness of the signal.</div>
+        <div class="sig-prop-formula">Unit: Volts / dB</div>
+      </div>
+      <div class="sig-prop-card">
+        <div class="sig-prop-icon">🌊</div>
+        <div class="sig-prop-name">Wavelength</div>
+        <div class="sig-prop-desc">Physical distance between two successive wave crests. Inversely related to frequency.</div>
+        <div class="sig-prop-formula">λ = v/f &nbsp;·&nbsp; Unit: metres</div>
+      </div>
+    </div>
+    <div class="callout callout-teal">
+      📐 <strong>Relationship:</strong> Wavelength (λ) = speed of propagation (v) ÷ frequency (f). As frequency increases, wavelength decreases. Higher frequency signals carry more data but attenuate faster over distance.
+    </div>
+  </div>
+
+</div><!-- end desc -->
+
+<!-- ═══════════ REVISION PANEL ═══════════ -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-green" style="margin-bottom:28px">
+    ⚡ <strong>Speed Mode — </strong> All key definitions, tables, and exam-ready facts. Perfect for last-day revision.
+  </div>
+
+  <!-- POSITION -->
+  <div class="cheat-div"><span>Layer Position &amp; Core Job</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Position in OSI</div>
+      <ul class="bullet-list">
+        <li>Layer <span class="val">1</span> — bottommost layer</li>
+        <li>Sender side: <span class="tag-r">last</span> layer to process outgoing data</li>
+        <li>Receiver side: <span class="tag-g">first</span> layer to process incoming signal</li>
+        <li>Only layer dealing with <span class="tag-o">tangible hardware</span></li>
+        <li>All upper layers = logical/virtual. Physical = real.</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Core Functionality</div>
+      <ul class="bullet-list">
+        <li>Sender: <span class="tag-b">Bits → Signals</span></li>
+        <li>Receiver: <span class="tag-g">Signals → Bits</span></li>
+        <li>Receives bits from Data Link Layer (L2)</li>
+        <li>Passes bits up to Data Link on receive side</li>
+        <li>PDU = <span class="val">Bits</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Hardware Devices</div>
+      <ul class="bullet-list">
+        <li><span class="tag-o">Repeater</span> — regenerates attenuated signal</li>
+        <li>Attenuation = signal weakening due to noise/distance</li>
+        <li><span class="tag-b">Hub</span> — creates multipoint connection</li>
+        <li>Hub broadcasts to ALL connected devices</li>
+        <li>Hub replaced by L2 <span class="tag-g">Switch</span> in modern networks</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Transmission Modes</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">Simplex</span>: one-way only (TV remote, FM radio)</li>
+        <li><span class="val">Half-Duplex</span>: two-way, not simultaneous (walkie-talkie)</li>
+        <li><span class="tag-g">Full-Duplex</span>: two-way simultaneously (phone call)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CABLES & CONNECTORS -->
+  <div class="cheat-div"><span>Cables, Media &amp; Connectors</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Media</th><th>Signal</th><th>Connector</th><th>Key Property</th></tr></thead>
+        <tbody>
+          <tr><td class="must">Twisted Pair</td><td>Guided (copper)</td><td>Electrical</td><td>UTP (RJ-45)</td><td>Most common; UTP &amp; STP variants</td></tr>
+          <tr><td class="good">Coaxial Cable</td><td>Guided (copper)</td><td>Electrical</td><td>BNC connector</td><td>Higher bandwidth than twisted pair</td></tr>
+          <tr><td class="ok">Optical Fibre</td><td>Guided (glass/plastic)</td><td>Light pulses</td><td>MGRT / SC / LC</td><td>Fastest, immune to EMI, long distance</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">Infrared</td><td>Unguided (wireless)</td><td>Infrared waves</td><td>—</td><td>Short range, line-of-sight only</td></tr>
+          <tr><td style="color:var(--accent);font-weight:600">Radio / Wi-Fi</td><td>Unguided (wireless)</td><td>Radio waves</td><td>—</td><td>Longer range, omnidirectional</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TOPOLOGIES & ENCODING -->
+  <div class="cheat-div"><span>Topologies &amp; Connection Types</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Topology</th><th>Connection Type</th><th>Failure Mode</th><th>Key Note</th></tr></thead>
+        <tbody>
+          <tr><td class="ok">Star</td><td>Point-to-point (to hub)</td><td>One node fails → only that node affected</td><td>Central hub/switch required</td></tr>
+          <tr><td class="must">Mesh</td><td>Point-to-point (dedicated)</td><td>Very resilient — multiple paths</td><td>n(n-1)/2 links needed for full mesh</td></tr>
+          <tr><td class="good">Bus</td><td>Multipoint (shared backbone)</td><td>Backbone fails → entire network down</td><td>Terminators at both ends required</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MULTIPLEXING & ENCODING -->
+  <div class="cheat-div"><span>Multiplexing Techniques &amp; Encoding Types</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Multiplexing (MUX)</div>
+      <ul class="bullet-list">
+        <li>Combines <em>n</em> signals → 1 shared channel</li>
+        <li><span class="tag-b">FDM</span> — Frequency Division Multiplexing</li>
+        <li><span class="tag-g">TDM</span> — Time Division Multiplexing</li>
+        <li><span class="tag-p">WDM</span> — Wavelength Division (optical fibre)</li>
+        <li>Saves cost — no separate cable per machine</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Four Encoding Types</div>
+      <ul class="bullet-list">
+        <li><span class="tag-b">Digital → Digital</span>: Manchester, NRZ, RZ</li>
+        <li><span class="tag-g">Analog → Analog</span>: AM, FM, PM</li>
+        <li><span class="tag-o">Analog → Digital</span>: PCM (digitising voice)</li>
+        <li><span class="tag-p">Digital → Analog</span>: ASK, FSK, PSK (modems)</li>
+        <li>Digital = discrete · Analog = continuous</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Signal Properties</div>
+      <ul class="bullet-list">
+        <li><span class="tag-b">Frequency</span>: cycles/sec · Unit: Hz · f = 1/T</li>
+        <li><span class="tag-o">Amplitude</span>: signal strength/height · Unit: Volts/dB</li>
+        <li><span class="tag-g">Wavelength</span>: distance between crests · λ = v/f</li>
+        <li>Frequency ↑ → Wavelength ↓ (inverse)</li>
+        <li>Higher frequency = more data, more attenuation</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Manchester Encoding (UGC NET)</div>
+      <ul class="bullet-list">
+        <li>Type: <span class="tag-b">Digital → Digital</span></li>
+        <li>Bit 0 = <span class="tag-g">Low→High transition</span> mid-bit</li>
+        <li>Bit 1 = <span class="tag-r">High→Low transition</span> mid-bit</li>
+        <li>Self-clocking — transition always present</li>
+        <li>Used in Ethernet (IEEE 802.3)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FINAL TIPS -->
+  <div class="final-tips">
+    <h3>⚡ Last-Minute Must-Know Points</h3>
+    <div class="cards-grid" style="margin-top:0">
+      <div class="rev-card" style="border-color:#86efac">
+        <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+        <ul class="bullet-list">
+          <li>Physical Layer = Layer 1, deals with hardware only</li>
+          <li>PDU at Physical Layer = <span class="tag-g">Bits</span></li>
+          <li>Repeater = signal regeneration (attenuation fix)</li>
+          <li>Hub = multipoint, broadcasts to all ports</li>
+          <li>Manchester encoding used in IEEE 802.3 Ethernet</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#fcd34d">
+        <div class="rev-card-title" style="color:#d97706">📌 Common Exam Traps</div>
+        <ul class="bullet-list">
+          <li>Hub = Layer 1 · Switch = Layer 2 · Router = Layer 3</li>
+          <li>Optical fibre = <span class="tag-g">light signals</span>, NOT electrical</li>
+          <li>WDM is for <span class="tag-b">optical fibre</span>, not copper cables</li>
+          <li>Simplex = NO reply possible (not half-duplex)</li>
+          <li>Attenuation ≠ noise — it's signal energy loss</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#93c5fd">
+        <div class="rev-card-title" style="color:#1d4ed8">💡 Quick Mapping</div>
+        <ul class="bullet-list">
+          <li>Mesh topology → <span class="tag-b">Point-to-point</span> links</li>
+          <li>Bus topology → <span class="tag-p">Multipoint</span> shared link</li>
+          <li>FDM → different <span class="tag-o">frequencies</span> on same wire</li>
+          <li>TDM → different <span class="tag-g">time slots</span> on same wire</li>
+          <li>WDM → different <span class="tag-b">wavelengths</span> on fibre</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end revision -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
