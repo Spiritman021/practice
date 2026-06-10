@@ -10,29 +10,288 @@
   <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/dbms.html">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Outfit', sans-serif; background: #f8fafc; color: #0f172a; }
-    header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e2e8f0; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 14px 18px; }
-    .brand { color: #2563eb; text-decoration: none; font-weight: 800; }
-    main.wrap { padding: 26px 18px 48px; }
-    .hero { background: linear-gradient(135deg, #1e40af, #0284c7); color: #fff; border-radius: 16px; padding: 22px; margin-bottom: 16px; }
-    .hero h1 { margin: 0 0 8px; }
-    .hero p { margin: 0; line-height: 1.6; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-    .card { background: #fff; border: 1px solid #dbeafe; border-radius: 14px; padding: 16px; }
-    .card h2 { margin: 0 0 8px; color: #1e3a8a; font-size: 1.2rem; }
-    .card p { margin: 0 0 12px; color: #334155; line-height: 1.55; }
-    .btn { display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 12px; border-radius: 10px; font-weight: 700; }
-  /* ── BREADCRUMB ── */
-  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
-  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
-  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
-  .ph-breadcrumb .sep{color:#94a3b8;}
-  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
-  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
-  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
-  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+    :root {
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --border: #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.8);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.06), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.06), transparent 40%),
+        linear-gradient(rgba(241, 245, 249, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241, 245, 249, 0.5) 1px, transparent 1px);
+      background-size: auto, auto, 20px 20px, 20px 20px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      z-index: 50;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+    }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 16px 24px; }
+    .brand { 
+      text-decoration: none; 
+      color: var(--primary); 
+      font-weight: 800; 
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s;
+    }
+    .brand:hover { opacity: 0.85; }
+
+    /* ── BREADCRUMB ── */
+    .ph-breadcrumb {
+      background: rgba(248, 250, 252, 0.7);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-wrap: wrap;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .ph-breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ph-breadcrumb a:hover {
+      color: var(--primary);
+    }
+    .ph-breadcrumb .sep {
+      color: #cbd5e1;
+      font-size: 11px;
+    }
+    .ph-breadcrumb .current {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+    .ph-breadcrumb .back-btn {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ph-breadcrumb .back-btn:hover {
+      background: var(--bg);
+      border-color: #cbd5e1;
+      color: var(--text-main);
+      transform: translateX(-2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+    @media(max-width:600px){
+      .ph-breadcrumb { padding: 8px 16px; font-size: 12px; }
+      .ph-breadcrumb .back-btn { padding: 4px 10px; font-size: 11.5px; }
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main.wrap { padding: 36px 24px 72px; }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #06b6d4 100%);
+      color: #ffffff;
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 
+        0 20px 25px -5px rgba(37, 99, 235, 0.12), 
+        0 10px 10px -5px rgba(37, 99, 235, 0.08),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      backdrop-filter: blur(4px);
+    }
+    h1 { 
+      margin: 0 0 12px; 
+      font-size: clamp(2rem, 6vw, 3rem); 
+      font-weight: 800; 
+      letter-spacing: -1px; 
+      line-height: 1.15;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .hero p { 
+      margin: 0; 
+      line-height: 1.6; 
+      max-width: 760px; 
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── PREMIUM CARDS ── */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.03), 
+        0 2px 4px -1px rgba(0, 0, 0, 0.02),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #06b6d4);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(37, 99, 235, 0.25);
+      box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.06), 
+        0 10px 10px -5px rgba(0, 0, 0, 0.04),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+    }
+    .card:hover::before {
+      opacity: 1;
+    }
+    .card-topic-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 6px;
+      align-self: flex-start;
+      display: inline-block;
+    }
+    .card h2 { 
+      margin: 0; 
+      color: var(--text-main); 
+      font-size: 1.35rem; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card p { 
+      margin: 0; 
+      color: var(--text-muted); 
+      line-height: 1.6; 
+      font-size: 0.95rem;
+      flex-grow: 1;
+    }
+
+    /* ── BUTTON ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.925rem;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      align-self: flex-start;
+    }
+    .btn::after {
+      content: '→';
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, var(--primary-hover) 0%, #4338ca 100%);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+      transform: translateY(-1px);
+    }
+    .btn:hover::after {
+      transform: translateX(3px);
+    }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    @media(max-width: 640px) {
+      main.wrap { padding: 24px 16px 48px; }
+      .hero { padding: 24px; border-radius: 16px; margin-bottom: 24px; }
+      .grid { gap: 16px; }
+      .card { padding: 20px; border-radius: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -42,67 +301,78 @@
   <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><span class="current">DBMS</span><a class="back-btn" href="computer.html">← Back</a></nav>
   <main class="wrap">
     <section class="hero">
+      <span class="hero-tag">🗄️ Database Management System</span>
       <h1>DBMS: Topic Breakdown</h1>
       <p>Each topic is on a separate page. Your original notes are preserved in full text, and visual aids are added where useful.</p>
     </section>
 
     <section class="grid" aria-label="DBMS topic pages">
       <article class="card">
-        <h2>Topic 1: Introduction to DBMS</h2>
+        <span class="card-topic-tag">Topic 1</span>
+        <h2>📘 Introduction to DBMS</h2>
         <p>Importance of DBMS, database system basics, data types, DBMS operations, and RDBMS concept.</p>
         <a class="btn" href="dbms-topic-1-introduction.html">Open Topic 1</a>
       </article>
 
       <article class="card">
-        <h2>Topic 2: File System vs DBMS</h2>
+        <span class="card-topic-tag">Topic 2</span>
+        <h2>🔄 File System vs DBMS</h2>
         <p>Detailed comparison including search efficiency, concurrency, security, redundancy, and backend standards.</p>
         <a class="btn" href="dbms-topic-2-file-system-vs-dbms.html">Open Topic 2</a>
       </article>
 
       <article class="card">
-        <h2>Topic 3: 2-Tier vs 3-Tier Architecture</h2>
+        <span class="card-topic-tag">Topic 3</span>
+        <h2>🏗️ 2-Tier vs 3-Tier Architecture</h2>
         <p>Client-server model, business layer role, scalability, security, and architecture-level tradeoffs.</p>
         <a class="btn" href="dbms-topic-3-architecture.html">Open Topic 3</a>
       </article>
 
       <article class="card">
-        <h2>Topic 4: DBMS Schema</h2>
+        <span class="card-topic-tag">Topic 4</span>
+        <h2>📐 DBMS Schema</h2>
         <p>Schema-level understanding of DBMS structure and related concept mapping for advanced topic progression.</p>
         <a class="btn" href="DBMS_Schema.html">Open Topic 4</a>
       </article>
 
       <article class="card">
-        <h2>Topic 5: Three Schema Architecture</h2>
+        <span class="card-topic-tag">Topic 5</span>
+        <h2>🪜 Three Schema Architecture</h2>
         <p>Logical, external, and internal schema layers with the three-schema architecture model.</p>
         <a class="btn" href="DBMS_Three_Schema_Architecture.html">Open Topic 5</a>
       </article>
 
       <article class="card">
-        <h2>Topic 6: Data Independence</h2>
+        <span class="card-topic-tag">Topic 6</span>
+        <h2>🛡️ Data Independence</h2>
         <p>Understand logical and physical data independence and how schema changes stay isolated.</p>
         <a class="btn" href="DBMS_Data_Independence.html">Open Topic 6</a>
       </article>
 
       <article class="card">
-        <h2>Topic 7: Integrity Constraints</h2>
+        <span class="card-topic-tag">Topic 7</span>
+        <h2>⚖️ Integrity Constraints</h2>
         <p>The four rules that guard database quality — Domain, Entity, Referential, and Key constraints — and how they keep data accurate and consistent.</p>
         <a class="btn" href="DBMS_Integrity_Constraints.html">Open Topic 7</a>
       </article>
 
       <article class="card">
-        <h2>Topic 8: Candidate Keys</h2>
+        <span class="card-topic-tag">Topic 8</span>
+        <h2>🔑 Candidate Keys</h2>
         <p>Candidate keys pool, primary key selection, alternate keys, and the database design process for unique identifiers.</p>
         <a class="btn" href="DBMS_Candidate_Keys.html">Open Topic 8</a>
       </article>
 
       <article class="card">
-        <h2>Topic 9: Primary Key</h2>
+        <span class="card-topic-tag">Topic 9</span>
+        <h2>🥇 Primary Key</h2>
         <p>Learn why normal attributes fail, Candidate Keys are not enough, and how system-assigned Unique + Not Null Primary Key ensures row identity.</p>
         <a class="btn" href="DBMS_Primary_Key.html">Open Topic 9</a>
       </article>
 
       <article class="card">
-        <h2>Topic 10: Foreign Key</h2>
+        <span class="card-topic-tag">Topic 10</span>
+        <h2>🔗 Foreign Key</h2>
         <p>Learn how Foreign Keys link tables together, enforce referential integrity, SQL constraint syntax, and comparison rules against Primary Keys.</p>
         <a class="btn" href="DBMS_Foreign_Key.html">Open Topic 10</a>
       </article>
