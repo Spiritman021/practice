@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 10: Foreign Key — Learn how Foreign Keys link tables, enforce referential integrity, implement SQL constraints, and match data types.">
+<meta name="robots" content="index, follow">
+<title>Foreign Key — DBMS Topic 10 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Foreign_Key.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --lblue:#42A5F5; --cyan:#00ACC1;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --bluebg:#E3F2FD; --text:#1A1A1A; --white:#fff;
+    --dkgray:#424242; --mdgray:#757575;
+    --teal:#00695C; --tealL:#E0F2F1;
+    --indigo:#283593; --indigol:#E8EAF6;
+    --amber:#FF8F00; --amberl:#FFF8E1;
+    --cyan2:#006064; --cyan2l:#E0F7FA;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--cyan2);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--cyan2);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--cyan2);}
+  .toggle-wrap{display:flex;background:var(--cyan2l);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--cyan2);color:#fff;box-shadow:0 2px 12px rgba(0,96,100,.35);}
+
+  .hero{background:linear-gradient(135deg,#004d40 0%,#006064 45%,#00838f 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(178,235,242,.18) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--orange);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(38px,6vw,62px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#80deea;}
+  .hero-sub{color:rgba(255,255,255,.68);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.cyan2 {background:var(--cyan2l); border-color:var(--cyan2); color:var(--cyan2);}
+  .info-box.blue  {background:var(--bluebg); border-color:var(--blue);  color:var(--navy);}
+  .info-box.green {background:var(--greenl); border-color:var(--green); color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .info-box.red   {background:var(--redl);   border-color:var(--red);   color:var(--dkgray);}
+  .info-box.amber {background:var(--amberl); border-color:var(--amber); color:#5d3e00;}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  /* ── LINKED TABLES DIAGRAM ── */
+  .linked-wrap{padding:24px 20px;display:flex;align-items:flex-start;justify-content:center;gap:0;flex-wrap:nowrap;overflow-x:auto;}
+  .lt-table{border-radius:10px;overflow:hidden;min-width:180px;flex-shrink:0;}
+  .lt-title{padding:10px 14px;font-weight:700;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px;}
+  .lt-table-inner{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .lt-table-inner th{padding:6px 12px;text-align:left;font-weight:700;font-size:11.5px;}
+  .lt-table-inner td{padding:6px 12px;border-top:1px solid rgba(0,0,0,.07);}
+  .lt-table-inner tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .pk-cell{background:var(--amberl) !important;font-weight:700;color:var(--amber);}
+  .fk-cell{background:var(--cyan2l) !important;font-weight:700;color:var(--cyan2);}
+  .lt-conn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 16px;padding-top:48px;flex-shrink:0;}
+  .lt-conn-line{width:40px;height:2px;background:var(--mdgray);}
+  .lt-conn-arrow{font-size:20px;color:var(--cyan2);}
+  .lt-conn-label{font-size:10px;color:var(--mdgray);font-weight:700;text-align:center;margin-top:4px;white-space:nowrap;}
+  .pk-badge{display:inline-block;background:var(--amber);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;margin-left:4px;}
+  .fk-badge{display:inline-block;background:var(--cyan2);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:'Space Mono',monospace;margin-left:4px;}
+
+  /* ── RULE DEMO ── */
+  .rule-demo{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .rd-side{padding:18px 20px;}
+  .rd-title{font-weight:700;font-size:13px;padding:7px 12px;border-radius:6px;margin-bottom:12px;text-align:center;}
+  .rd-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+  .rd-table th{padding:5px 10px;text-align:left;font-weight:700;font-size:11px;}
+  .rd-table td{padding:5px 10px;border-top:1px solid rgba(0,0,0,.07);}
+  .rd-table tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .ok-badge{display:inline-block;background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;}
+  .err-badge{display:inline-block;background:var(--redl);color:var(--red);border:1px solid #ef9a9a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;}
+  .err-row td{background:#fff5f5 !important;}
+
+  /* ── TERMINOLOGY CARDS ── */
+  .term-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+  .term-card{border-radius:10px;overflow:hidden;}
+  .term-head{padding:11px 16px;font-weight:700;font-size:13px;color:#fff;display:flex;align-items:center;gap:10px;}
+  .term-body{padding:13px 16px;font-size:13px;line-height:1.65;}
+
+  /* ── SQL CODE ── */
+  .code-block{background:#1e2a3a;border-radius:10px;padding:16px 20px;margin:12px 0;font-family:'Space Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;}
+  .kw{color:#80cbc4;font-weight:700;} .fn{color:#82b1ff;} .dt{color:#ffcc80;}
+  .cm{color:#78909c;font-style:italic;} .st{color:#a5d6a7;} .fk{color:#80deea;font-weight:700;}
+  .ref{color:#f48fb1;font-weight:700;}
+
+  /* ── METHOD CARDS ── */
+  .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .method-card{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+  .method-head{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;display:flex;align-items:center;gap:8px;}
+  .method-badge{font-family:'Space Mono',monospace;font-size:9px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:3px;letter-spacing:.05em;}
+  .method-body{padding:14px 16px;font-size:13px;line-height:1.65;}
+
+  /* ── GOLDEN RULES ── */
+  .gr-wrap{display:flex;flex-direction:column;gap:10px;padding:16px 20px;}
+  .gr-item{display:flex;align-items:center;gap:16px;padding:13px 16px;border-radius:10px;}
+  .gr-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+  .gr-text .gr-title{font-weight:700;font-size:13.5px;margin-bottom:3px;}
+  .gr-text .gr-sub{font-size:12.5px;color:var(--dkgray);line-height:1.5;}
+  .gr-tag{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;margin-left:auto;flex-shrink:0;white-space:nowrap;}
+
+  /* ── PK vs FK comparison ── */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .cmp-card{border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+  .cmp-head{padding:10px 16px;font-weight:700;font-size:13px;color:#fff;}
+  .cmp-body{padding:14px 16px;font-size:13.5px;line-height:1.65;}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:150px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:170px;}
+
+  @media(max-width:620px){
+    .compare-grid,.rev-row,.term-grid,.method-grid,.rule-demo{grid-template-columns:1fr;}
+    .linked-wrap{flex-direction:column;align-items:center;}
+    .lt-conn{flex-direction:row;padding:8px 0;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+  }
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 11</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Foreign Key</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 10: Foreign Key</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 11 • LECTURE NOTES</div>
+    <h1>Foreign Key<br><span>in DBMS</span></h1>
+    <p class="hero-sub">How Foreign Keys link tables together, enforce referential integrity, the data entry rules, SQL syntax for implementation, and the golden rules for exams.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ═══════════════ DESCRIPTIVE VIEW ═══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--cyan2);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">What is a Foreign Key?</h2>
+  </div>
+
+  <p class="prose">A <b>Foreign Key (FK)</b> is an attribute — or a set of attributes — in a table that <b>references the Primary Key of either the same table or another table</b>. It is the mechanism that creates a logical link between two tables in a relational database.</p>
+
+  <div class="info-box cyan2">
+    🔗 <b>Main Purpose:</b> The primary role of a Foreign Key is to maintain <b>Referential Integrity</b> — ensuring that relationships between tables remain consistent and that no "orphan" data exists.
+  </div>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-head" style="background:var(--amber);">🔑 Simple Foreign Key</div>
+      <div class="cmp-body" style="background:var(--amberl);">
+        References a <b>Simple Primary Key</b> — a PK made of just one attribute.<br><br>
+        Example: FK references a single <code style="font-family:monospace;background:#fff8e1;padding:1px 5px;border-radius:3px;font-size:12px;">Roll_Number</code> column.
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-head" style="background:var(--purple);">🔑🔑 Composite Foreign Key</div>
+      <div class="cmp-body" style="background:var(--purplel);">
+        References a <b>Composite Primary Key</b> — a PK made of two or more attributes combined.<br><br>
+        Example: FK references both <code style="font-family:monospace;background:#f3e5f5;padding:1px 5px;border-radius:3px;font-size:12px;">Student_ID + Course_ID</code> together.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">Example — Linking Student & Course Tables</h2>
+  </div>
+  <p class="prose">The classic example of a Foreign Key is linking a <b>Student</b> table to a <b>Course</b> table. Whenever two tables need to be related, there must be <b>at least one common attribute</b> connecting them. The Foreign Key is that bridge.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔗 Student ↔ Course — Foreign Key Relationship</div>
+    <div class="linked-wrap">
+
+      <!-- Student Table -->
+      <div class="lt-table" style="border:2px solid var(--blue);">
+        <div class="lt-title" style="background:var(--blue);">
+          👨‍🎓 Student
+          <span style="font-size:9px;background:rgba(255,255,255,.2);padding:1px 8px;border-radius:3px;font-family:'Space Mono',monospace;">REFERENCED TABLE</span>
+        </div>
+        <table class="lt-table-inner">
+          <thead style="background:var(--bluebg);">
+            <tr>
+              <th>Roll_No <span class="pk-badge">PK</span></th>
+              <th>Student_Name</th>
+              <th>Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="pk-cell">1</td><td>Ravi Kumar</td><td>Delhi</td></tr>
+            <tr><td class="pk-cell">2</td><td>Priya Singh</td><td>Mumbai</td></tr>
+            <tr><td class="pk-cell">3</td><td>Amit Sharma</td><td>Pune</td></tr>
+            <tr><td class="pk-cell">4</td><td>Sara Bose</td><td>Kolkata</td></tr>
+          </tbody>
+        </table>
+        <div style="background:var(--amberl);padding:5px 12px;font-size:11px;font-weight:700;color:var(--amber);">🔑 Roll_No = Primary Key</div>
+      </div>
+
+      <!-- Connector -->
+      <div class="lt-conn">
+        <div style="font-size:11px;color:var(--cyan2);font-weight:700;margin-bottom:6px;white-space:nowrap;">FK references PK</div>
+        <div style="font-size:28px;color:var(--cyan2);">⟵</div>
+        <div style="font-size:10px;color:var(--mdgray);margin-top:6px;text-align:center;white-space:nowrap;">Roll_No links<br>both tables</div>
+      </div>
+
+      <!-- Course Table -->
+      <div class="lt-table" style="border:2px solid var(--cyan2);">
+        <div class="lt-title" style="background:var(--cyan2);">
+          📚 Course
+          <span style="font-size:9px;background:rgba(255,255,255,.2);padding:1px 8px;border-radius:3px;font-family:'Space Mono',monospace;">REFERENCING TABLE</span>
+        </div>
+        <table class="lt-table-inner">
+          <thead style="background:var(--cyan2l);">
+            <tr>
+              <th>Course_ID <span class="pk-badge">PK</span></th>
+              <th>Course_Name</th>
+              <th>Roll_No <span class="fk-badge">FK</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>C01</td><td>DBMS</td><td class="fk-cell">1</td></tr>
+            <tr><td>C02</td><td>OS</td><td class="fk-cell">2</td></tr>
+            <tr><td>C03</td><td>CN</td><td class="fk-cell">1</td></tr>
+            <tr><td>C04</td><td>DSA</td><td class="fk-cell">3</td></tr>
+          </tbody>
+        </table>
+        <div style="background:var(--cyan2l);padding:5px 12px;font-size:11px;font-weight:700;color:var(--cyan2);">🔗 Roll_No = Foreign Key → references Student.Roll_No</div>
+      </div>
+
+    </div>
+    <div style="background:var(--indigol);border-top:1px solid #c5cae9;padding:9px 16px;font-size:12.5px;color:var(--indigo);text-align:center;font-weight:600;">
+      Roll_No appears in both tables — as a Primary Key in Student (amber) and as a Foreign Key in Course (teal). This is the link.
+    </div>
+    <div class="diagram-caption">The common attribute (Roll_No) placed in the Course table acts as the Foreign Key — connecting related data across two tables.</div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">The Rule of Referencing — Data Entry Restriction</h2>
+  </div>
+  <p class="prose">A Foreign Key column is <b>not free to accept any random value</b>. It is bound by a strict rule: <b>the value entered in the FK column must already exist in the PK column of the referenced table</b>. If the value doesn't exist there, the insert is rejected.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">⚠️ FK Referencing Rule — Valid vs Invalid Inserts</div>
+    <div class="rule-demo">
+      <!-- Left: Student table (existing data) -->
+      <div class="rd-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="rd-title" style="background:var(--bluebg);color:var(--blue);">👨‍🎓 Student Table (existing PK values)</div>
+        <table class="rd-table">
+          <thead style="background:var(--bluebg);"><tr><th>Roll_No (PK)</th><th>Name</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:700;color:var(--amber);">1</td><td>Ravi</td></tr>
+            <tr><td style="font-weight:700;color:var(--amber);">2</td><td>Priya</td></tr>
+            <tr><td style="font-weight:700;color:var(--amber);">3</td><td>Amit</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;font-size:12px;color:var(--mdgray);">Only Roll_No values <b>1, 2, 3</b> exist in the Student table.</div>
+      </div>
+      <!-- Right: Course table inserts -->
+      <div class="rd-side" style="background:#fafafa;">
+        <div class="rd-title" style="background:var(--cyan2l);color:var(--cyan2);">📚 Course Table — Insert Attempts</div>
+        <table class="rd-table">
+          <thead style="background:var(--cyan2l);"><tr><th>Course</th><th>Roll_No (FK)</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>DBMS</td><td style="color:var(--cyan2);font-weight:700;">1</td><td><span class="ok-badge">✓ OK</span></td></tr>
+            <tr><td>OS</td><td style="color:var(--cyan2);font-weight:700;">2</td><td><span class="ok-badge">✓ OK</span></td></tr>
+            <tr><td>CN</td><td style="color:var(--cyan2);font-weight:700;">3</td><td><span class="ok-badge">✓ OK</span></td></tr>
+            <tr class="err-row"><td>DSA</td><td style="color:var(--red);font-weight:700;">10</td><td><span class="err-badge">✕ REJECTED</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;background:var(--redl);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--red);font-weight:600;">
+          ✕ Roll_No = 10 doesn't exist in Student table → Insert rejected by FK constraint
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">You cannot assign Roll_No 10 to any course if student 10 doesn't exist in the Student table. The FK enforces this automatically.</div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">Important Terminology</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📖 Referenced Table vs Referencing Table</div>
+    <div class="term-grid">
+      <div class="term-card" style="border:2px solid var(--blue);">
+        <div class="term-head" style="background:var(--blue);">
+          <span>👑</span>
+          <span>Referenced Table &nbsp;/&nbsp; Base Table</span>
+        </div>
+        <div class="term-body" style="background:var(--bluebg);">
+          The table that <b>contains the Primary Key</b>. It is the source of the reference — other tables point to it.<br><br>
+          <b>In our example:</b> The <code style="font-family:monospace;background:#e3f2fd;padding:1px 5px;border-radius:3px;font-size:12px;">Student</code> table is the Referenced Table because it holds the PK (Roll_No) that the Course table points to.<br><br>
+          <span style="font-size:12px;color:var(--mdgray);">Think of it as the <i>parent</i> or <i>master</i> table.</span>
+        </div>
+      </div>
+      <div class="term-card" style="border:2px solid var(--cyan2);">
+        <div class="term-head" style="background:var(--cyan2);">
+          <span>🔗</span>
+          <span>Referencing Table</span>
+        </div>
+        <div class="term-body" style="background:var(--cyan2l);">
+          The table that <b>contains the Foreign Key</b>. It is the table doing the referencing — it points to another table's PK.<br><br>
+          <b>In our example:</b> The <code style="font-family:monospace;background:#e0f7fa;padding:1px 5px;border-radius:3px;font-size:12px;">Course</code> table is the Referencing Table because it holds the FK (Roll_No) that points to Student.<br><br>
+          <span style="font-size:12px;color:var(--mdgray);">Think of it as the <i>child</i> or <i>dependent</i> table.</span>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Referenced = has the PK (parent). Referencing = has the FK (child). The FK always points from child → parent.</div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">5</div>
+    <h2 style="color:var(--navy);">How to Implement Foreign Keys in SQL</h2>
+  </div>
+
+  <div class="info-box orange">
+    ⚠️ <b>Data Type Rule:</b> The data type of the Foreign Key column <b>must be exactly the same</b> as the data type of the Primary Key it is referencing. If PK is <code style="font-family:monospace;font-size:12px;">INTEGER</code>, the FK must also be <code style="font-family:monospace;font-size:12px;">INTEGER</code>. Mismatch = error.
+  </div>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-head" style="background:var(--green);">
+        <span>Method 1</span>
+        <span class="method-badge">DURING CREATE</span>
+      </div>
+      <div class="method-body" style="background:var(--greenl);">
+        Define the FK <b>while creating the table</b> using the <code style="font-family:monospace;background:#e8f5e9;padding:1px 5px;border-radius:3px;font-size:12px;">REFERENCES</code> keyword inline.
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-head" style="background:var(--orange);">
+        <span>Method 2</span>
+        <span class="method-badge">AFTER CREATE</span>
+      </div>
+      <div class="method-body" style="background:var(--orangel);">
+        Add FK to an <b>existing table</b> using <code style="font-family:monospace;background:#fff3e0;padding:1px 5px;border-radius:3px;font-size:12px;">ALTER TABLE</code> with a named constraint.
+      </div>
+    </div>
+  </div>
+
+  <p class="prose"><b>Method 1 — During Table Creation:</b></p>
+  <div class="code-block">
+<span class="cm">-- Step 1: Create the Referenced (parent) table first</span><br>
+<span class="kw">CREATE TABLE</span> <span class="fn">Student</span> (<br>
+&nbsp;&nbsp;Roll_Number &nbsp;<span class="dt">INTEGER</span> &nbsp;&nbsp;&nbsp;<span class="ref">PRIMARY KEY</span>,<br>
+&nbsp;&nbsp;Student_Name <span class="dt">VARCHAR</span>(<span class="st">50</span>),<br>
+&nbsp;&nbsp;Address &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">100</span>)<br>
+);<br><br>
+<span class="cm">-- Step 2: Create Referencing (child) table with FK defined inline</span><br>
+<span class="kw">CREATE TABLE</span> <span class="fn">Course</span> (<br>
+&nbsp;&nbsp;Course_ID &nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">10</span>) &nbsp;<span class="ref">PRIMARY KEY</span>,<br>
+&nbsp;&nbsp;Course_Name &nbsp;<span class="dt">VARCHAR</span>(<span class="st">80</span>),<br>
+&nbsp;&nbsp;Roll_Number &nbsp;<span class="dt">INTEGER</span> &nbsp;&nbsp;&nbsp;<span class="fk">REFERENCES</span> <span class="fn">Student</span>(<span class="fk">Roll_Number</span>) <span class="cm">-- FK defined here</span><br>
+);</div>
+
+  <p class="prose"><b>Method 2 — After Table Creation using ALTER:</b></p>
+  <div class="code-block">
+<span class="cm">-- Table already exists, add FK constraint later</span><br>
+<span class="kw">ALTER TABLE</span> <span class="fn">Course</span><br>
+<span class="kw">ADD CONSTRAINT</span> <span class="fk">FK_StudentCourse</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- name the constraint</span><br>
+<span class="kw">FOREIGN KEY</span> (<span class="fk">Roll_Number</span>) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- FK column in Course</span><br>
+<span class="ref">REFERENCES</span> <span class="fn">Student</span>(<span class="fk">Roll_Number</span>); &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- PK in Student</span></div>
+
+  <!-- Section 6 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--amber);color:#fff;">6</div>
+    <h2 style="color:var(--navy);">Golden Rules & Important Facts</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⭐ Golden Rules — Foreign Key Facts for Exams</div>
+    <div class="gr-wrap">
+      <div class="gr-item" style="background:var(--cyan2l);border:1.5px solid var(--cyan2);">
+        <div class="gr-num" style="background:var(--cyan2);">1</div>
+        <div class="gr-text">
+          <div class="gr-title" style="color:var(--cyan2);">FK references the PK of another (or same) table</div>
+          <div class="gr-sub">The FK value must exist in the PK column of the referenced table. No orphan references allowed.</div>
+        </div>
+        <div class="gr-tag" style="background:var(--cyan2l);color:var(--cyan2);border:1px solid #80cbc4;">REFERENTIAL INTEGRITY</div>
+      </div>
+      <div class="gr-item" style="background:var(--amberl);border:1.5px solid var(--amber);">
+        <div class="gr-num" style="background:var(--amber);">2</div>
+        <div class="gr-text">
+          <div class="gr-title" style="color:var(--amber);">Data types must match exactly</div>
+          <div class="gr-sub">If the PK is INTEGER, the FK must also be INTEGER. Mismatched data types cause errors at creation time.</div>
+        </div>
+        <div class="gr-tag" style="background:var(--amberl);color:var(--amber);border:1px solid #ffe082;">SAME DATA TYPE</div>
+      </div>
+      <div class="gr-item" style="background:var(--indigol);border:1.5px solid var(--indigo);">
+        <div class="gr-num" style="background:var(--indigo);">3</div>
+        <div class="gr-text">
+          <div class="gr-title" style="color:var(--indigo);">Column names don't have to match</div>
+          <div class="gr-sub">The FK column can have a different name from the PK it references. It's the data type and the REFERENCES keyword that creates the link — not the name.</div>
+        </div>
+        <div class="gr-tag" style="background:var(--indigol);color:var(--indigo);border:1px solid #9fa8da;">NAMES DIFFER OK</div>
+      </div>
+      <div class="gr-item" style="background:var(--greenl);border:1.5px solid var(--green);">
+        <div class="gr-num" style="background:var(--green);">4</div>
+        <div class="gr-text">
+          <div class="gr-title" style="color:var(--green);">A table can have MULTIPLE Foreign Keys</div>
+          <div class="gr-sub">Unlike Primary Keys (only 1 per table), a table can have many FK columns — each referencing a different table or the same table.</div>
+        </div>
+        <div class="gr-tag" style="background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;">MANY FKs ALLOWED</div>
+      </div>
+      <div class="gr-item" style="background:var(--bluebg);border:1.5px solid var(--blue);">
+        <div class="gr-num" style="background:var(--blue);">5</div>
+        <div class="gr-text">
+          <div class="gr-title" style="color:var(--blue);">Referenced table must be created first</div>
+          <div class="gr-sub">When creating tables, always create the Referenced (parent) table before the Referencing (child) table. The parent's PK must exist before the child's FK can point to it.</div>
+        </div>
+        <div class="gr-tag" style="background:var(--bluebg);color:var(--blue);border:1px solid #90caf9;">PARENT FIRST</div>
+      </div>
+    </div>
+    <div class="diagram-caption">These five rules cover every FK question that appears in GATE, UGC NET, IBPS SO, and placements.</div>
+  </div>
+
+  <!-- PK vs FK summary -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">★</div>
+    <h2 style="color:var(--navy);">Primary Key vs Foreign Key — Quick Comparison</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⚖️ PK vs FK — Side by Side</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="background:var(--navy);color:#fff;">
+          <th style="padding:9px 14px;text-align:left;">Parameter</th>
+          <th style="padding:9px 14px;text-align:left;">Primary Key 🔑</th>
+          <th style="padding:9px 14px;text-align:left;">Foreign Key 🔗</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:var(--amberl);"><td style="padding:9px 14px;font-weight:700;color:var(--amber);">Purpose</td><td style="padding:9px 14px;">Uniquely identify each row</td><td style="padding:9px 14px;">Link to another table's PK</td></tr>
+          <tr style="background:#f5f7ff;"><td style="padding:9px 14px;font-weight:700;color:var(--navy);">Properties</td><td style="padding:9px 14px;">UNIQUE + NOT NULL</td><td style="padding:9px 14px;">Can be NULL, can repeat</td></tr>
+          <tr style="background:var(--greenl);"><td style="padding:9px 14px;font-weight:700;color:var(--green);">Count per table</td><td style="padding:9px 14px;font-weight:700;color:var(--amber);">Exactly ONE</td><td style="padding:9px 14px;font-weight:700;color:var(--green);">Multiple allowed</td></tr>
+          <tr style="background:#f5f7ff;"><td style="padding:9px 14px;font-weight:700;color:var(--navy);">Table role</td><td style="padding:9px 14px;">Referenced (parent) table</td><td style="padding:9px 14px;">Referencing (child) table</td></tr>
+          <tr style="background:var(--cyan2l);"><td style="padding:9px 14px;font-weight:700;color:var(--cyan2);">Integrity type</td><td style="padding:9px 14px;">Entity Integrity</td><td style="padding:9px 14px;">Referential Integrity</td></tr>
+          <tr style="background:#f5f7ff;"><td style="padding:9px 14px;font-weight:700;color:var(--navy);">SQL keyword</td><td style="padding:9px 14px;font-family:monospace;font-weight:700;color:var(--amber);">PRIMARY KEY</td><td style="padding:9px 14px;font-family:monospace;font-weight:700;color:var(--cyan2);">FOREIGN KEY … REFERENCES</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="diagram-caption">Key difference: ONE Primary Key per table vs MULTIPLE Foreign Keys allowed. PK enforces entity integrity; FK enforces referential integrity.</div>
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+
+<!-- ═══════════════ REVISION VIEW ═══════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--cyan2);">
+      <div class="rev-num">1</div>What is a Foreign Key?
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">An attribute (or set) in a table that <b>references the Primary Key</b> of the same or another table.</span></div>
+      <div class="rev-kv"><span class="rk">Main purpose:</span><span class="rv">Maintain <b>Referential Integrity</b> — no orphan data, no broken links between tables.</span></div>
+      <div class="rev-kv"><span class="rk">Simple FK:</span><span class="rv">References a PK made of one attribute.</span></div>
+      <div class="rev-kv"><span class="rk">Composite FK:</span><span class="rv">References a PK made of two or more attributes combined.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">2</div>Linking Tables — Student ↔ Course Example
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Student table:</span><span class="rv">Roll_No (PK), Student_Name, Address. Roll_No is PK → UNIQUE + NOT NULL.</span></div>
+      <div class="rev-kv"><span class="rk">Course table:</span><span class="rv">Course_ID (PK), Course_Name, Roll_No (FK). Roll_No here is the Foreign Key.</span></div>
+      <div class="rev-kv"><span class="rk">The link:</span><span class="rv">Roll_No in Course table <b>takes reference from</b> Roll_No PK in Student table.</span></div>
+      <div class="rev-kv"><span class="rk">Why needed:</span><span class="rv">Whenever two tables are related, at least one common attribute must link them — that's the FK.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);">
+      <div class="rev-num">3</div>The Referencing Rule
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Core rule:</span><span class="rv">FK value <b>must already exist</b> in the PK column of the referenced table before it can be inserted.</span></div>
+      <div class="rev-kv"><span class="rk">Example:</span><span class="rv">Can't assign Roll_No = 10 to a course if student 10 doesn't exist in Student table → INSERT rejected.</span></div>
+      <div class="rev-kv"><span class="rk">Order matters:</span><span class="rv">Insert the parent record (Student) <b>before</b> inserting the child record (Course) that references it.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">4</div>Terminology — Referenced vs Referencing
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-row">
+        <div style="background:var(--bluebg);border:1px solid #90caf9;border-radius:8px;padding:10px 12px;font-size:13px;">
+          <b style="color:var(--blue);">Referenced Table (Base Table)</b><br>
+          Contains the <b>Primary Key</b>.<br>
+          Is the parent / source.<br>
+          Example: Student table.
+        </div>
+        <div style="background:var(--cyan2l);border:1px solid #80cbc4;border-radius:8px;padding:10px 12px;font-size:13px;">
+          <b style="color:var(--cyan2);">Referencing Table</b><br>
+          Contains the <b>Foreign Key</b>.<br>
+          Is the child / dependent.<br>
+          Example: Course table.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);">
+      <div class="rev-num">5</div>SQL Implementation — Two Methods
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Data type rule:</span><span class="rv">FK data type must <b>exactly match</b> the PK data type it references.</span></div>
+      <div class="rev-kv"><span class="rk">Method 1 (CREATE):</span><span class="rv">Define FK inline: <code style="font-family:monospace;background:#e8f5e9;padding:1px 5px;border-radius:3px;font-size:11.5px;">Roll_Number INTEGER REFERENCES Student(Roll_Number)</code></span></div>
+      <div class="rev-kv"><span class="rk">Method 2 (ALTER):</span><span class="rv"><code style="font-family:monospace;background:#e8f5e9;padding:1px 5px;border-radius:3px;font-size:11.5px;">ALTER TABLE Course ADD CONSTRAINT FK FOREIGN KEY (Roll_Number) REFERENCES Student(Roll_Number)</code></span></div>
+      <div class="rev-kv"><span class="rk">Create order:</span><span class="rv">Always create the Referenced (parent) table <b>first</b>, then the Referencing (child) table.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--amber);">
+      <div class="rev-num">★</div>Golden Rules — Exam Quick Reference
+    </div>
+    <div class="rev-card-body">
+      <div style="overflow-x:auto;margin-bottom:12px;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:var(--navy);color:#fff;">
+            <th style="padding:8px 12px;text-align:left;">Property</th>
+            <th style="padding:8px 12px;text-align:center;">Primary Key</th>
+            <th style="padding:8px 12px;text-align:center;">Foreign Key</th>
+          </tr></thead>
+          <tbody>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;">Count per table</td><td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--amber);">Exactly ONE</td><td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--green);">Multiple allowed</td></tr>
+            <tr style="background:#f5f7ff;"><td style="padding:8px 12px;font-weight:700;">NULL allowed?</td><td style="padding:8px 12px;text-align:center;color:var(--red);font-weight:700;">✕ Never</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✓ Yes</td></tr>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;">Duplicate values?</td><td style="padding:8px 12px;text-align:center;color:var(--red);font-weight:700;">✕ Never</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✓ Yes</td></tr>
+            <tr style="background:#f5f7ff;"><td style="padding:8px 12px;font-weight:700;">Integrity type</td><td style="padding:8px 12px;text-align:center;">Entity Integrity</td><td style="padding:8px 12px;text-align:center;">Referential Integrity</td></tr>
+            <tr style="background:var(--greenl);"><td style="padding:8px 12px;font-weight:700;">Names must match?</td><td style="padding:8px 12px;text-align:center;">—</td><td style="padding:8px 12px;text-align:center;color:var(--green);font-weight:700;">✕ Not required</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--cyan2l);border:1.5px solid var(--cyan2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--cyan2);">
+        🔗 <b>One-liner:</b> FK = attribute in child table that points to PK of parent table, enforcing that only valid references can be inserted.
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">📖</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Foreign Key</td><td>Attribute in a table that references the PK of the same or another table.</td></tr>
+          <tr><td>Referential Integrity</td><td>Ensures FK values always correspond to existing PK values — no orphan references.</td></tr>
+          <tr><td>Referenced Table</td><td>The table containing the Primary Key (parent/base table). e.g. Student.</td></tr>
+          <tr><td>Referencing Table</td><td>The table containing the Foreign Key (child table). e.g. Course.</td></tr>
+          <tr><td>Simple FK</td><td>References a PK made of a single attribute.</td></tr>
+          <tr><td>Composite FK</td><td>References a PK made of two or more attributes combined.</td></tr>
+          <tr><td>Data Type Rule</td><td>FK and the PK it references must have exactly the same data type.</td></tr>
+          <tr><td>REFERENCES keyword</td><td>SQL keyword used to define a FK pointing to a specific PK column.</td></tr>
+          <tr><td>ALTER TABLE (FK)</td><td>Used to add a FK constraint to an already-existing table.</td></tr>
+          <tr><td>ADD CONSTRAINT</td><td>SQL clause used in ALTER to name and define a new FK constraint.</td></tr>
+          <tr><td>Orphan Record</td><td>A row in the child table whose FK value has no matching PK in the parent — referential integrity violation.</td></tr>
+          <tr><td>Multiple FKs</td><td>Unlike PK (only 1), a table can have many FK columns, each pointing to different tables.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

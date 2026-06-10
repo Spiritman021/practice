@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 6: Network Topologies Part 1 — Study Mesh and Star topologies. Learn formulas for cables and ports, reliability, cost, security, and hub vs switch tradeoffs.">
+<meta name="robots" content="index, follow">
+<title>Topologies Part 1 — CN Topic 6 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_topologies_part1.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --orange: #ea580c;
+  --mesh: #d97706; --mesh-light: #fffbeb; --mesh-border: #fde68a;
+  --star: #2563eb; --star-light: #eff6ff; --star-border: #93c5fd;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #1c1917 0%, #d97706 35%, #2563eb 70%, #7c3aed 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#fde68a; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:560px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:56px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+.sec-badge { height:36px; padding:0 18px; border-radius:20px; color:#fff; font-family:var(--mono); font-size:12px; font-weight:700; display:flex; align-items:center; letter-spacing:1px; flex-shrink:0; }
+.sb-mesh { background:var(--mesh); }
+.sb-star { background:var(--star); }
+.sb-base { background:var(--navy); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--green); font-weight:600; }
+td.warn { color:var(--amber); font-weight:600; }
+
+/* TOPOLOGY HERO VISUAL */
+.topo-visual-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.topo-pane { padding:28px 20px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.topo-pane.mesh-pane { background:var(--mesh-light); border-right:1px solid var(--border); }
+.topo-pane.star-pane { background:var(--star-light); }
+.topo-pane-title { font-family:var(--sans); font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+.topo-pane.mesh-pane .topo-pane-title { color:var(--mesh); }
+.topo-pane.star-pane .topo-pane-title { color:var(--star); }
+
+/* FORMULA BOX */
+.formula-row { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
+.formula-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px 20px; flex:1; min-width:200px; }
+.formula-label { font-family:var(--sans); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-light); margin-bottom:8px; }
+.formula-expr { font-family:var(--mono); font-size:1.1rem; font-weight:700; margin-bottom:6px; }
+.formula-note { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+.formula-example { font-family:var(--mono); font-size:0.75rem; margin-top:8px; padding:5px 10px; background:#f8fafc; border-radius:5px; color:var(--text); display:inline-block; }
+
+/* PROPERTY GRID */
+.prop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0; }
+.prop-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.prop-card-label { font-family:var(--sans); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-light); margin-bottom:8px; }
+.prop-card-val { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:6px; }
+.prop-card-desc { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+
+/* COMPARISON TABLE HEADER COLORS */
+.th-mesh { color:#fde68a !important; }
+.th-star { color:#93c5fd !important; }
+
+/* PRO/CON LIST */
+.pro-con { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.pro-box { background:var(--green-light); border:1px solid #86efac; border-radius:10px; padding:16px; }
+.con-box { background:var(--red-light); border:1px solid #fca5a5; border-radius:10px; padding:16px; }
+.pro-con-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.pro-box .pro-con-title { color:var(--green); }
+.con-box .pro-con-title { color:var(--red); }
+.pc-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.pc-list li { font-size:0.81rem; color:#374151; padding-left:18px; position:relative; line-height:1.5; }
+.pc-list li::before { position:absolute; left:0; font-weight:700; }
+.pro-box .pc-list li::before { content:'✓'; color:var(--green); }
+.con-box .pc-list li::before { content:'✗'; color:var(--red); }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);   font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);  font-size:0.77rem; }
+.bullet-list li .tag-p{ font-family:var(--mono); color:var(--accent);font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange);font-size:0.77rem; }
+.priority-box { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:14px 0; }
+.final-tips { background:linear-gradient(135deg,#f0fdf4,#eff6ff); border:1px solid #bbf7d0; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--green); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .topo-visual-wrap{grid-template-columns:1fr;}
+  .topo-pane.mesh-pane{border-right:none;border-bottom:1px solid var(--border);}
+  .prop-grid{grid-template-columns:1fr 1fr;}
+  .pro-con{grid-template-columns:1fr;}
+  .formula-row{flex-direction:column;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+}
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 06</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Topologies — Part 1</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="computer_networks.html">Computer Networks</a><span class="sep">›</span><span class="current">Topic 6: Topologies — Part 1</span><a class="back-btn" href="computer_networks.html">← Back</a></nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 6</span>
+    <span class="hero-tag">MESH · STAR / HUB TOPOLOGY</span>
+  </div>
+  <h1>NETWORK <span>TOPOLOGIES</span> — PART 1</h1>
+  <p class="hero-sub">Physical arrangement of network devices — deep dive into Mesh and Star (Hub) topologies: formulas, reliability, cost, security, and communication types compared head-to-head.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ═══════════ DESCRIPTIVE PANEL ═══════════ -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 0: What is a Topology -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-base">INTRO</div>
+      <h2>What is a Network Topology?</h2>
+    </div>
+    <p class="body-text">
+      A <strong>network topology</strong> defines the physical arrangement of devices and how they are connected to one another. It determines how cables are laid out, how data flows between nodes, and what happens when one component fails.
+    </p>
+    <p class="body-text">
+      The primary topology types are: <strong>Mesh, Star, Bus, Ring,</strong> and <strong>Hybrid</strong>. Each has distinct mathematical properties (number of cables and ports required), reliability characteristics, costs, and security implications. This lecture covers Mesh and Star in depth.
+    </p>
+
+    <!-- SIDE-BY-SIDE SVG VISUAL -->
+    <div class="topo-visual-wrap">
+      <div class="topo-pane mesh-pane">
+        <div class="topo-pane-title">Mesh Topology</div>
+        <svg viewBox="0 0 200 180" style="width:100%;max-width:200px">
+          <!-- 5-node full mesh -->
+          <circle cx="100" cy="30"  r="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+          <text x="100" y="35" text-anchor="middle" font-size="9" fill="#92400e" font-family="sans-serif">A</text>
+          <circle cx="170" cy="80"  r="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+          <text x="170" y="85" text-anchor="middle" font-size="9" fill="#92400e" font-family="sans-serif">B</text>
+          <circle cx="145" cy="155" r="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+          <text x="145" y="160" text-anchor="middle" font-size="9" fill="#92400e" font-family="sans-serif">C</text>
+          <circle cx="55"  cy="155" r="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+          <text x="55"  y="160" text-anchor="middle" font-size="9" fill="#92400e" font-family="sans-serif">D</text>
+          <circle cx="30"  cy="80"  r="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+          <text x="30"  y="85"  text-anchor="middle" font-size="9" fill="#92400e" font-family="sans-serif">E</text>
+          <!-- all 10 edges -->
+          <line x1="100" y1="30"  x2="170" y2="80"  stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="100" y1="30"  x2="145" y2="155" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="100" y1="30"  x2="55"  y2="155" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="100" y1="30"  x2="30"  y2="80"  stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="170" y1="80"  x2="145" y2="155" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="170" y1="80"  x2="55"  y2="155" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="170" y1="80"  x2="30"  y2="80"  stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="145" y1="155" x2="55"  y2="155" stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="145" y1="155" x2="30"  y2="80"  stroke="#fcd34d" stroke-width="1.5"/>
+          <line x1="55"  y1="155" x2="30"  y2="80"  stroke="#fcd34d" stroke-width="1.5"/>
+          <text x="100" y="170" text-anchor="middle" font-size="8.5" fill="#92400e" font-family="monospace">n=5 → 10 cables</text>
+        </svg>
+        <div style="font-size:0.78rem;color:#78350f;text-align:center;line-height:1.5">Every device connects to every other device directly. Dedicated point-to-point links.</div>
+      </div>
+      <div class="topo-pane star-pane">
+        <div class="topo-pane-title">Star / Hub Topology</div>
+        <svg viewBox="0 0 200 180" style="width:100%;max-width:200px">
+          <!-- central hub -->
+          <rect x="76" y="70" width="48" height="40" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="100" y="93" text-anchor="middle" font-size="9" fill="#1d4ed8" font-family="sans-serif" font-weight="bold">HUB</text>
+          <!-- 5 nodes -->
+          <circle cx="100" cy="18"  r="13" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="100" y="22"  text-anchor="middle" font-size="9" fill="#1e40af" font-family="sans-serif">A</text>
+          <line x1="100" y1="31"  x2="100" y2="70"  stroke="#93c5fd" stroke-width="1.5"/>
+
+          <circle cx="173" cy="90"  r="13" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="173" y="94"  text-anchor="middle" font-size="9" fill="#1e40af" font-family="sans-serif">B</text>
+          <line x1="160" y1="90"  x2="124" y2="90"  stroke="#93c5fd" stroke-width="1.5"/>
+
+          <circle cx="145" cy="160" r="13" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="145" y="164" text-anchor="middle" font-size="9" fill="#1e40af" font-family="sans-serif">C</text>
+          <line x1="138" y1="149" x2="116" y2="110" stroke="#93c5fd" stroke-width="1.5"/>
+
+          <circle cx="55"  cy="160" r="13" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="55"  y="164" text-anchor="middle" font-size="9" fill="#1e40af" font-family="sans-serif">D</text>
+          <line x1="62"  y1="149" x2="84"  y2="110" stroke="#93c5fd" stroke-width="1.5"/>
+
+          <circle cx="27"  cy="90"  r="13" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="27"  y="94"  text-anchor="middle" font-size="9" fill="#1e40af" font-family="sans-serif">E</text>
+          <line x1="40"  y1="90"  x2="76"  y2="90"  stroke="#93c5fd" stroke-width="1.5"/>
+          <text x="100" y="175" text-anchor="middle" font-size="8.5" fill="#1e40af" font-family="monospace">n=5 → 5 cables</text>
+        </svg>
+        <div style="font-size:0.78rem;color:#1e40af;text-align:center;line-height:1.5">All devices connect to a central Hub. No direct device-to-device links.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: MESH -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-mesh">MESH TOPOLOGY</div>
+      <h2>Mesh Topology — Full Analysis</h2>
+    </div>
+    <p class="body-text">
+      In a mesh topology, <strong>every single device is directly connected to every other device</strong> in the network via a dedicated cable. There is no shared link — each pair of devices has its own private physical wire.
+    </p>
+
+    <!-- FORMULAS -->
+    <div class="diagram-box">
+      <div class="diagram-header">📐 Mesh Topology — Key Formulas (n = number of devices)</div>
+      <div class="diagram-body">
+        <div class="formula-row">
+          <div class="formula-card">
+            <div class="formula-label">Number of Cables</div>
+            <div class="formula-expr" style="color:var(--mesh)">n × (n−1) / 2</div>
+            <div class="formula-note">Also written as <sup>n</sup>C<sub>2</sub>. Same as the number of edges in a complete graph K<sub>n</sub>.</div>
+            <div class="formula-example">n=10 → 10×9/2 = 45 cables</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Ports per Device</div>
+            <div class="formula-expr" style="color:var(--mesh)">n − 1</div>
+            <div class="formula-note">Each device needs one port for each other device it connects to directly.</div>
+            <div class="formula-example">n=10 → 9 ports per device</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Total Ports (all devices)</div>
+            <div class="formula-expr" style="color:var(--mesh)">n × (n−1)</div>
+            <div class="formula-note">Sum of all ports across every device in the network.</div>
+            <div class="formula-example">n=10 → 10×9 = 90 total ports</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Note: Number of cables = n×(n−1)/2 but total ports = n×(n−1). Each cable uses 2 ports (one on each end), so total ports = 2 × cables.</div>
+    </div>
+
+    <div class="callout callout-amber">
+      🧮 <strong>Graph Theory Connection:</strong> The cable formula n×(n−1)/2 is identical to finding the number of edges in a <em>complete graph</em> K<sub>n</sub>. This is also <sup>n</sup>C<sub>2</sub> — choosing 2 nodes from n to connect. This is a commonly asked exam connection.
+    </div>
+
+    <!-- MESH PROPERTIES -->
+    <div class="diagram-box">
+      <div class="diagram-header">⚖️ Mesh Topology — Properties at a Glance</div>
+      <div class="diagram-body">
+        <div class="prop-grid">
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Reliability</div>
+            <div class="prop-card-val" style="color:var(--green)">Very High ✓</div>
+            <div class="prop-card-desc">If one cable fails, data takes an alternative path. No single point of failure. System keeps running.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Cost</div>
+            <div class="prop-card-val" style="color:var(--red)">Very High ✗</div>
+            <div class="prop-card-desc">Massive cabling required. 10 devices = 45 individual cables. Scales catastrophically with more devices.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Security</div>
+            <div class="prop-card-val" style="color:var(--green)">High ✓</div>
+            <div class="prop-card-desc">Every link is dedicated. A→D message cannot be seen by B or C. Private point-to-point channels.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Maintenance</div>
+            <div class="prop-card-val" style="color:var(--red)">Very Difficult ✗</div>
+            <div class="prop-card-desc">With 100 devices = 4,950 cables to manage. Identifying a faulty cable among thousands is extremely hard.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--amber)">
+            <div class="prop-card-label">Communication Type</div>
+            <div class="prop-card-val" style="color:var(--amber)">Point-to-Point</div>
+            <div class="prop-card-desc">Dedicated link per pair. Does NOT support multicast or multipoint sharing.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Suitable for Large LAN?</div>
+            <div class="prop-card-val" style="color:var(--red)">No ✗</div>
+            <div class="prop-card-desc">Cost and maintenance make mesh impractical for large LANs. Used in small, critical networks only.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pro-con">
+      <div class="pro-box">
+        <div class="pro-con-title">✅ Advantages of Mesh</div>
+        <ul class="pc-list">
+          <li>Highest reliability — multiple redundant paths</li>
+          <li>No single point of failure anywhere</li>
+          <li>High security — dedicated private links</li>
+          <li>Simultaneous transmission on all links possible</li>
+          <li>Easy fault isolation — each link is independent</li>
+        </ul>
+      </div>
+      <div class="con-box">
+        <div class="pro-con-title">❌ Disadvantages of Mesh</div>
+        <ul class="pc-list">
+          <li>Extremely high cost — n×(n−1)/2 cables</li>
+          <li>Very difficult maintenance at scale</li>
+          <li>Not practical for large networks</li>
+          <li>High number of ports needed per device</li>
+          <li>No multicast/broadcast support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: STAR -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-star">STAR / HUB TOPOLOGY</div>
+      <h2>Star Topology — Full Analysis</h2>
+    </div>
+    <p class="body-text">
+      In a star topology, <strong>no device connects directly to another</strong>. Instead, every device connects to a centralised multi-port hardware device called a <strong>Hub</strong>. When device A wants to send a message to device C, it cannot do so directly — the message must pass through the Hub first.
+    </p>
+    <p class="body-text">
+      The Hub is a <strong>pure hardware device with no intelligence</strong> — it does not know which device is the intended recipient. It simply receives a signal on one port and immediately broadcasts it out of every other port. This is the defining characteristic that differentiates a Hub from a Switch (which operates at Layer 2 and can target specific ports).
+    </p>
+
+    <!-- FORMULAS -->
+    <div class="diagram-box">
+      <div class="diagram-header">📐 Star Topology — Key Formulas (n = number of devices)</div>
+      <div class="diagram-body">
+        <div class="formula-row">
+          <div class="formula-card">
+            <div class="formula-label">Number of Cables</div>
+            <div class="formula-expr" style="color:var(--star)">n</div>
+            <div class="formula-note">Simply one cable per device, each running directly to the Hub. Much simpler than Mesh.</div>
+            <div class="formula-example">n=10 → 10 cables only</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Ports per End-Device</div>
+            <div class="formula-expr" style="color:var(--star)">1</div>
+            <div class="formula-note">Each end-device only needs a single port — the one that connects to the Hub.</div>
+            <div class="formula-example">n=10 → 1 port per device</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Total Ports (end devices)</div>
+            <div class="formula-expr" style="color:var(--star)">n</div>
+            <div class="formula-note">n devices × 1 port each. The Hub itself requires n ports (one per device).</div>
+            <div class="formula-example">n=10 → Hub needs 10-port Hub</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Cables: Mesh needs n×(n−1)/2. Star needs just n. For 10 devices: Mesh = 45 cables vs Star = 10 cables.</div>
+    </div>
+
+    <!-- STAR PROPERTIES -->
+    <div class="diagram-box">
+      <div class="diagram-header">⚖️ Star Topology — Properties at a Glance</div>
+      <div class="diagram-body">
+        <div class="prop-grid">
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Reliability</div>
+            <div class="prop-card-val" style="color:var(--red)">Very Low ✗</div>
+            <div class="prop-card-desc">Single point of failure. Hub breaks → entire network stops instantly. All communication halts.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Cost</div>
+            <div class="prop-card-val" style="color:var(--green)">Normal / Low ✓</div>
+            <div class="prop-card-desc">Far fewer cables than Mesh. Only n cables needed. Hub itself adds some hardware cost.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Security</div>
+            <div class="prop-card-val" style="color:var(--red)">Low ✗</div>
+            <div class="prop-card-desc">Hub broadcasts to ALL devices. A message intended for device C is also seen by A, B, D, E. No privacy.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Maintenance</div>
+            <div class="prop-card-val" style="color:var(--green)">Easy ✓</div>
+            <div class="prop-card-desc">Only n cables. Easy to add/remove a device. A faulty device can be unplugged without affecting others.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--amber)">
+            <div class="prop-card-label">Communication Type</div>
+            <div class="prop-card-val" style="color:var(--amber)">Point-to-Point</div>
+            <div class="prop-card-desc">Each device has a dedicated cable to the Hub. Not a shared wire (multipoint). But Hub still broadcasts.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Suitable for LAN?</div>
+            <div class="prop-card-val" style="color:var(--green)">Yes ✓</div>
+            <div class="prop-card-desc">Very commonly used for home/office LANs due to low cable count and easy management.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue">
+      🔄 <strong>Hub vs Switch — Critical Distinction:</strong> A Hub broadcasts to ALL ports (no intelligence, Layer 1). A Switch sends data only to the intended port (uses MAC address table, Layer 2). Modern networks use switches, not hubs — but the <em>topology</em> is still called "star" even with a switch at the centre.
+    </div>
+
+    <div class="pro-con">
+      <div class="pro-box">
+        <div class="pro-con-title">✅ Advantages of Star</div>
+        <ul class="pc-list">
+          <li>Low cable count — just n cables</li>
+          <li>Easy to install and maintain</li>
+          <li>Adding or removing a device doesn't affect others</li>
+          <li>Fault in one device is isolated easily</li>
+          <li>Widely used — very practical for LANs</li>
+        </ul>
+      </div>
+      <div class="con-box">
+        <div class="pro-con-title">❌ Disadvantages of Star</div>
+        <ul class="pc-list">
+          <li>Hub failure = entire network fails (SPOF)</li>
+          <li>Low security — Hub broadcasts to everyone</li>
+          <li>Hub = additional hardware cost</li>
+          <li>All traffic must pass through central hub</li>
+          <li>Hub creates bottleneck under heavy load</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Head-to-Head Comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-base">COMPARE</div>
+      <h2>Mesh vs Star — Head-to-Head</h2>
+    </div>
+    <div class="diagram-box">
+      <div class="diagram-header">⚔️ Mesh vs Star Topology — Full Comparison</div>
+      <div class="diagram-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th class="th-mesh">Mesh Topology</th>
+                <th class="th-star">Star / Hub Topology</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Cables needed</strong></td><td class="mono must">n×(n−1)/2</td><td class="mono good">n</td></tr>
+              <tr><td><strong>Ports per device</strong></td><td class="mono must">n − 1</td><td class="mono good">1</td></tr>
+              <tr><td><strong>Total ports</strong></td><td class="mono must">n×(n−1)</td><td class="mono good">n (end devices)</td></tr>
+              <tr><td><strong>Reliability</strong></td><td class="good">Very High — multiple paths</td><td class="must">Very Low — single point of failure</td></tr>
+              <tr><td><strong>Cost</strong></td><td class="must">Very High</td><td class="good">Normal / Low</td></tr>
+              <tr><td><strong>Security</strong></td><td class="good">High — dedicated links</td><td class="must">Low — Hub broadcasts to all</td></tr>
+              <tr><td><strong>Maintenance</strong></td><td class="must">Very Difficult</td><td class="good">Easy</td></tr>
+              <tr><td><strong>Communication</strong></td><td>Point-to-Point (dedicated)</td><td>Point-to-Point (to hub only)</td></tr>
+              <tr><td><strong>Multicast support</strong></td><td class="must">No</td><td class="must">No (Hub broadcasts instead)</td></tr>
+              <tr><td><strong>Suitable for large LAN</strong></td><td class="must">No</td><td class="good">Yes</td></tr>
+              <tr><td><strong>Example (n=10)</strong></td><td class="mono must">45 cables, 9 ports/device</td><td class="mono good">10 cables, 1 port/device</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end desc -->
+
+<!-- ═══════════ REVISION PANEL ═══════════ -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-green" style="margin-bottom:28px">
+    ⚡ <strong>Speed Mode — </strong> All formulas, properties, and comparison facts in one place. Perfect for last-day revision.
+  </div>
+
+  <!-- FORMULAS -->
+  <div class="cheat-div"><span>Critical Formulas — Memorise These</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Metric</th><th class="th-mesh">Mesh</th><th class="th-star">Star</th><th>Example (n=10)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Cables needed</strong></td><td class="mono must">n×(n−1)/2 = ⁿC₂</td><td class="mono good">n</td><td class="mono">Mesh=45, Star=10</td></tr>
+          <tr><td><strong>Ports per device</strong></td><td class="mono must">n − 1</td><td class="mono good">1</td><td class="mono">Mesh=9, Star=1</td></tr>
+          <tr><td><strong>Total ports</strong></td><td class="mono must">n×(n−1)</td><td class="mono good">n + n(hub)</td><td class="mono">Mesh=90, Star=10+10</td></tr>
+          <tr><td><strong>Graph theory name</strong></td><td>Complete graph K<sub>n</sub></td><td>Star graph S<sub>n</sub></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PROPERTIES -->
+  <div class="cheat-div"><span>Properties Quick Reference</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th class="th-mesh">Mesh</th><th class="th-star">Star / Hub</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reliability</td><td class="good">Very High ✓ (multiple paths)</td><td class="must">Very Low ✗ (Hub = SPOF)</td></tr>
+          <tr><td>Cost</td><td class="must">Very High ✗</td><td class="good">Normal / Low ✓</td></tr>
+          <tr><td>Security</td><td class="good">High ✓ (dedicated links)</td><td class="must">Low ✗ (Hub broadcasts all)</td></tr>
+          <tr><td>Maintenance</td><td class="must">Very Difficult ✗</td><td class="good">Easy ✓</td></tr>
+          <tr><td>Communication type</td><td class="warn">Point-to-Point (dedicated)</td><td class="warn">Point-to-Point (to hub)</td></tr>
+          <tr><td>Multicast support</td><td class="must">No ✗</td><td class="must">No ✗ (Hub broadcasts)</td></tr>
+          <tr><td>Large LAN practical?</td><td class="must">No ✗</td><td class="good">Yes ✓</td></tr>
+          <tr><td>Single point of failure</td><td class="good">No ✓</td><td class="must">Yes ✗ (Hub)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cheat-div"><span>Key Exam Facts</span></div>
+  <div class="cards-grid">
+    <div class="rev-card" style="border-top:3px solid var(--mesh)">
+      <div class="rev-card-title" style="color:var(--mesh)">Mesh — Must Know</div>
+      <ul class="bullet-list">
+        <li>Every device connects to <em>every</em> other device</li>
+        <li>Cables: <span class="val">n×(n−1)/2</span> = ⁿC₂</li>
+        <li>Ports per device: <span class="val">n−1</span></li>
+        <li>Total ports: <span class="val">n×(n−1)</span></li>
+        <li>Same formula as complete graph K<sub>n</sub></li>
+        <li>Communication: <span class="tag-o">Point-to-Point only</span></li>
+      </ul>
+    </div>
+    <div class="rev-card" style="border-top:3px solid var(--star)">
+      <div class="rev-card-title" style="color:var(--star)">Star / Hub — Must Know</div>
+      <ul class="bullet-list">
+        <li>All devices connect to central Hub</li>
+        <li>Cables: <span class="val">n</span> (one per device)</li>
+        <li>Ports per device: <span class="val">1</span></li>
+        <li>Hub = pure hardware, NO intelligence</li>
+        <li>Hub failure = <span class="tag-r">entire network down</span></li>
+        <li>Hub <span class="tag-r">broadcasts to ALL ports</span> always</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Hub vs Switch (Exam Trap)</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">Hub</span> = Layer 1, broadcasts to all</li>
+        <li><span class="tag-g">Switch</span> = Layer 2, sends to target MAC</li>
+        <li>Both used in Star topology physically</li>
+        <li>Modern LANs use <span class="tag-g">Switch</span>, not Hub</li>
+        <li>Topology name = Star regardless of Hub or Switch</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Worked Example (n=4)</div>
+      <ul class="bullet-list">
+        <li>Mesh cables: <span class="val">4×3/2 = 6</span></li>
+        <li>Mesh ports/device: <span class="val">3</span></li>
+        <li>Mesh total ports: <span class="val">4×3 = 12</span></li>
+        <li>Star cables: <span class="val">4</span></li>
+        <li>Star ports/device: <span class="val">1</span></li>
+        <li>Hub needs: <span class="val">4-port hub</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FINAL TIPS -->
+  <div class="final-tips">
+    <h3>⚡ Last-Minute Must-Know Points</h3>
+    <div class="cards-grid" style="margin-top:0">
+      <div class="rev-card" style="border-color:#86efac">
+        <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+        <ul class="bullet-list">
+          <li>Mesh formula: <span class="tag-g">n×(n−1)/2</span> cables</li>
+          <li>Star: only <span class="tag-g">n cables</span>, 1 port per device</li>
+          <li>Mesh = highest reliability, highest cost</li>
+          <li>Star = lowest reliability (SPOF = Hub)</li>
+          <li>Hub broadcasts = low security in star</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#fcd34d">
+        <div class="rev-card-title" style="color:#d97706">📌 Common Exam Traps</div>
+        <ul class="bullet-list">
+          <li>Total ports ≠ cables: Mesh ports = <span class="val">2 × cables</span></li>
+          <li>Star port-per-device = 1, not n−1</li>
+          <li>Hub is Layer <span class="tag-r">1</span>, Switch is Layer <span class="tag-g">2</span></li>
+          <li>Both Mesh AND Star use point-to-point</li>
+          <li>Mesh doesn't support multipoint/multicast</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#93c5fd">
+        <div class="rev-card-title" style="color:#1d4ed8">💡 Quick Memory Hooks</div>
+        <ul class="bullet-list">
+          <li>Mesh = complete graph = ⁿC₂ edges</li>
+          <li>Star = spider web — hub at centre</li>
+          <li>Hub down → star collapses entirely</li>
+          <li>Mesh: more nodes → cables grow <em>quadratically</em></li>
+          <li>Star: more nodes → cables grow <em>linearly</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end revision -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
