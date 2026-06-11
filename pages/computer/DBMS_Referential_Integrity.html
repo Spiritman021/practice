@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 11: Referential Integrity — Learn how INSERT, DELETE, and UPDATE operations on Referenced and Referencing tables interact with Foreign Key constraints.">
+<meta name="robots" content="index, follow">
+<title>Referential Integrity — DBMS Topic 11 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Referential_Integrity.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --lblue:#42A5F5; --cyan:#00ACC1;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --bluebg:#E3F2FD; --text:#1A1A1A; --white:#fff;
+    --dkgray:#424242; --mdgray:#757575;
+    --teal:#00695C; --tealL:#E0F2F1;
+    --indigo:#283593; --indigol:#E8EAF6;
+    --amber:#FF8F00; --amberl:#FFF8E1;
+    --rose:#880E4F; --rosel:#FCE4EC;
+    --cyan2:#006064; --cyan2l:#E0F7FA;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--rose);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--rose);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--rose);}
+  .toggle-wrap{display:flex;background:var(--rosel);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--rose);color:#fff;box-shadow:0 2px 12px rgba(136,14,79,.3);}
+
+  .hero{background:linear-gradient(135deg,#4a0e24 0%,#880e4f 50%,#c2185b 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 45%,rgba(255,128,171,.18) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:820px;}
+  .hero-tag{display:inline-block;background:var(--cyan);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,58px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#f48fb1;}
+  .hero-sub{color:rgba(255,255,255,.68);font-size:14px;max-width:540px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;}
+
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.rose  {background:var(--rosel); border-color:var(--rose); color:var(--rose);}
+  .info-box.blue  {background:var(--bluebg);border-color:var(--blue); color:var(--navy);}
+  .info-box.green {background:var(--greenl);border-color:var(--green);color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .info-box.amber {background:var(--amberl);border-color:var(--amber);color:#5d3e00;}
+  .info-box.teal  {background:var(--tealL); border-color:var(--teal); color:var(--teal);}
+  .info-box.red   {background:var(--redl);  border-color:var(--red);  color:var(--dkgray);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  /* ── INTEGRITY ANALOGY ── */
+  .analogy-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .an-side{padding:18px 20px;}
+  .an-title{font-weight:700;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:10px;text-align:center;}
+  .an-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:13px;line-height:1.55;}
+  .an-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+
+  /* ── TABLE STRUCTURE ── */
+  .ts-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:20px;}
+  .ts-table{border-radius:8px;overflow:hidden;}
+  .ts-title{padding:9px 14px;font-weight:700;font-size:12.5px;color:#fff;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .ts-mini{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .ts-mini th{padding:6px 10px;text-align:left;font-weight:700;font-size:11.5px;}
+  .ts-mini td{padding:6px 10px;border-top:1px solid rgba(0,0,0,.07);}
+  .ts-mini tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .pk-cell{background:var(--amberl)!important;font-weight:700;color:var(--amber);}
+  .fk-cell{background:var(--cyan2l)!important;font-weight:700;color:var(--cyan2);}
+  .ts-conn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;}
+
+  /* ── OPERATIONS GRID ── */
+  .ops-section{border-radius:12px;overflow:hidden;margin-bottom:18px;border:2px solid;}
+  .ops-section-head{padding:13px 18px;font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:10px;}
+  .ops-section-body{padding:0;}
+  .op-row{display:grid;grid-template-columns:80px 1fr;gap:0;border-bottom:1px solid #f0f0f0;}
+  .op-row:last-child{border-bottom:none;}
+  .op-type{display:flex;align-items:center;justify-content:center;padding:14px 10px;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.06em;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;flex-shrink:0;}
+  .op-content{padding:14px 16px;}
+  .op-verdict{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;padding:4px 12px;border-radius:20px;margin-bottom:8px;}
+  .op-detail{font-size:13px;line-height:1.65;color:var(--dkgray);}
+  .op-why{font-size:12.5px;color:var(--mdgray);margin-top:5px;font-style:italic;}
+
+  /* ── ON DELETE/UPDATE OPTIONS ── */
+  .action-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px;}
+  .ac-card{border-radius:9px;overflow:hidden;}
+  .ac-head{padding:8px 12px;font-weight:700;font-size:12px;color:#fff;font-family:'Space Mono',monospace;letter-spacing:.04em;}
+  .ac-body{padding:10px 12px;font-size:12.5px;line-height:1.6;}
+  .ac-note{font-size:11px;margin-top:5px;font-style:italic;padding:4px 8px;border-radius:4px;}
+
+  .code-block{background:#1e2a3a;border-radius:10px;padding:14px 18px;margin:10px 0;font-family:'Space Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;}
+  .kw{color:#80cbc4;font-weight:700;} .fn{color:#82b1ff;} .dt{color:#ffcc80;}
+  .cm{color:#78909c;font-style:italic;} .fk{color:#80deea;font-weight:700;} .ref{color:#f48fb1;font-weight:700;}
+
+  /* ── EXAM SUMMARY TABLE ── */
+  .exam-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .exam-table th{background:var(--navy);color:#fff;padding:9px 14px;text-align:left;font-size:12px;letter-spacing:.04em;}
+  .exam-table td{padding:9px 14px;border-bottom:1px solid #e8eaf6;vertical-align:middle;}
+  .exam-table tr:nth-child(even) td{background:#f5f7ff;}
+  .exam-table tr:last-child td{border-bottom:none;}
+  .exam-table td:first-child{font-weight:700;color:var(--navy);}
+  .exam-table td:nth-child(2){text-align:center;}
+  .exam-table td:nth-child(3){text-align:center;}
+  .badge-ok{display:inline-block;background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .badge-may{display:inline-block;background:var(--amberl);color:var(--amber);border:1px solid #ffe082;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .badge-no{display:inline-block;background:var(--redl);color:var(--red);border:1px solid #ef9a9a;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+  /* REVISION */
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:155px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .rev-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+
+  .qr-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .qr-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .qr-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .qr-table tr:nth-child(even) td{background:#f5f7ff;}
+  .qr-table tr:last-child td{border-bottom:none;}
+  .qr-table td:first-child{font-weight:700;color:var(--navy);width:170px;}
+
+  @media(max-width:620px){
+    .analogy-grid,.ts-wrap,.action-cards,.rev-row{grid-template-columns:1fr;}
+    .op-row{grid-template-columns:1fr;}
+    .op-type{writing-mode:horizontal-tb;padding:8px 14px;}
+    .ts-conn{flex-direction:row;padding:8px 0;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+  }
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 12</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Referential Integrity</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 11: Referential Integrity</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 12 • LECTURE NOTES</div>
+    <h1>Insert, Update &amp; Delete<br><span>Referential Integrity</span></h1>
+    <p class="hero-sub">How INSERT, DELETE, and UPDATE operations on Referenced and Referencing tables interact with Foreign Key constraints — and how ON DELETE/UPDATE rules handle violations.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">B.Tech / BCA</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ═══════════════ DESCRIPTIVE VIEW ═══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- Section 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--rose);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">What is Referential Integrity?</h2>
+  </div>
+  <p class="prose"><b>Referential Integrity</b> means that the data across related tables must always remain <b>consistent and contradiction-free</b>. Specifically, any value in a Foreign Key column must always point to a valid, existing Primary Key value in the referenced table — no dangling or orphan references.</p>
+
+  <div class="info-box rose">
+    🔗 <b>Integrity</b> = having the <b>same, consistent value</b> for a piece of data across the entire database. The moment related tables show different values for the same fact, integrity is broken.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 Integrity vs No Integrity — Real-World Examples</div>
+    <div class="analogy-grid">
+      <div class="an-side" style="border-right:1px solid #e0e0e0;background:#fafafa;">
+        <div class="an-title" style="background:var(--redl);color:var(--red);">❌ No Integrity — Disconnected Databases</div>
+        <div class="an-item"><div class="an-dot" style="background:var(--red);"></div><div>A mobile phone priced at <b>₹14,999</b> on Amazon, <b>₹15,499</b> on Flipkart, <b>₹16,000</b> in a showroom.</div></div>
+        <div class="an-item"><div class="an-dot" style="background:var(--red);"></div><div>Each store has an independent database with its own margins — no shared source of truth.</div></div>
+        <div class="an-item"><div class="an-dot" style="background:var(--red);"></div><div>Result: <b>Same product, three different prices</b> — no integrity across systems.</div></div>
+      </div>
+      <div class="an-side" style="background:#fafafa;">
+        <div class="an-title" style="background:var(--greenl);color:var(--green);">✓ With Integrity — Connected University DB</div>
+        <div class="an-item"><div class="an-dot" style="background:var(--green);"></div><div>Student "Ram" (Roll No. 1) is in the <b>CSC department</b>.</div></div>
+        <div class="an-item"><div class="an-dot" style="background:var(--green);"></div><div>The Placement dept sees <b>CSC</b>. The Library sees <b>CSC</b>. The Exam dept sees <b>CSC</b>.</div></div>
+        <div class="an-item"><div class="an-dot" style="background:var(--green);"></div><div>All departments read from the <b>same connected database</b> — one consistent truth everywhere.</div></div>
+      </div>
+    </div>
+    <div style="background:var(--rosel);border-top:1px solid #f48fb1;padding:9px 16px;font-size:12.5px;color:var(--rose);text-align:center;font-weight:600;">
+      If the Placement dept sees "CSC" but Library sees "Electronics" for the same Roll No. — referential integrity is broken.
+    </div>
+    <div class="diagram-caption">Integrity = one consistent value for every fact across the entire connected system. Referential Integrity specifically governs FK-PK consistency.</div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">Table Structure Recap</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🗄️ Referenced Table (Student) ↔ Referencing Table (Course)</div>
+    <div class="ts-wrap">
+      <div class="ts-table" style="border:2px solid var(--blue);">
+        <div class="ts-title" style="background:var(--blue);">👑 Student — Referenced Table (has PK)</div>
+        <table class="ts-mini">
+          <thead style="background:var(--bluebg);"><tr><th>Roll_No <span style="background:var(--amber);color:#fff;font-size:9px;padding:1px 5px;border-radius:2px;font-family:'Space Mono',monospace;">PK</span></th><th>Name</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td class="pk-cell">1</td><td>Ram</td><td>Delhi</td></tr>
+            <tr><td class="pk-cell">2</td><td>Priya</td><td>Mumbai</td></tr>
+            <tr><td class="pk-cell">3</td><td>Amit</td><td>Pune</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ts-conn">
+        <div style="font-size:10px;color:var(--mdgray);font-weight:700;margin-bottom:4px;white-space:nowrap;">FK → PK</div>
+        <div style="font-size:24px;color:var(--cyan2);">⟶</div>
+      </div>
+      <div class="ts-table" style="border:2px solid var(--cyan2);">
+        <div class="ts-title" style="background:var(--cyan2);">🔗 Course — Referencing Table (has FK)</div>
+        <table class="ts-mini">
+          <thead style="background:var(--cyan2l);"><tr><th>Course_ID <span style="background:var(--amber);color:#fff;font-size:9px;padding:1px 5px;border-radius:2px;font-family:'Space Mono',monospace;">PK</span></th><th>Course_Name</th><th>Roll_No <span style="background:var(--cyan2);color:#fff;font-size:9px;padding:1px 5px;border-radius:2px;font-family:'Space Mono',monospace;">FK</span></th></tr></thead>
+          <tbody>
+            <tr><td>C01</td><td>DBMS</td><td class="fk-cell">1</td></tr>
+            <tr><td>C02</td><td>OS</td><td class="fk-cell">2</td></tr>
+            <tr><td>C03</td><td>CN</td><td class="fk-cell">1</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="diagram-caption">All operations on these two tables are governed by referential integrity rules. The tables are no longer independent.</div>
+  </div>
+
+  <!-- Section 3: Operations on Referenced Table -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Operations on the Referenced Table (Student / PK Table)</h2>
+  </div>
+  <p class="prose">Any change to the <b>Student table</b> (the one holding the Primary Key) has implications for the Course table that depends on it. Here's what happens for each operation:</p>
+
+  <div class="ops-section" style="border-color:var(--blue);">
+    <div class="ops-section-head" style="background:var(--blue);">👑 Referenced Table (Student) — INSERT / DELETE / UPDATE</div>
+    <div class="ops-section-body" style="background:#fff;">
+
+      <!-- INSERT -->
+      <div class="op-row">
+        <div class="op-type" style="background:var(--greenl);color:var(--green);">INSERT</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--greenl);color:var(--green);">✓ No Violation</div>
+          <div class="op-detail">You can freely add new students to the Student table. Adding a new student (e.g. Roll No. 4 — Sara) doesn't affect any existing Course records — no course is currently pointing to Roll No. 4.</div>
+          <div class="op-why">New records in the parent table never break existing FK references.</div>
+        </div>
+      </div>
+
+      <!-- DELETE -->
+      <div class="op-row">
+        <div class="op-type" style="background:var(--amberl);color:var(--amber);">DELETE</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--amberl);color:var(--amber);">⚠️ May Cause Violation</div>
+          <div class="op-detail">
+            Deleting a student <i>may or may not</i> cause a violation depending on whether the Course table references that student.<br><br>
+            <b>Violation case:</b> Deleting Roll No. 1 (Ram) while Course table has rows pointing to Roll No. 1 (DBMS, CN) → creates orphan records in Course table.<br>
+            <b>Safe case:</b> Deleting a newly admitted student who hasn't been assigned to any course yet → no problem.
+          </div>
+        </div>
+      </div>
+
+      <!-- ON DELETE solutions -->
+      <div style="background:var(--bluebg);padding:10px 16px;border-top:1px dashed #90caf9;">
+        <div style="font-weight:700;font-size:12.5px;color:var(--blue);margin-bottom:8px;">🛠️ Three Solutions for DELETE Violation:</div>
+        <div class="action-cards" style="padding:0;">
+          <div class="ac-card" style="border:1.5px solid var(--red);">
+            <div class="ac-head" style="background:var(--red);">ON DELETE CASCADE</div>
+            <div class="ac-body" style="background:var(--redl);">
+              Deleting the parent row <b>automatically deletes all child rows</b> that reference it.<br>
+              <div class="ac-note" style="background:#ffcdd2;color:var(--red);">e.g. Delete Roll No.1 → DBMS and CN rows in Course are also deleted automatically.</div>
+            </div>
+          </div>
+          <div class="ac-card" style="border:1.5px solid var(--orange);">
+            <div class="ac-head" style="background:var(--orange);">ON DELETE SET NULL</div>
+            <div class="ac-body" style="background:var(--orangel);">
+              Deleting the parent row sets the FK values in child rows to <b>NULL</b>.<br>
+              <div class="ac-note" style="background:#ffe0b2;color:var(--orange);">⚠️ Cannot use if FK is also a PK in the child table (PK cannot be NULL).</div>
+            </div>
+          </div>
+          <div class="ac-card" style="border:1.5px solid var(--indigo);">
+            <div class="ac-head" style="background:var(--indigo);">ON DELETE NO ACTION</div>
+            <div class="ac-body" style="background:var(--indigol);">
+              Default behaviour. If the parent row is referenced anywhere, the <b>deletion is blocked</b> with an error.<br>
+              <div class="ac-note" style="background:#c5cae9;color:var(--indigo);">Safest option — nothing is deleted until the reference is resolved manually.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPDATE -->
+      <div class="op-row" style="border-top:1px solid #f0f0f0;">
+        <div class="op-type" style="background:var(--amberl);color:var(--amber);">UPDATE</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--amberl);color:var(--amber);">⚠️ May Cause Violation</div>
+          <div class="op-detail">
+            Changing the <b>Primary Key value</b> in the Student table may cause inconsistency.<br><br>
+            <b>Example:</b> Changing Roll No. 2 → 20 in the Student table, but the Course table still holds Roll No. 2 in its FK column → the FK now points to a non-existent PK value.
+          </div>
+          <div class="op-why">Same three solutions apply: <b>ON UPDATE CASCADE</b>, <b>ON UPDATE SET NULL</b>, <b>ON UPDATE NO ACTION</b>.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="prose">Here is the SQL syntax to define ON DELETE and ON UPDATE actions alongside the Foreign Key:</p>
+  <div class="code-block">
+<span class="kw">CREATE TABLE</span> <span class="fn">Course</span> (<br>
+&nbsp;&nbsp;Course_ID &nbsp;&nbsp;&nbsp;<span class="dt">VARCHAR</span>(<span class="st">10</span>) <span class="ref">PRIMARY KEY</span>,<br>
+&nbsp;&nbsp;Course_Name &nbsp;<span class="dt">VARCHAR</span>(<span class="st">80</span>),<br>
+&nbsp;&nbsp;Roll_Number &nbsp;<span class="dt">INTEGER</span>,<br>
+&nbsp;&nbsp;<span class="kw">CONSTRAINT</span> <span class="fk">FK_Course</span> <span class="kw">FOREIGN KEY</span> (<span class="fk">Roll_Number</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ref">REFERENCES</span> <span class="fn">Student</span>(<span class="fk">Roll_Number</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">ON DELETE</span> <span class="ref">CASCADE</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- auto-delete child rows</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">ON UPDATE</span> <span class="ref">CASCADE</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">-- auto-update FK to new PK value</span><br>
+);</div>
+
+  <!-- Section 4: Operations on Referencing Table -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--cyan2);color:#fff;">4</div>
+    <h2 style="color:var(--navy);">Operations on the Referencing Table (Course / FK Table)</h2>
+  </div>
+  <p class="prose">Changes to the <b>Course table</b> (the one holding the Foreign Key) are also constrained — because every FK value it holds must match an existing PK in the Student table.</p>
+
+  <div class="ops-section" style="border-color:var(--cyan2);">
+    <div class="ops-section-head" style="background:var(--cyan2);">🔗 Referencing Table (Course) — INSERT / DELETE / UPDATE</div>
+    <div class="ops-section-body" style="background:#fff;">
+
+      <!-- INSERT -->
+      <div class="op-row">
+        <div class="op-type" style="background:var(--amberl);color:var(--amber);">INSERT</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--amberl);color:var(--amber);">⚠️ May Cause Violation</div>
+          <div class="op-detail">
+            Inserting a new course record <i>may or may not</i> violate referential integrity depending on the FK value used.<br><br>
+            <b>Violation case:</b> Assigning a course to Roll No. 7 when Roll No. 7 doesn't exist in the Student table → insertion blocked. You can't enroll a student who hasn't been admitted.<br>
+            <b>Safe case:</b> Inserting a course with Roll No. 2, which already exists in Student → works perfectly fine.
+          </div>
+          <div class="op-why">The FK value must already exist in the parent's PK column before the child row can be inserted.</div>
+        </div>
+      </div>
+
+      <!-- DELETE -->
+      <div class="op-row">
+        <div class="op-type" style="background:var(--greenl);color:var(--green);">DELETE</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--greenl);color:var(--green);">✓ No Violation</div>
+          <div class="op-detail">Deleting a row from the Course table (e.g. removing a student from a course) has <b>zero impact</b> on the Student table. The parent data remains completely intact — we're only removing a child reference.</div>
+          <div class="op-why">Deleting from the child table never affects the parent table.</div>
+        </div>
+      </div>
+
+      <!-- UPDATE -->
+      <div class="op-row">
+        <div class="op-type" style="background:var(--amberl);color:var(--amber);">UPDATE</div>
+        <div class="op-content">
+          <div class="op-verdict" style="background:var(--amberl);color:var(--amber);">⚠️ May Cause Violation</div>
+          <div class="op-detail">
+            Updating the FK column (e.g. changing Roll No. from 2 to 20) may cause a violation.<br><br>
+            <b>Violation case:</b> Changing the FK value to 20, but Roll No. 20 doesn't exist in Student → update blocked.<br>
+            <b>Safe case:</b> Changing FK from 2 to 3, where Roll No. 3 already exists in Student → works fine.
+          </div>
+          <div class="op-why">The new FK value must also exist in the parent PK column — same rule as INSERT.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 5: Exam Summary -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--rose);color:#fff;">5</div>
+    <h2 style="color:var(--navy);">Exam Summary — All 6 Operations at a Glance</h2>
+  </div>
+  <div class="info-box amber">
+    📝 <b>Exam Rule:</b> <b>INSERT into Referencing table</b> and <b>DELETE/UPDATE from Referenced table</b> are the three operations most likely to cause violations. These appear most frequently in GATE, UGC NET, and IBPS SO MCQs.
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📋 Complete Operation Summary Table</div>
+    <div style="overflow-x:auto;">
+      <table class="exam-table">
+        <thead>
+          <tr>
+            <th>Table</th>
+            <th>INSERT</th>
+            <th>DELETE</th>
+            <th>UPDATE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>👑 Referenced Table<br><span style="font-size:11px;font-weight:400;color:var(--mdgray);">(Student — has PK)</span></td>
+            <td><span class="badge-ok">✓ No Violation</span></td>
+            <td><span class="badge-may">⚠️ May Violate</span></td>
+            <td><span class="badge-may">⚠️ May Violate</span></td>
+          </tr>
+          <tr>
+            <td>🔗 Referencing Table<br><span style="font-size:11px;font-weight:400;color:var(--mdgray);">(Course — has FK)</span></td>
+            <td><span class="badge-may">⚠️ May Violate</span></td>
+            <td><span class="badge-ok">✓ No Violation</span></td>
+            <td><span class="badge-may">⚠️ May Violate</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;background:#fafafa;border-top:1px solid #f0f0f0;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span class="badge-ok">✓</span><span>Always safe — no constraint check triggered</span></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span class="badge-may">⚠️</span><span>Depends on data — may or may not violate</span></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span class="badge-no">✕</span><span>Always causes violation (not applicable here)</span></div>
+    </div>
+    <div class="diagram-caption">Memorise this 2×3 grid — it covers every referential integrity MCQ in competitive exams.</div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🛠️ ON DELETE / ON UPDATE — Three Action Options</div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--red);">
+        <div style="background:var(--red);color:#fff;padding:12px;font-family:'Space Mono',monospace;font-weight:700;font-size:11.5px;display:flex;align-items:center;justify-content:center;text-align:center;">ON DELETE /<br>ON UPDATE<br>CASCADE</div>
+        <div style="background:var(--redl);padding:12px;font-size:13px;line-height:1.65;color:var(--dkgray);">The change <b>cascades</b> to all referencing rows automatically. Delete parent → child rows deleted. Update PK → child FK updated to new value. Best for tight parent-child relationships.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--orange);">
+        <div style="background:var(--orange);color:#fff;padding:12px;font-family:'Space Mono',monospace;font-weight:700;font-size:11.5px;display:flex;align-items:center;justify-content:center;text-align:center;">ON DELETE /<br>ON UPDATE<br>SET NULL</div>
+        <div style="background:var(--orangel);padding:12px;font-size:13px;line-height:1.65;color:var(--dkgray);">FK value in child rows is set to <b>NULL</b> when the parent row changes. <b>Cannot be used</b> if the FK is also a PK in the child table (because PK can never be NULL).</div>
+      </div>
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--indigo);">
+        <div style="background:var(--indigo);color:#fff;padding:12px;font-family:'Space Mono',monospace;font-weight:700;font-size:11.5px;display:flex;align-items:center;justify-content:center;text-align:center;">ON DELETE /<br>ON UPDATE<br>NO ACTION</div>
+        <div style="background:var(--indigol);padding:12px;font-size:13px;line-height:1.65;color:var(--dkgray);"><b>Default behaviour.</b> If the parent row is referenced by any child row, the operation is <b>blocked entirely</b> with an error. Nothing changes until you manually remove the references first.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">All three options can be combined — e.g. ON DELETE CASCADE and ON UPDATE NO ACTION on the same FK.</div>
+  </div>
+
+</div>
+<!-- END DESCRIPTIVE -->
+
+
+<!-- ═══════════════ REVISION VIEW ═══════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--rose);">
+      <div class="rev-num">1</div>Referential Integrity
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition:</span><span class="rv">Consistency of data across related tables — FK values must always point to valid, existing PK values.</span></div>
+      <div class="rev-kv"><span class="rk">Integrity means:</span><span class="rv">Same consistent value for every fact across the entire connected database system.</span></div>
+      <div class="rev-kv"><span class="rk">Broken integrity:</span><span class="rv">Placement sees "CSC", Library sees "Electronics" for same Roll No. — contradiction = integrity broken.</span></div>
+      <div class="rev-kv"><span class="rk">Connected to:</span><span class="rv">Foreign Key constraint — FK enforces referential integrity automatically.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">3</div>Operations on Referenced Table (Student — PK table)
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">INSERT:</span><span class="rv"><span class="badge-ok">✓ No Violation</span> — New parent rows never break existing FK references.</span></div>
+      <div class="rev-kv"><span class="rk">DELETE:</span><span class="rv"><span class="badge-may">⚠️ May Violate</span> — If the deleted row is referenced by child rows → orphan records. Safe only if no child references the row.</span></div>
+      <div class="rev-kv"><span class="rk">UPDATE (PK):</span><span class="rv"><span class="badge-may">⚠️ May Violate</span> — Changing PK value (Roll No. 2 → 20) leaves child FK pointing to old value 2 which no longer exists.</span></div>
+      <div style="background:var(--bluebg);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--navy);margin-top:8px;">
+        <b>Three solutions for DELETE/UPDATE violation:</b><br>
+        • <b>CASCADE</b> — changes propagate automatically to child rows.<br>
+        • <b>SET NULL</b> — FK set to NULL (can't use if FK = PK in child).<br>
+        • <b>NO ACTION</b> — operation blocked (default behaviour).
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--cyan2);">
+      <div class="rev-num">4</div>Operations on Referencing Table (Course — FK table)
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">INSERT:</span><span class="rv"><span class="badge-may">⚠️ May Violate</span> — FK value must already exist in parent PK. Assigning Roll No. 7 when student 7 doesn't exist → blocked.</span></div>
+      <div class="rev-kv"><span class="rk">DELETE:</span><span class="rv"><span class="badge-ok">✓ No Violation</span> — Removing a child row (e.g. student drops a course) has zero impact on parent Student table.</span></div>
+      <div class="rev-kv"><span class="rk">UPDATE (FK):</span><span class="rv"><span class="badge-may">⚠️ May Violate</span> — New FK value must also exist in parent PK. Changing FK to Roll No. 20 when 20 doesn't exist → blocked.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">★</div>Master Summary — 2×3 Grid (Exam-Critical)
+    </div>
+    <div class="rev-card-body" style="padding:0 0 12px;">
+      <div style="overflow-x:auto;padding:0 16px;">
+        <table class="exam-table" style="margin-top:12px;">
+          <thead><tr><th>Table</th><th>INSERT</th><th>DELETE</th><th>UPDATE</th></tr></thead>
+          <tbody>
+            <tr><td>👑 Referenced (Student — PK)</td><td><span class="badge-ok">✓ Safe</span></td><td><span class="badge-may">⚠️ May Violate</span></td><td><span class="badge-may">⚠️ May Violate</span></td></tr>
+            <tr><td>🔗 Referencing (Course — FK)</td><td><span class="badge-may">⚠️ May Violate</span></td><td><span class="badge-ok">✓ Safe</span></td><td><span class="badge-may">⚠️ May Violate</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:10px 16px;background:var(--rosel);margin:0 0;font-size:13px;color:var(--rose);font-weight:600;text-align:center;">
+        📝 Exam rule: INSERT(Referencing) + DELETE(Referenced) + UPDATE(Referenced) = most likely violations
+      </div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">🛠️</div>ON DELETE / ON UPDATE — Three Actions
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">CASCADE:</span><span class="rv">Change propagates automatically to all child rows. Delete parent → child rows deleted. Update PK → child FK auto-updated.</span></div>
+      <div class="rev-kv"><span class="rk">SET NULL:</span><span class="rv">FK in child rows set to NULL. <b>Cannot use if FK is also PK</b> in the child table (PK ≠ NULL).</span></div>
+      <div class="rev-kv"><span class="rk">NO ACTION:</span><span class="rv"><b>Default.</b> Operation blocked with error if any child row references the parent row being changed.</span></div>
+      <div class="rev-kv"><span class="rk">Can combine:</span><span class="rv">e.g. ON DELETE CASCADE + ON UPDATE NO ACTION on the same FK — allowed.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">📖</div>Quick Revision — All Key Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="qr-table">
+        <thead><tr><th>Term</th><th>One-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Referential Integrity</td><td>FK values in child table must always match existing PK values in parent table.</td></tr>
+          <tr><td>Integrity</td><td>Same consistent value for a data item across the entire connected database.</td></tr>
+          <tr><td>Referenced Table</td><td>Contains the Primary Key — the parent/source table (e.g. Student).</td></tr>
+          <tr><td>Referencing Table</td><td>Contains the Foreign Key — the child/dependent table (e.g. Course).</td></tr>
+          <tr><td>Orphan Record</td><td>A child row whose FK value no longer matches any PK in the parent — integrity is broken.</td></tr>
+          <tr><td>ON DELETE CASCADE</td><td>Deleting parent row automatically deletes all referencing child rows.</td></tr>
+          <tr><td>ON DELETE SET NULL</td><td>Deleting parent row sets FK in child rows to NULL. Cannot use if FK = PK.</td></tr>
+          <tr><td>ON DELETE NO ACTION</td><td>Default. Deletion blocked if any child row references the parent row.</td></tr>
+          <tr><td>ON UPDATE CASCADE</td><td>Updating parent PK automatically updates matching FK values in all child rows.</td></tr>
+          <tr><td>Safe: INSERT (Referenced)</td><td>Adding new parent rows never affects existing child FK references.</td></tr>
+          <tr><td>Safe: DELETE (Referencing)</td><td>Removing child rows never affects the parent table.</td></tr>
+          <tr><td>Risky: INSERT (Referencing)</td><td>New FK value must already exist in parent PK — else blocked.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<!-- END REVISION -->
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

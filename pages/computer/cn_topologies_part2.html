@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 7: Network Topologies Part 2 — Study Bus and Ring topologies. Learn backbone cables, drop lines, taps, terminators, token rings, and collision handling.">
+<meta name="robots" content="index, follow">
+<title>Topologies Part 2 — CN Topic 7 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_topologies_part2.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed;
+  --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --bus: #0f766e; --bus-light: #f0fdfa; --bus-border: #99f6e4;
+  --ring: #7c3aed; --ring-light: #f5f3ff; --ring-border: #c4b5fd;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #042f2e 0%, #0f766e 30%, #7c3aed 65%, #1d4ed8 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#99f6e4; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:560px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:56px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+.sec-badge { height:36px; padding:0 18px; border-radius:20px; color:#fff; font-family:var(--mono); font-size:12px; font-weight:700; display:flex; align-items:center; letter-spacing:1px; flex-shrink:0; }
+.sb-bus  { background: var(--bus); }
+.sb-ring { background: var(--ring); }
+.sb-base { background: var(--navy); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--green); font-weight:600; }
+td.warn { color:var(--amber); font-weight:600; }
+
+/* SIDE-BY-SIDE TOPOLOGY VISUAL */
+.topo-visual-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.topo-pane { padding:28px 20px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.topo-pane.bus-pane  { background:var(--bus-light);  border-right:1px solid var(--border); }
+.topo-pane.ring-pane { background:var(--ring-light); }
+.topo-pane-title { font-family:var(--sans); font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+.topo-pane.bus-pane  .topo-pane-title { color:var(--bus); }
+.topo-pane.ring-pane .topo-pane-title { color:var(--ring); }
+
+/* FORMULA ROW */
+.formula-row { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
+.formula-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px 20px; flex:1; min-width:190px; }
+.formula-label { font-family:var(--sans); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-light); margin-bottom:8px; }
+.formula-expr { font-family:var(--mono); font-size:1.1rem; font-weight:700; margin-bottom:6px; }
+.formula-note { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+.formula-example { font-family:var(--mono); font-size:0.75rem; margin-top:8px; padding:5px 10px; background:#f8fafc; border-radius:5px; color:var(--text); display:inline-block; }
+
+/* PROPERTY GRID */
+.prop-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0; }
+.prop-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.prop-card-label { font-family:var(--sans); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-light); margin-bottom:8px; }
+.prop-card-val { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:6px; }
+.prop-card-desc { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+
+/* BUS ANATOMY DIAGRAM */
+.bus-anatomy { display:flex; flex-direction:column; gap:6px; align-items:stretch; }
+.backbone-row { display:flex; align-items:center; gap:0; position:relative; height:36px; }
+.backbone-line { flex:1; height:8px; background:linear-gradient(90deg,var(--bus),#2dd4bf); border-radius:4px; position:relative; }
+.terminator { width:16px; height:24px; background:var(--bus); border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.term-label { font-family:var(--mono); font-size:7px; color:#fff; writing-mode:vertical-rl; letter-spacing:1px; }
+.tap-group { display:flex; justify-content:space-around; position:relative; margin-top:-4px; }
+.tap-col { display:flex; flex-direction:column; align-items:center; gap:0; }
+.tap-dot { width:10px; height:10px; border-radius:50%; background:var(--bus); border:2px solid #fff; box-shadow:0 0 0 1px var(--bus); }
+.drop-line { width:2px; height:24px; background:#99f6e4; }
+.device-node { width:32px; height:28px; border-radius:6px; border:1.5px solid var(--bus); background:var(--bus-light); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:9px; color:var(--bus); font-weight:700; }
+.bus-labels { display:flex; justify-content:space-around; margin-top:6px; }
+.bus-label { font-family:var(--mono); font-size:8px; color:var(--text-light); text-align:center; }
+
+/* RING ANATOMY DIAGRAM */
+.ring-anatomy { display:flex; justify-content:center; padding:8px 0; }
+
+/* PRO/CON */
+.pro-con { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.pro-box { background:var(--green-light); border:1px solid #86efac; border-radius:10px; padding:16px; }
+.con-box { background:var(--red-light); border:1px solid #fca5a5; border-radius:10px; padding:16px; }
+.pro-con-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.pro-box .pro-con-title { color:var(--green); }
+.con-box .pro-con-title { color:var(--red); }
+.pc-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.pc-list li { font-size:0.81rem; color:#374151; padding-left:18px; position:relative; line-height:1.5; }
+.pc-list li::before { position:absolute; left:0; font-weight:700; }
+.pro-box .pc-list li::before { content:'✓'; color:var(--green); }
+.con-box .pc-list li::before { content:'✗'; color:var(--red); }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);   font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);  font-size:0.77rem; }
+.bullet-list li .tag-p{ font-family:var(--mono); color:var(--accent);font-size:0.77rem; }
+.bullet-list li .tag-t{ font-family:var(--mono); color:var(--teal);  font-size:0.77rem; }
+.priority-box { background:var(--white); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin:14px 0; }
+.final-tips { background:linear-gradient(135deg,#f0fdf4,#eff6ff); border:1px solid #bbf7d0; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--green); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.th-bus  { color:#6ee7b7 !important; }
+.th-ring { color:#c4b5fd !important; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .topo-visual-wrap{grid-template-columns:1fr;}
+  .topo-pane.bus-pane{border-right:none;border-bottom:1px solid var(--border);}
+  .prop-grid{grid-template-columns:1fr 1fr;}
+  .pro-con{grid-template-columns:1fr;}
+  .formula-row{flex-direction:column;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+}
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN — 07</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Topologies — Part 2</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">📋 Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="computer_networks.html">Computer Networks</a><span class="sep">›</span><span class="current">Topic 7: Topologies — Part 2</span><a class="back-btn" href="computer_networks.html">← Back</a></nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 7</span>
+    <span class="hero-tag">BUS · RING TOPOLOGY</span>
+  </div>
+  <h1>NETWORK <span>TOPOLOGIES</span> — PART 2</h1>
+  <p class="hero-sub">Deep dive into Bus and Ring topologies — backbone cables, drop lines, taps, terminators, token rings, collision handling, repeaters, and shared-medium communication.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">IBPS SO IT</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ═══════════ DESCRIPTIVE PANEL ═══════════ -->
+<div id="panel-desc" class="panel active">
+
+  <!-- INTRO VISUAL -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-base">OVERVIEW</div>
+      <h2>Bus &amp; Ring — At a Glance</h2>
+    </div>
+    <p class="body-text">
+      Both Bus and Ring topologies belong to the <strong>multipoint / shared-medium</strong> family — all devices share a single communication channel rather than having dedicated point-to-point links. This makes them cheaper but introduces the problem of data <strong>collisions</strong> and low security.
+    </p>
+
+    <div class="topo-visual-wrap">
+      <!-- BUS SVG -->
+      <div class="topo-pane bus-pane">
+        <div class="topo-pane-title">Bus Topology</div>
+        <svg viewBox="0 0 220 160" style="width:100%;max-width:220px">
+          <!-- terminators -->
+          <rect x="4" y="66" width="12" height="28" rx="3" fill="#0f766e"/>
+          <rect x="204" y="66" width="12" height="28" rx="3" fill="#0f766e"/>
+          <!-- backbone -->
+          <rect x="16" y="74" width="188" height="12" rx="4" fill="#2dd4bf"/>
+          <text x="110" y="83" text-anchor="middle" font-size="7.5" fill="#042f2e" font-family="monospace" font-weight="bold">BACKBONE CABLE</text>
+          <!-- taps + drop lines + devices (5 nodes) -->
+          <!-- node A top -->
+          <rect x="34" y="86" width="2" height="22" fill="#99f6e4"/>
+          <circle cx="35" cy="86" r="4" fill="#0f766e"/>
+          <rect x="22" y="108" width="26" height="22" rx="5" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+          <text x="35" y="123" text-anchor="middle" font-size="9" fill="#134e4a" font-family="sans-serif">A</text>
+          <!-- node B top -->
+          <rect x="74" y="86" width="2" height="22" fill="#99f6e4"/>
+          <circle cx="75" cy="86" r="4" fill="#0f766e"/>
+          <rect x="62" y="108" width="26" height="22" rx="5" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+          <text x="75" y="123" text-anchor="middle" font-size="9" fill="#134e4a" font-family="sans-serif">B</text>
+          <!-- node C bottom -->
+          <rect x="109" y="52" width="2" height="22" fill="#99f6e4"/>
+          <circle cx="110" cy="74" r="4" fill="#0f766e"/>
+          <rect x="97" y="30" width="26" height="22" rx="5" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+          <text x="110" y="45" text-anchor="middle" font-size="9" fill="#134e4a" font-family="sans-serif">C</text>
+          <!-- node D top -->
+          <rect x="144" y="86" width="2" height="22" fill="#99f6e4"/>
+          <circle cx="145" cy="86" r="4" fill="#0f766e"/>
+          <rect x="132" y="108" width="26" height="22" rx="5" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+          <text x="145" y="123" text-anchor="middle" font-size="9" fill="#134e4a" font-family="sans-serif">D</text>
+          <!-- node E top -->
+          <rect x="184" y="86" width="2" height="22" fill="#99f6e4"/>
+          <circle cx="185" cy="86" r="4" fill="#0f766e"/>
+          <rect x="172" y="108" width="26" height="22" rx="5" fill="#f0fdfa" stroke="#0f766e" stroke-width="1.5"/>
+          <text x="185" y="123" text-anchor="middle" font-size="9" fill="#134e4a" font-family="sans-serif">E</text>
+          <!-- labels -->
+          <text x="110" y="153" text-anchor="middle" font-size="8" fill="#0f766e" font-family="monospace">n=5 → 6 cables (5+1)</text>
+          <text x="6" y="63"  text-anchor="middle" font-size="7" fill="#0f766e" font-family="monospace">T</text>
+          <text x="214" y="63" text-anchor="middle" font-size="7" fill="#0f766e" font-family="monospace">T</text>
+        </svg>
+        <div style="font-size:0.78rem;color:#134e4a;text-align:center;line-height:1.5">Backbone + drop lines + taps + terminators. All devices share one wire.</div>
+      </div>
+      <!-- RING SVG -->
+      <div class="topo-pane ring-pane">
+        <div class="topo-pane-title">Ring Topology</div>
+        <svg viewBox="0 0 200 190" style="width:100%;max-width:200px">
+          <!-- ring backbone circle -->
+          <circle cx="100" cy="95" r="58" fill="none" stroke="#c4b5fd" stroke-width="8"/>
+          <!-- direction arrow -->
+          <path d="M 100 33 Q 165 33 165 95" fill="none" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr)"/>
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#7c3aed"/>
+            </marker>
+          </defs>
+          <text x="148" y="52" font-size="8" fill="#7c3aed" font-family="monospace">Unidirectional</text>
+          <!-- 5 nodes on ring -->
+          <!-- top (monitor) -->
+          <rect x="84" y="22" width="32" height="24" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+          <text x="100" y="37" text-anchor="middle" font-size="8" fill="#4c1d95" font-family="sans-serif" font-weight="bold">MON</text>
+          <!-- right -->
+          <rect x="147" y="80" width="26" height="22" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="160" y="95" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="sans-serif">B</text>
+          <!-- bottom-right -->
+          <rect x="126" y="143" width="26" height="22" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="139" y="158" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="sans-serif">C</text>
+          <!-- bottom-left -->
+          <rect x="48" y="143" width="26" height="22" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="61" y="158" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="sans-serif">D</text>
+          <!-- left -->
+          <rect x="26" y="80" width="26" height="22" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="39" y="95" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="sans-serif">E</text>
+          <text x="100" y="182" text-anchor="middle" font-size="8" fill="#7c3aed" font-family="monospace">n=5 → 6 cables (5+1)</text>
+        </svg>
+        <div style="font-size:0.78rem;color:#4c1d95;text-align:center;line-height:1.5">Bus topology bent into a loop. Unidirectional signal flow. Monitor device manages the ring.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: BUS -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-bus">BUS TOPOLOGY</div>
+      <h2>Bus Topology — Full Analysis</h2>
+    </div>
+    <p class="body-text">
+      In a bus topology, all devices share a single central communication line called the <strong>backbone cable</strong> (also called a coaxial cable or thick Ethernet wire). This backbone has a very high bandwidth. Each device connects to the backbone via an individual <strong>drop line</strong>, and the physical connection point between the drop line and the backbone is an electrical device called a <strong>tap</strong>.
+    </p>
+    <p class="body-text">
+      At both ends of the backbone, <strong>terminators</strong> are placed to absorb the signal so it does not bounce back and cause interference. Without terminators, signals would reflect and corrupt incoming transmissions.
+    </p>
+
+    <!-- BUS COMPONENTS CALLOUT -->
+    <div class="callout callout-teal">
+      🔌 <strong>4 Key Hardware Components:</strong> (1) <strong>Backbone cable</strong> — the shared highway. (2) <strong>Drop lines</strong> — individual device connections. (3) <strong>Taps</strong> — electrical junction points on the backbone. (4) <strong>Terminators</strong> — signal absorbers at both ends of the backbone.
+    </div>
+
+    <!-- BUS FORMULAS -->
+    <div class="diagram-box">
+      <div class="diagram-header">📐 Bus Topology — Key Formulas (n = number of devices)</div>
+      <div class="diagram-body">
+        <div class="formula-row">
+          <div class="formula-card">
+            <div class="formula-label">Number of Cables</div>
+            <div class="formula-expr" style="color:var(--bus)">n + 1</div>
+            <div class="formula-note">n drop lines (one per device) + 1 backbone cable. The backbone counts as a single cable.</div>
+            <div class="formula-example">n=10 → 10 + 1 = 11 cables</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Ports per Device</div>
+            <div class="formula-expr" style="color:var(--bus)">1</div>
+            <div class="formula-note">Each device needs only 1 port — to connect its drop line. No direct device-to-device ports needed.</div>
+            <div class="formula-example">n=10 → 1 port per device</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Total Ports</div>
+            <div class="formula-expr" style="color:var(--bus)">n</div>
+            <div class="formula-note">n devices × 1 port each = n total ports across all end devices.</div>
+            <div class="formula-example">n=10 → 10 total ports</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Bus uses far fewer cables than Mesh (n+1 vs n×(n−1)/2) but all share a single medium — leading to collision problems.</div>
+    </div>
+
+    <!-- BUS PROPERTIES -->
+    <div class="diagram-box">
+      <div class="diagram-header">⚖️ Bus Topology — Properties at a Glance</div>
+      <div class="diagram-body">
+        <div class="prop-grid">
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Reliability</div>
+            <div class="prop-card-val" style="color:var(--red)">Very Low ✗</div>
+            <div class="prop-card-desc">Single point of failure. Backbone breaks → entire network instantly stops. No alternative path exists.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Security</div>
+            <div class="prop-card-val" style="color:var(--red)">None ✗</div>
+            <div class="prop-card-desc">Backbone cannot filter data. A→B message travels to C and D too. Devices check the destination address themselves to decide whether to process it.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Cost</div>
+            <div class="prop-card-val" style="color:var(--green)">Low ✓</div>
+            <div class="prop-card-desc">Significantly fewer cables than Mesh. Simple backbone + n drop lines. No expensive central device needed.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--amber)">
+            <div class="prop-card-label">Communication Type</div>
+            <div class="prop-card-val" style="color:var(--amber)">Multipoint</div>
+            <div class="prop-card-desc">Multiple devices share the single backbone wire. This is the defining characteristic of Bus topology.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Collision Problem</div>
+            <div class="prop-card-val" style="color:var(--red)">High ✗</div>
+            <div class="prop-card-desc">If n devices transmit simultaneously, signals collide on the shared backbone. Must use CSMA/CD or token system to manage this.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Extensibility</div>
+            <div class="prop-card-val" style="color:var(--green)">Yes (with Repeater) ✓</div>
+            <div class="prop-card-desc">Cables have distance limits (~500m). A <strong>repeater</strong> placed at the end boosts the signal and attaches a new segment, extending range to ~1km+.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-red">
+      💥 <strong>The Collision Problem:</strong> Since all n devices share one wire, simultaneous transmissions result in signal collision. The two main solutions are: <strong>CSMA/CD</strong> (Carrier Sense Multiple Access / Collision Detection) — used in Ethernet — and a <strong>Token system</strong> which grants permission to one device at a time.
+    </div>
+
+    <div class="pro-con">
+      <div class="pro-box">
+        <div class="pro-con-title">✅ Advantages of Bus</div>
+        <ul class="pc-list">
+          <li>Very cheap — only n+1 cables</li>
+          <li>Easy to install for small networks</li>
+          <li>Works well for small, temporary LANs</li>
+          <li>Extendable with repeaters</li>
+          <li>Adding a device is simple (just tap the backbone)</li>
+        </ul>
+      </div>
+      <div class="con-box">
+        <div class="pro-con-title">❌ Disadvantages of Bus</div>
+        <ul class="pc-list">
+          <li>Backbone failure = entire network down (SPOF)</li>
+          <li>Zero security — all devices see all traffic</li>
+          <li>High collision rate on shared medium</li>
+          <li>Performance degrades as more devices are added</li>
+          <li>Terminators required at both ends</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: RING -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-ring">RING TOPOLOGY</div>
+      <h2>Ring Topology — Full Analysis</h2>
+    </div>
+    <p class="body-text">
+      A ring topology is formed by taking the two loose ends of a bus topology and <strong>connecting them together to form a closed loop</strong>. The result is a continuous electrical circuit where every device is connected to exactly two neighbours — one on each side.
+    </p>
+    <p class="body-text">
+      One specific device in the ring is designated as the <strong>monitor</strong>. The monitor manages the network — it ensures the ring is functioning correctly and oversees data circulation. All other devices in the ring are regular transmission devices.
+    </p>
+
+    <div class="callout callout-purple">
+      🔁 <strong>Ring = Bus in a Loop:</strong> Conceptually, take a bus topology and bend it until the two terminators meet and connect. The backbone becomes a circular loop with no terminators needed. The hardware maths (cables, ports) remain the same as bus topology.
+    </div>
+
+    <!-- RING FORMULAS -->
+    <div class="diagram-box">
+      <div class="diagram-header">📐 Ring Topology — Key Formulas (n = number of devices)</div>
+      <div class="diagram-body">
+        <div class="formula-row">
+          <div class="formula-card">
+            <div class="formula-label">Number of Cables</div>
+            <div class="formula-expr" style="color:var(--ring)">n + 1</div>
+            <div class="formula-note">Same as Bus: n drop lines + 1 backbone loop. The ring backbone counts as 1 cable.</div>
+            <div class="formula-example">n=10 → 11 cables</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Ports per Device</div>
+            <div class="formula-expr" style="color:var(--ring)">1</div>
+            <div class="formula-note">Same as Bus: each device only needs 1 port to connect its drop line to the ring backbone.</div>
+            <div class="formula-example">n=10 → 1 port per device</div>
+          </div>
+          <div class="formula-card">
+            <div class="formula-label">Directionality</div>
+            <div class="formula-expr" style="color:var(--ring)">Uni</div>
+            <div class="formula-note">Data travels in only ONE direction around the ring. This is a key distinguishing feature of Ring topology.</div>
+            <div class="formula-example">A → B → C → D → E → A</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Ring and Bus have identical hardware formulas (n+1 cables, 1 port per device, n total ports) — but differ in shape, directionality, and collision method.</div>
+    </div>
+
+    <!-- RING PROPERTIES -->
+    <div class="diagram-box">
+      <div class="diagram-header">⚖️ Ring Topology — Properties at a Glance</div>
+      <div class="diagram-body">
+        <div class="prop-grid">
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Reliability</div>
+            <div class="prop-card-val" style="color:var(--red)">Low ✗</div>
+            <div class="prop-card-desc">Relies on a continuous electrical circuit. Any break in the ring wire snaps the entire circuit — no device can communicate.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--red)">
+            <div class="prop-card-label">Security</div>
+            <div class="prop-card-val" style="color:var(--red)">Low ✗</div>
+            <div class="prop-card-desc">A message sent by A passes through B, C, D on its way to E. All intermediate devices can see it in transit.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Cost</div>
+            <div class="prop-card-val" style="color:var(--green)">Low ✓ (≈ Bus)</div>
+            <div class="prop-card-desc">Same cable count as Bus (n+1). Comparable cost to Bus topology with no expensive central devices needed.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--accent)">
+            <div class="prop-card-label">Directionality</div>
+            <div class="prop-card-val" style="color:var(--accent)">Unidirectional</div>
+            <div class="prop-card-desc">Messages travel in only one direction around the ring. There is no reverse path — data always follows the loop order.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--green)">
+            <div class="prop-card-label">Collision Handling</div>
+            <div class="prop-card-val" style="color:var(--green)">Token Ring ✓</div>
+            <div class="prop-card-desc">Uses a <strong>Token Ring</strong> system. A "token" (special signal) circulates around the ring; only the device holding the token can transmit. Reduces collisions compared to Bus.</div>
+          </div>
+          <div class="prop-card" style="border-top:3px solid var(--amber)">
+            <div class="prop-card-label">Communication Type</div>
+            <div class="prop-card-val" style="color:var(--amber)">Multipoint</div>
+            <div class="prop-card-desc">Like Bus, the ring backbone is a shared medium. All devices share the same loop circuit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue">
+      🪙 <strong>Token Ring System:</strong> A special control signal called a <em>token</em> continuously circulates around the ring. A device can only transmit when it holds the token. After transmitting, it passes the token to the next device. This ensures only one device transmits at a time, preventing collisions — a significant improvement over the free-for-all of Bus topology.
+    </div>
+
+    <div class="pro-con">
+      <div class="pro-box">
+        <div class="pro-con-title">✅ Advantages of Ring</div>
+        <ul class="pc-list">
+          <li>Token system greatly reduces collisions</li>
+          <li>Orderly, deterministic data transmission</li>
+          <li>Low cost — same as Bus (n+1 cables)</li>
+          <li>No terminators required (closed loop)</li>
+          <li>Easy to add devices (just break the loop and insert)</li>
+        </ul>
+      </div>
+      <div class="con-box">
+        <div class="pro-con-title">❌ Disadvantages of Ring</div>
+        <ul class="pc-list">
+          <li>Single point of failure — any wire break = down</li>
+          <li>Low security — messages pass through all devices</li>
+          <li>Unidirectional: if one path breaks, no alternate route</li>
+          <li>Slower than Bus for small networks (token wait time)</li>
+          <li>Monitor device is a dependency / complexity</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: COMPARISON -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-badge sb-base">COMPARE</div>
+      <h2>Bus vs Ring — Head-to-Head</h2>
+    </div>
+    <div class="diagram-box">
+      <div class="diagram-header">⚔️ Bus vs Ring Topology — Full Comparison</div>
+      <div class="diagram-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th class="th-bus">Bus Topology</th>
+                <th class="th-ring">Ring Topology</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Shape</strong></td><td>Linear backbone with two open ends</td><td>Closed loop (Bus ends joined)</td></tr>
+              <tr><td><strong>Cables needed</strong></td><td class="mono good">n + 1</td><td class="mono good">n + 1</td></tr>
+              <tr><td><strong>Ports per device</strong></td><td class="mono good">1</td><td class="mono good">1</td></tr>
+              <tr><td><strong>Total ports</strong></td><td class="mono good">n</td><td class="mono good">n</td></tr>
+              <tr><td><strong>Communication type</strong></td><td class="warn">Multipoint (shared)</td><td class="warn">Multipoint (shared loop)</td></tr>
+              <tr><td><strong>Reliability</strong></td><td class="must">Very Low — backbone SPOF</td><td class="must">Low — any wire break = down</td></tr>
+              <tr><td><strong>Security</strong></td><td class="must">None — all see all traffic</td><td class="must">Low — messages pass through all</td></tr>
+              <tr><td><strong>Cost</strong></td><td class="good">Low ✓</td><td class="good">Low ✓ (same as Bus)</td></tr>
+              <tr><td><strong>Collision handling</strong></td><td class="must">CSMA/CD or Token (collision prone)</td><td class="good">Token Ring (better control)</td></tr>
+              <tr><td><strong>Directionality</strong></td><td>Bidirectional possible</td><td class="warn">Unidirectional only</td></tr>
+              <tr><td><strong>Terminators needed</strong></td><td class="must">Yes — both ends</td><td class="good">No — closed loop</td></tr>
+              <tr><td><strong>Monitor device</strong></td><td>No</td><td class="warn">Yes — one device acts as monitor</td></tr>
+              <tr><td><strong>Extensibility</strong></td><td class="good">Yes — with repeaters</td><td>Limited</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end desc -->
+
+<!-- ═══════════ REVISION PANEL ═══════════ -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-green" style="margin-bottom:28px">
+    ⚡ <strong>Speed Mode — </strong> All formulas, properties, and exam-ready facts in one place. Perfect for last-day revision.
+  </div>
+
+  <!-- FORMULAS -->
+  <div class="cheat-div"><span>Critical Formulas — Memorise These</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Metric</th><th class="th-bus">Bus</th><th class="th-ring">Ring</th><th>Example (n=10)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Cables needed</strong></td><td class="mono good">n + 1</td><td class="mono good">n + 1</td><td class="mono">Both = 11 cables</td></tr>
+          <tr><td><strong>Ports per device</strong></td><td class="mono good">1</td><td class="mono good">1</td><td class="mono">Both = 1 port</td></tr>
+          <tr><td><strong>Total ports</strong></td><td class="mono good">n</td><td class="mono good">n</td><td class="mono">Both = 10 ports</td></tr>
+          <tr><td><strong>Backbone type</strong></td><td>Linear (open ends)</td><td>Loop (closed)</td><td>—</td></tr>
+          <tr><td><strong>Terminators</strong></td><td class="must">Yes (both ends)</td><td class="good">No</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="cheat-div"><span>Components &amp; Properties Quick Reference</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th class="th-bus">Bus</th><th class="th-ring">Ring</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Key Components</td><td>Backbone + Drop lines + Taps + Terminators</td><td>Loop backbone + Drop lines + Monitor device</td></tr>
+          <tr><td>Communication</td><td class="warn">Multipoint (shared backbone)</td><td class="warn">Multipoint (shared loop)</td></tr>
+          <tr><td>Directionality</td><td>Bidirectional</td><td class="must">Unidirectional only ←</td></tr>
+          <tr><td>Reliability</td><td class="must">Very Low — backbone SPOF</td><td class="must">Low — wire break = full failure</td></tr>
+          <tr><td>Security</td><td class="must">None</td><td class="must">Low</td></tr>
+          <tr><td>Cost</td><td class="good">Low ✓</td><td class="good">Low ✓</td></tr>
+          <tr><td>Collision method</td><td>CSMA/CD or Token</td><td class="good">Token Ring (better)</td></tr>
+          <tr><td>Monitor device</td><td class="good">Not needed</td><td class="warn">One device acts as monitor</td></tr>
+          <tr><td>Extensibility</td><td class="good">Repeaters extend range</td><td>Limited</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- KEY CARDS -->
+  <div class="cheat-div"><span>Key Exam Facts</span></div>
+  <div class="cards-grid">
+    <div class="rev-card" style="border-top:3px solid var(--bus)">
+      <div class="rev-card-title" style="color:var(--bus)">Bus — Must Know</div>
+      <ul class="bullet-list">
+        <li>Backbone + <span class="val">n</span> drop lines + taps + terminators</li>
+        <li>Cables: <span class="val">n + 1</span>, Ports: <span class="val">1</span> per device</li>
+        <li>Backbone failure = <span class="tag-r">entire network down</span></li>
+        <li>Zero security — backbone cannot filter</li>
+        <li>Communication type: <span class="tag-t">Multipoint</span></li>
+        <li>Repeater extends range beyond cable limit</li>
+      </ul>
+    </div>
+    <div class="rev-card" style="border-top:3px solid var(--ring)">
+      <div class="rev-card-title" style="color:var(--ring)">Ring — Must Know</div>
+      <ul class="bullet-list">
+        <li>Bus bent into a loop — ends joined</li>
+        <li>Cables: <span class="val">n + 1</span>, Ports: <span class="val">1</span> per device</li>
+        <li>One device acts as <span class="tag-p">Monitor</span></li>
+        <li>Data travels <span class="tag-r">unidirectionally</span> only</li>
+        <li>Collision handling: <span class="tag-p">Token Ring system</span></li>
+        <li>Wire break anywhere = <span class="tag-r">entire circuit broken</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Bus vs Ring — Key Differences</div>
+      <ul class="bullet-list">
+        <li>Bus = open ends · Ring = closed loop</li>
+        <li>Bus needs <span class="tag-t">terminators</span> · Ring doesn't</li>
+        <li>Ring is <span class="tag-p">unidirectional</span> · Bus is bidirectional</li>
+        <li>Ring uses <span class="tag-p">Token Ring</span> · Bus uses CSMA/CD</li>
+        <li>Ring has monitor device · Bus doesn't</li>
+        <li>Hardware formulas (cables, ports) = <span class="tag-g">identical</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Collision Methods</div>
+      <ul class="bullet-list">
+        <li><span class="tag-t">CSMA/CD</span> — Bus topology (Ethernet)</li>
+        <li>Detect collision → abort → backoff → retry</li>
+        <li><span class="tag-p">Token Ring</span> — Ring topology</li>
+        <li>Token circulates; only token-holder transmits</li>
+        <li>Token Ring = <span class="tag-g">fewer collisions</span> than CSMA/CD</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ALL 4 TOPOLOGIES MASTER TABLE -->
+  <div class="cheat-div"><span>All 4 Topologies — Master Comparison (Parts 1 &amp; 2)</span></div>
+  <div class="priority-box">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th style="color:#fde68a">Mesh</th>
+            <th style="color:#93c5fd">Star/Hub</th>
+            <th class="th-bus">Bus</th>
+            <th class="th-ring">Ring</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Cables</strong></td><td class="mono must">n(n−1)/2</td><td class="mono good">n</td><td class="mono good">n+1</td><td class="mono good">n+1</td></tr>
+          <tr><td><strong>Ports/device</strong></td><td class="mono must">n−1</td><td class="mono good">1</td><td class="mono good">1</td><td class="mono good">1</td></tr>
+          <tr><td><strong>Reliability</strong></td><td class="good">Very High</td><td class="must">Very Low (SPOF)</td><td class="must">Very Low (SPOF)</td><td class="must">Low</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="must">Very High</td><td class="good">Low</td><td class="good">Low</td><td class="good">Low</td></tr>
+          <tr><td><strong>Security</strong></td><td class="good">High</td><td class="must">Low (Hub broadcasts)</td><td class="must">None</td><td class="must">Low</td></tr>
+          <tr><td><strong>Communication</strong></td><td>P-to-P</td><td>P-to-P (to hub)</td><td class="warn">Multipoint</td><td class="warn">Multipoint</td></tr>
+          <tr><td><strong>Collision</strong></td><td class="good">None</td><td class="must">High (Hub broadcasts)</td><td class="must">High (CSMA/CD)</td><td class="good">Low (Token Ring)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FINAL TIPS -->
+  <div class="final-tips">
+    <h3>⚡ Last-Minute Must-Know Points</h3>
+    <div class="cards-grid" style="margin-top:0">
+      <div class="rev-card" style="border-color:#86efac">
+        <div class="rev-card-title" style="color:#15803d">🔥 High-Yield Facts</div>
+        <ul class="bullet-list">
+          <li>Bus &amp; Ring: cables = <span class="tag-g">n+1</span>, 1 port/device</li>
+          <li>Bus = multipoint, Ring = multipoint (loop)</li>
+          <li>Ring is <span class="tag-r">unidirectional</span> — always exam asked</li>
+          <li>Ring uses <span class="tag-p">Token Ring</span> for collision control</li>
+          <li>Bus uses <span class="tag-t">CSMA/CD</span> for collision control</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#fcd34d">
+        <div class="rev-card-title" style="color:#d97706">📌 Common Exam Traps</div>
+        <ul class="bullet-list">
+          <li>Bus needs <span class="tag-r">terminators</span> · Ring does NOT</li>
+          <li>Ring has a <span class="tag-p">monitor device</span> · Bus does not</li>
+          <li>Both Bus &amp; Ring = same hardware formulas</li>
+          <li>Bus backbone failure ≠ one device failure</li>
+          <li>Token Ring reduces but doesn't eliminate collisions</li>
+        </ul>
+      </div>
+      <div class="rev-card" style="border-color:#93c5fd">
+        <div class="rev-card-title" style="color:#1d4ed8">💡 Quick Memory Hooks</div>
+        <ul class="bullet-list">
+          <li>Bus = <em>highway</em> — everyone drives the same road</li>
+          <li>Ring = <em>roundabout</em> — traffic flows one way only</li>
+          <li>Tap = where device plugs into the backbone</li>
+          <li>Repeater = signal boost station on the highway</li>
+          <li>Token = permission slip to talk on the ring</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end revision -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(type, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + type).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
