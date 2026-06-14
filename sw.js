@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v59';
+const CACHE_NAME = 'practice-hub-v60';
 const urlsToCache = [
   './',
   './index.html',
@@ -25,6 +25,11 @@ const urlsToCache = [
   './pages/vocab/daily-class-vocab-12-june-2026.html',
   './pages/vocab/weekly-vocab-magazine-25-30-may-2026.html',
   './pages/vocab/extra-vocab-may-month-magazine-2026.html',
+  './pages/grammar/grammar.html',
+  './pages/120rulesgrammar/120rulesgrammar.html',
+  './pages/grammar-granth/Grammar_Granth_Notes_Parts_of_Speech.html',
+  './pages/grammar-granth/Grammar_Granth_Day2_Verb_Adverb_Preposition_Conjunction_Interjection.html',
+  './pages/grammar-granth/Grammar_Granth_Day3_Basic_Concepts_Sentence_Formation.html',
 
 
   './pages/tools/alphabets.html',
