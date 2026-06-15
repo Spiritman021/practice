@@ -620,6 +620,7 @@ function renderOverview(){
 function renderAnalytics(){
   const s=getOverallStats();
   const progress=loadProgress();
+  const data = getActualProgressData();
   
   // Count by type
   let typeCounts={mock:{done:0,total:0},revision:{done:0,total:0},normal:{done:0,total:0},rest:{done:0,total:0}};
@@ -634,7 +635,107 @@ function renderAnalytics(){
     });
   });
   
+  const syllabusMilestones = [
+    'Starting point baseline: 60% Reasoning, 50% Quant, 30% English already covered.',
+    'Week 1: Simplification/Approximation, Linear SA, Average, RC strategy.',
+    'Week 2: Puzzles (Box/scheduling), Machine I/O, DI basics, Trains/TSD, 120 Grammar rules completion.',
+    'Week 3: Advanced DI (Table, Pie, Bar, Line, Caselet), Seating/Puzzle revision, Phase 1 Completion (100%).',
+    'Week 4: Syllabus complete. Core practice, speed drills, and identifying weak topics.',
+    'Week 5: Core practice and section-wise speed building under strict timer constraints.',
+    'Week 6: Advanced problem solving, eliminating weak-spot errors, mock adjustments.',
+    'Week 7: Transition to full mock focus. Maintain syllabus mastery.',
+    'Week 8: Reinforce core concepts based on mistakes made in mocks 8-12.',
+    'Week 9: Final topic-wise revision drills of repeated PYQ patterns.',
+    'Week 10: Complete comprehensive subject-wise revision sheets (Formula review).',
+    'Week 11: Final winding down. Zero study on the day before exam.'
+  ];
+
+  const mocksMilestones = [
+    'Mocks starting point (pre-study baseline). No mocks scheduled.',
+    'No mocks in Week 1. Focus on syllabus foundation.',
+    'No mocks in Week 2. Focus on syllabus foundation.',
+    'No mocks in Week 3. Focus on syllabus foundation.',
+    'Week 4: Attempt Mock #1 on Sunday. Resolve all errors and categorize mistakes.',
+    'Week 5: Attempt Mock #2 (Wed) and Mock #3 (Sun). Refine time allocation per section.',
+    'Week 6: Attempt Mock #4 (Tue), Mock #5 (Thu), Mock #6 (Sat), Mock #7 (Sun) — Intensive speed drill.',
+    'Week 7: Phase 3 Mock Mastery: Daily Mocks #8 to #12. Rest day on Sunday.',
+    'Week 8: Phase 3 Mock Mastery: Daily Mocks #13 to #17. Rest day on Sunday.',
+    'Week 9: Phase 3 Mock Mastery: Daily Mocks #18 to #22. Rest day on Sunday.',
+    'Week 10: Final Mock Phase: Mocks #23 to #26. Celebrate completing 26 mocks!',
+    'Week 11: Zero new mocks. Rest and mental preparation before exam day.'
+  ];
+
+  const sectionalsMilestones = [
+    'Sectionals starting point baseline.',
+    'Week 1: Attempt 1 Reasoning sectional test on revision day (Sunday).',
+    'Week 2: Attempt 1 English sectional test on revision day (Sunday).',
+    'Week 3: Attempt 1 Quant sectional test on phase completion day (Sunday).',
+    'Week 4: Attempt 2 sectional tests (Reasoning & English sprint) during week.',
+    'Week 5: Attempt 3 sectional tests (Reasoning, English, Quant Sprints) for speed.',
+    'Week 6: Attempt 2 sectional tests (Reasoning & English sprints).',
+    'Week 7: Attempt 4 sectional tests during daily mock reviews to target weaknesses.',
+    'Week 8: Attempt 4 sectional tests to work on time management.',
+    'Week 9: Attempt 4 sectional tests to practice high-yield topics.',
+    'Week 10: Attempt 4 sectional tests (final revision checks for each section).',
+    'Week 11: Attempt 4 sectional tests (warmup and speed maintenance).'
+  ];
+
   return `<div class="analytics fade-in">
+    <div style="background:rgba(108, 92, 231, 0.1); border:1px solid var(--border); padding:16px; border-radius:var(--radius); margin-bottom:24px; font-size:0.85rem; line-height:1.6; color:var(--text);">
+      🔍 <strong>How to read these charts:</strong><br>
+      The charts below compare your <strong>Target Goal</strong> (dashed line) against your <strong>Actual Progress</strong> (solid line). 
+      The dotted vertical line indicates the <strong>Current Week</strong>. 
+      Read the status card and detailed weekly milestone table under each chart to see if you are on track or behind, and find recommendations for catching up.
+    </div>
+
+    <!-- Syllabus Completion Chart Container -->
+    <div class="chart-container" style="margin-bottom: 24px;">
+      <div class="chart-title">📈 1. Syllabus Completion Tracker (Target vs Actual)</div>
+      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:12px;">
+        Measures core syllabus completion. You start at 46% baseline. The goal is to reach 100% by the end of Week 3 (Phase 1 completion) to maximize mock testing time in Weeks 4-11.
+      </p>
+      <div style="position:relative;width:100%;height:260px;margin-top:10px">
+        <canvas id="syllabusChart" style="display:block;width:100%;height:100%;background:#0e0e24;border-radius:8px;border:1px solid var(--border)"></canvas>
+      </div>
+      <div id="syllabusStatusCard" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--border);font-size:0.8rem;"></div>
+      <div style="margin-top:14px;">
+        <h4 style="font-size:0.85rem; color:var(--accent2); margin-bottom:6px;">📋 Weekly Syllabus Milestones</h4>
+        ${generateTrajectoryTable('percentage', data.syllabus.target, data.syllabus.actual, syllabusMilestones)}
+      </div>
+    </div>
+
+    <!-- Full Mocks Chart Container -->
+    <div class="chart-container" style="margin-bottom: 24px;">
+      <div class="chart-title">📈 2. Full Mock Tests Tracker (Target vs Actual)</div>
+      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:12px;">
+        Tracks the total number of full-length mock tests completed. Goal: 26 mocks.
+      </p>
+      <div style="position:relative;width:100%;height:260px;margin-top:10px">
+        <canvas id="mocksChart" style="display:block;width:100%;height:100%;background:#0e0e24;border-radius:8px;border:1px solid var(--border)"></canvas>
+      </div>
+      <div id="mocksStatusCard" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--border);font-size:0.8rem;"></div>
+      <div style="margin-top:14px;">
+        <h4 style="font-size:0.85rem; color:var(--green); margin-bottom:6px;">📋 Weekly Full Mock Milestones</h4>
+        ${generateTrajectoryTable('count', data.mocks.target, data.mocks.actual, mocksMilestones)}
+      </div>
+    </div>
+
+    <!-- Sectional Mocks Chart Container -->
+    <div class="chart-container" style="margin-bottom: 24px;">
+      <div class="chart-title">📈 3. Sectional Tests Tracker (Target vs Actual)</div>
+      <p style="font-size:0.8rem;color:var(--text2);margin-bottom:12px;">
+        Tracks the total number of sectional tests completed. Goal: 30 sectionals.
+      </p>
+      <div style="position:relative;width:100%;height:260px;margin-top:10px">
+        <canvas id="sectionalsChart" style="display:block;width:100%;height:100%;background:#0e0e24;border-radius:8px;border:1px solid var(--border)"></canvas>
+      </div>
+      <div id="sectionalsStatusCard" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid var(--border);font-size:0.8rem;"></div>
+      <div style="margin-top:14px;">
+        <h4 style="font-size:0.85rem; color:var(--yellow); margin-bottom:6px;">📋 Weekly Sectional Milestones</h4>
+        ${generateTrajectoryTable('count', data.sectionals.target, data.sectionals.actual, sectionalsMilestones)}
+      </div>
+    </div>
+
     <div class="chart-container">
       <div class="chart-title">📊 Day Type Breakdown</div>
       ${Object.entries({
@@ -887,59 +988,262 @@ function getActualProgressData(){
   };
 }
 
-function drawTrajectoryChart(){
-  const canvas = document.getElementById('trajectoryChart');
+function generateTrajectoryTable(type, targetData, actualData, milestones){
+  const labels = ['Start', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11'];
+  
+  let html = `
+    <div style="margin-top:10px; overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.75rem; text-align:left; color:var(--text2); min-width: 480px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border); color:var(--text3);">
+            <th style="padding:6px 8px; width: 15%;">Timeline</th>
+            <th style="padding:6px 8px; width: 15%; text-align: center;">Target Goal</th>
+            <th style="padding:6px 8px; width: 15%; text-align: center;">Your Actual</th>
+            <th style="padding:6px 8px; width: 55%;">Weekly Milestone Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  const today = new Date();
+  const diffDays = Math.floor((today - START_DATE)/(1000*60*60*24));
+  const currentWeekNum = Math.min(11, Math.max(1, Math.ceil((diffDays + 1)/7)));
+  
+  for(let i=0; i<labels.length; i++){
+    const isCurrent = (i === currentWeekNum);
+    const rowBg = isCurrent ? 'rgba(108, 92, 231, 0.08)' : 'transparent';
+    const borderLeft = isCurrent ? '3px solid var(--accent)' : 'none';
+    const cellStyle = isCurrent ? 'font-weight: 600; color: var(--accent2);' : '';
+    
+    const targetVal = targetData[i];
+    const actualVal = actualData[i];
+    
+    const isFuture = (i > currentWeekNum);
+    const displayActual = isFuture ? '-' : (type === 'percentage' ? actualVal + '%' : actualVal);
+    const displayTarget = type === 'percentage' ? targetVal + '%' : targetVal;
+    
+    html += `
+      <tr style="background:${rowBg}; border-bottom:1px solid rgba(42,42,90,0.3); border-left:${borderLeft};">
+        <td style="padding:8px; ${cellStyle}">${labels[i]}${isCurrent ? ' 📌' : ''}</td>
+        <td style="padding:8px; text-align: center; ${cellStyle}">${displayTarget}</td>
+        <td style="padding:8px; text-align: center; ${cellStyle}">${displayActual}</td>
+        <td style="padding:8px; color: var(--text3); font-size:0.72rem; ${isCurrent ? 'color: var(--text2);' : ''}">${milestones[i]}</td>
+      </tr>
+    `;
+  }
+  
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+  return html;
+}
+
+function updateStatusCards(data, currentWeekNum){
+  const targetSyllables = data.syllabus.target[currentWeekNum];
+  const actualSyllables = data.syllabus.actual[currentWeekNum] || 0;
+  const targetMocks = data.mocks.target[currentWeekNum];
+  const actualMocks = data.mocks.actual[currentWeekNum] || 0;
+  const targetSectionals = data.sectionals.target[currentWeekNum];
+  const actualSectionals = data.sectionals.actual[currentWeekNum] || 0;
+  
+  const syllabusCard = document.getElementById('syllabusStatusCard');
+  const mocksCard = document.getElementById('mocksStatusCard');
+  const sectionalsCard = document.getElementById('sectionalsStatusCard');
+  
+  if(syllabusCard){
+    let statusText = '';
+    let statusColor = '';
+    let advice = '';
+    
+    if(actualSyllables >= targetSyllables){
+      statusColor = 'var(--green)';
+      statusText = `🟢 <strong>On Track</strong>: Your current syllabus completion is <strong>${actualSyllables}%</strong>, meeting/exceeding the Week ${currentWeekNum} target of <strong>${targetSyllables}%</strong>.`;
+      advice = 'Keep completing daily tasks to maintain your foundation streak!';
+    } else {
+      statusColor = 'var(--yellow)';
+      const diff = targetSyllables - actualSyllables;
+      statusText = `⚠️ <strong>Behind Target</strong>: Your current syllabus completion is <strong>${actualSyllables}%</strong>, which is <strong>${diff}% behind</strong> the Week ${currentWeekNum} target of <strong>${targetSyllables}%</strong>.`;
+      advice = 'Review your daily tasks list and try to catch up on pending Adda247 video lectures and basic exercises.';
+    }
+    syllabusCard.innerHTML = `
+      <div style="color:${statusColor}; font-weight:600; margin-bottom: 6px;">Week ${currentWeekNum} Status: ${actualSyllables}% / ${targetSyllables}% Target</div>
+      <p style="color:var(--text2); margin-bottom: 6px;">${statusText}</p>
+      <div style="font-size:0.75rem; color:var(--text3);">💡 <strong>Action Tip:</strong> ${advice}</div>
+    `;
+  }
+  
+  if(mocksCard){
+    let statusText = '';
+    let statusColor = '';
+    let advice = '';
+    
+    if(actualMocks >= targetMocks){
+      statusColor = 'var(--green)';
+      statusText = `🟢 <strong>On Track</strong>: You have completed <strong>${actualMocks}</strong> full mocks, meeting the Week ${currentWeekNum} target of <strong>${targetMocks}</strong>.`;
+      advice = 'Excellent work! Analyze each mock thoroughly for 1-2 hours to identify silly mistakes and gaps.';
+    } else {
+      statusColor = 'var(--red)';
+      const diff = targetMocks - actualMocks;
+      statusText = `⚠️ <strong>Behind Target</strong>: You have completed <strong>${actualMocks}</strong> full mocks, which is <strong>${diff} mock(s) behind</strong> the Week ${currentWeekNum} target of <strong>${targetMocks}</strong>.`;
+      advice = 'Schedule a full mock test this weekend and complete it under exam conditions. Deep analysis is key!';
+    }
+    mocksCard.innerHTML = `
+      <div style="color:${statusColor}; font-weight:600; margin-bottom: 6px;">Week ${currentWeekNum} Status: ${actualMocks} / ${targetMocks} Target</div>
+      <p style="color:var(--text2); margin-bottom: 6px;">${statusText}</p>
+      <div style="font-size:0.75rem; color:var(--text3);">💡 <strong>Action Tip:</strong> ${advice}</div>
+    `;
+  }
+  
+  if(sectionalsCard){
+    let statusText = '';
+    let statusColor = '';
+    let advice = '';
+    
+    if(actualSectionals >= targetSectionals){
+      statusColor = 'var(--green)';
+      statusText = `🟢 <strong>On Track</strong>: You have completed <strong>${actualSectionals}</strong> sectional mocks, meeting the Week ${currentWeekNum} target of <strong>${targetSectionals}</strong>.`;
+      advice = 'Great job! Sectional tests are highly effective for improving section-wise timing (especially English and Quant).';
+    } else {
+      statusColor = 'var(--yellow)';
+      const diff = targetSectionals - actualSectionals;
+      statusText = `⚠️ <strong>Behind Target</strong>: You have completed <strong>${actualSectionals}</strong> sectional mocks, which is <strong>${diff} test(s) behind</strong> the Week ${currentWeekNum} target of <strong>${targetSectionals}</strong>.`;
+      advice = 'Integrate at least one sectional mock test on your revision day to build sectional speed.';
+    }
+    sectionalsCard.innerHTML = `
+      <div style="color:${statusColor}; font-weight:600; margin-bottom: 6px;">Week ${currentWeekNum} Status: ${actualSectionals} / ${targetSectionals} Target</div>
+      <p style="color:var(--text2); margin-bottom: 6px;">${statusText}</p>
+      <div style="font-size:0.75rem; color:var(--text3);">💡 <strong>Action Tip:</strong> ${advice}</div>
+    `;
+  }
+}
+
+function drawSingleChart(canvasId, targetData, actualData, color, maxVal, labelSuffix, yAxisTitle){
+  const canvas = document.getElementById(canvasId);
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
   if(!ctx) return;
   
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const dpr = window.devicePixelRatio || 1;
+  const widthCss = canvas.width / dpr;
+  const heightCss = canvas.height / dpr;
   
-  const paddingLeft = 40;
-  const paddingRight = 40;
-  const paddingTop = 20;
-  const paddingBottom = 30;
-  const width = canvas.width - paddingLeft - paddingRight;
-  const height = canvas.height - paddingTop - paddingBottom;
+  ctx.clearRect(0, 0, widthCss, heightCss);
+  
+  // Draw card background inside canvas to make it feel premium
+  ctx.fillStyle = '#0e0e24';
+  ctx.fillRect(0, 0, widthCss, heightCss);
+  
+  const paddingLeft = 60;
+  const paddingRight = 30;
+  const paddingTop = 40;
+  const paddingBottom = 45;
+  const width = widthCss - paddingLeft - paddingRight;
+  const height = heightCss - paddingTop - paddingBottom;
   
   const data = getActualProgressData();
   const n = data.labels.length;
   
-  ctx.strokeStyle = '#2a2a5a';
+  // 1. Draw grid lines
+  ctx.strokeStyle = 'rgba(42, 42, 90, 0.5)';
   ctx.lineWidth = 1;
-  ctx.beginPath();
   
+  // Y-axis grid lines and ticks
   const yTicks = 5;
   for(let i=0; i<yTicks; i++){
     const y = paddingTop + (height / (yTicks - 1)) * i;
+    ctx.beginPath();
     ctx.moveTo(paddingLeft, y);
-    ctx.lineTo(canvas.width - paddingRight, y);
+    ctx.lineTo(widthCss - paddingRight, y);
+    ctx.stroke();
     
+    const val = maxVal - (maxVal * (i / (yTicks - 1)));
     ctx.fillStyle = '#a0a0c0';
-    ctx.font = '9px Inter';
+    ctx.font = '500 10px Inter';
     ctx.textAlign = 'right';
-    ctx.fillText((100 - i * 25) + '%', paddingLeft - 5, y + 3);
-    
-    ctx.textAlign = 'left';
-    ctx.fillText((30 - i * 7.5).toFixed(0), canvas.width - paddingRight + 5, y + 3);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(val.toFixed(0) + labelSuffix, paddingLeft - 10, y);
   }
-  ctx.stroke();
   
-  ctx.beginPath();
+  // X-axis ticks (Vertical lines)
   for(let i=0; i<n; i++){
     const x = paddingLeft + (width / (n - 1)) * i;
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(42, 42, 90, 0.3)';
     ctx.moveTo(x, paddingTop);
-    ctx.lineTo(x, canvas.height - paddingBottom);
+    ctx.lineTo(x, heightCss - paddingBottom);
+    ctx.stroke();
     
     ctx.fillStyle = '#a0a0c0';
-    ctx.font = '8px Inter';
+    ctx.font = '500 9px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText(data.labels[i].replace('Week ', 'W'), x, canvas.height - paddingBottom + 12);
+    
+    // On small screens, hide every alternate label to prevent overlap
+    if(widthCss < 480 && i % 2 !== 0 && i !== n-1) continue;
+    
+    ctx.fillText(data.labels[i].replace('Week ', 'W'), x, heightCss - paddingBottom + 14);
   }
-  ctx.stroke();
   
-  function plotLine(targetData, actualData, color, typeVal, isDashed){
-    ctx.strokeStyle = color;
+  // 2. Y-Axis Title
+  ctx.fillStyle = '#e8e8f0';
+  ctx.font = '600 10px Inter';
+  ctx.save();
+  ctx.translate(16, paddingTop + height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText(yAxisTitle, 0, 0);
+  ctx.restore();
+  
+  // X-Axis Title
+  ctx.textAlign = 'center';
+  ctx.fillText('Preparation Timeline (Weeks)', paddingLeft + width / 2, heightCss - 10);
+  
+  // Calculate current week
+  const today = new Date();
+  const diffDays = Math.floor((today - START_DATE)/(1000*60*60*24));
+  const currentWeekNum = Math.min(11, Math.max(1, Math.ceil((diffDays + 1)/7)));
+  
+  // 3. Draw Area under curves first (so lines render on top)
+  // Target Area (faint)
+  fillArea(targetData, color + '12', color + '00', null);
+  
+  // Actual Area (slightly stronger)
+  fillArea(actualData, color + '22', color + '00', currentWeekNum);
+  
+  function fillArea(valData, colorStart, colorEnd, drawLimit) {
+    ctx.save();
+    const grad = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + height);
+    grad.addColorStop(0, colorStart);
+    grad.addColorStop(1, colorEnd);
+    ctx.fillStyle = grad;
+    
+    ctx.beginPath();
+    ctx.moveTo(paddingLeft, paddingTop + height);
+    
+    let pointsCount = 0;
+    for(let i = 0; i < n; i++) {
+      if(drawLimit !== null && i > drawLimit) break;
+      const x = paddingLeft + (width / (n - 1)) * i;
+      const val = valData[i];
+      const y = paddingTop + height - (height * (val / maxVal));
+      ctx.lineTo(x, y);
+      pointsCount++;
+    }
+    
+    if (pointsCount > 0) {
+      const lastX = paddingLeft + (width / (n - 1)) * (pointsCount - 1);
+      ctx.lineTo(lastX, paddingTop + height);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  
+  // 4. Plot Trajectory Lines
+  function plotLine(valData, colorLine, isDashed, drawLimit) {
+    ctx.save();
+    ctx.strokeStyle = colorLine;
     ctx.lineWidth = isDashed ? 1.5 : 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -951,56 +1255,186 @@ function drawTrajectoryChart(){
     }
     
     ctx.beginPath();
+    let started = false;
     for(let i=0; i<n; i++){
+      if(drawLimit !== null && i > drawLimit) continue;
       const x = paddingLeft + (width / (n - 1)) * i;
-      let val = targetData[i];
-      if(!isDashed && actualData && i < actualData.length){
-        const today = new Date();
-        const start = START_DATE;
-        const diffDays = Math.floor((today - start)/(1000*60*60*24));
-        const currentWeekNum = Math.min(11, Math.max(1, Math.ceil((diffDays + 1)/7)));
-        if(i > currentWeekNum) continue;
-        
-        val = actualData[i];
-      }
+      const val = valData[i];
+      const y = paddingTop + height - (height * (val / maxVal));
       
-      let y;
-      if(typeVal === 'percent'){
-        y = paddingTop + height - (height * (val / 100));
-      } else {
-        y = paddingTop + height - (height * (val / 30));
-      }
-      
-      if(i === 0){
+      if(!started){
         ctx.moveTo(x, y);
+        started = true;
       } else {
         ctx.lineTo(x, y);
       }
     }
     ctx.stroke();
+    ctx.restore();
   }
   
-  plotLine(data.syllabus.target, null, 'rgba(116, 185, 255, 0.4)', 'percent', true);
-  plotLine(data.mocks.target, null, 'rgba(0, 184, 148, 0.4)', 'count', true);
-  plotLine(data.sectionals.target, null, 'rgba(253, 203, 110, 0.4)', 'count', true);
+  // Target Line (Dashed)
+  plotLine(targetData, color + 'aa', true, null);
+  // Actual Line (Solid)
+  plotLine(actualData, color, false, currentWeekNum);
   
-  plotLine(data.syllabus.target, data.syllabus.actual, '#74b9ff', 'percent', false);
-  plotLine(data.mocks.target, data.mocks.actual, '#00b894', 'count', false);
-  plotLine(data.sectionals.target, data.sectionals.actual, '#fdcb6e', 'count', false);
+  // 5. Plot Points (circles)
+  function drawPoints(valData, colorLine, drawLimit, isActualLine) {
+    for(let i=0; i<n; i++){
+      if(drawLimit !== null && i > drawLimit) continue;
+      
+      const x = paddingLeft + (width / (n - 1)) * i;
+      const val = valData[i];
+      const y = paddingTop + height - (height * (val / maxVal));
+      
+      ctx.fillStyle = isActualLine ? colorLine : '#0e0e24';
+      ctx.strokeStyle = colorLine;
+      ctx.lineWidth = 1.5;
+      
+      ctx.beginPath();
+      ctx.arc(x, y, isActualLine ? 4.5 : 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  
+  drawPoints(targetData, color + '88', null, false);
+  drawPoints(actualData, color, currentWeekNum, true);
+  
+  // 6. Draw Value Labels using Capsule Text
+  function drawCapsuleText(text, x, y, bgColor, textColor, textAlign) {
+    ctx.save();
+    ctx.font = 'bold 9px Inter';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const textWidth = ctx.measureText(text).width;
+    const paddingX = 5;
+    const paddingY = 2;
+    const w = textWidth + paddingX * 2;
+    const h = 10 + paddingY * 2;
+    
+    let rectX = x - w / 2;
+    if (textAlign === 'left') rectX = x;
+    else if (textAlign === 'right') rectX = x - w;
+    
+    const rectY = y - h / 2;
+    
+    // Draw rounded capsule
+    ctx.fillStyle = bgColor;
+    ctx.beginPath();
+    drawRoundedRect(rectX, rectY, w, h, 3);
+    ctx.fill();
+    
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    drawRoundedRect(rectX, rectY, w, h, 3);
+    ctx.stroke();
+    
+    // Text
+    ctx.fillStyle = textColor;
+    let textX = x;
+    if (textAlign === 'left') textX = x + w / 2;
+    else if (textAlign === 'right') textX = x - w / 2;
+    ctx.fillText(text, textX, y);
+    ctx.restore();
+  }
+  
+  function drawRoundedRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  
+  // Draw key labels (Start, current week, and end goal)
+  // Start Target
+  drawCapsuleText(targetData[0].toFixed(0) + labelSuffix, paddingLeft, paddingTop + height - (height * (targetData[0] / maxVal)) + 12, 'rgba(18, 18, 42, 0.85)', '#a0a0c0', 'left');
+  
+  // Target Goal (End)
+  const endX = paddingLeft + width;
+  const endY = paddingTop + height - (height * (targetData[n-1] / maxVal));
+  drawCapsuleText('Goal: ' + targetData[n-1].toFixed(0) + labelSuffix, endX, endY - 12, 'rgba(18, 18, 42, 0.85)', color, 'right');
+  
+  // Actual progress (Last recorded)
+  if (currentWeekNum >= 0 && currentWeekNum < n) {
+    const actX = paddingLeft + (width / (n - 1)) * currentWeekNum;
+    const actVal = actualData[currentWeekNum];
+    const actY = paddingTop + height - (height * (actVal / maxVal));
+    
+    drawCapsuleText('Actual: ' + actVal.toFixed(0) + labelSuffix, actX, actY - 12, 'rgba(108, 92, 231, 0.85)', '#ffffff', 'center');
+    
+    // Draw corresponding target value for comparison
+    const tarVal = targetData[currentWeekNum];
+    const tarY = paddingTop + height - (height * (tarVal / maxVal));
+    drawCapsuleText('Target: ' + tarVal.toFixed(0) + labelSuffix, actX, tarY + 12, 'rgba(18, 18, 42, 0.85)', '#a0a0c0', 'center');
+  }
+  
+  // 7. Legend
+  const legendX = widthCss - paddingRight - 110;
+  const legendY = 18;
+  
+  ctx.font = '500 9px Inter';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  
+  // Target Legend
+  ctx.strokeStyle = color + '88';
+  ctx.lineWidth = 1.5;
+  ctx.save();
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(legendX, legendY); ctx.lineTo(legendX + 15, legendY); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#a0a0c0';
+  ctx.fillText('Target Trajectory', legendX + 20, legendY);
+  
+  // Actual Legend
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(legendX, legendY + 12); ctx.lineTo(legendX + 15, legendY + 12); ctx.stroke();
+  ctx.fillStyle = '#e8e8f0';
+  ctx.fillText('Your Progress', legendX + 20, legendY + 12);
+  
+  // 8. Vertical line for Current Week
+  ctx.save();
+  ctx.setLineDash([2, 2]);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.lineWidth = 1;
+  const curX = paddingLeft + (width / (n - 1)) * currentWeekNum;
+  ctx.beginPath();
+  ctx.moveTo(curX, paddingTop);
+  ctx.lineTo(curX, heightCss - paddingBottom);
+  ctx.stroke();
+  
+  ctx.fillText('CURRENT WEEK', curX, paddingTop - 4);
   
   ctx.setLineDash([]);
 }
 
-function initTrajectoryChart(){
-  const canvas = document.getElementById('trajectoryChart');
-  if(!canvas) return;
-  const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = 280;
-  drawTrajectoryChart();
+function drawAllCharts(){
+  const data = getActualProgressData();
+  drawSingleChart('syllabusChart', data.syllabus.target, data.syllabus.actual, '#74b9ff', 100, '%', 'Syllabus Completion (%)');
+  drawSingleChart('mocksChart', data.mocks.target, data.mocks.actual, '#00b894', 26, '', 'Full Mocks Completed (Count)');
+  drawSingleChart('sectionalsChart', data.sectionals.target, data.sectionals.actual, '#fdcb6e', 30, '', 'Sectionals Completed (Count)');
 }
 
-window.addEventListener('resize', initTrajectoryChart);
+function initTrajectoryCharts(){
+  const canvasIds = ['syllabusChart', 'mocksChart', 'sectionalsChart'];
+  canvasIds.forEach(id => {
+    const canvas = document.getElementById(id);
+    if(!canvas) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 220;
+  });
+  drawAllCharts();
+}
+
+window.addEventListener('resize', initTrajectoryCharts);
 
 function renderCurrentTab(){
   const el=document.getElementById('content');
@@ -1010,7 +1444,7 @@ function renderCurrentTab(){
       el.innerHTML=renderPhase(currentTab);break;
     case 'analytics':
       el.innerHTML=renderAnalytics();
-      setTimeout(initTrajectoryChart, 50);
+      setTimeout(initTrajectoryCharts, 50);
       break;
     case 'notes':el.innerHTML=renderNotes();break;
   }
