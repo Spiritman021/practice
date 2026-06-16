@@ -168,7 +168,7 @@ window.grammarPracticeSets = [
       {
         "id": 28,
         "question": "Mary rang John\u2019s doorbell (a) / at 8:15 yesterday (b) / but John already (c) / left the house. (d) / No error. (e)",
-        "answer": "c",
+        "answer": "d",
         "explanation": "Sol. Put \u201chad\u201d before \u201calready\u201d as the event has already occurred."
       },
       {
@@ -300,7 +300,7 @@ window.grammarPracticeSets = [
       {
         "id": 50,
         "question": "I would have travelled (a) / around the world (b) / if I won (c) / the lottery. (d) / No error. (e)",
-        "answer": "c",
+        "answer": "a",
         "explanation": "Sol. \u201cwould have travelled\u201d should be replaced by \u201cwould travel\u201d as the condition in theory is possible to fulfill and in that case we use \u201cwould + V1\u201d in the main clause."
       }
     ]
@@ -347,7 +347,7 @@ window.grammarPracticeSets = [
       {
         "id": 7,
         "question": "He always said success is something to be celebrated, (a) / but he also believed that failure is something (b) / that you must concentrate all (c) / your energies on resolving. (d) / No error. (e)",
-        "answer": "a",
+        "answer": "e",
         "explanation": "Sol. No error. A fact is always constructed in Simple present tense."
       },
       {
@@ -448,9 +448,9 @@ window.grammarPracticeSets = [
       },
       {
         "id": 24,
-        "question": "The number of foreign tourists (a) / visiting India (b) / are increasing (c) / day by day during this tourist season. (d) / No error. (e)",
-        "answer": "c",
-        "explanation": "Sol. \u2018is\u2019 will be used in place of \u2018are\u2019 because 'the number of' is followed by a singular verb."
+        "question": "The number of foreign tourists (a) / visiting India are increasing (b) / day by day during (c) / this tourist season. (d) / No error. (e)",
+        "answer": "b",
+        "explanation": "Sol. \u2018is\u2019 will be used in place of \u2018are\u2019 as after \u2018The number of\u2019 singular verb is used."
       },
       {
         "id": 25,
@@ -592,9 +592,9 @@ window.grammarPracticeSets = [
       },
       {
         "id": 48,
-        "question": "The gentleman (a) / together with his wife (b) / and daughter (c) / were drowned. (d) / No error. (e)",
+        "question": "The gentleman (a) / together with his (b) / wife and daughter (c) / were drowned. (d) / No error. (e)",
         "answer": "d",
-        "explanation": "Sol. Use \u2018was\u2019 in place of \u2018were\u2019 because when two subjects get connected by \u2018with, along with, together with\u2019, verb is used according to the first subject. Ex. Mohini together with her parents is."
+        "explanation": "Sol. Use \u2018was\u2019 in place of \u2018were\u2019 because if two subjects get connected by \u2018with, along with, together with\u2019, verb is used according to the first subject. Ex. Mohini together with her parents is."
       },
       {
         "id": 49,
