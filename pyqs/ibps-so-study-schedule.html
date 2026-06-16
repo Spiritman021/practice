@@ -100,6 +100,20 @@ a:hover{text-decoration:underline}
 .day-extra-input{width:100%;background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text2);font-size:.72rem;font-family:inherit;resize:none;outline:none;min-height:28px;transition:border-color .2s}
 .day-extra-input:focus{border-color:var(--accent)}
 .day-extra-input::placeholder{color:var(--text3)}
+
+/* POINTS SYSTEM */
+.day-score{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 10px;background:rgba(108,92,231,0.06);border-radius:6px;border:1px solid rgba(108,92,231,0.12)}
+.day-score-bar{flex:1;height:6px;background:rgba(42,42,90,0.2);border-radius:3px;overflow:hidden}
+.day-score-bar .fill{height:100%;border-radius:3px;transition:width .4s ease}
+.day-score-label{font-size:.65rem;font-weight:700;white-space:nowrap}
+.extra-activity{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--accent2);padding:3px 0}
+.extra-activity .extra-pts{font-size:.6rem;padding:1px 5px;border-radius:3px;background:rgba(253,203,110,0.2);color:var(--yellow);font-weight:700}
+.add-extra-btn{font-size:.65rem;padding:3px 8px;border-radius:4px;border:1px dashed var(--border);color:var(--text3);background:transparent;cursor:pointer;transition:all .2s}
+.add-extra-btn:hover{border-color:var(--accent);color:var(--accent)}
+.extra-input-row{display:flex;gap:6px;margin-top:4px;align-items:center}
+.extra-desc-input{flex:1;background:transparent;border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text2);font-size:.7rem;font-family:inherit;outline:none}
+.extra-pts-input{width:50px;background:transparent;border:1px solid var(--border);border-radius:4px;padding:4px 6px;color:var(--yellow);font-size:.7rem;font-family:inherit;outline:none;text-align:center}
+.extra-save-btn{padding:4px 8px;border-radius:4px;border:none;background:var(--green);color:#fff;font-size:.65rem;font-weight:600;cursor:pointer}
 .task-tag{padding:1px 6px;border-radius:4px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px}
 .tag-r{background:rgba(108,92,231,0.2);color:var(--accent2)}
 .tag-q{background:rgba(0,184,148,0.2);color:var(--green)}
@@ -491,6 +505,68 @@ function saveDayNote(dayId){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// POINTS SYSTEM
+// ═══════════════════════════════════════════════════════════════
+const TASK_POINTS = { R: 25, Q: 25, E: 20, M: 30, REV: 15 };
+const EXTRAS_STORAGE_KEY = 'ibps_so_extras_v1';
+
+function loadExtras(){
+  try{return JSON.parse(localStorage.getItem(EXTRAS_STORAGE_KEY))||{};}
+  catch(e){return {};}
+}
+function saveExtras(data){
+  localStorage.setItem(EXTRAS_STORAGE_KEY,JSON.stringify(data));
+}
+
+function getTaskPoints(tag){
+  return TASK_POINTS[tag] || 15;
+}
+
+function getDayExpectedPoints(day){
+  return day.tasks.reduce((sum, t) => sum + getTaskPoints(t.tag), 0);
+}
+
+function getDayEarnedPoints(dayId, day){
+  const tp = loadTaskProgress();
+  let earned = 0;
+  day.tasks.forEach((t, ti) => {
+    if(tp[dayId + '_t' + ti]) earned += getTaskPoints(t.tag);
+  });
+  return earned;
+}
+
+function getDayBonusPoints(dayId){
+  const extras = loadExtras();
+  const dayExtras = extras[dayId] || [];
+  return dayExtras.reduce((sum, e) => sum + (e.pts || 0), 0);
+}
+
+function addExtraActivity(dayId){
+  const descEl = document.getElementById('extraDesc_' + dayId);
+  const ptsEl = document.getElementById('extraPts_' + dayId);
+  if(!descEl || !ptsEl || !descEl.value.trim()) return;
+  
+  const extras = loadExtras();
+  if(!extras[dayId]) extras[dayId] = [];
+  extras[dayId].push({
+    desc: descEl.value.trim(),
+    pts: parseInt(ptsEl.value) || 10,
+    time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})
+  });
+  saveExtras(extras);
+  renderCurrentTab();
+}
+
+function removeExtraActivity(dayId, idx){
+  const extras = loadExtras();
+  if(extras[dayId]) {
+    extras[dayId].splice(idx, 1);
+    saveExtras(extras);
+    renderCurrentTab();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // TOPICS CHECKLIST DATA
 // ═══════════════════════════════════════════════════════════════
 // priority: 'critical' | 'high' | 'medium' | 'low'
@@ -599,21 +675,44 @@ function renderDayCard(day,dayId,progress){
   const typeClass=getDayTypeClass(day.type);
   const tp=loadTaskProgress();
   const journal=loadJournal();
+  const extras=loadExtras();
   const dayNote=journal[dayId]||'';
+  const dayExtras=extras[dayId]||[];
   
+  // Points calculation
+  const expectedPts = getDayExpectedPoints(day);
+  let earnedPts = 0;
   let tasksDone=0;
   const tasksHtml=day.tasks.map((t,ti)=>{
     const tKey=dayId+'_t'+ti;
     const tChecked=tp[tKey]||false;
-    if(tChecked) tasksDone++;
+    const tPts = getTaskPoints(t.tag);
+    if(tChecked){ tasksDone++; earnedPts += tPts; }
     return `
     <div class="task-item ${tChecked?'task-done':''}" id="task_${tKey}">
       <div class="task-check ${tChecked?'checked':''}" id="tcb_${tKey}" onclick="toggleTask('${dayId}',${ti})" title="Mark task done"></div>
       <span class="task-tag ${getTagClass(t.tag)}">${getTagLabel(t.tag)}</span>
       <span>${t.desc}</span>
+      <span style="margin-left:auto;font-size:.55rem;color:${tChecked?'var(--green)':'var(--text3)'};font-weight:600;white-space:nowrap">${tChecked?'✅':'⬜'} ${tPts}pts</span>
     </div>`;}).join('');
   
+  const bonusPts = dayExtras.reduce((sum, e) => sum + (e.pts || 0), 0);
+  const totalEarned = earnedPts + bonusPts;
+  const totalPossible = expectedPts + bonusPts;
+  const scorePct = totalPossible > 0 ? Math.round(totalEarned / totalPossible * 100) : 0;
+  const scoreColor = scorePct >= 80 ? 'var(--green)' : scorePct >= 50 ? '#f59e0b' : '#f43f5e';
+  
   const taskCounterColor = tasksDone===day.tasks.length && day.tasks.length>0 ? 'var(--green)' : 'var(--text3)';
+  
+  // Extra activities HTML
+  const extrasHtml = dayExtras.map((e, ei) => `
+    <div class="extra-activity">
+      <span>⭐</span>
+      <span>${e.desc}</span>
+      <span class="extra-pts">+${e.pts}pts</span>
+      <span style="font-size:.55rem;color:var(--text3)">${e.time || ''}</span>
+      <span style="font-size:.6rem;color:var(--text3);cursor:pointer;margin-left:auto" onclick="removeExtraActivity('${dayId}',${ei})" title="Remove">✕</span>
+    </div>`).join('');
   
   return `
     <div class="day-card ${typeClass} ${checked?'completed':''}" id="card_${dayId}">
@@ -625,8 +724,28 @@ function renderDayCard(day,dayId,progress){
         </div>
         <div class="day-title">${day.title}</div>
         <div class="day-tasks">${tasksHtml}</div>
-        <div class="day-extra-notes">
-          <input type="text" class="day-extra-input" id="dayNote_${dayId}" value="${dayNote.replace(/"/g,'&quot;')}" placeholder="+ Add extra notes for today..." onblur="saveDayNote('${dayId}')">
+        
+        ${dayExtras.length > 0 ? `
+        <div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(253,203,110,0.3)">
+          <div style="font-size:.6rem;color:var(--yellow);font-weight:700;margin-bottom:4px">⭐ Extra Activities (Bonus Points)</div>
+          ${extrasHtml}
+        </div>` : ''}
+        
+        <div class="day-extra-notes" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <input type="text" class="day-extra-input" style="flex:1;min-width:150px" id="extraDesc_${dayId}" placeholder="+ Add what else you did (e.g. Editorial, RC practice...)">
+          <input type="number" class="extra-pts-input" id="extraPts_${dayId}" value="10" min="1" max="50" title="Points">
+          <button class="extra-save-btn" onclick="addExtraActivity('${dayId}')">+ Add</button>
+        </div>
+
+        <div class="day-score">
+          <div class="day-score-label" style="color:${scoreColor}">${totalEarned}/${totalPossible}</div>
+          <div class="day-score-bar"><div class="fill" style="width:${scorePct}%;background:${scoreColor}"></div></div>
+          <div class="day-score-label" style="color:${scoreColor}">${scorePct}%</div>
+          ${bonusPts > 0 ? `<span style="font-size:.55rem;color:var(--yellow)">+${bonusPts} bonus</span>` : ''}
+        </div>
+
+        <div style="margin-top:4px">
+          <input type="text" class="day-extra-input" id="dayNote_${dayId}" value="${dayNote.replace(/"/g,'&quot;')}" placeholder="📝 Quick notes for today..." onblur="saveDayNote('${dayId}')">
         </div>
       </div>
       <div class="day-hours">${day.hours}</div>
@@ -1640,8 +1759,27 @@ function renderJournal() {
     <h2 style="font-size:1.3rem;margin-bottom:6px">📓 Daily Journal & Activity Log</h2>
     <p style="font-size:.82rem;color:var(--text3);margin-bottom:20px">Track what you've done each day — beyond the schedule. Write down extra topics covered, mock scores, observations, or anything else. Each day has its own journal space.</p>
 
-    <!-- Journal Stats -->
+    <!-- Journal Stats -->`;
+
+  // Calculate total points across all days
+  const extras = loadExtras();
+  let totalPtsEarned = 0, totalPtsExpected = 0, totalBonusPts = 0;
+  allDays.forEach(d => {
+    const exp = getDayExpectedPoints(d.day);
+    const earn = getDayEarnedPoints(d.dayId, d.day);
+    const bonus = getDayBonusPoints(d.dayId);
+    totalPtsExpected += exp;
+    totalPtsEarned += earn;
+    totalBonusPts += bonus;
+  });
+
+  html += `
     <div class="topic-analytics" style="margin-bottom:20px">
+      <div class="topic-stat-card">
+        <div class="stat-num">${totalPtsEarned + totalBonusPts}</div>
+        <div class="stat-label">⭐ Total Points Earned</div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">out of ${totalPtsExpected} scheduled${totalBonusPts > 0 ? ` + ${totalBonusPts} bonus` : ''}</div>
+      </div>
       <div class="topic-stat-card">
         <div class="stat-num">${totalTasksDone}</div>
         <div class="stat-label">📋 Individual Tasks Done</div>
@@ -1662,22 +1800,59 @@ function renderJournal() {
   // Today's highlight
   if(todayEntry) {
     const te = todayEntry;
+    const todayExpected = getDayExpectedPoints(te.day);
+    const todayEarned = getDayEarnedPoints(te.dayId, te.day);
+    const todayBonus = getDayBonusPoints(te.dayId);
+    const todayTotal = todayEarned + todayBonus;
+    const todayPossible = todayExpected + todayBonus;
+    const todayPct = todayPossible > 0 ? Math.round(todayTotal / todayPossible * 100) : 0;
+    const todayScoreColor = todayPct >= 80 ? 'var(--green)' : todayPct >= 50 ? '#f59e0b' : '#f43f5e';
+    const todayExtras = extras[te.dayId] || [];
+
     html += `
     <div class="chart-container" style="border-left:3px solid var(--accent);margin-bottom:20px">
       <div class="chart-title" style="color:var(--accent)">📌 Today — ${te.day.dayName}, ${formatDate(te.day.month, te.day.date)}</div>
       <div style="font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--text)">${te.day.title}</div>
-      <div style="font-size:.78rem;color:var(--text2);margin-bottom:8px">Tasks: <strong style="color:${te.tasksDone===te.totalTasks?'var(--green)':'var(--accent3)'}">${te.tasksDone}/${te.totalTasks}</strong> completed</div>
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <div style="font-size:.78rem;color:var(--text2)">Tasks: <strong style="color:${te.tasksDone===te.totalTasks?'var(--green)':'var(--accent3)'}">${te.tasksDone}/${te.totalTasks}</strong></div>
+        <div style="font-size:.78rem;color:var(--text2)">Score: <strong style="color:${todayScoreColor}">${todayTotal}/${todayPossible} pts (${todayPct}%)</strong></div>
+        ${todayBonus > 0 ? `<div style="font-size:.7rem;color:var(--yellow)">⭐ +${todayBonus} bonus pts</div>` : ''}
+      </div>
+
       <div style="display:grid;gap:4px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:4px 0;border-bottom:1px solid rgba(42,42,90,0.15);font-size:.65rem;color:var(--text3);font-weight:700">
+          <span>📋 Scheduled Tasks (What was given)</span>
+          <span>Points</span>
+        </div>
         ${te.day.tasks.map((t,ti) => {
           const tKey = te.dayId + '_t' + ti;
           const tChecked = tp[tKey] || false;
-          return `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;${tChecked?'opacity:0.5;text-decoration:line-through':''}">
-            <span style="color:${tChecked?'var(--green)':'var(--text3)'};">${tChecked?'✅':'⬜'}</span>
-            <span class="task-tag ${getTagClass(t.tag)}" style="font-size:.6rem">${getTagLabel(t.tag)}</span>
-            <span style="color:var(--text2)">${t.desc}</span>
+          const tPts = getTaskPoints(t.tag);
+          return `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:.78rem;padding:3px 0;${tChecked?'opacity:0.5;text-decoration:line-through':''}">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="color:${tChecked?'var(--green)':'var(--text3)'}">${tChecked?'✅':'⬜'}</span>
+              <span class="task-tag ${getTagClass(t.tag)}" style="font-size:.6rem">${getTagLabel(t.tag)}</span>
+              <span style="color:var(--text2)">${t.desc}</span>
+            </div>
+            <span style="font-size:.65rem;color:${tChecked?'var(--green)':'var(--text3)'};font-weight:600">${tChecked?tPts:0}/${tPts}</span>
           </div>`;
         }).join('')}
+        ${todayExtras.length > 0 ? `
+        <div style="padding:4px 0;border-top:1px dashed rgba(253,203,110,0.3);margin-top:4px">
+          <div style="font-size:.65rem;color:var(--yellow);font-weight:700;margin-bottom:4px">⭐ Extra Activities (What you did)</div>
+          ${todayExtras.map(e => `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;font-size:.75rem;padding:2px 0">
+            <span style="color:var(--accent2)">⭐ ${e.desc}</span>
+            <span style="font-size:.65rem;color:var(--yellow);font-weight:600">+${e.pts}pts</span>
+          </div>`).join('')}
+        </div>` : ''}
       </div>
+
+      <div class="day-score" style="margin-bottom:12px">
+        <div class="day-score-label" style="color:${todayScoreColor}">${todayTotal}/${todayPossible}</div>
+        <div class="day-score-bar"><div class="fill" style="width:${todayPct}%;background:${todayScoreColor}"></div></div>
+        <div class="day-score-label" style="color:${todayScoreColor}">${todayPct}%</div>
+      </div>
+
       ${te.dayNote ? `<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px"><em>📎 Quick note: ${te.dayNote}</em></div>` : ''}
       <div style="margin-top:8px">
         <label style="font-size:.72rem;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">📖 Today's Journal Entry:</label>
@@ -1709,6 +1884,13 @@ function renderJournal() {
     const statusIcon = d.dayChecked ? '✅' : (d.isToday ? '📌' : (d.isPast ? '⚠️' : '⏳'));
     const statusColor = d.dayChecked ? 'var(--green)' : (d.isToday ? 'var(--accent)' : (d.isPast ? '#f43f5e' : 'var(--text3)'));
     const taskPct = d.totalTasks > 0 ? Math.round(d.tasksDone / d.totalTasks * 100) : 0;
+    const dExp = getDayExpectedPoints(d.day);
+    const dEarn = getDayEarnedPoints(d.dayId, d.day);
+    const dBonus = getDayBonusPoints(d.dayId);
+    const dTotal = dEarn + dBonus;
+    const dPossible = dExp + dBonus;
+    const dPct = dPossible > 0 ? Math.round(dTotal / dPossible * 100) : 0;
+    const dScoreColor = dPct >= 80 ? 'var(--green)' : dPct >= 50 ? '#f59e0b' : (dTotal > 0 ? '#f43f5e' : 'var(--text3)');
 
     html += `
       <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;border-left:3px solid ${statusColor};${d.isToday?'box-shadow:0 0 12px rgba(108,92,231,0.15)':''}">
@@ -1718,10 +1900,11 @@ function renderJournal() {
             <span style="font-weight:700;font-size:.85rem;color:var(--text)">${d.day.dayName}, ${formatDate(d.day.month, d.day.date)}</span>
             <span style="font-size:.7rem;color:var(--text3)">${d.day.title}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:.65rem;color:${d.tasksDone===d.totalTasks && d.totalTasks>0?'var(--green)':'var(--text3)'}">${d.tasksDone}/${d.totalTasks} tasks</span>
+            <span style="font-size:.65rem;color:${dScoreColor};font-weight:600">⭐ ${dTotal}/${dPossible}pts</span>
             <div style="width:50px;height:4px;background:rgba(42,42,90,0.3);border-radius:2px;overflow:hidden">
-              <div style="width:${taskPct}%;height:100%;background:${d.tasksDone===d.totalTasks && d.totalTasks>0?'var(--green)':'var(--accent)'};border-radius:2px"></div>
+              <div style="width:${dPct}%;height:100%;background:${dScoreColor};border-radius:2px"></div>
             </div>
           </div>
         </div>
@@ -2405,6 +2588,43 @@ document.getElementById('navTabs').addEventListener('click',e=>{
   renderCurrentTab();
   window.scrollTo({top:0,behavior:'smooth'});
 });
+
+// ═══════════════════════════════════════════════════════════════
+// SEED: Pre-populate Jun 16 data (one-time)
+// ═══════════════════════════════════════════════════════════════
+(function seedJun16() {
+  const SEED_KEY = 'ibps_so_seed_jun16_v2';
+  if(localStorage.getItem(SEED_KEY)) return; // Already seeded
+
+  // Day ID for Jun 16 = phase1_w0_d0 (first day of first week of phase 1)
+  const dayId = 'phase1_w0_d0';
+
+  // Mark task 2 (Grammar Rules 16-30) as done
+  // Task indices: 0=Puzzle Lec 14, 1=Simplification, 2=Grammar Rules 16-30, 3=Quick Review
+  const tp = loadTaskProgress();
+  tp[dayId + '_t2'] = true; // Grammar Rules 16-30 (partially: did 13-20 i.e. rules 16-20 from this batch + 13-15 from previous)
+  saveTaskProgress(tp);
+
+  // Add extra activities the user completed today
+  const extras = loadExtras();
+  extras[dayId] = [
+    { desc: 'Editorial done — Full reading + analysis', pts: 15, time: '21:00' },
+    { desc: 'Vocabulary from editorial — New words noted', pts: 10, time: '21:00' },
+    { desc: 'Idioms & Phrases (I&P) practice', pts: 8, time: '21:00' },
+    { desc: 'One-Word Substitution (OWS) practice', pts: 8, time: '21:00' },
+    { desc: '2 Articles — 1 full reading + 1 skimming', pts: 12, time: '21:00' },
+    { desc: 'RC Questions — Q-type practice from skimming article', pts: 12, time: '21:00' },
+  ];
+  saveExtras(extras);
+
+  // Add journal note
+  const j = loadJournal();
+  j[dayId] = 'Grammar Rules 13-20 done (8 rules). Editorial with vocab, I&P, OWS. 2 articles (1 full reading, 1 skimming with RC Qs).';
+  j['journal_' + dayId] = 'Today covered Grammar Rules 13-20 (Nimisha Mam). Did editorial practice with vocabulary extraction, idioms & phrases, one-word substitution. Read 2 newspaper articles — one full reading and one skimming technique with RC questions practice. Puzzle Lec 14 and Simplification not started yet — will complete tomorrow or adjust.';
+  saveJournal(j);
+
+  localStorage.setItem(SEED_KEY, 'true');
+})();
 
 // ═══════════════════════════════════════════════════════════════
 // INIT
