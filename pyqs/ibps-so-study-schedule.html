@@ -505,10 +505,28 @@ function saveDayNote(dayId){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// POINTS SYSTEM
+// POINTS SYSTEM (with partial completion, pending tasks, weekly targets)
 // ═══════════════════════════════════════════════════════════════
 const TASK_POINTS = { R: 25, Q: 25, E: 20, M: 30, REV: 15 };
 const EXTRAS_STORAGE_KEY = 'ibps_so_extras_v1';
+const PARTIAL_STORAGE_KEY = 'ibps_so_partial_v1';
+const PENDING_DONE_KEY = 'ibps_so_pending_done_v1';
+
+// Weekly targets: expected % of scheduled points to earn
+const WEEKLY_TARGET_PCT = 80; // Aim for 80%+ of expected points each week
+const WEEKLY_TARGETS = {
+  'phase1_w0': { label: 'Week 1', target: 75, bonus: 'First week — build momentum!' },
+  'phase1_w1': { label: 'Week 2', target: 80, bonus: 'Push harder!' },
+  'phase1_w2': { label: 'Week 3', target: 85, bonus: 'Phase 1 finale — strong finish!' },
+  'phase2_w0': { label: 'Week 4', target: 80, bonus: 'Speed building phase!' },
+  'phase2_w1': { label: 'Week 5', target: 85, bonus: 'Mock test mode!' },
+  'phase2_w2': { label: 'Week 6', target: 85, bonus: 'Mid-prep peak!' },
+  'phase3_w0': { label: 'Week 7', target: 85, bonus: 'Mock analysis is key!' },
+  'phase3_w1': { label: 'Week 8', target: 90, bonus: 'Push to 90%!' },
+  'phase3_w2': { label: 'Week 9', target: 90, bonus: 'Almost there!' },
+  'phase4_w0': { label: 'Week 10', target: 85, bonus: 'Final revision!' },
+  'phase4_w1': { label: 'Week 11', target: 80, bonus: 'Exam week — stay calm!' },
+};
 
 function loadExtras(){
   try{return JSON.parse(localStorage.getItem(EXTRAS_STORAGE_KEY))||{};}
@@ -517,9 +535,40 @@ function loadExtras(){
 function saveExtras(data){
   localStorage.setItem(EXTRAS_STORAGE_KEY,JSON.stringify(data));
 }
+function loadPartial(){
+  try{return JSON.parse(localStorage.getItem(PARTIAL_STORAGE_KEY))||{};}
+  catch(e){return {};}
+}
+function savePartial(data){
+  localStorage.setItem(PARTIAL_STORAGE_KEY,JSON.stringify(data));
+}
+function loadPendingDone(){
+  try{return JSON.parse(localStorage.getItem(PENDING_DONE_KEY))||{};}
+  catch(e){return {};}
+}
+function savePendingDone(data){
+  localStorage.setItem(PENDING_DONE_KEY,JSON.stringify(data));
+}
 
 function getTaskPoints(tag){
   return TASK_POINTS[tag] || 15;
+}
+
+// Get earned points for a single task (supports partial completion)
+function getTaskEarnedPoints(dayId, taskIdx, tag){
+  const tp = loadTaskProgress();
+  const partial = loadPartial();
+  const key = dayId + '_t' + taskIdx;
+  if(!tp[key]) return 0;
+  // If partial override exists, use it; otherwise full points
+  if(partial[key] !== undefined) return partial[key];
+  return getTaskPoints(tag);
+}
+
+function setPartialPoints(dayId, taskIdx, pts){
+  const partial = loadPartial();
+  partial[dayId + '_t' + taskIdx] = parseInt(pts) || 0;
+  savePartial(partial);
 }
 
 function getDayExpectedPoints(day){
@@ -527,10 +576,9 @@ function getDayExpectedPoints(day){
 }
 
 function getDayEarnedPoints(dayId, day){
-  const tp = loadTaskProgress();
   let earned = 0;
   day.tasks.forEach((t, ti) => {
-    if(tp[dayId + '_t' + ti]) earned += getTaskPoints(t.tag);
+    earned += getTaskEarnedPoints(dayId, ti, t.tag);
   });
   return earned;
 }
@@ -545,7 +593,6 @@ function addExtraActivity(dayId){
   const descEl = document.getElementById('extraDesc_' + dayId);
   const ptsEl = document.getElementById('extraPts_' + dayId);
   if(!descEl || !ptsEl || !descEl.value.trim()) return;
-  
   const extras = loadExtras();
   if(!extras[dayId]) extras[dayId] = [];
   extras[dayId].push({
@@ -564,6 +611,73 @@ function removeExtraActivity(dayId, idx){
     saveExtras(extras);
     renderCurrentTab();
   }
+}
+
+// Get pending (incomplete) tasks from past days
+function getPendingTasks(){
+  const tp = loadTaskProgress();
+  const pendingDone = loadPendingDone();
+  const today = new Date(2026, new Date().getMonth(), new Date().getDate());
+  let pending = [];
+  Object.keys(SCHEDULE).forEach(phaseId => {
+    SCHEDULE[phaseId].forEach((week, wi) => {
+      week.days.forEach((day, di) => {
+        const dayDate = new Date(2026, day.month, day.date);
+        if(dayDate >= today) return; // Only past days
+        const dayId = getDayId(phaseId, wi, di);
+        day.tasks.forEach((t, ti) => {
+          const key = dayId + '_t' + ti;
+          if(!tp[key] && !pendingDone[key]) {
+            pending.push({
+              dayId, taskIdx: ti, tag: t.tag, desc: t.desc,
+              pts: getTaskPoints(t.tag),
+              dayLabel: `${day.dayName}, ${formatDate(day.month, day.date)}`,
+              dayTitle: day.title, key
+            });
+          }
+        });
+      });
+    });
+  });
+  return pending;
+}
+
+function completePendingTask(key){
+  const pd = loadPendingDone();
+  pd[key] = true;
+  savePendingDone(pd);
+  renderCurrentTab();
+}
+
+function getPendingEarnedPoints(){
+  const pd = loadPendingDone();
+  let earned = 0;
+  // For each completed pending task, award 80% of original points (late completion penalty)
+  Object.keys(pd).forEach(key => {
+    if(!pd[key]) return;
+    // Extract tag from key pattern: phaseX_wY_dZ_tN
+    const parts = key.split('_');
+    const phaseId = parts[0] + '_' + parts[1]; // e.g. phase1_w0 -> no, it's like phase1_w0_d0_t2
+    // We need to look up the actual task to get its tag
+    // For simplicity, award a flat 15pts per completed pending task
+    earned += 15;
+  });
+  return earned;
+}
+
+// Calculate week points
+function getWeekPoints(phaseId, weekIdx, week){
+  let expected = 0, earned = 0, bonus = 0;
+  week.days.forEach((day, di) => {
+    const dayId = getDayId(phaseId, weekIdx, di);
+    expected += getDayExpectedPoints(day);
+    earned += getDayEarnedPoints(dayId, day);
+    bonus += getDayBonusPoints(dayId);
+  });
+  const wKey = phaseId + '_w' + weekIdx;
+  const target = WEEKLY_TARGETS[wKey] || { label: 'Week', target: 80, bonus: '' };
+  const targetPts = Math.round(expected * target.target / 100);
+  return { expected, earned, bonus, total: earned + bonus, targetPct: target.target, targetPts, targetLabel: target.label, targetBonus: target.bonus };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -676,24 +790,27 @@ function renderDayCard(day,dayId,progress){
   const tp=loadTaskProgress();
   const journal=loadJournal();
   const extras=loadExtras();
+  const partial=loadPartial();
   const dayNote=journal[dayId]||'';
   const dayExtras=extras[dayId]||[];
   
-  // Points calculation
+  // Points calculation with partial support
   const expectedPts = getDayExpectedPoints(day);
   let earnedPts = 0;
   let tasksDone=0;
   const tasksHtml=day.tasks.map((t,ti)=>{
     const tKey=dayId+'_t'+ti;
     const tChecked=tp[tKey]||false;
-    const tPts = getTaskPoints(t.tag);
-    if(tChecked){ tasksDone++; earnedPts += tPts; }
+    const tMaxPts = getTaskPoints(t.tag);
+    const tEarned = getTaskEarnedPoints(dayId, ti, t.tag);
+    const isPartial = tChecked && partial[tKey] !== undefined && partial[tKey] < tMaxPts;
+    if(tChecked){ tasksDone++; earnedPts += tEarned; }
     return `
     <div class="task-item ${tChecked?'task-done':''}" id="task_${tKey}">
       <div class="task-check ${tChecked?'checked':''}" id="tcb_${tKey}" onclick="toggleTask('${dayId}',${ti})" title="Mark task done"></div>
       <span class="task-tag ${getTagClass(t.tag)}">${getTagLabel(t.tag)}</span>
       <span>${t.desc}</span>
-      <span style="margin-left:auto;font-size:.55rem;color:${tChecked?'var(--green)':'var(--text3)'};font-weight:600;white-space:nowrap">${tChecked?'✅':'⬜'} ${tPts}pts</span>
+      <span style="margin-left:auto;font-size:.55rem;color:${tChecked?(isPartial?'#f59e0b':'var(--green)'):'var(--text3)'};font-weight:600;white-space:nowrap">${tChecked?(isPartial?'⚠️':'✅'):'⬜'} ${tEarned}/${tMaxPts}pts</span>
     </div>`;}).join('');
   
   const bonusPts = dayExtras.reduce((sum, e) => sum + (e.pts || 0), 0);
@@ -709,6 +826,7 @@ function renderDayCard(day,dayId,progress){
     <div class="extra-activity">
       <span>⭐</span>
       <span>${e.desc}</span>
+      ${e.breakdown ? `<span style="font-size:.55rem;color:var(--text3);font-style:italic">(${e.breakdown})</span>` : ''}
       <span class="extra-pts">+${e.pts}pts</span>
       <span style="font-size:.55rem;color:var(--text3)">${e.time || ''}</span>
       <span style="font-size:.6rem;color:var(--text3);cursor:pointer;margin-left:auto" onclick="removeExtraActivity('${dayId}',${ei})" title="Remove">✕</span>
@@ -765,6 +883,12 @@ function renderWeek(phaseId,weekIdx,week,progress){
   const wKey=`${phaseId}_w${weekIdx}`;
   const isCollapsed=collapsedWeeks[wKey]||false;
   
+  // Weekly points
+  const weekPts = getWeekPoints(phaseId, weekIdx, week);
+  const weekScorePct = weekPts.expected > 0 ? Math.round(weekPts.total / weekPts.expected * 100) : 0;
+  const onTarget = weekScorePct >= weekPts.targetPct;
+  const weekColor = onTarget ? 'var(--green)' : weekScorePct >= 50 ? '#f59e0b' : '#f43f5e';
+  
   const daysHtml=week.days.map((day,di)=>
     renderDayCard(day,getDayId(phaseId,weekIdx,di),progress)
   ).join('');
@@ -779,6 +903,16 @@ function renderWeek(phaseId,weekIdx,week,progress){
           <span class="week-pct">${wp.pct}%</span>
           <span class="week-chevron">▼</span>
         </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(108,92,231,0.04);border:1px solid var(--border);border-top:0;font-size:.65rem;${isCollapsed?'display:none':''}">
+        <span style="color:var(--text3)">⭐ Weekly Points:</span>
+        <span style="color:${weekColor};font-weight:700">${weekPts.total}/${weekPts.expected}</span>
+        <div style="flex:1;max-width:80px;height:4px;background:rgba(42,42,90,0.2);border-radius:2px;overflow:hidden">
+          <div style="width:${Math.min(weekScorePct,100)}%;height:100%;background:${weekColor};border-radius:2px"></div>
+        </div>
+        <span style="color:var(--text3)">Target: ${weekPts.targetPct}%</span>
+        <span style="color:${weekColor};font-weight:600">${onTarget ? '✅ On Track' : '⚠️ Behind'}</span>
+        ${weekPts.bonus > 0 ? `<span style="color:var(--yellow)">+${weekPts.bonus} bonus</span>` : ''}
       </div>
       <div class="week-body ${isCollapsed?'hidden':''}" id="wb_${wKey}">
         ${daysHtml}
@@ -1180,8 +1314,30 @@ function renderOverview(){
           <p style="font-size:.72rem;color:var(--text3);margin-bottom:6px">${p.dates}</p>
           <p style="font-size:.78rem;color:var(--text2)">${p.desc}</p>
         </div>`).join('')}
-    </div>
+    </div>`;
 
+  // Pending Tasks Section
+  const pendingTasks = getPendingTasks();
+  if(pendingTasks.length > 0) {
+    html += `
+    <h3 style="font-size:1.1rem;margin:24px 0 16px;color:#f43f5e">📋 Pending Tasks (${pendingTasks.length})</h3>
+    <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid #f43f5e;border-radius:var(--radius);padding:16px">
+      <p style="font-size:.75rem;color:var(--text3);margin-bottom:12px">Tasks not completed on their scheduled day. Complete them to earn <strong style="color:var(--yellow)">15pts each</strong> (late completion). These won't carry forward forever — clear them!</p>
+      <div style="display:grid;gap:6px">
+        ${pendingTasks.slice(0, 20).map(pt => `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card2);border-radius:4px;font-size:.75rem">
+            <div class="task-check" onclick="completePendingTask('${pt.key}')" title="Mark as done (late)" style="width:16px;height:16px;border-radius:4px;border:2px solid #f43f5e;cursor:pointer;flex-shrink:0"></div>
+            <span class="task-tag ${getTagClass(pt.tag)}" style="font-size:.6rem">${getTagLabel(pt.tag)}</span>
+            <span style="color:var(--text2);flex:1">${pt.desc}</span>
+            <span style="font-size:.6rem;color:var(--text3);white-space:nowrap">from ${pt.dayLabel}</span>
+            <span style="font-size:.6rem;color:var(--yellow);font-weight:600">15pts</span>
+          </div>`).join('')}
+        ${pendingTasks.length > 20 ? `<div style="font-size:.7rem;color:var(--text3);text-align:center;padding:6px">...and ${pendingTasks.length - 20} more</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  html += `
     <h3 style="font-size:1.1rem;margin:24px 0 16px">⚡ Key Rules</h3>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
       <ul style="font-size:.82rem;color:var(--text2);list-style:none;display:grid;gap:8px">
@@ -1827,14 +1983,17 @@ function renderJournal() {
         ${te.day.tasks.map((t,ti) => {
           const tKey = te.dayId + '_t' + ti;
           const tChecked = tp[tKey] || false;
-          const tPts = getTaskPoints(t.tag);
-          return `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:.78rem;padding:3px 0;${tChecked?'opacity:0.5;text-decoration:line-through':''}">
+          const tMaxPts = getTaskPoints(t.tag);
+          const tEarned = getTaskEarnedPoints(te.dayId, ti, t.tag);
+          const isPartial = tChecked && tEarned < tMaxPts;
+          return `<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:.78rem;padding:3px 0;${tChecked?'opacity:0.6;text-decoration:line-through':''}">
             <div style="display:flex;align-items:center;gap:6px">
-              <span style="color:${tChecked?'var(--green)':'var(--text3)'}">${tChecked?'✅':'⬜'}</span>
+              <span style="color:${tChecked?(isPartial?'#f59e0b':'var(--green)'):'var(--text3)'}">${tChecked?(isPartial?'⚠️':'✅'):'⬜'}</span>
               <span class="task-tag ${getTagClass(t.tag)}" style="font-size:.6rem">${getTagLabel(t.tag)}</span>
               <span style="color:var(--text2)">${t.desc}</span>
+              ${isPartial ? `<span style="font-size:.55rem;color:#f59e0b;font-style:italic">(partial)</span>` : ''}
             </div>
-            <span style="font-size:.65rem;color:${tChecked?'var(--green)':'var(--text3)'};font-weight:600">${tChecked?tPts:0}/${tPts}</span>
+            <span style="font-size:.65rem;color:${tChecked?(isPartial?'#f59e0b':'var(--green)'):'var(--text3)'};font-weight:600">${tEarned}/${tMaxPts}</span>
           </div>`;
         }).join('')}
         ${todayExtras.length > 0 ? `
@@ -2593,34 +2752,41 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 // SEED: Pre-populate Jun 16 data (one-time)
 // ═══════════════════════════════════════════════════════════════
 (function seedJun16() {
-  const SEED_KEY = 'ibps_so_seed_jun16_v2';
-  if(localStorage.getItem(SEED_KEY)) return; // Already seeded
+  const SEED_KEY = 'ibps_so_seed_jun16_v3';
+  if(localStorage.getItem(SEED_KEY)) return;
 
-  // Day ID for Jun 16 = phase1_w0_d0 (first day of first week of phase 1)
+  // Clean up old seeds
+  localStorage.removeItem('ibps_so_seed_jun16_v2');
+
   const dayId = 'phase1_w0_d0';
+  // Tasks: 0=Puzzle Lec 14(R,25), 1=Simplification(Q,25), 2=Grammar 16-30(E,20), 3=Quick Review(R,25)
 
-  // Mark task 2 (Grammar Rules 16-30) as done
-  // Task indices: 0=Puzzle Lec 14, 1=Simplification, 2=Grammar Rules 16-30, 3=Quick Review
+  // Mark Grammar Rules 16-30 as checked (partial: did 16-20 only = 5/15 rules)
   const tp = loadTaskProgress();
-  tp[dayId + '_t2'] = true; // Grammar Rules 16-30 (partially: did 13-20 i.e. rules 16-20 from this batch + 13-15 from previous)
+  tp[dayId + '_t2'] = true;
   saveTaskProgress(tp);
 
-  // Add extra activities the user completed today
+  // Set partial points: 5 out of 15 rules = 33% of 20pts = 7pts
+  const partial = loadPartial();
+  partial[dayId + '_t2'] = 7; // 5/15 rules done
+  savePartial(partial);
+
+  // Editorial as ONE consolidated unit (10 vocabs + 4 OWS + 5 I&P + 2 articles with RC)
   const extras = loadExtras();
   extras[dayId] = [
-    { desc: 'Editorial done — Full reading + analysis', pts: 15, time: '21:00' },
-    { desc: 'Vocabulary from editorial — New words noted', pts: 10, time: '21:00' },
-    { desc: 'Idioms & Phrases (I&P) practice', pts: 8, time: '21:00' },
-    { desc: 'One-Word Substitution (OWS) practice', pts: 8, time: '21:00' },
-    { desc: '2 Articles — 1 full reading + 1 skimming', pts: 12, time: '21:00' },
-    { desc: 'RC Questions — Q-type practice from skimming article', pts: 12, time: '21:00' },
+    {
+      desc: 'Daily Editorial Practice — 10 vocabs, 4 OWS, 5 I&P, 2 articles (1 full read + 1 skimming), RC Qs',
+      pts: 20,
+      time: '21:00',
+      breakdown: '10 vocabs + 4 OWS + 5 I&P + 2 articles + RC questions'
+    }
   ];
   saveExtras(extras);
 
-  // Add journal note
+  // Journal notes
   const j = loadJournal();
-  j[dayId] = 'Grammar Rules 13-20 done (8 rules). Editorial with vocab, I&P, OWS. 2 articles (1 full reading, 1 skimming with RC Qs).';
-  j['journal_' + dayId] = 'Today covered Grammar Rules 13-20 (Nimisha Mam). Did editorial practice with vocabulary extraction, idioms & phrases, one-word substitution. Read 2 newspaper articles — one full reading and one skimming technique with RC questions practice. Puzzle Lec 14 and Simplification not started yet — will complete tomorrow or adjust.';
+  j[dayId] = 'Grammar Rules 13-20 (5/15 of today\'s target). Editorial with full breakdown done.';
+  j['journal_' + dayId] = 'Did Grammar Rules 13-20 (Nimisha Mam) — only 5 out of 15 scheduled rules (16-30). Remaining rules 21-30 added to pending.\nEditorial practice: 10 new vocabulary words, 4 one-word substitutions, 5 idioms & phrases. Read 2 newspaper articles (1 full reading + 1 skimming technique) with RC questions practice.\nPuzzle Lec 14 and Simplification not done — moved to pending tasks.';
   saveJournal(j);
 
   localStorage.setItem(SEED_KEY, 'true');
