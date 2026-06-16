@@ -2752,18 +2752,21 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 // SEED: Pre-populate Jun 16 data (one-time)
 // ═══════════════════════════════════════════════════════════════
 (function seedJun16() {
-  const SEED_KEY = 'ibps_so_seed_jun16_v3';
+  const SEED_KEY = 'ibps_so_seed_jun16_v4';
   if(localStorage.getItem(SEED_KEY)) return;
 
   // Clean up old seeds
+  localStorage.removeItem('ibps_so_seed_jun16_v3');
   localStorage.removeItem('ibps_so_seed_jun16_v2');
 
   const dayId = 'phase1_w0_d0';
   // Tasks: 0=Puzzle Lec 14(R,25), 1=Simplification(Q,25), 2=Grammar 16-30(E,20), 3=Quick Review(R,25)
 
   // Mark Grammar Rules 16-30 as checked (partial: did 16-20 only = 5/15 rules)
+  // Mark Quick Review: Revisit 2 weak puzzle sets as checked (completed Flat + Floor based puzzles)
   const tp = loadTaskProgress();
   tp[dayId + '_t2'] = true;
+  tp[dayId + '_t3'] = true;
   saveTaskProgress(tp);
 
   // Set partial points: 5 out of 15 rules = 33% of 20pts = 7pts
@@ -2785,8 +2788,8 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 
   // Journal notes
   const j = loadJournal();
-  j[dayId] = 'Grammar Rules 13-20 (5/15 of today\'s target). Editorial with full breakdown done.';
-  j['journal_' + dayId] = 'Did Grammar Rules 13-20 (Nimisha Mam) — only 5 out of 15 scheduled rules (16-30). Remaining rules 21-30 added to pending.\nEditorial practice: 10 new vocabulary words, 4 one-word substitutions, 5 idioms & phrases. Read 2 newspaper articles (1 full reading + 1 skimming technique) with RC questions practice.\nPuzzle Lec 14 and Simplification not done — moved to pending tasks.';
+  j[dayId] = 'Grammar Rules 13-20 (5/15 rules). Editorial done. Flat + Floor Puzzles done (Champions Book pg 472, Q316-325).';
+  j['journal_' + dayId] = 'Did Grammar Rules 13-20 (Nimisha Mam) — only 5 out of 15 scheduled rules (16-30). Remaining rules 21-30 added to pending.\nEditorial practice: 10 new vocabulary words, 4 one-word substitutions, 5 idioms & phrases. Read 2 newspaper articles (1 full reading + 1 skimming technique) with RC questions practice.\nReasoning: Completed "Quick Review: Revisit 2 weak puzzle sets from Lec 1-13" by solving Flat + Floor Based Puzzles from Champions Reasoning Book (page 472, Q316-320 and Q321-325 - 10 questions total).\nPuzzle Lec 14 and Simplification not done — moved to pending tasks.';
   saveJournal(j);
 
   localStorage.setItem(SEED_KEY, 'true');
