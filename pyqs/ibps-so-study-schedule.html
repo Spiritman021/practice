@@ -90,7 +90,16 @@ a:hover{text-decoration:underline}
 .day-title{font-weight:700;font-size:.88rem;margin-bottom:6px}
 
 .day-tasks{display:flex;flex-direction:column;gap:4px}
-.task-item{display:flex;align-items:flex-start;gap:8px;font-size:.78rem;color:var(--text2);line-height:1.4}
+.task-item{display:flex;align-items:flex-start;gap:8px;font-size:.78rem;color:var(--text2);line-height:1.4;transition:opacity .2s}
+.task-item.task-done{opacity:0.5;text-decoration:line-through}
+.task-check{width:16px;height:16px;border-radius:4px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;background:transparent;transition:all .2s}
+.task-check:hover{border-color:var(--accent)}
+.task-check.checked{background:var(--green);border-color:var(--green)}
+.task-check.checked::after{content:'✓';color:#fff;font-size:.55rem;font-weight:700}
+.day-extra-notes{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(42,42,90,0.3)}
+.day-extra-input{width:100%;background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text2);font-size:.72rem;font-family:inherit;resize:none;outline:none;min-height:28px;transition:border-color .2s}
+.day-extra-input:focus{border-color:var(--accent)}
+.day-extra-input::placeholder{color:var(--text3)}
 .task-tag{padding:1px 6px;border-radius:4px;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:1px}
 .tag-r{background:rgba(108,92,231,0.2);color:var(--accent2)}
 .tag-q{background:rgba(0,184,148,0.2);color:var(--green)}
@@ -155,6 +164,37 @@ a:hover{text-decoration:underline}
 /* ANIMATIONS */
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .4s ease forwards}
+
+/* TOPIC CHECKLIST */
+.topic-section{margin-bottom:24px}
+.topic-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2px;transition:all .2s}
+.topic-header:hover{border-color:var(--accent);background:rgba(108,92,231,0.05)}
+.topic-header .arrow{transition:transform .2s;font-size:.8rem}
+.topic-header.open .arrow{transform:rotate(90deg)}
+.topic-list{display:none;border:1px solid var(--border);border-top:0;border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+.topic-list.show{display:block}
+.topic-row{display:grid;grid-template-columns:1fr auto auto auto auto;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid rgba(42,42,90,0.3);font-size:.82rem;color:var(--text2);transition:background .15s}
+.topic-row:hover{background:rgba(108,92,231,0.04)}
+.topic-row:last-child{border-bottom:none}
+.topic-row .topic-name{display:flex;align-items:center;gap:8px}
+.topic-row .topic-name .priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.topic-row .cb-col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.topic-row .cb-col label{font-size:.55rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.topic-row .cb-col input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
+.topic-analytics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.topic-stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.topic-stat-card .stat-num{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topic-stat-card .stat-label{font-size:.72rem;color:var(--text3);margin-top:4px}
+.topic-progress-bar{height:8px;background:rgba(42,42,90,0.3);border-radius:4px;margin-top:8px;overflow:hidden}
+.topic-progress-bar .fill{height:100%;border-radius:4px;transition:width .4s ease}
+.topic-filter-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.topic-filter-tab{padding:6px 14px;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--text3);background:transparent;transition:all .2s}
+.topic-filter-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+@media(max-width:600px){
+  .topic-row{grid-template-columns:1fr auto auto auto auto;gap:4px;padding:8px 10px;font-size:.75rem}
+  .topic-row .cb-col label{font-size:.5rem}
+  .topic-analytics{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -181,6 +221,8 @@ a:hover{text-decoration:underline}
   <div class="nav-tab" data-tab="phase3">🎯 Phase 3</div>
   <div class="nav-tab" data-tab="phase4">🚀 Phase 4</div>
   <div class="nav-tab" data-tab="analytics">📈 Analytics</div>
+  <div class="nav-tab" data-tab="topics">📋 Topics</div>
+  <div class="nav-tab" data-tab="journal">📓 Journal</div>
   <div class="nav-tab" data-tab="notes">📝 Notes & AI Sync</div>
 </div>
 
@@ -349,6 +391,7 @@ phase4: [
 // STORAGE: localStorage integration
 // ═══════════════════════════════════════════════════════════════
 const STORAGE_KEY = 'ibps_so_schedule_v2';
+const TOPICS_STORAGE_KEY = 'ibps_so_topics_v1';
 
 function loadProgress(){
   try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}
@@ -371,6 +414,157 @@ function loadNotes(){
 function saveNotes(text){
   localStorage.setItem('ibps_so_notes',text);
 }
+
+function loadTopicsProgress(){
+  try{return JSON.parse(localStorage.getItem(TOPICS_STORAGE_KEY))||{};}
+  catch(e){return {};}
+}
+function saveTopicsProgress(data){
+  localStorage.setItem(TOPICS_STORAGE_KEY,JSON.stringify(data));
+}
+function toggleTopicCheckbox(topicId, checkType){
+  const p = loadTopicsProgress();
+  const key = topicId + '_' + checkType;
+  p[key] = !p[key];
+  saveTopicsProgress(p);
+  renderCurrentTab();
+}
+
+// Task-level progress (per-task checkbox within a day)
+const TASK_STORAGE_KEY = 'ibps_so_tasks_v1';
+function loadTaskProgress(){
+  try{return JSON.parse(localStorage.getItem(TASK_STORAGE_KEY))||{};}
+  catch(e){return {};}
+}
+function saveTaskProgress(data){
+  localStorage.setItem(TASK_STORAGE_KEY,JSON.stringify(data));
+}
+function toggleTask(dayId, taskIdx){
+  const p = loadTaskProgress();
+  const key = dayId + '_t' + taskIdx;
+  p[key] = !p[key];
+  saveTaskProgress(p);
+  // Update the UI without full re-render for snappy feel
+  const el = document.getElementById('task_' + key);
+  const cb = document.getElementById('tcb_' + key);
+  if(el && cb){
+    if(p[key]){ el.classList.add('task-done'); cb.classList.add('checked'); }
+    else { el.classList.remove('task-done'); cb.classList.remove('checked'); }
+  }
+  // Update task counter
+  updateDayTaskCounter(dayId);
+}
+function updateDayTaskCounter(dayId){
+  const tp = loadTaskProgress();
+  const el = document.getElementById('taskCounter_' + dayId);
+  if(!el) return;
+  // Count how many tasks are checked for this day
+  let done = 0, total = 0;
+  let i = 0;
+  while(true){
+    const key = dayId + '_t' + i;
+    const taskEl = document.getElementById('task_' + key);
+    if(!taskEl) break;
+    total++;
+    if(tp[key]) done++;
+    i++;
+  }
+  el.textContent = done + '/' + total + ' tasks';
+  el.style.color = done === total && total > 0 ? 'var(--green)' : 'var(--text3)';
+}
+
+// Daily journal / extra notes per day
+const JOURNAL_STORAGE_KEY = 'ibps_so_journal_v1';
+function loadJournal(){
+  try{return JSON.parse(localStorage.getItem(JOURNAL_STORAGE_KEY))||{};}
+  catch(e){return {};}
+}
+function saveJournal(data){
+  localStorage.setItem(JOURNAL_STORAGE_KEY,JSON.stringify(data));
+}
+function saveDayNote(dayId){
+  const el = document.getElementById('dayNote_' + dayId);
+  if(!el) return;
+  const j = loadJournal();
+  j[dayId] = el.value;
+  saveJournal(j);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOPICS CHECKLIST DATA
+// ═══════════════════════════════════════════════════════════════
+// priority: 'critical' | 'high' | 'medium' | 'low'
+// baseline: {cls:true} means Class checkbox pre-checked (user already covered it)
+const TOPICS_DATA = {
+  reasoning: {
+    name: '🧠 Reasoning Ability',
+    color: '#6c5ce7',
+    topics: [
+      {id:'r_puzzle',name:'Puzzles (All 17 Types)',priority:'critical',baseline:{cls:true},note:'Adda247 Lec 1-17 ✅'},
+      {id:'r_sa',name:'Seating Arrangement (All Types)',priority:'critical',baseline:{},note:'Adda247 Lec 1-12 (scheduled Week 1-2)'},
+      {id:'r_inequality',name:'Inequality',priority:'high',baseline:{cls:true},note:'Basics done'},
+      {id:'r_syllogism',name:'Syllogism',priority:'high',baseline:{cls:true},note:'Basics done'},
+      {id:'r_blood',name:'Blood Relation',priority:'high',baseline:{cls:true},note:'Adda247 all 7 lecs ✅'},
+      {id:'r_direction',name:'Direction & Distance',priority:'high',baseline:{cls:true},note:'Adda247 all 4 lecs ✅'},
+      {id:'r_coding',name:'Coding-Decoding',priority:'medium',baseline:{cls:true},note:'Done'},
+      {id:'r_alpha',name:'Alphanumeric Series',priority:'medium',baseline:{cls:true},note:'Done'},
+      {id:'r_machine',name:'Machine Input-Output',priority:'medium',baseline:{},note:'Scheduled Week 3'},
+      {id:'r_datasuff',name:'Data Sufficiency (Reasoning)',priority:'medium',baseline:{},note:'Scheduled Week 3'},
+      {id:'r_ranking',name:'Order & Ranking',priority:'medium',baseline:{},note:'Scheduled Week 3'},
+      {id:'r_logical',name:'Logical/Critical Reasoning',priority:'medium',baseline:{},note:'Scheduled Week 3'},
+    ]
+  },
+  quant: {
+    name: '🔢 Quantitative Aptitude',
+    color: '#00b894',
+    topics: [
+      {id:'q_di_table',name:'DI — Table',priority:'critical',baseline:{},note:'Scheduled Week 2-3'},
+      {id:'q_di_pie',name:'DI — Pie Chart',priority:'critical',baseline:{},note:'Scheduled Week 2-3'},
+      {id:'q_di_bar',name:'DI — Bar Graph',priority:'critical',baseline:{},note:'Scheduled Week 2-3'},
+      {id:'q_di_line',name:'DI — Line Graph',priority:'critical',baseline:{},note:'Scheduled Week 2-3'},
+      {id:'q_di_caselet',name:'DI — Caselet / Missing DI',priority:'high',baseline:{},note:'Scheduled Week 3'},
+      {id:'q_simplification',name:'Simplification & Approximation',priority:'critical',baseline:{},note:'Scheduled Week 1'},
+      {id:'q_numseries',name:'Number Series',priority:'critical',baseline:{cls:true},note:'Done'},
+      {id:'q_quadratic',name:'Quadratic Equations',priority:'critical',baseline:{cls:true},note:'Done'},
+      {id:'q_percentage',name:'Percentage',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_ratio',name:'Ratio & Proportion',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_sici',name:'Simple Interest / Compound Interest',priority:'medium',baseline:{cls:true},note:'Done'},
+      {id:'q_pl',name:'Profit & Loss / Discount',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_age',name:'Ages',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_partnership',name:'Partnership',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_mixture',name:'Mixture & Alligation',priority:'high',baseline:{cls:true},note:'Done'},
+      {id:'q_average',name:'Average',priority:'high',baseline:{},note:'Scheduled Week 1'},
+      {id:'q_twd',name:'Time & Work',priority:'high',baseline:{},note:'Scheduled Week 1'},
+      {id:'q_pipes',name:'Pipes & Cisterns',priority:'high',baseline:{},note:'Scheduled Week 1'},
+      {id:'q_boats',name:'Boats & Streams',priority:'medium',baseline:{},note:'Scheduled Week 1'},
+      {id:'q_tsd',name:'Time Speed Distance',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'q_trains',name:'Trains',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'q_datasuff',name:'Data Sufficiency (Quant)',priority:'medium',baseline:{},note:'Scheduled Week 3'},
+      {id:'q_probability',name:'Probability',priority:'low',baseline:{},note:'Low priority'},
+      {id:'q_mensuration',name:'Mensuration / Geometry',priority:'medium',baseline:{},note:'Medium priority'},
+      {id:'q_numsystem',name:'Number System',priority:'low',baseline:{},note:'Low priority'},
+    ]
+  },
+  english: {
+    name: '🔤 English Language',
+    color: '#e17055',
+    topics: [
+      {id:'e_rc',name:'Reading Comprehension (RC)',priority:'critical',baseline:{},note:'Strategy intro Week 1, practice Week 2-3'},
+      {id:'e_grammar',name:'Grammar Rules (Nimisha Mam 1-120)',priority:'critical',baseline:{},note:'1-15 done, 16-120 scheduled'},
+      {id:'e_cloze',name:'Cloze Test',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'e_error',name:'Error Detection / Spotting',priority:'high',baseline:{},note:'Scheduled Week 3'},
+      {id:'e_parajumble',name:'Para Jumbles',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'e_sentence',name:'Sentence Improvement / Correction',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'e_fillers',name:'Fill in the Blanks / Double Fillers',priority:'high',baseline:{},note:'Scheduled Week 2'},
+      {id:'e_wordinterchange',name:'Word Interchange (New Pattern)',priority:'medium',baseline:{},note:'Scheduled Week 2-3'},
+      {id:'e_vocab',name:'Vocabulary (Daily Editorial + Words)',priority:'high',baseline:{cls:true},note:'Daily practice ongoing'},
+      {id:'e_pos',name:'Parts of Speech',priority:'medium',baseline:{cls:true},note:'Done'},
+      {id:'e_connectors',name:'Connectors & Starters',priority:'medium',baseline:{cls:true},note:'Done'},
+      {id:'e_idioms',name:'Idioms & Phrases',priority:'medium',baseline:{cls:true},note:'Basic coverage done'},
+      {id:'e_inappropriate',name:'Inappropriate Word (Passage-based)',priority:'medium',baseline:{},note:'Scheduled Week 2'},
+    ]
+  }
+};
 
 // ═══════════════════════════════════════════════════════════════
 // RENDER FUNCTIONS
@@ -403,19 +597,37 @@ function formatDate(m,d){
 function renderDayCard(day,dayId,progress){
   const checked=progress[dayId]||false;
   const typeClass=getDayTypeClass(day.type);
-  const tasksHtml=day.tasks.map(t=>`
-    <div class="task-item">
+  const tp=loadTaskProgress();
+  const journal=loadJournal();
+  const dayNote=journal[dayId]||'';
+  
+  let tasksDone=0;
+  const tasksHtml=day.tasks.map((t,ti)=>{
+    const tKey=dayId+'_t'+ti;
+    const tChecked=tp[tKey]||false;
+    if(tChecked) tasksDone++;
+    return `
+    <div class="task-item ${tChecked?'task-done':''}" id="task_${tKey}">
+      <div class="task-check ${tChecked?'checked':''}" id="tcb_${tKey}" onclick="toggleTask('${dayId}',${ti})" title="Mark task done"></div>
       <span class="task-tag ${getTagClass(t.tag)}">${getTagLabel(t.tag)}</span>
       <span>${t.desc}</span>
-    </div>`).join('');
+    </div>`;}).join('');
+  
+  const taskCounterColor = tasksDone===day.tasks.length && day.tasks.length>0 ? 'var(--green)' : 'var(--text3)';
   
   return `
     <div class="day-card ${typeClass} ${checked?'completed':''}" id="card_${dayId}">
-      <div class="day-check ${checked?'checked':''}" onclick="toggleDay('${dayId}')" title="Mark as done"></div>
+      <div class="day-check ${checked?'checked':''}" onclick="toggleDay('${dayId}')" title="Mark entire day as done"></div>
       <div class="day-info">
-        <div class="day-date">${day.dayName}, ${formatDate(day.month,day.date)}</div>
+        <div class="day-date" style="display:flex;justify-content:space-between;align-items:center">
+          <span>${day.dayName}, ${formatDate(day.month,day.date)}</span>
+          <span id="taskCounter_${dayId}" style="font-size:.6rem;color:${taskCounterColor}">${tasksDone}/${day.tasks.length} tasks</span>
+        </div>
         <div class="day-title">${day.title}</div>
         <div class="day-tasks">${tasksHtml}</div>
+        <div class="day-extra-notes">
+          <input type="text" class="day-extra-input" id="dayNote_${dayId}" value="${dayNote.replace(/"/g,'&quot;')}" placeholder="+ Add extra notes for today..." onblur="saveDayNote('${dayId}')">
+        </div>
       </div>
       <div class="day-hours">${day.hours}</div>
     </div>`;
@@ -865,7 +1077,277 @@ function renderOverview(){
   </div>`
   
   return html;
-}function renderAnalytics(){
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER: TOPICS CHECKLIST
+// ═══════════════════════════════════════════════════════════════
+let topicFilter = 'all'; // 'all', 'reasoning', 'quant', 'english', 'critical', 'uncovered'
+
+function setTopicFilter(filter) {
+  topicFilter = filter;
+  renderCurrentTab();
+}
+
+function toggleTopicSection(sectionId) {
+  const list = document.getElementById('topicList_' + sectionId);
+  const header = document.getElementById('topicHeader_' + sectionId);
+  if (list && header) {
+    list.classList.toggle('show');
+    header.classList.toggle('open');
+  }
+}
+
+function getTopicStats() {
+  const tp = loadTopicsProgress();
+  let stats = { total: 0, cls: 0, rev: 0, qs: 0, fullyDone: 0 };
+  let subjectStats = {};
+  let priorityStats = { critical: { total: 0, cls: 0, rev: 0, qs: 0 }, high: { total: 0, cls: 0, rev: 0, qs: 0 }, medium: { total: 0, cls: 0, rev: 0, qs: 0 }, low: { total: 0, cls: 0, rev: 0, qs: 0 } };
+
+  Object.keys(TOPICS_DATA).forEach(subjectKey => {
+    const subject = TOPICS_DATA[subjectKey];
+    subjectStats[subjectKey] = { name: subject.name, color: subject.color, total: 0, cls: 0, rev: 0, qs: 0, fullyDone: 0 };
+
+    subject.topics.forEach(topic => {
+      stats.total++;
+      subjectStats[subjectKey].total++;
+      priorityStats[topic.priority].total++;
+
+      const clsChecked = tp[topic.id + '_cls'] !== undefined ? tp[topic.id + '_cls'] : (topic.baseline.cls || false);
+      const revChecked = tp[topic.id + '_rev'] || false;
+      const qsChecked = tp[topic.id + '_qs'] || false;
+
+      if (clsChecked) { stats.cls++; subjectStats[subjectKey].cls++; priorityStats[topic.priority].cls++; }
+      if (revChecked) { stats.rev++; subjectStats[subjectKey].rev++; priorityStats[topic.priority].rev++; }
+      if (qsChecked) { stats.qs++; subjectStats[subjectKey].qs++; priorityStats[topic.priority].qs++; }
+      if (clsChecked && revChecked && qsChecked) { stats.fullyDone++; subjectStats[subjectKey].fullyDone++; }
+    });
+  });
+
+  return { stats, subjectStats, priorityStats };
+}
+
+function renderTopics() {
+  const tp = loadTopicsProgress();
+  const { stats, subjectStats, priorityStats } = getTopicStats();
+
+  const clsPct = stats.total ? Math.round(stats.cls / stats.total * 100) : 0;
+  const revPct = stats.total ? Math.round(stats.rev / stats.total * 100) : 0;
+  const qsPct = stats.total ? Math.round(stats.qs / stats.total * 100) : 0;
+  const fullyPct = stats.total ? Math.round(stats.fullyDone / stats.total * 100) : 0;
+
+  // Priority color map
+  const priorityColors = { critical: '#f43f5e', high: '#f59e0b', medium: '#06b6d4', low: '#94a3b8' };
+  const priorityLabels = { critical: '🔴 Critical', high: '🟠 High', medium: '🔵 Medium', low: '⚪ Low' };
+
+  let html = `<div class="phase-section" style="animation:fadeIn .4s ease">
+    <h2 style="font-size:1.3rem;margin-bottom:6px">📋 Topics Checklist & Analysis</h2>
+    <p style="font-size:.82rem;color:var(--text3);margin-bottom:20px">Track your preparation across 3 dimensions: <strong style="color:var(--accent2)">📹 Class</strong> (watched/studied), <strong style="color:var(--green)">🔄 Revision</strong> (revised once), <strong style="color:var(--accent3)">📝 Questions</strong> (practiced 15+ Qs). Tell me when you complete a topic and I'll update it!</p>
+
+    <!-- Overall Analytics Dashboard -->
+    <div class="topic-analytics">
+      <div class="topic-stat-card">
+        <div class="stat-num">${clsPct}%</div>
+        <div class="stat-label">📹 Classes Done</div>
+        <div class="topic-progress-bar"><div class="fill" style="width:${clsPct}%;background:linear-gradient(90deg,#6c5ce7,#a29bfe)"></div></div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">${stats.cls}/${stats.total} topics</div>
+      </div>
+      <div class="topic-stat-card">
+        <div class="stat-num">${revPct}%</div>
+        <div class="stat-label">🔄 Revision Done</div>
+        <div class="topic-progress-bar"><div class="fill" style="width:${revPct}%;background:linear-gradient(90deg,#00b894,#55efc4)"></div></div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">${stats.rev}/${stats.total} topics</div>
+      </div>
+      <div class="topic-stat-card">
+        <div class="stat-num">${qsPct}%</div>
+        <div class="stat-label">📝 Questions Practiced</div>
+        <div class="topic-progress-bar"><div class="fill" style="width:${qsPct}%;background:linear-gradient(90deg,#e17055,#fab1a0)"></div></div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">${stats.qs}/${stats.total} topics</div>
+      </div>
+      <div class="topic-stat-card">
+        <div class="stat-num">${fullyPct}%</div>
+        <div class="stat-label">✅ Fully Mastered</div>
+        <div class="topic-progress-bar"><div class="fill" style="width:${fullyPct}%;background:linear-gradient(90deg,#fdcb6e,#ffeaa7)"></div></div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">${stats.fullyDone}/${stats.total} topics (Class + Rev + Qs)</div>
+      </div>
+    </div>
+
+    <!-- Subject-wise Breakdown -->
+    <div class="chart-container" style="margin-bottom:20px">
+      <div class="chart-title">📊 Subject-wise Completion</div>
+      <div style="display:grid;gap:14px">
+        ${Object.keys(subjectStats).map(key => {
+          const ss = subjectStats[key];
+          const sClsPct = ss.total ? Math.round(ss.cls / ss.total * 100) : 0;
+          const sRevPct = ss.total ? Math.round(ss.rev / ss.total * 100) : 0;
+          const sQsPct = ss.total ? Math.round(ss.qs / ss.total * 100) : 0;
+          return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-weight:700;font-size:.85rem;color:${ss.color}">${ss.name}</span>
+              <span style="font-size:.7rem;color:var(--text3)">${ss.cls}/${ss.total} classes | ${ss.rev}/${ss.total} revised | ${ss.qs}/${ss.total} practiced</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:.65rem;color:var(--text3);margin-bottom:3px">📹 Class ${sClsPct}%</div>
+                <div class="topic-progress-bar"><div class="fill" style="width:${sClsPct}%;background:${ss.color}"></div></div>
+              </div>
+              <div>
+                <div style="font-size:.65rem;color:var(--text3);margin-bottom:3px">🔄 Revision ${sRevPct}%</div>
+                <div class="topic-progress-bar"><div class="fill" style="width:${sRevPct}%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="font-size:.65rem;color:var(--text3);margin-bottom:3px">📝 Questions ${sQsPct}%</div>
+                <div class="topic-progress-bar"><div class="fill" style="width:${sQsPct}%;background:var(--accent3)"></div></div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Critical & High Priority Topic Coverage -->
+    <div class="chart-container" style="margin-bottom:20px">
+      <div class="chart-title">🎯 Priority-wise Coverage (Exam Weightage)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+        ${['critical','high','medium','low'].map(p => {
+          const ps = priorityStats[p];
+          const pClsPct = ps.total ? Math.round(ps.cls / ps.total * 100) : 0;
+          const borderColor = pClsPct >= 80 ? 'var(--green)' : pClsPct >= 50 ? '#f59e0b' : '#f43f5e';
+          return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;border-left:3px solid ${priorityColors[p]}">
+            <div style="font-size:.75rem;font-weight:700;color:${priorityColors[p]};margin-bottom:6px">${priorityLabels[p]}</div>
+            <div style="font-size:1.3rem;font-weight:800;color:var(--text)">${pClsPct}%</div>
+            <div style="font-size:.6rem;color:var(--text3)">Classes: ${ps.cls}/${ps.total}</div>
+            <div class="topic-progress-bar" style="margin-top:6px"><div class="fill" style="width:${pClsPct}%;background:${priorityColors[p]}"></div></div>
+            <div style="font-size:.55rem;color:var(--text3);margin-top:4px">Rev: ${ps.rev}/${ps.total} | Qs: ${ps.qs}/${ps.total}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="topic-filter-tabs">
+      <div class="topic-filter-tab ${topicFilter==='all'?'active':''}" onclick="setTopicFilter('all')">All Topics (${stats.total})</div>
+      <div class="topic-filter-tab ${topicFilter==='reasoning'?'active':''}" onclick="setTopicFilter('reasoning')">🧠 Reasoning</div>
+      <div class="topic-filter-tab ${topicFilter==='quant'?'active':''}" onclick="setTopicFilter('quant')">🔢 Quant</div>
+      <div class="topic-filter-tab ${topicFilter==='english'?'active':''}" onclick="setTopicFilter('english')">🔤 English</div>
+      <div class="topic-filter-tab ${topicFilter==='critical'?'active':''}" onclick="setTopicFilter('critical')">🔴 Critical Only</div>
+      <div class="topic-filter-tab ${topicFilter==='uncovered'?'active':''}" onclick="setTopicFilter('uncovered')">⚠️ Not Covered Yet</div>
+    </div>
+
+    <!-- Topic Lists -->`;
+
+  Object.keys(TOPICS_DATA).forEach(subjectKey => {
+    const subject = TOPICS_DATA[subjectKey];
+    const ss = subjectStats[subjectKey];
+    const sClsPct = ss.total ? Math.round(ss.cls / ss.total * 100) : 0;
+
+    // Filter logic
+    if (topicFilter === 'reasoning' && subjectKey !== 'reasoning') return;
+    if (topicFilter === 'quant' && subjectKey !== 'quant') return;
+    if (topicFilter === 'english' && subjectKey !== 'english') return;
+
+    let filteredTopics = subject.topics;
+    if (topicFilter === 'critical') {
+      filteredTopics = subject.topics.filter(t => t.priority === 'critical' || t.priority === 'high');
+    }
+    if (topicFilter === 'uncovered') {
+      filteredTopics = subject.topics.filter(t => {
+        const clsChecked = tp[t.id + '_cls'] !== undefined ? tp[t.id + '_cls'] : (t.baseline.cls || false);
+        return !clsChecked;
+      });
+    }
+    if (filteredTopics.length === 0) return;
+
+    const isOpen = topicFilter !== 'all';
+
+    html += `
+    <div class="topic-section">
+      <div class="topic-header ${isOpen?'open':''}" id="topicHeader_${subjectKey}" onclick="toggleTopicSection('${subjectKey}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="arrow">▶</span>
+          <span style="font-weight:700;color:${subject.color}">${subject.name}</span>
+          <span style="font-size:.7rem;color:var(--text3)">(${filteredTopics.length} topics)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:.7rem;color:var(--text3)">📹 ${ss.cls}/${ss.total}</span>
+          <span style="font-size:.7rem;color:var(--text3)">🔄 ${ss.rev}/${ss.total}</span>
+          <span style="font-size:.7rem;color:var(--text3)">📝 ${ss.qs}/${ss.total}</span>
+          <div style="width:60px;height:6px;background:rgba(42,42,90,0.3);border-radius:3px;overflow:hidden">
+            <div style="width:${sClsPct}%;height:100%;background:${subject.color};border-radius:3px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="topic-list ${isOpen?'show':''}" id="topicList_${subjectKey}">
+        <div class="topic-row" style="background:rgba(42,42,90,0.15);font-weight:700;font-size:.7rem;color:var(--text3)">
+          <div>Topic Name</div>
+          <div style="text-align:center">Priority</div>
+          <div style="text-align:center">📹 Class</div>
+          <div style="text-align:center">🔄 Rev</div>
+          <div style="text-align:center">📝 Qs</div>
+        </div>`;
+
+    filteredTopics.forEach(topic => {
+      const clsChecked = tp[topic.id + '_cls'] !== undefined ? tp[topic.id + '_cls'] : (topic.baseline.cls || false);
+      const revChecked = tp[topic.id + '_rev'] || false;
+      const qsChecked = tp[topic.id + '_qs'] || false;
+      const allDone = clsChecked && revChecked && qsChecked;
+      const rowBg = allDone ? 'rgba(0,184,148,0.06)' : '';
+      const nameStyle = allDone ? 'text-decoration:line-through;opacity:0.7' : '';
+
+      html += `
+        <div class="topic-row" style="background:${rowBg}">
+          <div class="topic-name" style="${nameStyle}">
+            <span class="priority-dot" style="background:${priorityColors[topic.priority]}"></span>
+            <span>${topic.name}</span>
+            ${topic.note ? `<span style="font-size:.6rem;color:var(--text3);font-style:italic;margin-left:4px">(${topic.note})</span>` : ''}
+          </div>
+          <div style="text-align:center">
+            <span style="font-size:.6rem;padding:2px 6px;border-radius:3px;background:${priorityColors[topic.priority]}20;color:${priorityColors[topic.priority]};font-weight:600">${topic.priority.charAt(0).toUpperCase() + topic.priority.slice(1)}</span>
+          </div>
+          <div class="cb-col">
+            <input type="checkbox" ${clsChecked?'checked':''} onchange="toggleTopicCheckbox('${topic.id}','cls')">
+          </div>
+          <div class="cb-col">
+            <input type="checkbox" ${revChecked?'checked':''} onchange="toggleTopicCheckbox('${topic.id}','rev')">
+          </div>
+          <div class="cb-col">
+            <input type="checkbox" ${qsChecked?'checked':''} onchange="toggleTopicCheckbox('${topic.id}','qs')">
+          </div>
+        </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  // Uncovered Critical Topics Alert
+  const uncoveredCritical = [];
+  Object.keys(TOPICS_DATA).forEach(subjectKey => {
+    TOPICS_DATA[subjectKey].topics.forEach(topic => {
+      if (topic.priority === 'critical') {
+        const clsChecked = tp[topic.id + '_cls'] !== undefined ? tp[topic.id + '_cls'] : (topic.baseline.cls || false);
+        if (!clsChecked) uncoveredCritical.push({ ...topic, subject: TOPICS_DATA[subjectKey].name });
+      }
+    });
+  });
+
+  if (uncoveredCritical.length > 0) {
+    html += `
+    <div class="chart-container" style="border-left:3px solid #f43f5e">
+      <div class="chart-title" style="color:#f43f5e">⚠️ Critical Topics Not Yet Covered by Class (${uncoveredCritical.length})</div>
+      <div style="font-size:.78rem;color:var(--text2);line-height:1.6">
+        ${uncoveredCritical.map(t => `<div style="display:flex;align-items:center;gap:6px;padding:4px 0">
+          <span class="priority-dot" style="background:#f43f5e;width:6px;height:6px;border-radius:50%;display:inline-block"></span>
+          <strong>${t.name}</strong> <span style="color:var(--text3);font-size:.7rem">(${t.subject}) — ${t.note}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function renderAnalytics(){
   const s=getOverallStats();
   const progress=loadProgress();
   const data = getActualProgressData();
@@ -1074,6 +1556,187 @@ function renderOverview(){
       </div>
     </div>
   </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER: DAILY JOURNAL
+// ═══════════════════════════════════════════════════════════════
+let journalFilter = 'all'; // 'all', 'today', 'notes_only', 'incomplete'
+
+function setJournalFilter(f) {
+  journalFilter = f;
+  renderCurrentTab();
+}
+
+function saveJournalEntry(dayId) {
+  const el = document.getElementById('journalEntry_' + dayId);
+  if(!el) return;
+  const j = loadJournal();
+  j['journal_' + dayId] = el.value;
+  saveJournal(j);
+  // Show saved indicator
+  const indicator = document.getElementById('journalSaved_' + dayId);
+  if(indicator){
+    indicator.textContent = '✅ Saved!';
+    indicator.style.opacity = '1';
+    setTimeout(() => { indicator.style.opacity = '0'; }, 1500);
+  }
+}
+
+function renderJournal() {
+  const progress = loadProgress();
+  const tp = loadTaskProgress();
+  const journal = loadJournal();
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+  // Collect all days
+  let allDays = [];
+  Object.keys(SCHEDULE).forEach(phaseId => {
+    SCHEDULE[phaseId].forEach((week, wi) => {
+      week.days.forEach((day, di) => {
+        const dayId = getDayId(phaseId, wi, di);
+        const dayDate = new Date(2026, day.month, day.date);
+        const dayStr = `2026-${day.month}-${day.date}`;
+        const isToday = dayStr === todayStr;
+        const isPast = dayDate < today && !isToday;
+        const isFuture = dayDate > today;
+
+        let tasksDone = 0;
+        day.tasks.forEach((t, ti) => {
+          if(tp[dayId + '_t' + ti]) tasksDone++;
+        });
+
+        const dayNote = journal[dayId] || '';
+        const journalNote = journal['journal_' + dayId] || '';
+        const dayChecked = progress[dayId] || false;
+
+        allDays.push({
+          day, dayId, dayDate, isToday, isPast, isFuture,
+          tasksDone, totalTasks: day.tasks.length,
+          dayNote, journalNote, dayChecked, phaseId, wi, di
+        });
+      });
+    });
+  });
+
+  // Filtering
+  let filtered = allDays;
+  if(journalFilter === 'today') filtered = allDays.filter(d => d.isToday);
+  if(journalFilter === 'notes_only') filtered = allDays.filter(d => d.dayNote || d.journalNote);
+  if(journalFilter === 'incomplete') filtered = allDays.filter(d => d.isPast && !d.dayChecked);
+
+  // Stats
+  const totalNotes = allDays.filter(d => d.dayNote || d.journalNote).length;
+  const totalTasksDone = allDays.reduce((acc, d) => acc + d.tasksDone, 0);
+  const totalTasksAll = allDays.reduce((acc, d) => acc + d.totalTasks, 0);
+  const daysWithAllTasks = allDays.filter(d => d.tasksDone === d.totalTasks && d.totalTasks > 0 && d.dayChecked).length;
+
+  // Find today's entry
+  const todayEntry = allDays.find(d => d.isToday);
+
+  let html = `<div class="phase-section" style="animation:fadeIn .4s ease">
+    <h2 style="font-size:1.3rem;margin-bottom:6px">📓 Daily Journal & Activity Log</h2>
+    <p style="font-size:.82rem;color:var(--text3);margin-bottom:20px">Track what you've done each day — beyond the schedule. Write down extra topics covered, mock scores, observations, or anything else. Each day has its own journal space.</p>
+
+    <!-- Journal Stats -->
+    <div class="topic-analytics" style="margin-bottom:20px">
+      <div class="topic-stat-card">
+        <div class="stat-num">${totalTasksDone}</div>
+        <div class="stat-label">📋 Individual Tasks Done</div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">out of ${totalTasksAll} total tasks</div>
+      </div>
+      <div class="topic-stat-card">
+        <div class="stat-num">${daysWithAllTasks}</div>
+        <div class="stat-label">✅ Perfect Days</div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">all tasks + day marked done</div>
+      </div>
+      <div class="topic-stat-card">
+        <div class="stat-num">${totalNotes}</div>
+        <div class="stat-label">📝 Days with Notes</div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:4px">journal entries written</div>
+      </div>
+    </div>`;
+
+  // Today's highlight
+  if(todayEntry) {
+    const te = todayEntry;
+    html += `
+    <div class="chart-container" style="border-left:3px solid var(--accent);margin-bottom:20px">
+      <div class="chart-title" style="color:var(--accent)">📌 Today — ${te.day.dayName}, ${formatDate(te.day.month, te.day.date)}</div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--text)">${te.day.title}</div>
+      <div style="font-size:.78rem;color:var(--text2);margin-bottom:8px">Tasks: <strong style="color:${te.tasksDone===te.totalTasks?'var(--green)':'var(--accent3)'}">${te.tasksDone}/${te.totalTasks}</strong> completed</div>
+      <div style="display:grid;gap:4px;margin-bottom:12px">
+        ${te.day.tasks.map((t,ti) => {
+          const tKey = te.dayId + '_t' + ti;
+          const tChecked = tp[tKey] || false;
+          return `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;${tChecked?'opacity:0.5;text-decoration:line-through':''}">
+            <span style="color:${tChecked?'var(--green)':'var(--text3)'};">${tChecked?'✅':'⬜'}</span>
+            <span class="task-tag ${getTagClass(t.tag)}" style="font-size:.6rem">${getTagLabel(t.tag)}</span>
+            <span style="color:var(--text2)">${t.desc}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      ${te.dayNote ? `<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px"><em>📎 Quick note: ${te.dayNote}</em></div>` : ''}
+      <div style="margin-top:8px">
+        <label style="font-size:.72rem;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">📖 Today's Journal Entry:</label>
+        <textarea id="journalEntry_${te.dayId}" style="width:100%;min-height:80px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px;color:var(--text2);font-size:.78rem;font-family:inherit;resize:vertical;outline:none" placeholder="What else did you do today? Mock scores? Topics you found hard? Extra practice? Write it all here..."
+          onblur="saveJournalEntry('${te.dayId}')">${te.journalNote}</textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <button class="notes-btn" style="font-size:.7rem;padding:5px 12px" onclick="saveJournalEntry('${te.dayId}')">💾 Save</button>
+          <span id="journalSaved_${te.dayId}" style="font-size:.65rem;color:var(--green);opacity:0;transition:opacity .3s"></span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Filters
+  html += `
+    <div class="topic-filter-tabs" style="margin-bottom:16px">
+      <div class="topic-filter-tab ${journalFilter==='all'?'active':''}" onclick="setJournalFilter('all')">All Days</div>
+      <div class="topic-filter-tab ${journalFilter==='today'?'active':''}" onclick="setJournalFilter('today')">📌 Today</div>
+      <div class="topic-filter-tab ${journalFilter==='notes_only'?'active':''}" onclick="setJournalFilter('notes_only')">📝 With Notes (${totalNotes})</div>
+      <div class="topic-filter-tab ${journalFilter==='incomplete'?'active':''}" onclick="setJournalFilter('incomplete')">⚠️ Incomplete Past Days</div>
+    </div>
+
+    <div style="display:grid;gap:8px">`;
+
+  // Reverse for journal view (most recent first)
+  const displayDays = [...filtered].reverse();
+
+  displayDays.forEach(d => {
+    const statusIcon = d.dayChecked ? '✅' : (d.isToday ? '📌' : (d.isPast ? '⚠️' : '⏳'));
+    const statusColor = d.dayChecked ? 'var(--green)' : (d.isToday ? 'var(--accent)' : (d.isPast ? '#f43f5e' : 'var(--text3)'));
+    const taskPct = d.totalTasks > 0 ? Math.round(d.tasksDone / d.totalTasks * 100) : 0;
+
+    html += `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;border-left:3px solid ${statusColor};${d.isToday?'box-shadow:0 0 12px rgba(108,92,231,0.15)':''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span>${statusIcon}</span>
+            <span style="font-weight:700;font-size:.85rem;color:var(--text)">${d.day.dayName}, ${formatDate(d.day.month, d.day.date)}</span>
+            <span style="font-size:.7rem;color:var(--text3)">${d.day.title}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:.65rem;color:${d.tasksDone===d.totalTasks && d.totalTasks>0?'var(--green)':'var(--text3)'}">${d.tasksDone}/${d.totalTasks} tasks</span>
+            <div style="width:50px;height:4px;background:rgba(42,42,90,0.3);border-radius:2px;overflow:hidden">
+              <div style="width:${taskPct}%;height:100%;background:${d.tasksDone===d.totalTasks && d.totalTasks>0?'var(--green)':'var(--accent)'};border-radius:2px"></div>
+            </div>
+          </div>
+        </div>
+        ${d.dayNote ? `<div style="font-size:.72rem;color:var(--text3);margin-bottom:4px"><em>📎 ${d.dayNote}</em></div>` : ''}
+        ${d.journalNote ? `<div style="font-size:.75rem;color:var(--text2);background:var(--card2);padding:8px 10px;border-radius:4px;margin-top:4px;border-left:2px solid var(--accent2)">📖 ${d.journalNote}</div>` : ''}
+        ${!d.journalNote && !d.isToday ? `
+          <div style="margin-top:6px">
+            <textarea id="journalEntry_${d.dayId}" style="width:100%;min-height:40px;background:transparent;border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text2);font-size:.72rem;font-family:inherit;resize:none;outline:none" placeholder="Add journal note..." onblur="saveJournalEntry('${d.dayId}')"></textarea>
+            <span id="journalSaved_${d.dayId}" style="font-size:.6rem;color:var(--green);opacity:0;transition:opacity .3s"></span>
+          </div>` : ''}
+      </div>`;
+  });
+
+  html += `</div></div>`;
+  return html;
 }
 
 function renderNotes(){
@@ -1710,6 +2373,8 @@ function renderCurrentTab(){
       el.innerHTML=renderAnalytics();
       setTimeout(initTrajectoryCharts, 50);
       break;
+    case 'topics':el.innerHTML=renderTopics();break;
+    case 'journal':el.innerHTML=renderJournal();break;
     case 'notes':el.innerHTML=renderNotes();break;
   }
 }
