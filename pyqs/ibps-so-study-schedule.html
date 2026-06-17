@@ -2752,24 +2752,31 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 // SEED: Pre-populate Jun 16 data (one-time)
 // ═══════════════════════════════════════════════════════════════
 (function seedJun16() {
-  const SEED_KEY = 'ibps_so_seed_jun16_v4';
+  const SEED_KEY = 'ibps_so_seed_jun16_v5';
   if(localStorage.getItem(SEED_KEY)) return;
 
   // Clean up old seeds
+  localStorage.removeItem('ibps_so_seed_jun16_v4');
   localStorage.removeItem('ibps_so_seed_jun16_v3');
   localStorage.removeItem('ibps_so_seed_jun16_v2');
 
   const dayId = 'phase1_w0_d0';
   // Tasks: 0=Puzzle Lec 14(R,25), 1=Simplification(Q,25), 2=Grammar 16-30(E,20), 3=Quick Review(R,25)
 
-  // Mark Grammar Rules 16-30 as checked (partial: did 16-20 only = 5/15 rules)
-  // Mark Quick Review: Revisit 2 weak puzzle sets as checked (completed Flat + Floor based puzzles)
+  // Mark all tasks as checked
   const tp = loadTaskProgress();
-  tp[dayId + '_t2'] = true;
-  tp[dayId + '_t3'] = true;
+  tp[dayId + '_t0'] = true; // Puzzle Lec 14 completed
+  tp[dayId + '_t1'] = true; // Replaced Simplification with Mixture & Alligation Class 4
+  tp[dayId + '_t2'] = true; // Grammar Rules 16-30 (partial)
+  tp[dayId + '_t3'] = true; // Quick Review: Flat + Floor puzzles
   saveTaskProgress(tp);
 
-  // Set partial points: 5 out of 15 rules = 33% of 20pts = 7pts
+  // Mark full day checkbox as completed (perfect day)
+  const p = loadProgress();
+  p[dayId] = true;
+  saveProgress(p);
+
+  // Set partial points: 5 out of 15 rules = 33% of 20pts = 7pts for Grammar
   const partial = loadPartial();
   partial[dayId + '_t2'] = 7; // 5/15 rules done
   savePartial(partial);
@@ -2788,8 +2795,8 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 
   // Journal notes
   const j = loadJournal();
-  j[dayId] = 'Grammar Rules 13-20 (5/15 rules). Editorial done. Flat + Floor Puzzles done (Champions Book pg 472, Q316-325).';
-  j['journal_' + dayId] = 'Did Grammar Rules 13-20 (Nimisha Mam) — only 5 out of 15 scheduled rules (16-30). Remaining rules 21-30 added to pending.\nEditorial practice: 10 new vocabulary words, 4 one-word substitutions, 5 idioms & phrases. Read 2 newspaper articles (1 full reading + 1 skimming technique) with RC questions practice.\nReasoning: Completed "Quick Review: Revisit 2 weak puzzle sets from Lec 1-13" by solving Flat + Floor Based Puzzles from Champions Reasoning Book (page 472, Q316-320 and Q321-325 - 10 questions total).\nPuzzle Lec 14 and Simplification not done — moved to pending tasks.';
+  j[dayId] = 'Puzzle Lec 14 done. Mixture & Alligation Class 4 done (instead of Simplification). Grammar Rules 13-20 done. Editorial done. Flat + Floor Puzzles done.';
+  j['journal_' + dayId] = 'Reasoning: Completed Puzzle Lec 14 (Classification & Comparison Based) (+25 pts).\nQuant: Completed Mixture & Alligation Class 4 (instead of scheduled Simplification & Approximation) (+25 pts).\nEnglish: Did Grammar Rules 13-20 (Nimisha Mam) — only 5 out of 15 scheduled rules (16-30). Remaining rules 21-30 added to pending (+7 pts).\nEditorial practice: 10 new vocabulary words, 4 one-word substitutions, 5 idioms & phrases. Read 2 newspaper articles (1 full reading + 1 skimming technique) with RC questions practice (+20 pts).\nReasoning: Completed "Quick Review: Revisit 2 weak puzzle sets from Lec 1-13" by solving Flat + Floor Based Puzzles from Champions Reasoning Book (page 472, Q316-320 and Q321-325 - 10 questions total) (+25 pts).\nAll tasks checked and day marked completed!';
   saveJournal(j);
 
   localStorage.setItem(SEED_KEY, 'true');
