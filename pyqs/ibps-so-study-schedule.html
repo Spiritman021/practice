@@ -500,8 +500,8 @@ const WEAK_STATUS_GUIDE = {
 
 const TODAY_LOG = {
   date: '2026-06-22',
-  mustFinish: 'SA Lec 4 + SA Lec 5, Time Speed Distance, RC Q-type identification, 2 CN videos + 2 DBMS videos',
-  priority: 'Today starts Week 2. Focus on SA mixed direction basics, TSD concepts, one RC passage, and the 4-video Mains seed task.',
+  mustFinish: 'SA Lec 4 + SA Lec 5, Time Speed Distance, RC Q-type identification, 2 CN videos + 2 DBMS videos, RC Tone Bank quiz',
+  priority: 'Today starts Week 2. Focus on SA mixed direction basics, TSD concepts, one RC passage, the 4-video Mains seed task, and 7-10 minutes of Tone Bank revision.',
   targetHours: 5,
   actualHours: 0,
   effectiveHours: 0,
@@ -509,10 +509,10 @@ const TODAY_LOG = {
   distractionLevel: null,
   confidence: null,
   scorecard: {
-    plannedTasks: 5,
+    plannedTasks: 6,
     completedTasks: 0,
     accuracy: null,
-    notes: 'Jun 22 plan: SA Lec 4, SA Lec 5, Time Speed Distance, RC Q-type identification with 1 passage, and daily Mains videos.'
+    notes: 'Jun 22 plan: SA Lec 4, SA Lec 5, Time Speed Distance, RC Q-type identification with 1 passage, daily Mains videos, and RC Tone Bank random quiz for 10 pts.'
   }
 };
 
@@ -1546,6 +1546,15 @@ const MAINS_DAILY_MICRO_PLAN = {
   tracking:'When done, log watched video numbers in Daily Agent Input under Extra Work / Timed Drills.'
 };
 
+const TONE_BANK_DAILY_PLAN = {
+  startDate:'2026-06-22',
+  topic:'RC Tone Bank',
+  expectedPoints:10,
+  url:'./ibps-so-rc-tone-bank.html',
+  task:'Revise RC author-tone vocabulary for 7-10 minutes, attempt at least 10 random quiz questions, and reread 2 near-miss rules.',
+  rule:'Do this before/after English RC work. Focus on Hindi recall + mnemonic recall, not passive reading.'
+};
+
 const DAILY_REPORT_LOG = [
   {
     date:'2026-06-19',
@@ -1557,6 +1566,7 @@ const DAILY_REPORT_LOG = [
 ];
 
 const CHANGE_LOG = [
+  {date:'2026-06-22',by:'Codex',change:'Added RC Tone Bank as a daily revision micro-task from June 22 onward, worth 10 points with a direct quiz link in each day card.'},
   {date:'2026-06-22',by:'Codex',change:'Added a direct RC Tone Bank link card on the Today dashboard pointing to ibps-so-rc-tone-bank.html.'},
   {date:'2026-06-22',by:'Codex',change:'Added a dedicated RC Tone Vocabulary Bank page with repetition counts, meanings, buckets, and near-miss rules from Jun 1-22 editorials.'},
   {date:'2026-06-22',by:'Codex',change:'Marked June 21 day as done from code side while preserving completed SA Lec 2 and bonus work.'},
@@ -1794,11 +1804,12 @@ function getMainsDailyTask(date = getDashboardDate()){
 // ═══════════════════════════════════════════════════════════════
 // POINTS SYSTEM (with partial completion, pending tasks, weekly targets)
 // ═══════════════════════════════════════════════════════════════
-const TASK_POINTS = { R: 25, Q: 25, E: 20, M: 30, REV: 15 };
+const TASK_POINTS = { R: 25, Q: 25, E: 20, M: 30, REV: 15, TONE: 10 };
 const EXTRAS_STORAGE_KEY = 'ibps_so_extras_v1';
 const PARTIAL_STORAGE_KEY = 'ibps_so_partial_v1';
 const PENDING_DONE_KEY = 'ibps_so_pending_done_v1';
 const MAINS_PROGRESS_KEY = 'ibps_so_mains_daily_progress_v1';
+const TONE_BANK_PROGRESS_KEY = 'ibps_so_tone_bank_daily_progress_v1';
 
 // Weekly targets: expected % of scheduled points to earn
 const WEEKLY_TARGET_PCT = 80; // Aim for 80%+ of expected points each week
@@ -1844,9 +1855,22 @@ function loadMainsProgress(){
 function saveMainsProgress(data){
   localStorage.setItem(MAINS_PROGRESS_KEY,JSON.stringify(data));
 }
+function loadToneBankProgress(){
+  try{return JSON.parse(localStorage.getItem(TONE_BANK_PROGRESS_KEY))||{};}
+  catch(e){return {};}
+}
+function saveToneBankProgress(data){
+  localStorage.setItem(TONE_BANK_PROGRESS_KEY,JSON.stringify(data));
+}
 
 function isMainsTaskActiveForDate(date){
   const [y,m,d] = MAINS_DAILY_MICRO_PLAN.startDate.split('-').map(Number);
+  const start = new Date(y, m-1, d);
+  return date >= start;
+}
+
+function isToneBankTaskActiveForDate(date){
+  const [y,m,d] = TONE_BANK_DAILY_PLAN.startDate.split('-').map(Number);
   const start = new Date(y, m-1, d);
   return date >= start;
 }
@@ -1855,6 +1879,14 @@ function toggleMainsTask(dateStr){
   const p = loadMainsProgress();
   p[dateStr] = !p[dateStr];
   saveMainsProgress(p);
+  renderCurrentTab();
+  updateCountdown();
+}
+
+function toggleToneBankTask(dateStr){
+  const p = loadToneBankProgress();
+  p[dateStr] = !p[dateStr];
+  saveToneBankProgress(p);
   renderCurrentTab();
   updateCountdown();
 }
@@ -1869,6 +1901,13 @@ function getMainsDailyScoreForDate(date){
   const checked = !!loadMainsProgress()[dateStr];
   const task = getMainsDailyTask(date);
   return {expected:task.expectedPoints, earned:checked ? task.expectedPoints : 0, checked};
+}
+
+function getToneBankDailyScoreForDate(date){
+  if(!isToneBankTaskActiveForDate(date)) return {expected:0, earned:0, checked:false};
+  const dateStr = toISODate(date);
+  const checked = !!loadToneBankProgress()[dateStr];
+  return {expected:TONE_BANK_DAILY_PLAN.expectedPoints, earned:checked ? TONE_BANK_DAILY_PLAN.expectedPoints : 0, checked};
 }
 
 function getTaskPoints(tag){
@@ -1894,7 +1933,9 @@ function setPartialPoints(dayId, taskIdx, pts){
 
 function getDayExpectedPoints(day, date=null){
   const scheduled = day.tasks.reduce((sum, t) => sum + getTaskPoints(t.tag), 0);
-  return scheduled + (date ? getMainsDailyScoreForDate(date).expected : 0);
+  return scheduled
+    + (date ? getMainsDailyScoreForDate(date).expected : 0)
+    + (date ? getToneBankDailyScoreForDate(date).expected : 0);
 }
 
 function getDayEarnedPoints(dayId, day, date=null){
@@ -1903,6 +1944,7 @@ function getDayEarnedPoints(dayId, day, date=null){
     earned += getTaskEarnedPoints(dayId, ti, t.tag);
   });
   if(date) earned += getMainsDailyScoreForDate(date).earned;
+  if(date) earned += getToneBankDailyScoreForDate(date).earned;
   return earned;
 }
 
@@ -2130,6 +2172,7 @@ function renderDayCard(day,dayId,progress){
   const typeClass=getDayTypeClass(day.type);
   const tp=loadTaskProgress();
   const mp=loadMainsProgress();
+  const toneProgress=loadToneBankProgress();
   const journal=loadJournal();
   const extras=loadExtras();
   const partial=loadPartial();
@@ -2140,6 +2183,8 @@ function renderDayCard(day,dayId,progress){
   const mainsActive = isMainsTaskActiveForDate(dayDate);
   const mainsTask = mainsActive ? getMainsDailyTask(dayDate) : null;
   const mainsChecked = mainsActive ? !!mp[dateStr] : false;
+  const toneActive = isToneBankTaskActiveForDate(dayDate);
+  const toneChecked = toneActive ? !!toneProgress[dateStr] : false;
   
   // Points calculation with partial support
   const expectedPts = getDayExpectedPoints(day, dayDate);
@@ -2163,7 +2208,11 @@ function renderDayCard(day,dayId,progress){
     tasksDone++;
     earnedPts += mainsTask.expectedPoints;
   }
-  const totalTasks = day.tasks.length + (mainsActive ? 1 : 0);
+  if(toneActive && toneChecked){
+    tasksDone++;
+    earnedPts += TONE_BANK_DAILY_PLAN.expectedPoints;
+  }
+  const totalTasks = day.tasks.length + (mainsActive ? 1 : 0) + (toneActive ? 1 : 0);
   const mainsHtml = mainsActive ? `
     <div class="task-item ${mainsChecked?'task-done':''}" id="task_mains_${dateStr}">
       <div class="task-check ${mainsChecked?'checked':''}" onclick="toggleMainsTask('${dateStr}')" title="Mark Mains videos done"></div>
@@ -2175,6 +2224,19 @@ function renderDayCard(day,dayId,progress){
         </div>
       </span>
       <span style="margin-left:auto;font-size:.55rem;color:${mainsChecked?'var(--green)':'var(--text3)'};font-weight:600;white-space:nowrap">${mainsChecked?'✅':'⬜'} ${mainsChecked?mainsTask.expectedPoints:0}/${mainsTask.expectedPoints}pts</span>
+    </div>` : '';
+  const toneHtml = toneActive ? `
+    <div class="task-item ${toneChecked?'task-done':''}" id="task_tone_${dateStr}">
+      <div class="task-check ${toneChecked?'checked':''}" onclick="toggleToneBankTask('${dateStr}')" title="Mark Tone Bank revision done"></div>
+      <span class="task-tag tag-e">TONE</span>
+      <span>
+        <strong>${escapeHtml(TONE_BANK_DAILY_PLAN.topic)}:</strong> ${escapeHtml(TONE_BANK_DAILY_PLAN.task)}
+        <div class="mini-list" style="margin-top:4px">
+          <div class="mini-row"><span class="mini-pill pill-blue">🎭 Quiz</span><a href="${escapeHtml(TONE_BANK_DAILY_PLAN.url)}" target="_blank">Open Tone Bank + Random Quiz</a></div>
+          <div class="mini-row"><span class="mini-pill pill-yellow">Rule</span><span>${escapeHtml(TONE_BANK_DAILY_PLAN.rule)}</span></div>
+        </div>
+      </span>
+      <span style="margin-left:auto;font-size:.55rem;color:${toneChecked?'var(--green)':'var(--text3)'};font-weight:600;white-space:nowrap">${toneChecked?'✅':'⬜'} ${toneChecked?TONE_BANK_DAILY_PLAN.expectedPoints:0}/${TONE_BANK_DAILY_PLAN.expectedPoints}pts</span>
     </div>` : '';
   
   const bonusPts = dayExtras.reduce((sum, e) => sum + (e.pts || 0), 0);
@@ -2205,7 +2267,7 @@ function renderDayCard(day,dayId,progress){
           <span id="taskCounter_${dayId}" style="font-size:.6rem;color:${taskCounterColor}">${tasksDone}/${totalTasks} tasks</span>
         </div>
         <div class="day-title">${day.title}</div>
-        <div class="day-tasks">${tasksHtml}${mainsHtml}</div>
+        <div class="day-tasks">${tasksHtml}${mainsHtml}${toneHtml}</div>
         
         ${dayExtras.length > 0 ? `
         <div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(253,203,110,0.3)">
