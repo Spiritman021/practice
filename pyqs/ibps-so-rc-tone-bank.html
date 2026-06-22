@@ -42,6 +42,24 @@ tr:last-child td{border-bottom:0}
 .flash{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
 .flash .card{min-height:150px}
 .back{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;text-decoration:none;border:1px solid #cfd6ff;border-radius:999px;padding:9px 14px;background:#fff;font-weight:800;box-shadow:0 8px 20px rgba(23,21,43,.06)}
+.quiz-card{border:2px solid #cfd6ff;background:linear-gradient(135deg,#ffffff 0%,#f3f5ff 100%);border-radius:22px;padding:22px;margin:18px 0;box-shadow:0 18px 45px rgba(79,70,229,.12)}
+.quiz-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+.quiz-top h2{margin:0 0 4px}
+.quiz-score{display:flex;gap:8px;flex-wrap:wrap}
+.score-pill{border:1px solid #cfd6ff;background:#fff;border-radius:999px;padding:7px 11px;font-size:.8rem;font-weight:900;color:#29245f}
+.quiz-question{font-size:1.15rem;font-weight:900;color:#17152b;margin:12px 0;padding:16px;border-radius:14px;background:#eef1ff;border:1px solid #dbe1ff}
+.quiz-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.quiz-option{border:1px solid #cfd6ff;background:#fff;color:#17152b;border-radius:13px;padding:12px;text-align:left;font-weight:800;cursor:pointer;transition:all .18s}
+.quiz-option:hover{transform:translateY(-1px);border-color:var(--accent);box-shadow:0 8px 18px rgba(79,70,229,.1)}
+.quiz-option.correct{background:#e8fff7;border-color:#00a884;color:#00664f}
+.quiz-option.wrong{background:#fff0f4;border-color:#d9305f;color:#a1153b}
+.quiz-option:disabled{cursor:not-allowed}
+.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.quiz-btn{border:0;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer;background:var(--accent);color:#fff}
+.quiz-btn.secondary{background:#eef1ff;color:#4338ca;border:1px solid #cfd6ff}
+.quiz-feedback{min-height:28px;margin-top:10px;font-weight:800}
+.quiz-feedback.good{color:#007f5f}.quiz-feedback.bad{color:#c2254e}
+.quiz-note{font-size:.82rem;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
@@ -55,6 +73,33 @@ tr:last-child td{border-bottom:0}
       <span class="pill">Exam method: bucket → intensity → final option</span>
       <span class="pill">Most repeated: Critical, Analytical, Apologetic, Pragmatic</span>
     </div>
+  </section>
+
+  <section class="quiz-card" id="toneQuiz">
+    <div class="quiz-top">
+      <div>
+        <h2>🎲 Random Tone Quiz</h2>
+        <p class="mini">Use this before reading the table. Random questions train recall from English meaning, Hindi meaning, bucket, and exam clue.</p>
+      </div>
+      <div class="quiz-score">
+        <span class="score-pill" id="quizScore">Score: 0/0</span>
+        <span class="score-pill" id="quizStreak">Streak: 0</span>
+      </div>
+    </div>
+    <div class="pill-row" style="margin-top:0">
+      <span class="pill">Meaning → tone word</span>
+      <span class="pill">Hindi → tone word</span>
+      <span class="pill">Tone word → meaning</span>
+      <span class="pill">Tone word → bucket</span>
+    </div>
+    <div class="quiz-question" id="quizQuestion">Click “Start Random Quiz” to begin.</div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <div class="quiz-actions">
+      <button class="quiz-btn" onclick="nextToneQuestion()">Start Random Quiz / Next</button>
+      <button class="quiz-btn secondary" onclick="resetToneQuiz()">Reset Score</button>
+    </div>
+    <div class="quiz-note">Rule: answer fast in 10–15 seconds. If wrong, read the explanation and repeat the word aloud once.</div>
   </section>
 
   <section class="grid">
@@ -184,5 +229,163 @@ tr:last-child td{border-bottom:0}
     <p>When I give new RC tone options, update this file by adding new words, increasing repetition counts, and adding any new near-miss rule. Keep it personal to my IBPS SO prep.</p>
   </section>
 </main>
+<script>
+const TONE_QUIZ_WORDS = [
+  {word:'Critical', meaning:'Finding faults, drawbacks, loopholes, or design gaps.', hindi:'आलोचनात्मक; कमियां और दोष दिखाने वाला।', bucket:'Negative / Fault-finding', clue:'Logical flaw diagnosis, not panic.'},
+  {word:'Analytical', meaning:'Breaking down data, indicators, causes, or parameters step by step.', hindi:'विश्लेषणात्मक; data और कारणों को step-by-step समझाने वाला।', bucket:'Neutral / Explaining', clue:'Numbers, metrics, CPI/WPI, allocations, trade shares.'},
+  {word:'Apologetic', meaning:'Regretful, sorry, or remorseful.', hindi:'क्षमाप्रार्थी / खेदपूर्ण; sorry या पछतावा जताने वाला।', bucket:'Emotional / Regret', clue:'Usually wrong unless blame or regret is accepted.'},
+  {word:'Pragmatic', meaning:'Practical, realistic, and based on ground limitations.', hindi:'व्यावहारिक; ground reality वाली बात।', bucket:'Solution / Practical', clue:'Compromise, realistic constraints, workable route.'},
+  {word:'Prescriptive', meaning:'Giving remedies, guidelines, or clear solutions.', hindi:'निर्देशात्मक; सुझाव या solution देने वाला।', bucket:'Solution / Practical', clue:'Should, must, needs to, recommendations, roadmap.'},
+  {word:'Optimistic', meaning:'Showing positive confidence about future outcomes.', hindi:'आशावादी; आगे अच्छा होने की उम्मीद।', bucket:'Positive / Supportive', clue:'Evidence-backed positivity.'},
+  {word:'Overly Optimistic', meaning:'Blind or unbacked positivity.', hindi:'अत्यधिक आशावादी; बिना आधार वाली positivity।', bucket:'Positive trap / Exaggerated', clue:'Too cheerful despite serious problems.'},
+  {word:'Polemical', meaning:'Aggressively argumentative; verbal attack.', hindi:'विवादात्मक / आक्रामक बहस वाला।', bucket:'Negative / Aggressive', clue:'Hostile, biased, conflict-heavy language.'},
+  {word:'Skeptical', meaning:'Doubtful, distrustful, unconvinced.', hindi:'संदेहपूर्ण; शक करने वाला।', bucket:'Negative / Doubt', clue:'Questions claims, motives, or success.'},
+  {word:'Bellicose', meaning:'Warlike and eager to fight.', hindi:'युद्धप्रिय / लड़ाकू; लड़ने को तैयार।', bucket:'Negative / Aggressive', clue:'Military aggression or hostility.'},
+  {word:'Cautionary', meaning:'Warning about future risks.', hindi:'चेतावनीपूर्ण; खतरे के प्रति alert करने वाला।', bucket:'Concern / Warning', clue:'If not corrected, danger may grow.'},
+  {word:'Concerned', meaning:'Measured worry, not panic.', hindi:'चिंतित; संतुलित चिंता, panic नहीं।', bucket:'Concern / Warning', clue:'Risk language, but objective and data-backed.'},
+  {word:'Alarmist', meaning:'Exaggerated panic or unbacked fear.', hindi:'भय फैलाने वाला; खतरे को बढ़ा-चढ़ाकर दिखाने वाला।', bucket:'Extreme warning / Trap', clue:'Doom language without balanced logic.'},
+  {word:'Laudatory', meaning:'Full praise and admiration.', hindi:'प्रशंसात्मक; बहुत तारीफ करने वाला।', bucket:'Positive / Praise', clue:'Wrong if passage highlights flaws.'},
+  {word:'Commendatory', meaning:'Expressing approval and praise.', hindi:'सराहनात्मक; approval और praise देने वाला।', bucket:'Positive / Praise', clue:'Formal praise of a policy/person/action.'},
+  {word:'Equivocal', meaning:'Ambiguous, vague, or not taking a clear stance.', hindi:'अस्पष्ट / दोअर्थी; clear stand नहीं।', bucket:'Ambiguous', clue:'Wrong if author takes a firm position.'},
+  {word:'Dogmatic', meaning:'Rigid, treating own view as absolute truth.', hindi:'कट्टर / हठधर्मी; अपनी बात को ही अंतिम सच मानना।', bucket:'Negative / Rigid', clue:'Refuses evidence or alternative views.'},
+  {word:'Defeatist', meaning:'Hopeless; assumes failure is unavoidable.', hindi:'हार मानने वाला; failure को निश्चित मानने वाला।', bucket:'Negative / Hopeless', clue:'Wrong if author offers solutions.'},
+  {word:'Prognostic', meaning:'Predicting the future based on present signs.', hindi:'भविष्यसूचक; आगे क्या होगा बताने वाला।', bucket:'Forecast', clue:'Future outlook based on current trends.'},
+  {word:'Sardonic', meaning:'Mocking in a mean, cynical, insulting way.', hindi:'कटु व्यंग्यात्मक; ताना मारने वाला।', bucket:'Negative / Mocking', clue:'Mean sarcasm or cynical ridicule.'},
+  {word:'Derisive', meaning:'Showing contempt by mocking or ridiculing.', hindi:'उपहासपूर्ण; मजाक उड़ाने वाला।', bucket:'Negative / Mocking', clue:'Insulting fun, contempt.'},
+  {word:'Circumspect', meaning:'Very cautious, wary, and guarded.', hindi:'सतर्क / सावधान; बहुत संभलकर।', bucket:'Concern / Careful', clue:'Careful risk-aware stance.'},
+  {word:'Conciliatory', meaning:'Trying to reduce conflict and build agreement.', hindi:'मेल-मिलाप वाला; लड़ाई कम करने वाला।', bucket:'Solution / Peace-making', clue:'Dialogue, compromise, pacifying hostility.'},
+  {word:'Despondent', meaning:'Hopeless and gloomy.', hindi:'निराश; उम्मीद छोड़ देने वाला।', bucket:'Negative / Sad', clue:'Total gloom or misery.'},
+  {word:'Fatalistic', meaning:'Believing events are fixed by fate.', hindi:'भाग्यवादी; जो होना है वही होगा।', bucket:'Negative / Hopeless', clue:'No agency, everything predetermined.'},
+  {word:'Expository', meaning:'Explaining and laying out facts clearly.', hindi:'व्याख्यात्मक; अच्छे से explain करने वाला।', bucket:'Neutral / Explaining', clue:'Explains timelines, facts, structures.'},
+  {word:'Hopeful', meaning:'Constructively optimistic.', hindi:'आशावान; future को लेकर positive।', bucket:'Positive / Supportive', clue:'Positive but not blind.'},
+  {word:'Apprehensive', meaning:'Anxious about possible problems.', hindi:'आशंकित; future problem को लेकर चिंता।', bucket:'Concern / Fearful', clue:'Fearful expectation of risk.'},
+  {word:'Celebratory', meaning:'Joyful praise of success.', hindi:'उत्सवपूर्ण; सफलता पर खुशी मनाने वाला।', bucket:'Positive / Praise', clue:'Joyful, enthusiastic success tone.'},
+  {word:'Catastrophic', meaning:'Total disaster or doom framing.', hindi:'विनाशकारी; सब बर्बाद type framing।', bucket:'Extreme warning / Trap', clue:'More extreme than concerned.'},
+  {word:'Satirical', meaning:'Mocking with humor to expose flaws.', hindi:'व्यंग्यात्मक; humor से flaws दिखाना।', bucket:'Negative / Mocking', clue:'Sarcasm or satire.'},
+  {word:'Apathetic', meaning:'Indifferent, detached, showing no interest.', hindi:'उदासीन; कोई फर्क नहीं पड़ता।', bucket:'Detached', clue:'Zero emotional or analytical engagement.'},
+  {word:'Evocative', meaning:'Bringing strong images, memories, or feelings to mind.', hindi:'भाव जगाने वाला; images या feelings पैदा करना।', bucket:'Literary / Emotional', clue:'More imagery than data.'},
+  {word:'Encouraging', meaning:'Motivating forward action.', hindi:'प्रेरक; आगे बढ़ने के लिए हिम्मत देना।', bucket:'Positive / Action', clue:'Urges businesses/people to act.'},
+  {word:'Neutral', meaning:'Presenting without strong personal stance.', hindi:'तटस्थ; बिना पक्ष लिए facts रखना।', bucket:'Neutral / Objective', clue:'No strong editorial push.'},
+  {word:'Objective', meaning:'Fact-based and unbiased.', hindi:'निष्पक्ष; facts-based, बिना bias।', bucket:'Neutral / Objective', clue:'Balanced and evidence-focused.'},
+  {word:'Intolerant', meaning:'Biased and refusing opposing views.', hindi:'असहिष्णु; दूसरी बात सुनना ही नहीं।', bucket:'Negative / Rigid', clue:'Extreme bias or refusal to evaluate alternatives.'},
+  {word:'Nostalgic', meaning:'Sentimental longing for the past.', hindi:'पुरानी यादों वाला; past को याद करना।', bucket:'Emotional', clue:'Longing for older times.'},
+  {word:'Flamboyant', meaning:'Showy, dramatic, ornate style.', hindi:'दिखावटी / flashy; बहुत नाटकीय style।', bucket:'Style-based', clue:'Dramatic presentation, not sober analysis.'}
+];
+
+let toneQuizState = {answered:0, correct:0, streak:0, current:null};
+
+function shuffleArray(items){
+  const arr = [...items];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function sampleOptions(correctValue, values, count = 4){
+  const wrong = shuffleArray([...new Set(values.filter(v => v !== correctValue))]).slice(0, count - 1);
+  return shuffleArray([correctValue, ...wrong]);
+}
+
+function makeToneQuestion(){
+  const item = TONE_QUIZ_WORDS[Math.floor(Math.random() * TONE_QUIZ_WORDS.length)];
+  const types = ['meaningToWord','hindiToWord','wordToMeaning','wordToHindi','wordToBucket','clueToWord'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  if(type === 'meaningToWord'){
+    return {
+      prompt:`Which tone word means: “${item.meaning}”`,
+      answer:item.word,
+      options:sampleOptions(item.word, TONE_QUIZ_WORDS.map(x => x.word)),
+      explain:`${item.word}: ${item.hindi} Bucket: ${item.bucket}.`
+    };
+  }
+  if(type === 'hindiToWord'){
+    return {
+      prompt:`Hindi recall: “${item.hindi}” — which tone word is this?`,
+      answer:item.word,
+      options:sampleOptions(item.word, TONE_QUIZ_WORDS.map(x => x.word)),
+      explain:`${item.word}: ${item.meaning}`
+    };
+  }
+  if(type === 'wordToMeaning'){
+    return {
+      prompt:`What is the correct meaning of “${item.word}”?`,
+      answer:item.meaning,
+      options:sampleOptions(item.meaning, TONE_QUIZ_WORDS.map(x => x.meaning)),
+      explain:`Hindi recall: ${item.hindi}`
+    };
+  }
+  if(type === 'wordToHindi'){
+    return {
+      prompt:`What is the Hindi/Hinglish recall for “${item.word}”?`,
+      answer:item.hindi,
+      options:sampleOptions(item.hindi, TONE_QUIZ_WORDS.map(x => x.hindi)),
+      explain:`English meaning: ${item.meaning}`
+    };
+  }
+  if(type === 'wordToBucket'){
+    return {
+      prompt:`Which bucket best fits “${item.word}”?`,
+      answer:item.bucket,
+      options:sampleOptions(item.bucket, TONE_QUIZ_WORDS.map(x => x.bucket)),
+      explain:`${item.word}: ${item.meaning} ${item.hindi}`
+    };
+  }
+  return {
+    prompt:`Exam clue: “${item.clue}” — which tone word does this suggest?`,
+    answer:item.word,
+    options:sampleOptions(item.word, TONE_QUIZ_WORDS.map(x => x.word)),
+    explain:`${item.word}: ${item.meaning} Hindi: ${item.hindi}`
+  };
+}
+
+function updateToneScore(){
+  document.getElementById('quizScore').textContent = `Score: ${toneQuizState.correct}/${toneQuizState.answered}`;
+  document.getElementById('quizStreak').textContent = `Streak: ${toneQuizState.streak}`;
+}
+
+function nextToneQuestion(){
+  toneQuizState.current = makeToneQuestion();
+  const questionEl = document.getElementById('quizQuestion');
+  const optionsEl = document.getElementById('quizOptions');
+  const feedbackEl = document.getElementById('quizFeedback');
+  questionEl.textContent = toneQuizState.current.prompt;
+  feedbackEl.textContent = '';
+  feedbackEl.className = 'quiz-feedback';
+  optionsEl.innerHTML = toneQuizState.current.options.map(option => (
+    `<button class="quiz-option" onclick="answerToneQuestion(this, ${JSON.stringify(option).replace(/"/g,'&quot;')})">${option}</button>`
+  )).join('');
+}
+
+function answerToneQuestion(button, selected){
+  if(!toneQuizState.current) return;
+  const isCorrect = selected === toneQuizState.current.answer;
+  toneQuizState.answered += 1;
+  toneQuizState.correct += isCorrect ? 1 : 0;
+  toneQuizState.streak = isCorrect ? toneQuizState.streak + 1 : 0;
+  document.querySelectorAll('.quiz-option').forEach(option => {
+    option.disabled = true;
+    if(option.textContent === toneQuizState.current.answer) option.classList.add('correct');
+  });
+  if(!isCorrect) button.classList.add('wrong');
+  const feedbackEl = document.getElementById('quizFeedback');
+  feedbackEl.className = `quiz-feedback ${isCorrect ? 'good' : 'bad'}`;
+  feedbackEl.textContent = isCorrect
+    ? `✅ Correct. ${toneQuizState.current.explain}`
+    : `❌ Correct answer: ${toneQuizState.current.answer}. ${toneQuizState.current.explain}`;
+  updateToneScore();
+}
+
+function resetToneQuiz(){
+  toneQuizState = {answered:0, correct:0, streak:0, current:null};
+  updateToneScore();
+  document.getElementById('quizQuestion').textContent = 'Click “Start Random Quiz” to begin.';
+  document.getElementById('quizOptions').innerHTML = '';
+  const feedbackEl = document.getElementById('quizFeedback');
+  feedbackEl.textContent = '';
+  feedbackEl.className = 'quiz-feedback';
+}
+</script>
 </body>
 </html>
