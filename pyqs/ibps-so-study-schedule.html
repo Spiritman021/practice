@@ -498,9 +498,9 @@ const WEAK_STATUS_GUIDE = {
 };
 
 const TODAY_LOG = {
-  date: '2026-06-20',
-  mustFinish: 'SA Lec 1 + SA Lec 3, Pipes & Cisterns, Grammar Rules 76-90 + 2 CN videos + 2 DBMS videos',
-  priority: 'Today is a reset day: protect one deep-work block, complete the scheduled SA foundation, and reach at least 50/120 grammar rules.',
+  date: '2026-06-22',
+  mustFinish: 'SA Lec 4 + SA Lec 5, Time Speed Distance, RC Q-type identification, 2 CN videos + 2 DBMS videos',
+  priority: 'Today starts Week 2. Focus on SA mixed direction basics, TSD concepts, one RC passage, and the 4-video Mains seed task.',
   targetHours: 5,
   actualHours: 0,
   effectiveHours: 0,
@@ -511,7 +511,7 @@ const TODAY_LOG = {
     plannedTasks: 5,
     completedTasks: 0,
     accuracy: null,
-    notes: 'Plan for Jun 20: complete SA Lec 1, SA Lec 3, Pipes & Cisterns, Grammar Rules 76-90, and the daily Mains seed task. Minimum grammar milestone: reach 50/120 rules.'
+    notes: 'Jun 22 plan: SA Lec 4, SA Lec 5, Time Speed Distance, RC Q-type identification with 1 passage, and daily Mains videos.'
   }
 };
 
@@ -1556,6 +1556,9 @@ const DAILY_REPORT_LOG = [
 ];
 
 const CHANGE_LOG = [
+  {date:'2026-06-22',by:'Codex',change:'Updated TODAY_LOG to June 22 so Today dashboard shows Week 2 Day 1: SA Lec 4, SA Lec 5, TSD, RC, and Mains videos.'},
+  {date:'2026-06-22',by:'Codex',change:'Persisted June 21 code-side bonus work: Grammar Rules 30-50 out of 120 and Quant Time Speed Distance class 1.'},
+  {date:'2026-06-22',by:'Codex',change:'Persisted June 20 code-side progress: marked SA Lec 1 and Pipes & Cisterns done while keeping SA Lec 3, Grammar, and Mains pending.'},
   {date:'2026-06-20',by:'Codex',change:'Reset TODAY_LOG date to June 20 so the Today panel shows Sat Jun 20 schedule and today’s Mains micro-task.'},
   {date:'2026-06-20',by:'Codex',change:'Changed daily Mains task from 1 rotating video to 4 videos per day: 2 Computer Network + 2 DBMS, worth 5 points each and shown inside daily task cards.'},
   {date:'2026-06-20',by:'Codex',change:'Added daily Mains micro-task rotation for DBMS and Computer Network so Mains prep starts alongside prelims without overwhelming the daily plan.'},
@@ -5123,6 +5126,66 @@ document.getElementById('navTabs').addEventListener('click',e=>{
   journal['journal_' + jun17DayId] = 'Grammar Rules 20-30 completed out of 120 total rules. Awarded +11 bonus points (1 point per rule). Day marked done as requested.';
 
   saveProgress(progress);
+  saveExtras(extras);
+  saveJournal(journal);
+  localStorage.setItem(SEED_KEY, 'true');
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SEED: Jun 20 code-side checked tasks (one-time)
+// ═══════════════════════════════════════════════════════════════
+(function seedJun20CheckedTasks() {
+  const SEED_KEY = 'ibps_so_seed_jun20_checked_tasks_v1';
+  if(localStorage.getItem(SEED_KEY)) return;
+
+  const jun20DayId = 'phase1_w0_d4';
+  const tp = loadTaskProgress();
+  const progress = loadProgress();
+  const journal = loadJournal();
+
+  // From screenshot/user request: persist the two completed Jun 20 tasks from code side.
+  tp[jun20DayId + '_t0'] = true; // SA Lec 1: Basics
+  tp[jun20DayId + '_t2'] = true; // Pipes & Cisterns
+  progress[jun20DayId] = true;   // Preserve "day marked done" status shown in screenshot
+
+  journal[jun20DayId] = 'Jun 20 code-side update: SA Lec 1 and Pipes & Cisterns marked done. SA Lec 3, Grammar Rules 76-90, and Mains videos remain pending.';
+  journal['journal_' + jun20DayId] = 'Completed tasks: Adda247 SA Lec 1 basics (+25) and Pipes & Cisterns (+25). Pending tasks: SA Lec 3 circle based, Grammar Rules 76-90, and daily Mains 4-video task.';
+
+  saveTaskProgress(tp);
+  saveProgress(progress);
+  saveJournal(journal);
+  localStorage.setItem(SEED_KEY, 'true');
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SEED: Jun 21 code-side bonus work (one-time)
+// ═══════════════════════════════════════════════════════════════
+(function seedJun21BonusWork() {
+  const SEED_KEY = 'ibps_so_seed_jun21_bonus_work_v1';
+  if(localStorage.getItem(SEED_KEY)) return;
+
+  const jun21DayId = 'phase1_w0_d5';
+  const tp = loadTaskProgress();
+  const extras = loadExtras();
+  const journal = loadJournal();
+
+  // Screenshot shows SA Lec 2 already checked; persist that too.
+  tp[jun21DayId + '_t0'] = true; // SA Lec 2: Circle Based
+
+  extras[jun21DayId] = (extras[jun21DayId] || [])
+    .filter(item => ![
+      'Grammar Rules 30 to 50 out of 120',
+      'Quants Speed Time and DIstance class 1'
+    ].includes(item.desc));
+  extras[jun21DayId].push(
+    {desc:'Grammar Rules 30 to 50 out of 120', pts:20, time:'01:20 pm', breakdown:'Grammar catch-up block'},
+    {desc:'Quants Speed Time and DIstance class 1', pts:10, time:'01:20 pm', breakdown:'Quant TSD class bonus'}
+  );
+
+  journal[jun21DayId] = 'Jun 21 code-side update: SA Lec 2 marked done. Bonus work added: Grammar Rules 30-50 out of 120 (+20) and Quant Time Speed Distance class 1 (+10).';
+  journal['journal_' + jun21DayId] = 'Completed/credited: SA Lec 2 circle based (+25), Grammar Rules 30-50 (+20 bonus), and Quant Time Speed Distance class 1 (+10 bonus). Pending: SA Lec 3 remaining, RC strategy/Grammar 91-105 scheduled item, quick revision, reasoning sectional, and Mains videos.';
+
+  saveTaskProgress(tp);
   saveExtras(extras);
   saveJournal(journal);
   localStorage.setItem(SEED_KEY, 'true');
