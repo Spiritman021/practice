@@ -5322,8 +5322,11 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 // SEED: Jun 22 progress (one-time)
 // ═══════════════════════════════════════════════════════════════
 (function seedJun22Progress() {
-  const SEED_KEY = 'ibps_so_seed_jun22_progress_v2';
+  const SEED_KEY = 'ibps_so_seed_jun22_progress_v3';
   if(localStorage.getItem(SEED_KEY)) return;
+
+  // Clean up old seeds
+  localStorage.removeItem('ibps_so_seed_jun22_progress_v2');
 
   const dayId = 'phase1_w1_d0';
   const dateStr = '2026-06-22';
@@ -5337,6 +5340,11 @@ document.getElementById('navTabs').addEventListener('click',e=>{
   const toneProgress = loadToneBankProgress();
   toneProgress[dateStr] = true;
   saveToneBankProgress(toneProgress);
+
+  // Mark full day checkbox as completed
+  const progress = loadProgress();
+  progress[dayId] = true;
+  saveProgress(progress);
 
   // Extras
   const extras = loadExtras();
@@ -5364,8 +5372,8 @@ document.getElementById('navTabs').addEventListener('click',e=>{
 
   // Journal notes
   const j = loadJournal();
-  j[dayId] = 'RC task and Tone Bank task completed. Replaced scheduled work with DI basics, TSD class questions, and SA Lec 5 Uni Direction extra practice.';
-  j['journal_' + dayId] = 'Completed: RC: Learn Q-type identification (+20) and RC Tone Bank revision (+10).\nAdded extras: Basics of DI (+20), Time Speed Distance class questions (+20), and Adda247 SA Lec 5 Circle Based Uni Direction-2 (+20).\nPending: SA Lec 4, SA Lec 5 Mixed Direction, TSD scheduled core practice, and daily Mains videos.';
+  j[dayId] = 'June 22 marked done. RC task and Tone Bank task completed. Replaced scheduled work with DI basics, TSD class questions, and SA Lec 5 Uni Direction extra practice.';
+  j['journal_' + dayId] = 'June 22 marked done!\nCompleted: RC: Learn Q-type identification (+20) and RC Tone Bank revision (+10).\nAdded extras: Basics of DI (+20), Time Speed Distance class questions (+20), and Adda247 SA Lec 5 Circle Based Uni Direction-2 (+20).\nPending: SA Lec 4, SA Lec 5 Mixed Direction, TSD scheduled core practice, and daily Mains videos.';
   saveJournal(j);
 
   localStorage.setItem(SEED_KEY, 'true');
