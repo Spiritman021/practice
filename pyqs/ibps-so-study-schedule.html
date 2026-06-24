@@ -516,6 +516,42 @@ const TODAY_LOG = {
   }
 };
 
+const TIME_AUDIT_LOGS = [
+  {
+    date:'2026-06-24',
+    title:'Time-slot audit from handwritten 12 PM → 12 PM log',
+    source:'PXL_20260624_222251460.jpg',
+    totals:{
+      sleep:9,
+      deepStudy:4,
+      distractedStudy:1,
+      officeLowEnergy:5,
+      outsideDinner:3,
+      transitionWaste:1,
+      untrackedBuffer:1
+    },
+    diagnosis:[
+      'Sleep quantity is enough, but sleep timing is late; afternoon becomes sleepy and low-output.',
+      'Strongest usable study block is late night, roughly 10 PM–2 AM.',
+      '12 PM–7 PM is not reliable for heavy study because office work, mobile, sleepiness, and outside-home time dominate.',
+      'Study starts with too much friction in the evening; 7 PM–8 PM needs a fixed start ritual.'
+    ],
+    correction:[
+      'Keep afternoon tasks light: grammar rules, Tone Bank quiz, vocab, formula revision, or video recap only.',
+      'Protect 10:30 PM–12 AM for one main concept class, then 12 AM–1 AM for questions.',
+      'Use 1 AM–1:30 AM for revision: RC Tone Bank, grammar, formulas, or weak-area flash review.',
+      'At 7:30 PM, sit for 10 minutes with the study page open; no planning, only start.'
+    ],
+    minimumDailyBlock:[
+      '2 hrs deep study',
+      '1 hr questions/practice',
+      '20 min revision',
+      '10 min RC Tone Bank random quiz'
+    ],
+    nextDayRule:'Do not depend on afternoon for deep work. Win the day through one protected late-night deep block plus one small evening start ritual.'
+  }
+];
+
 const BACKLOG_ITEMS = [
   {id:'b1',status:'pending',subject:'English',topic:'Grammar up to 50/120 rules',source:'Jun 19 reflection + Jun 16 partial grammar',action:'Reach at least 50 completed grammar rules and write 5 example/error sentences',priority:'critical',due:'2026-06-20'},
   {id:'b2',status:'rescheduled',subject:'Quant',topic:'Simplification & Approximation',source:'Jun 16 replaced by Mixture & Alligation Class 4',action:'Do one 20-question speed drill',priority:'critical',due:'2026-06-21'},
@@ -1573,6 +1609,7 @@ const DAILY_REPORT_LOG = [
 ];
 
 const CHANGE_LOG = [
+  {date:'2026-06-25',by:'Codex',change:'Added Time Audit & Next-Day Correction section using the June 24 handwritten time-slot log, with category hours and action rules.'},
   {date:'2026-06-23',by:'Codex',change:'Updated TODAY_LOG to June 23 to show Tuesday schedule (SA Lec 6-7, Trains, Para Jumble).'},
   {date:'2026-06-23',by:'Codex',change:'Persisted June 22 daily progress: marked RC task and RC Tone Bank task done, and added the 3 extra activities.'},
   {date:'2026-06-23',by:'Codex',change:'Logged June 22 daily report into DAILY_REPORT_LOG.'},
@@ -3350,7 +3387,7 @@ function renderToday(){
     </div>`;
   }
 
-  html += `<div class="command-grid">
+  html += `${renderTimeAuditSection()}<div class="command-grid">
     <div class="command-card warn">
       <div class="command-title">📌 Highest Priority Backlog</div>
       <div class="mini-list">
@@ -3420,6 +3457,69 @@ function renderToday(){
     </div>
   </div></div>`;
   return html;
+}
+
+function renderTimeAuditSection(){
+  const audit = TIME_AUDIT_LOGS[0];
+  if(!audit) return '';
+  const totalTracked = Object.values(audit.totals).reduce((sum, val) => sum + val, 0);
+  const rows = [
+    ['Sleep', audit.totals.sleep, 'Recovery is sufficient, but timing is too late.', 'pill-blue'],
+    ['Deep Study', audit.totals.deepStudy, 'Best block: late night. Protect this.', 'pill-green'],
+    ['Distracted Study', audit.totals.distractedStudy, 'Counts as partial output only.', 'pill-yellow'],
+    ['Office + Low Energy', audit.totals.officeLowEnergy, 'Keep only light revision here.', 'pill-red'],
+    ['Outside/Dinner', audit.totals.outsideDinner, 'Plan around it, do not fight it.', 'pill-yellow'],
+    ['Transition/Waste', audit.totals.transitionWaste, 'Needs fixed start ritual.', 'pill-red'],
+    ['Untracked Buffer', audit.totals.untrackedBuffer, 'Keep as realistic slack.', 'pill-blue']
+  ];
+  return `<div class="chart-container" style="border-left:3px solid var(--yellow)">
+    <div class="chart-title">⏱️ Time Audit & Next-Day Correction — ${escapeHtml(audit.date)}</div>
+    <p style="font-size:.78rem;color:var(--text3);margin-bottom:12px">${escapeHtml(audit.title)} · Source: ${escapeHtml(audit.source)}</p>
+    <div class="command-grid" style="margin-bottom:14px">
+      <div class="command-card good">
+        <div class="command-kicker">Best Study Window</div>
+        <div class="command-title">10:30 PM → 2:00 AM</div>
+        <div style="font-size:.72rem;color:var(--text2)">Use for concept + questions. This is the strongest slot.</div>
+      </div>
+      <div class="command-card danger">
+        <div class="command-kicker">Weak Window</div>
+        <div class="command-title">12 PM → 7 PM</div>
+        <div style="font-size:.72rem;color:var(--text2)">Office, mobile, sleepiness, outside-home friction. Use only for light revision.</div>
+      </div>
+      <div class="command-card warn">
+        <div class="command-kicker">Minimum Daily Block</div>
+        <div class="mini-list">
+          ${audit.minimumDailyBlock.map(item => `<div class="mini-row">• <span>${escapeHtml(item)}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:14px">
+      <table class="data-table">
+        <thead><tr><th>Category</th><th>Hours</th><th>% of Day</th><th>Action</th></tr></thead>
+        <tbody>
+          ${rows.map(([label, hours, action, pill]) => `<tr>
+            <td><span class="mini-pill ${pill}">${escapeHtml(label)}</span></td>
+            <td><strong>${hours}h</strong></td>
+            <td>${Math.round(hours / totalTracked * 100)}%</td>
+            <td>${escapeHtml(action)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="command-grid" style="margin-bottom:0">
+      <div class="command-card danger">
+        <div class="command-title">Diagnosis</div>
+        <div class="mini-list">${audit.diagnosis.map(item => `<div class="mini-row">• <span>${escapeHtml(item)}</span></div>`).join('')}</div>
+      </div>
+      <div class="command-card good">
+        <div class="command-title">Correction Rules</div>
+        <div class="mini-list">${audit.correction.map(item => `<div class="mini-row">• <span>${escapeHtml(item)}</span></div>`).join('')}</div>
+      </div>
+    </div>
+    <div style="font-size:.76rem;color:var(--text2);margin-top:12px;padding:10px;border:1px solid var(--border);border-radius:10px;background:rgba(253,203,110,.08)">
+      <strong>Next-day rule:</strong> ${escapeHtml(audit.nextDayRule)}
+    </div>
+  </div>`;
 }
 
 function renderScheduleDashboard(){
