@@ -293,6 +293,373 @@
   .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
   .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
   @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+
+  /* ── QUIZ CONTAINER & CARDS ── */
+  .quiz-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+  
+  .quiz-title-tag {
+    display: inline-block;
+    background: var(--bluebg);
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .quiz-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+  
+  .quiz-option:hover {
+    border-color: var(--cyan);
+    background: #f0fdfa;
+    transform: translateY(-1px);
+  }
+  
+  .quiz-option.selected {
+    border-color: var(--blue);
+    background: var(--bluebg);
+    color: var(--navy);
+    font-weight: 600;
+  }
+  
+  .quiz-option.correct {
+    border-color: var(--green);
+    background: var(--greenl);
+    color: #1b5e20;
+    font-weight: 600;
+  }
+  
+  .quiz-option.incorrect {
+    border-color: var(--red);
+    background: var(--redl);
+    color: #b71c1c;
+    font-weight: 600;
+  }
+  
+  .quiz-option-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mdgray);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: #fff;
+  }
+  
+  .quiz-option:hover .quiz-option-marker {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  
+  .quiz-option.selected .quiz-option-marker {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+  }
+  
+  .quiz-option.correct .quiz-option-marker {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+  }
+  
+  .quiz-option.incorrect .quiz-option-marker {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff;
+  }
+  
+  .quiz-explanation {
+    background: #fff8e1;
+    border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .quiz-explanation-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #b7791f;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .quiz-explanation-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #744210;
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .quiz-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+  }
+  
+  .quiz-btn {
+    padding: 12px 28px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'DM Sans', sans-serif;
+  }
+  
+  .quiz-btn.primary {
+    background: var(--cyan);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,172,193,0.3);
+  }
+  
+  .quiz-btn.primary:hover:not(:disabled) {
+    background: #0097a7;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,172,193,0.4);
+  }
+  
+  .quiz-btn.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .quiz-btn.secondary {
+    background: #f1f5f9;
+    color: var(--navy);
+    border: 1px solid #cbd5e1;
+  }
+  
+  .quiz-btn.secondary:hover {
+    background: #e2e8f0;
+  }
+  
+  .quiz-progress-wrap {
+    margin-bottom: 24px;
+  }
+  
+  .quiz-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mdgray);
+    margin-bottom: 8px;
+  }
+  
+  .quiz-progress-bar {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--cyan);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  
+  .results-score-box {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0d1b4b 0%, #1565c0 100%);
+    border-radius: 16px;
+    color: #fff;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .results-score-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(0,172,193,0.2) 0%, transparent 60%);
+  }
+  
+  .results-score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 8px solid rgba(255,255,255,0.1);
+    border-top-color: var(--cyan);
+    margin: 0 auto 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(4px);
+  }
+  
+  .results-score-num {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+  }
+  
+  .results-score-total {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  
+  .results-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  
+  .results-badge.master { background: var(--gold); color: #000; }
+  .results-badge.excellent { background: var(--cyan); color: #fff; }
+  .results-badge.good { background: var(--blue); color: #fff; }
+  .results-badge.review { background: var(--orange); color: #fff; }
+  
+  .results-feedback {
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+    color: #e3f2fd;
+  }
+  
+  .review-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 32px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .review-item {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .review-question-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--navy);
+  }
+  
+  .review-indicator {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+  
+  .review-indicator.correct { background: var(--greenl); color: var(--green); }
+  .review-indicator.incorrect { background: var(--redl); color: var(--red); }
+  
+  .review-options-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+  
+  .review-option-pill {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+  
+  .review-option-pill.user-selected-wrong {
+    border-color: var(--red);
+    background: var(--redl);
+    color: #b71c1c;
+    font-weight: 600;
+  }
+  
+  .review-option-pill.correct-answer {
+    border-color: var(--green);
+    background: var(--greenl);
+    color: #1b5e20;
+    font-weight: 600;
+  }
 </style>
 </head>
 <body>
@@ -306,6 +673,7 @@
   <div class="toggle-wrap">
     <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
     <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
   </div>
 </nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 1: Introduction</span><a class="back-btn" href="dbms.html">← Back</a></nav>
@@ -694,15 +1062,396 @@
 </div>
 <!-- END REVISION -->
 
+<!-- ═══════════════════ QUIZ VIEW ═══════════════════ -->
+<div id="view-quiz" class="view"></div>
+
 </div><!-- /main -->
 
 <script>
   function switchView(mode, e) {
-    document.getElementById('view-descriptive').classList.remove('active');
-    document.getElementById('view-revision').classList.remove('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + mode).classList.add('active');
     document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
+    e.currentTarget.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (mode === 'quiz' && !quizInitialized) {
+      initQuiz();
+    }
+  }
+
+  const quizQuestions = [
+    {
+      q: "Which of the following statements correctly defines a \"Database System\"?",
+      o: [
+        "It is a random collection of documents, files, and images stored on a single computer.",
+        "It is the combination of a Database (a collection of logically related data) and a DBMS (the software that manages it).",
+        "It is the network path connecting a user in Delhi to a server in Mumbai.",
+        "It is any unstructured file system used to store data without a predefined format."
+      ],
+      a: 1,
+      exp: "A Database System consists of both the database (the actual stored data) and the DBMS (the software engine that coordinates access, integrity, and security on that data)."
+    },
+    {
+      q: "The IRCTC database stores information about train schedules, ticket bookings, and passenger lists, but does not store tax filings or passport records. This design principle illustrates:",
+      o: [
+        "Physical Data Independence",
+        "That a database is a collection of <b>logically related</b> data",
+        "Location Independence",
+        "Semi-structured data integration"
+      ],
+      a: 1,
+      exp: "A database is not an arbitrary dump of records; it is defined as a collection of <i>logically related</i> data centered around a specific domain (like railway bookings). Unrelated datasets are kept separate."
+    },
+    {
+      q: "A user in Delhi queries the train status and receives results from a database server physically located in Mumbai. The user does not need to know the physical location or file path of the data. What feature of a DBMS does this describe?",
+      o: [
+        "Multi-version Concurrency Control",
+        "Data Redundancy",
+        "Location Independence",
+        "Logical Schema Mapping"
+      ],
+      a: 2,
+      exp: "Location Independence means that the physical address and distribution details of the database files are completely transparent to the user/application. The DBMS handles the query routing automatically."
+    },
+    {
+      q: "Match the following data types with their correct examples:<br><b>1. Structured Data</b><br><b>2. Semi-Structured Data</b><br><b>3. Unstructured Data</b><br><b>i. XML/JSON files</b><br><b>ii. Relations/Tables with rows and columns</b><br><b>iii. Photos, videos, and raw web pages</b>",
+      o: [
+        "1-ii, 2-i, 3-iii",
+        "1-i, 2-ii, 3-iii",
+        "1-ii, 2-iii, 3-i",
+        "1-iii, 2-i, 3-ii"
+      ],
+      a: 0,
+      exp: "Structured data fits a rigid predefined model (tables/relations). Semi-structured data contains self-describing tags or key-value structures (JSON/XML) but no fixed schema. Unstructured data lacks any regular structure (media files, documents)."
+    },
+    {
+      q: "In relational database theory, what do the terms \"Relation\", \"Tuple\", and \"Attribute\" correspond to in a standard tabular view?",
+      o: [
+        "Relation = Database, Tuple = Table, Attribute = Cell Value",
+        "Relation = Table, Tuple = Column, Attribute = Row",
+        "Relation = Table, Tuple = Row, Attribute = Column",
+        "Relation = Primary Key, Tuple = Foreign Key, Attribute = Table"
+      ],
+      a: 2,
+      exp: "In formal relational theory, a \"Relation\" is the table itself, a \"Tuple\" is a row (record), and an \"Attribute\" is a column (field)."
+    },
+    {
+      q: "Approximately what percentage of the world's data is estimated to be \"unstructured\", and what technology is commonly used to manage it at scale?",
+      o: [
+        "~10%, managed by Relational databases like MySQL",
+        "~50%, managed by spreadsheet software like Microsoft Excel",
+        "~90%, managed by Big Data systems/frameworks like Apache Hadoop",
+        "~25%, managed by XML parsers"
+      ],
+      a: 2,
+      exp: "Approximately 90% of global data is unstructured (videos, audio, chats, logs). Traditional RDBMS struggle with this scale and lack of schema, making Big Data/NoSQL frameworks like Hadoop, Spark, and Distributed File Systems the industry standard."
+    },
+    {
+      q: "Which of the following statements is conceptually correct regarding the relationship between DBMS and RDBMS?",
+      o: [
+        "DBMS &sub; RDBMS (Every DBMS is an RDBMS, but not every RDBMS is a DBMS)",
+        "RDBMS &sub; DBMS (Every RDBMS is a DBMS, but not every DBMS is an RDBMS)",
+        "DBMS &cap; RDBMS = &empty; (DBMS and RDBMS are completely disjoint systems)",
+        "DBMS = RDBMS (There is no conceptual difference; they are exact synonyms)"
+      ],
+      a: 1,
+      exp: "RDBMS is a specialized sub-category of DBMS that organizes data using relations (tables). Because all RDBMSs manage databases, they are a subset of the broader DBMS landscape, which also includes NoSQL, Object-Oriented, and Document databases."
+    },
+    {
+      q: "When a student shifts to a new city, they fill out a form in the student portal, which modifies their address in the <code>Students</code> table. Which SQL command is triggered by the DBMS to perform this write operation?",
+      o: [
+        "INSERT",
+        "SELECT",
+        "DELETE",
+        "UPDATE"
+      ],
+      a: 3,
+      exp: "Modifying existing information in a database table is handled by the <code>UPDATE</code> operation. <code>INSERT</code> adds new records, <code>DELETE</code> removes records, and <code>SELECT</code> reads data."
+    },
+    {
+      q: "Which of the following groups contains only RDBMS (Relational Database Management System) software platforms?",
+      o: [
+        "Apache Hadoop, MongoDB, Redis, Cassandra",
+        "Microsoft Excel, Google Sheets, JSON, XML",
+        "Oracle Database, MySQL, Microsoft SQL Server, IBM DB2",
+        "Git, Subversion, Docker, Kubernetes"
+      ],
+      a: 2,
+      exp: "Oracle, MySQL, SQL Server, and DB2 are classic RDBMS software suites that store data in relations and use SQL. MongoDB/Cassandra are NoSQL, Excel is a spreadsheet editor, and Hadoop is a Big Data runtime."
+    },
+    {
+      q: "Conceptually, what is the primary role of the DBMS software layer in a database system?",
+      o: [
+        "To physically write raw bits directly onto the magnetic disk controller.",
+        "To act as an intermediary, receiving queries, processing them, and enforcing access rules on the database.",
+        "To render and display the final HTML web pages to the client browser.",
+        "To route network packets between computers over a local area network (LAN)."
+      ],
+      a: 1,
+      exp: "The DBMS acts as the software layer between the client applications and the raw database files. It handles query optimization, transactions, access control, security, and schema mapping."
+    }
+  ];
+
+  let currentQuestionIndex = 0;
+  let selectedOptionIndex = null;
+  let userAnswers = [];
+  let quizScore = 0;
+  let quizInitialized = false;
+  let answerSubmitted = false;
+
+  function initQuiz() {
+    quizInitialized = true;
+    renderStartScreen();
+  }
+
+  function renderStartScreen() {
+    const container = document.getElementById('view-quiz');
+    container.innerHTML = `
+      <div class="quiz-card" style="text-align: center; padding: 40px;">
+        <span class="quiz-title-tag">💡 Chapter 1 Self-Assessment</span>
+        <h3 style="font-size: 24px; margin-bottom: 12px;">DBMS Introduction Practice Quiz</h3>
+        <p class="prose" style="color: var(--mdgray); margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          Test your understanding of basic database systems, RDBMS, data types, and core CRUD operations. This quiz is designed to align with GATE, UGC NET, placements, and college examinations.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap;">
+          <div style="background: var(--bluebg); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--blue);">
+            📋 10 Questions
+          </div>
+          <div style="background: var(--greenl); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--green);">
+            🎯 1 Mark per correct option
+          </div>
+          <div style="background: var(--purplel); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--purple);">
+            🛡️ Concept Explanations
+          </div>
+        </div>
+        <button class="quiz-btn primary" onclick="startQuiz()">Start Quiz Mode</button>
+      </div>
+    `;
+  }
+
+  function startQuiz() {
+    currentQuestionIndex = 0;
+    selectedOptionIndex = null;
+    userAnswers = [];
+    quizScore = 0;
+    answerSubmitted = false;
+    showQuestion(currentQuestionIndex);
+  }
+
+  function showQuestion(index) {
+    selectedOptionIndex = null;
+    answerSubmitted = false;
+    const qData = quizQuestions[index];
+    const container = document.getElementById('view-quiz');
+    
+    const progressPercent = ((index) / quizQuestions.length) * 100;
+    
+    let optionsHtml = '';
+    qData.o.forEach((option, oIdx) => {
+      const optionLetter = String.fromCharCode(65 + oIdx);
+      optionsHtml += `
+        <div class="quiz-option" id="option-${oIdx}" onclick="selectOption(${oIdx})">
+          <div class="quiz-option-marker">${optionLetter}</div>
+          <div>${option}</div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = `
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-text">
+          <span>Question ${index + 1} of ${quizQuestions.length}</span>
+          <span>${Math.round(progressPercent)}% Completed</span>
+        </div>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" style="width: ${progressPercent}%;"></div>
+        </div>
+      </div>
+      
+      <div class="quiz-card">
+        <span class="quiz-title-tag">Question ${index + 1}</span>
+        <h3>${qData.q}</h3>
+        
+        <div class="quiz-options">
+          ${optionsHtml}
+        </div>
+        
+        <div id="explanation-container"></div>
+        
+        <div class="quiz-controls">
+          <button class="quiz-btn secondary" onclick="confirmQuit()" style="padding: 10px 20px; font-size: 12.5px;">↩ Quit Quiz</button>
+          <button class="quiz-btn primary" id="submit-action-btn" onclick="submitAnswer()" disabled>Submit Answer</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function selectOption(oIdx) {
+    if (answerSubmitted) return;
+    
+    selectedOptionIndex = oIdx;
+    
+    document.querySelectorAll('.quiz-option').forEach(el => {
+      el.classList.remove('selected');
+    });
+    
+    document.getElementById(`option-${oIdx}`).classList.add('selected');
+    document.getElementById('submit-action-btn').removeAttribute('disabled');
+  }
+
+  function submitAnswer() {
+    if (selectedOptionIndex === null || answerSubmitted) return;
+    
+    answerSubmitted = true;
+    userAnswers.push(selectedOptionIndex);
+    
+    const qData = quizQuestions[currentQuestionIndex];
+    const isCorrect = (selectedOptionIndex === qData.a);
+    
+    if (isCorrect) {
+      quizScore++;
+    }
+    
+    const selectedEl = document.getElementById(`option-${selectedOptionIndex}`);
+    const correctEl = document.getElementById(`option-${qData.a}`);
+    
+    selectedEl.classList.remove('selected');
+    if (isCorrect) {
+      selectedEl.classList.add('correct');
+    } else {
+      selectedEl.classList.add('incorrect');
+      correctEl.classList.add('correct');
+    }
+    
+    document.querySelectorAll('.quiz-option').forEach(el => {
+      el.style.cursor = 'default';
+    });
+    
+    const explanationContainer = document.getElementById('explanation-container');
+    explanationContainer.innerHTML = `
+      <div class="quiz-explanation">
+        <div class="quiz-explanation-title">
+          ${isCorrect ? '✨ Correct Answer' : '💡 Incorrect Answer'} &nbsp;•&nbsp; Explanation
+        </div>
+        <div class="quiz-explanation-text">
+          ${qData.exp}
+        </div>
+      </div>
+    `;
+    
+    const actionBtn = document.getElementById('submit-action-btn');
+    const isLast = (currentQuestionIndex === quizQuestions.length - 1);
+    
+    actionBtn.innerText = isLast ? 'View Results 📊' : 'Next Question ➜';
+    actionBtn.onclick = isLast ? showResults : nextQuestion;
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion(currentQuestionIndex);
+  }
+
+  function confirmQuit() {
+    if (confirm("Are you sure you want to quit the quiz? Your current progress will be lost.")) {
+      renderStartScreen();
+    }
+  }
+
+  function showResults() {
+    const container = document.getElementById('view-quiz');
+    const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+    
+    let badgeClass = 'review';
+    let badgeText = 'Keep Learning 📚';
+    let feedbackText = 'Go back to the Descriptive or Revision tabs and try again. You will master this in no time!';
+    
+    if (percentage === 100) {
+      badgeClass = 'master';
+      badgeText = 'Perfect Score 🏆';
+      feedbackText = 'Exceptional! You have completely mastered this chapter. Ready for Chapter 2.';
+    } else if (percentage >= 80) {
+      badgeClass = 'excellent';
+      badgeText = 'Excellent 🌟';
+      feedbackText = 'Very strong understanding of DBMS basics. Great work!';
+    } else if (percentage >= 60) {
+      badgeClass = 'good';
+      badgeText = 'Good Effort 👍';
+      feedbackText = 'You have captured the core concepts. Review a few questions to lock in a perfect score.';
+    }
+    
+    let reviewHtml = '';
+    quizQuestions.forEach((qData, qIdx) => {
+      const userAnsIdx = userAnswers[qIdx];
+      const isCorrect = (userAnsIdx === qData.a);
+      
+      let optionsBreakdown = '';
+      qData.o.forEach((opt, oIdx) => {
+        const optionLetter = String.fromCharCode(65 + oIdx);
+        let pillClass = '';
+        if (oIdx === qData.a) {
+          pillClass = 'correct-answer';
+        } else if (oIdx === userAnsIdx) {
+          pillClass = 'user-selected-wrong';
+        }
+        optionsBreakdown += `
+          <div class="review-option-pill ${pillClass}">
+            <b>${optionLetter}:</b> ${opt}
+          </div>
+        `;
+      });
+
+      reviewHtml += `
+        <div class="review-item">
+          <div class="review-question-header">
+            <span>${qIdx + 1}. ${qData.q}</span>
+            <span class="review-indicator ${isCorrect ? 'correct' : 'incorrect'}">
+              ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+            </span>
+          </div>
+          <div class="review-options-summary">
+            ${optionsBreakdown}
+          </div>
+          <div class="quiz-explanation" style="margin-bottom: 0;">
+            <div class="quiz-explanation-title">Explanation</div>
+            <div class="quiz-explanation-text">${qData.exp}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = `
+      <div class="results-score-box">
+        <span class="results-badge ${badgeClass}">${badgeText}</span>
+        <div class="results-score-circle">
+          <div class="results-score-num">${quizScore}</div>
+          <div class="results-score-total">out of ${quizQuestions.length}</div>
+        </div>
+        <div class="results-feedback">
+          <b>${percentage}% Score</b> — ${feedbackText}
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: center; margin-bottom: 40px;">
+        <button class="quiz-btn primary" onclick="startQuiz()" style="padding: 14px 40px; font-size: 15px; box-shadow: 0 4px 18px rgba(0,172,193,0.35);">
+          🔄 Reattempt Test
+        </button>
+      </div>
+
+      <div class="review-title">
+        <span>📋 Review Questions & Explanations</span>
+      </div>
+      
+      <div>
+        ${reviewHtml}
+      </div>
+      
+      <div style="display: flex; justify-content: center; margin: 40px 0;">
+        <button class="quiz-btn primary" onclick="startQuiz()" style="padding: 14px 40px; font-size: 15px;">
+          🔄 Reattempt Quiz
+        </button>
+      </div>
+    `;
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
