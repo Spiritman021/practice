@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 12: Hubs — multiport repeater, Physical Layer, forwarding vs filtering, broadcasting, collision domain = N, hub vs repeater vs switch. UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Hubs in Computer Networks &mdash; CN Topic 12 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_hubs.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --sky: #0284c7;   --sky-light: #f0f9ff;
+  --cyan: #0891b2;  --cyan-light: #ecfeff;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--sky); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg, #082f49 0%, #0369a1 35%, #0284c7 65%, #38bdf8 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#bae6fd; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:620px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-blue   { background:var(--blue); }
+.sn-red    { background:var(--red); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-purple { background:var(--accent); }
+.sn-teal   { background:var(--teal); }
+.sn-orange { background:var(--orange); }
+.sn-sky    { background:var(--sky); }
+.sn-cyan   { background:var(--cyan); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-sky    { border-color:var(--sky);   background:var(--sky-light);   color:#0c4a6e; }
+.callout-cyan   { border-color:var(--cyan);  background:var(--cyan-light);  color:#164e63; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f0f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red);   font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+td.ok   { color:var(--green); font-weight:600; }
+td.info { color:var(--blue);  font-weight:600; }
+td.sky  { color:var(--sky);   font-weight:600; }
+
+/* HUB vs REPEATER side-by-side */
+.vs-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+.vs-card { border-radius:12px; padding:18px; border:2px solid; }
+.vs-rep  { background:#fff7ed; border-color:#fdba74; }
+.vs-hub  { background:var(--sky-light); border-color:#7dd3fc; }
+.vs-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:10px; }
+.vs-rep h4 { color:#9a3412; }
+.vs-hub h4 { color:#0c4a6e; }
+.vs-item { font-size:0.82rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.55; }
+.vs-item:last-child { border-bottom:none; }
+
+/* PORT MODELS */
+.port-row { display:flex; gap:12px; flex-wrap:wrap; margin:14px 0; }
+.port-model { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:14px 18px; text-align:center; flex:1; min-width:130px; }
+.port-num { font-family:var(--mono); font-size:2rem; font-weight:700; color:var(--sky); }
+.port-label { font-family:var(--sans); font-size:0.76rem; font-weight:600; color:var(--text-muted); margin-top:2px; }
+.port-dots { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin:8px 0; }
+.port-dot { width:10px; height:10px; border-radius:50%; background:var(--sky); opacity:0.7; }
+.port-dot.active { opacity:1; box-shadow:0 0 4px var(--sky); }
+
+/* BROADCAST VISUAL */
+.broadcast-wrap { display:flex; flex-direction:column; align-items:center; gap:0; padding:8px 0; }
+.bcast-hub { background:var(--navy); color:#fff; border-radius:12px; padding:14px 24px; font-family:var(--mono); font-size:11px; font-weight:700; text-align:center; position:relative; }
+.bcast-hub::after { content:''; position:absolute; bottom:-14px; left:50%; transform:translateX(-50%); width:2px; height:14px; background:var(--border); }
+.bcast-arms { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:14px; }
+.bcast-device { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bcast-node { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; font-weight:700; border:2px solid; }
+.bcast-node.sender { background:#fff7ed; border-color:var(--orange); color:var(--orange); }
+.bcast-node.recv   { background:var(--sky-light); border-color:var(--sky); color:var(--sky); }
+.bcast-node.forced { background:#fff1f2; border-color:var(--red); color:var(--red); }
+.bcast-lbl { font-family:var(--mono); font-size:8px; color:var(--text-muted); }
+.bcast-tag { font-family:var(--sans); font-size:8px; padding:2px 6px; border-radius:4px; font-weight:700; margin-top:2px; }
+
+/* FEATURE ROWS */
+.feat-list { display:flex; flex-direction:column; gap:10px; margin:14px 0; }
+.feat-row { display:flex; align-items:flex-start; gap:14px; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.feat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.feat-name { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:4px; }
+.feat-desc { font-size:0.82rem; color:#374151; line-height:1.6; }
+.feat-verdict { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; margin-top:5px; }
+.v-yes  { background:#dcfce7; color:#14532d; }
+.v-no   { background:#fee2e2; color:#991b1b; }
+.v-high { background:#fee2e2; color:#991b1b; }
+
+/* COST TIER */
+.cost-track { display:flex; flex-direction:column; gap:6px; margin:14px 0; }
+.cost-row { display:flex; align-items:center; gap:12px; }
+.cost-label { font-family:var(--sans); font-size:0.78rem; font-weight:700; width:80px; flex-shrink:0; }
+.cost-bar-wrap { flex:1; background:#f1f5f9; border-radius:6px; overflow:hidden; height:24px; }
+.cost-bar { height:100%; border-radius:6px; display:flex; align-items:center; padding-left:8px; font-family:var(--mono); font-size:10px; font-weight:700; color:#fff; }
+.cost-price { font-family:var(--mono); font-size:10px; color:var(--text-muted); width:60px; flex-shrink:0; text-align:right; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--sky); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--sky); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber);  font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green);  font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);    font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);   font-size:0.77rem; }
+.bullet-list li .tag-s{ font-family:var(--mono); color:var(--sky);    font-size:0.77rem; }
+.bullet-list li .tag-t{ font-family:var(--mono); color:var(--teal);   font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange); font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--sky-light),#e0f2fe); border:1px solid #7dd3fc; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--sky); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-exam { background:var(--sky-light); border-color:#7dd3fc; color:#0c4a6e; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .vs-grid{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 12</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Hubs</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 12: Hubs</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 12</span>
+    <span class="hero-tag">PHYSICAL LAYER</span>
+    <span class="hero-tag">MULTIPORT REPEATER</span>
+  </div>
+  <h1>HUBS IN <span>COMPUTER NETWORKS</span></h1>
+  <p class="hero-sub">Multiport repeater, pure hardware, forwarding vs filtering, broadcast storm, collision domain = N &mdash; everything needed for UGC NET &amp; competitive exam success.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Identity -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Basic Identity &amp; OSI Layer</h2>
+    </div>
+    <p class="body-text">
+      A hub is one of the most fundamental networking devices. It is <strong>pure hardware</strong> &mdash; no software of any kind &mdash; and operates <em>exclusively</em> at the <strong>Physical Layer (Layer 1)</strong>. Its job is simply to receive a signal on one port and repeat it out of every other port.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="sky">Layer 1 &mdash; Physical Layer only</td></tr>
+          <tr><td><strong>Hardware / Software</strong></td><td class="ok">Pure Hardware &mdash; no software at all</td></tr>
+          <tr><td><strong>Also called</strong></td><td class="info">Multiport Repeater</td></tr>
+          <tr><td><strong>Port configurations</strong></td><td>4-port, 8-port, 16-port, 24-port, 26-port and more</td></tr>
+          <tr><td><strong>MAC Address awareness</strong></td><td class="must">None &mdash; operates below Data Link Layer</td></tr>
+          <tr><td><strong>IP Address awareness</strong></td><td class="must">None &mdash; operates below Network Layer</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="ok">Low &mdash; cheaper than Bridge, Switch, Router</td></tr>
+          <tr><td><strong>Exam focus</strong></td><td>UGC NET and PSU exams</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-sky">
+      &#128161; <strong>One-liner definition:</strong> A Hub = a <strong>multiport repeater</strong>. Everything a repeater does (regenerate and forward signals at Layer 1), a hub does &mdash; but across <em>many</em> ports instead of just two.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Hub vs Repeater -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-sky">2</div>
+      <h2>Hub vs Repeater &mdash; What Makes a Hub Different</h2>
+    </div>
+    <p class="body-text">
+      Both devices are pure Layer 1 hardware with no software. The key distinction is the <strong>number of ports</strong> and a small set of <strong>extra diagnostic features</strong> that hubs provide.
+    </p>
+
+    <div class="vs-grid">
+      <div class="vs-card vs-rep">
+        <h4>&#128257; Repeater</h4>
+        <div class="vs-item">&#128204; <strong>2 ports only</strong> &mdash; connects two cable segments</div>
+        <div class="vs-item">&#128204; Regenerates signal from Port 1 &rarr; Port 2</div>
+        <div class="vs-item">&#128204; No diagnostics &mdash; if a wire is cut, it gives no indication</div>
+        <div class="vs-item">&#128204; Used to extend a single cable run</div>
+        <div class="vs-item">&#128204; Very simple; bare-minimum physical device</div>
+      </div>
+      <div class="vs-card vs-hub">
+        <h4>&#128160; Hub (Multiport Repeater)</h4>
+        <div class="vs-item">&#128204; <strong>Multiple ports</strong> (4, 8, 16, 24, 26&hellip;)</div>
+        <div class="vs-item">&#128204; Repeats signal from any port out to <em>all other ports</em></div>
+        <div class="vs-item">&#128204; Has <strong>LED indicator lights</strong> per port &mdash; blinks when active, shows if a wire is broken or disconnected</div>
+        <div class="vs-item">&#128204; Used in star-topology LANs to connect multiple devices</div>
+        <div class="vs-item">&#128204; More capable diagnostically but same logic as a repeater</div>
+      </div>
+    </div>
+
+    <!-- Port model visual -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Common Hub Port Configurations</div>
+      <div class="diagram-body">
+        <div class="port-row">
+          <div class="port-model">
+            <div class="port-num">4</div>
+            <div class="port-label">Port Hub</div>
+            <div class="port-dots">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Small home/SOHO</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">8</div>
+            <div class="port-label">Port Hub</div>
+            <div class="port-dots">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Small office LAN</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">16</div>
+            <div class="port-label">Port Hub</div>
+            <div class="port-dots">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot active"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Medium LAN</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">24+</div>
+            <div class="port-label">Port Hub</div>
+            <div class="port-dots" style="max-width:140px;margin:0 auto 4px;">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot active"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Enterprise LAN</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">LED dots (lit = active/connected, dim = inactive). A hub flashes the LED for a port when it detects signal traffic or a fault condition.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Forwarding, Filtering, Broadcasting -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Key Functionalities &mdash; Forwarding, Filtering &amp; Broadcasting</h2>
+    </div>
+
+    <div class="feat-list">
+
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f0fdf4;">&#128228;</div>
+        <div>
+          <div class="feat-name">Forwarding</div>
+          <div class="feat-desc">
+            A hub <strong>always forwards</strong> data. When any device sends a signal into the hub on any port, the hub regenerates that signal and sends it outward. This is unconditional and automatic &mdash; no decision is made about <em>where</em> to send it.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; YES &mdash; Hub CAN forward</span>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#fff1f2;">&#128683;</div>
+        <div>
+          <div class="feat-name">Filtering</div>
+          <div class="feat-desc">
+            A hub <strong>cannot filter</strong>. It has no software, no MAC address table, and no awareness of which device lives on which port. It is physically impossible for a hub to decide "this frame is only for Device B, so I will only send it to Port 2." It has no such knowledge.
+          </div>
+          <span class="feat-verdict v-no">&#10005; NO &mdash; Hub CANNOT filter</span>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f0f9ff;">&#128226;</div>
+        <div>
+          <div class="feat-name">Broadcasting (Consequence of No Filtering)</div>
+          <div class="feat-desc">
+            Because a hub cannot filter, it <strong>broadcasts every frame to every port</strong>. If Device A sends a message meant only for Device B, the hub also sends it to Devices C, D, and all others connected. Every device receives every frame &mdash; this is highly inefficient and creates excessive traffic.
+          </div>
+          <span class="feat-verdict v-no">&#128226; Broadcasts to ALL ports, always</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Broadcast diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128226; Hub Broadcast Behaviour &mdash; A sends to B, but everyone receives</div>
+      <div class="diagram-body">
+        <div class="broadcast-wrap">
+          <div style="margin-bottom:16px; text-align:center; font-size:0.82rem; color:var(--text-muted);">
+            Device A wants to send data <strong>only to Device B</strong>
+          </div>
+
+          <!-- SVG broadcast diagram -->
+          <svg viewBox="0 0 560 220" width="100%" style="min-width:360px;display:block;" aria-label="Hub broadcast diagram">
+            <!-- Hub center -->
+            <rect x="210" y="88" width="140" height="54" rx="10" fill="#1a2340" stroke="#38bdf8" stroke-width="2"/>
+            <text x="280" y="110" text-anchor="middle" font-size="11" font-weight="700" fill="#bae6fd" font-family="'Inter',sans-serif">HUB</text>
+            <text x="280" y="124" text-anchor="middle" font-size="8" fill="#6b7280" font-family="'Inter',sans-serif">Multiport Repeater</text>
+            <!-- LED dots on hub -->
+            <circle cx="222" cy="133" r="4" fill="#22c55e"/>
+            <circle cx="234" cy="133" r="4" fill="#22c55e"/>
+            <circle cx="246" cy="133" r="4" fill="#f59e0b"/>
+            <circle cx="258" cy="133" r="4" fill="#22c55e"/>
+            <circle cx="270" cy="133" r="4" fill="#22c55e"/>
+            <circle cx="282" cy="133" r="4" fill="#ef4444"/>
+            <circle cx="294" cy="133" r="4" fill="#22c55e"/>
+            <circle cx="306" cy="133" r="4" fill="#22c55e"/>
+
+            <!-- Device A (sender) - left -->
+            <circle cx="60" cy="115" r="24" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+            <text x="60" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">A</text>
+            <text x="60" y="124" text-anchor="middle" font-size="8" fill="#ea580c" font-family="'Inter',sans-serif">Sender</text>
+            <!-- Line A to hub -->
+            <line x1="84" y1="115" x2="208" y2="115" stroke="#ea580c" stroke-width="2" stroke-dasharray="none"/>
+            <!-- Arrow on A's line -->
+            <polygon points="204,112 208,115 204,118" fill="#ea580c"/>
+
+            <!-- Device B (target) - right -->
+            <circle cx="500" cy="60" r="24" fill="#f0f9ff" stroke="#0284c7" stroke-width="2"/>
+            <text x="500" y="57" text-anchor="middle" font-size="11" font-weight="700" fill="#0284c7" font-family="'JetBrains Mono',monospace">B</text>
+            <text x="500" y="69" text-anchor="middle" font-size="8" fill="#0284c7" font-family="'Inter',sans-serif">Target</text>
+            <line x1="350" y1="103" x2="477" y2="65" stroke="#0284c7" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <polygon points="473,63 477,65 474,69" fill="#0284c7"/>
+
+            <!-- Device C (forced) - top right -->
+            <circle cx="500" cy="145" r="24" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+            <text x="500" y="142" text-anchor="middle" font-size="11" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">C</text>
+            <text x="500" y="154" text-anchor="middle" font-size="8" fill="#e11d48" font-family="'Inter',sans-serif">Forced!</text>
+            <line x1="350" y1="115" x2="476" y2="143" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <polygon points="472,141 476,143 473,147" fill="#e11d48"/>
+
+            <!-- Device D (forced) - bottom -->
+            <circle cx="280" cy="195" r="24" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+            <text x="280" y="192" text-anchor="middle" font-size="11" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">D</text>
+            <text x="280" y="204" text-anchor="middle" font-size="8" fill="#e11d48" font-family="'Inter',sans-serif">Forced!</text>
+            <line x1="280" y1="142" x2="280" y2="171" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <polygon points="277,167 280,171 283,167" fill="#e11d48"/>
+
+            <!-- Legend -->
+            <line x1="30" y1="188" x2="55" y2="188" stroke="#ea580c" stroke-width="2"/>
+            <text x="60" y="192" font-size="8" fill="#374151" font-family="'Inter',sans-serif">Sender signal</text>
+            <line x1="30" y1="203" x2="55" y2="203" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <text x="60" y="207" font-size="8" fill="#374151" font-family="'Inter',sans-serif">Forced broadcast</text>
+          </svg>
+        </div>
+      </div>
+      <div class="diagram-note">Device A intended to send to Device B only. But the hub &mdash; having no MAC table &mdash; broadcasts the frame to <strong>all ports</strong>. Devices C and D receive data not meant for them.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Traffic & Collision Domain -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-red">4</div>
+      <h2>Traffic, Collisions &amp; Collision Domain</h2>
+    </div>
+    <p class="body-text">
+      Because every message is broadcast to every port, a hub generates <strong>very high network traffic</strong>. Every device receives every frame whether it needs it or not. This also means collisions are common and frequent.
+    </p>
+
+    <div class="feat-list">
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#fff7ed;">&#128165;</div>
+        <div>
+          <div class="feat-name">Collision Domain = <em>N</em> (total connected devices)</div>
+          <div class="feat-desc">
+            All devices connected to a hub belong to a <strong>single collision domain</strong>. The maximum number of possible collisions equals <strong><em>N</em></strong> (the total number of devices connected). If multiple devices transmit at the exact same time, their signals collide inside the hub &mdash; because the hub has no buffer or memory to queue packets.
+          </div>
+          <span class="feat-verdict v-high">&#9888; Collision Domain = N &mdash; one large shared domain</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-cyan">
+      &#128202; <strong>Why is traffic so high?</strong> Imagine 8 devices on a hub. Device A sends 1 frame. All 7 other devices receive it. For every frame sent, 7 unnecessary copies travel the network. With <em>N</em> devices, each frame consumes <em>(N&minus;1)</em> unnecessary bandwidth slots. This is why hubs were replaced by <strong>switches</strong>.
+    </div>
+
+    <!-- Collision domain visual -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128165; Collision Domain &mdash; Hub vs Switch (Comparison)</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+          <!-- Hub collision domain -->
+          <div style="text-align:center;">
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--red);margin-bottom:12px;">&#128165; HUB &mdash; 1 Collision Domain</div>
+            <div style="background:#fff1f2;border:2px dashed #fda4af;border-radius:12px;padding:16px;">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:#fff1f2;border:2px solid #e11d48;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#e11d48;">A</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:#fff1f2;border:2px solid #e11d48;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#e11d48;">B</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:#fff1f2;border:2px solid #e11d48;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#e11d48;">C</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:#fff1f2;border:2px solid #e11d48;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#e11d48;">D</div>
+              </div>
+              <div style="background:#1a2340;border-radius:8px;padding:8px;font-family:var(--mono);font-size:10px;font-weight:700;color:#bae6fd;margin-bottom:8px;">HUB</div>
+              <div style="font-size:0.75rem;color:#9f1239;font-weight:600;">All 4 share ONE domain<br>Max collisions = 4</div>
+            </div>
+          </div>
+          <!-- Switch collision domain -->
+          <div style="text-align:center;">
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--green);margin-bottom:12px;">&#9989; SWITCH &mdash; N Collision Domains</div>
+            <div style="background:var(--green-light);border:2px dashed #86efac;border-radius:12px;padding:16px;">
+              <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--green-light);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);">A</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--green-light);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);">B</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--green-light);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);">C</div>
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--green-light);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green);">D</div>
+              </div>
+              <div style="background:#14532d;border-radius:8px;padding:8px;font-family:var(--mono);font-size:10px;font-weight:700;color:#bbf7d0;margin-bottom:8px;">SWITCH</div>
+              <div style="font-size:0.75rem;color:#14532d;font-weight:600;">Each port = its own domain<br>4 devices = 4 separate domains</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">A Switch breaks the network into individual collision domains per port &mdash; eliminating collisions almost entirely. A Hub never does this.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Cost Comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">5</div>
+      <h2>Cost Comparison &mdash; Networking Devices</h2>
+    </div>
+    <p class="body-text">
+      Hubs and repeaters are the cheapest networking devices because they are <strong>pure hardware</strong> with no software. More intelligent devices (Bridge, Switch, Router) cost more because they have embedded software (firmware/OS) that handles MAC tables, routing tables, and filtering logic.
+    </p>
+
+    <div class="cost-track">
+      <div class="cost-row">
+        <div class="cost-label" style="color:var(--green);">Hub</div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar" style="width:18%;background:var(--green);">Lowest</div>
+        </div>
+        <div class="cost-price">&#x20B9; Low</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-label" style="color:var(--green);">Repeater</div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar" style="width:12%;background:var(--teal);">Low</div>
+        </div>
+        <div class="cost-price">&#x20B9; Low</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-label" style="color:var(--amber);">Bridge</div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar" style="width:45%;background:var(--amber);">Medium</div>
+        </div>
+        <div class="cost-price">&#x20B9;&#x20B9; Med</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-label" style="color:var(--orange);">Switch</div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar" style="width:60%;background:var(--orange);">Medium&ndash;High</div>
+        </div>
+        <div class="cost-price">&#x20B9;&#x20B9; High</div>
+      </div>
+      <div class="cost-row">
+        <div class="cost-label" style="color:var(--red);">Router</div>
+        <div class="cost-bar-wrap">
+          <div class="cost-bar" style="width:88%;background:var(--red);">Highest &mdash; has full OS</div>
+        </div>
+        <div class="cost-price">&#x20B9;&#x20B9;&#x20B9; Max</div>
+      </div>
+    </div>
+
+    <div class="callout callout-teal">
+      &#128273; <strong>Rule of thumb:</strong> The higher the OSI layer a device operates at, the more software it has, and the more expensive it is. Hub/Repeater (L1) &lt; Bridge/Switch (L2) &lt; Router (L3).
+    </div>
+  </div>
+
+  <!-- SECTION 6: Quick Reference -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">6</div>
+      <h2>Complete Hub Quick-Reference</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Hub</th><th>Notes / Why</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="sky">L1 &mdash; Physical</td><td>Deals only with raw electrical signals / bits</td></tr>
+          <tr><td><strong>Also called</strong></td><td class="info">Multiport Repeater</td><td>Repeater = 2 ports; Hub = many ports</td></tr>
+          <tr><td><strong>H/W or S/W?</strong></td><td class="ok">Pure Hardware</td><td>No MAC table, no routing logic</td></tr>
+          <tr><td><strong>Ports</strong></td><td>4 / 8 / 16 / 24 / 26+</td><td>Enables star-topology LANs</td></tr>
+          <tr><td><strong>Forwarding</strong></td><td class="ok">YES</td><td>Always forwards; unconditional</td></tr>
+          <tr><td><strong>Filtering</strong></td><td class="must">NO</td><td>No MAC awareness; cannot decide destination</td></tr>
+          <tr><td><strong>Broadcasting</strong></td><td class="must">YES (always)</td><td>Every frame goes to every port</td></tr>
+          <tr><td><strong>Collision Domain</strong></td><td class="must">1 (all N devices)</td><td>No buffer; simultaneous signals collide</td></tr>
+          <tr><td><strong>Traffic</strong></td><td class="must">Very high</td><td>Every device receives every frame</td></tr>
+          <tr><td><strong>Diagnostics</strong></td><td class="ok">LED lights per port</td><td>Shows power, activity, wire faults &mdash; repeater has none</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="ok">Low (cheapest tier)</td><td>No software = simple = cheap</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-sky" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for UGC NET &amp; PSU exam quick prep.
+  </div>
+
+  <div class="cheat-div"><span>IDENTITY &amp; BASICS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">OSI Layer &amp; Type</div>
+      <ul class="bullet-list">
+        <li>Layer: <span class="tag-s">Physical Layer (L1) ONLY</span></li>
+        <li>Type: <span class="tag-g">Pure Hardware</span> &mdash; zero software</li>
+        <li>Also called: <span class="val">Multiport Repeater</span></li>
+        <li>No MAC or IP address awareness</li>
+        <li>Cost: <span class="tag-g">Lowest</span> (no software = cheap)</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Hub vs Repeater</div>
+      <ul class="bullet-list">
+        <li>Repeater: <span class="val">2 ports</span> only</li>
+        <li>Hub: <span class="val">4 / 8 / 16 / 24 / 26+</span> ports</li>
+        <li>Hub adds <span class="tag-g">LED indicator lights</span> per port</li>
+        <li>Hub: broken wire &rarr; LED shows fault; repeater: no indication</li>
+        <li>Both: same Layer 1 logic, no filtering, no software</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>FORWARDING, FILTERING &amp; BROADCASTING</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128228; Forwarding</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">YES</span> &mdash; always and unconditionally</li>
+        <li>Receives signal on one port &rarr; repeats out all others</li>
+        <li>No decision made about destination</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128683; Filtering</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">NO</span> &mdash; cannot filter any traffic</li>
+        <li>Has no MAC table, no port-device mapping</li>
+        <li>Cannot distinguish between intended and unintended recipients</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128226; Broadcasting</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">Always broadcasts</span> to every port</li>
+        <li>A &rarr; B sends data? Hub delivers to B, C, D &hellip; everyone</li>
+        <li>Creates very <span class="tag-r">high traffic</span> on the network</li>
+        <li>Direct consequence of no filtering ability</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>COLLISION DOMAIN &amp; COST</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128165; Collision Domain</div>
+      <ul class="bullet-list">
+        <li>All N devices = <span class="tag-r">ONE shared collision domain</span></li>
+        <li>Max collisions = <span class="val">N</span> (all devices transmit simultaneously)</li>
+        <li>No buffer/memory &rarr; signals literally crash into each other</li>
+        <li>Switch solves this: 1 collision domain <em>per port</em></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128176; Cost Ranking (Cheap &rarr; Expensive)</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">Repeater / Hub</span> &rarr; cheapest (pure HW)</li>
+        <li><span class="val">Bridge</span> &rarr; medium (HW + SW)</li>
+        <li><span class="val">Switch</span> &rarr; medium-high (HW + SW)</li>
+        <li><span class="tag-r">Router</span> &rarr; most expensive (HW + full OS)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>ONE-LINERS FOR EXAM</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Must-Know Facts</div>
+      <ul class="bullet-list">
+        <li>Hub = <span class="tag-s">Multiport Repeater</span></li>
+        <li>Hub operates at <span class="tag-s">L1 Physical Layer</span></li>
+        <li>Hub <span class="tag-g">can forward</span> data</li>
+        <li>Hub <span class="tag-r">cannot filter</span> data</li>
+        <li>Hub <span class="tag-r">broadcasts</span> to all ports</li>
+        <li>Collision domain = <span class="val">N</span></li>
+        <li>Hub cheaper than Bridge/Switch/Router</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Comparison at a Glance</div>
+      <ul class="bullet-list">
+        <li>Hub vs Repeater: ports (<span class="val">N</span> vs <span class="val">2</span>) + LEDs</li>
+        <li>Hub vs Bridge: Hub=L1 no filter; Bridge=L2 uses MAC</li>
+        <li>Hub vs Switch: Hub=broadcast all; Switch=send to specific port</li>
+        <li>Hub vs Router: Hub=L1; Router=L3 uses IP, separates broadcast domains</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>COMPLETE SUMMARY TABLE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Hub</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>OSI Layer</strong></td><td class="sky">L1 — Physical</td></tr>
+        <tr><td><strong>Also called</strong></td><td class="info">Multiport Repeater</td></tr>
+        <tr><td><strong>H/W or S/W?</strong></td><td class="ok">Pure Hardware</td></tr>
+        <tr><td><strong>Ports</strong></td><td>4 / 8 / 16 / 24 / 26+</td></tr>
+        <tr><td><strong>Forwarding</strong></td><td class="ok">Yes (always)</td></tr>
+        <tr><td><strong>Filtering</strong></td><td class="must">No</td></tr>
+        <tr><td><strong>Broadcasting</strong></td><td class="must">Yes — all ports, always</td></tr>
+        <tr><td><strong>Collision Domain</strong></td><td class="must">1 (all N devices)</td></tr>
+        <tr><td><strong>LED Diagnostics</strong></td><td class="ok">Yes (unlike repeater)</td></tr>
+        <tr><td><strong>Cost</strong></td><td class="ok">Lowest tier</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Exam Checklist (UGC NET)</h3>
+    <ul class="bullet-list">
+      <li>Hub = <span class="tag-s">L1 Physical Layer</span>, <span class="tag-g">pure hardware</span>, no software</li>
+      <li>Hub is a <span class="tag-s">Multiport Repeater</span> (many ports vs repeater's 2 ports)</li>
+      <li>Hub <span class="tag-g">can forward</span> &mdash; Hub <span class="tag-r">cannot filter</span> (most tested fact)</li>
+      <li>Hub always <span class="tag-r">broadcasts</span> every frame to every port</li>
+      <li>Collision domain = <span class="val">N</span> (all devices on the hub share one domain)</span></li>
+      <li>No buffer/memory &rarr; simultaneous transmissions = <span class="tag-r">collisions</span></li>
+      <li>Hub has <span class="tag-g">LED lights</span> per port for diagnostics; repeater does not</li>
+      <li>Cost: Hub/Repeater &lt; Bridge &lt; Switch &lt; Router</li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-exam">UGC NET</span>
+      <span class="tag tag-exam">PSUs</span>
+      <span class="tag">Hub</span>
+      <span class="tag">Multiport Repeater</span>
+      <span class="tag">Physical Layer</span>
+      <span class="tag">Forwarding</span>
+      <span class="tag">Filtering</span>
+      <span class="tag">Broadcasting</span>
+      <span class="tag">Collision Domain</span>
+      <span class="tag">LED Diagnostics</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
