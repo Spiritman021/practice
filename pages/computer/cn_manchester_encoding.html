@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 8: Manchester & Differential Manchester Encoding — Digital-to-digital encoding, Dr. Thomas vs IEEE 802.3 conventions, waveform rules, worked examples, and GATE/UGC NET exam tips.">
+<meta name="robots" content="index, follow">
+<title>Manchester &amp; Differential Manchester Encoding — CN Topic 8 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_manchester_encoding.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --orange: #ea580c; --orange-light: #fff7ed;
+  --pink: #db2777; --pink-light: #fdf2f8;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--pink); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e1b4b 0%, #7c3aed 35%, #db2777 70%, #f97316 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#fde68a; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:600px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-blue   { background:var(--blue); }
+.sn-red    { background:var(--red); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-purple { background:var(--accent); }
+.sn-teal   { background:var(--teal); }
+.sn-orange { background:var(--orange); }
+.sn-pink   { background:var(--pink); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-orange { border-color:var(--orange);background:var(--orange-light);color:#7c2d12; }
+.callout-pink   { border-color:var(--pink);  background:var(--pink-light);  color:#831843; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+td.ok   { color:var(--green); font-weight:600; }
+
+/* RULE CARDS */
+.rule-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+.rule-card { border-radius:12px; padding:20px; border:2px solid; }
+.rule-card-man  { background:#eff6ff; border-color:#bfdbfe; }
+.rule-card-diff { background:#fdf2f8; border-color:#fbcfe8; }
+.rule-card h4   { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:10px; }
+.rule-card-man  h4 { color:var(--blue); }
+.rule-card-diff h4 { color:var(--pink); }
+.rule-item { display:flex; align-items:flex-start; gap:8px; font-size:0.83rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.5; }
+.rule-item:last-child { border-bottom:none; }
+.rule-badge { font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; flex-shrink:0; margin-top:1px; }
+.rb-1 { background:#dbeafe; color:#1d4ed8; }
+.rb-0 { background:#fce7f3; color:#9d174d; }
+.rb-e { background:#dcfce7; color:#15803d; }
+.rb-c { background:#fef9c3; color:#92400e; }
+
+/* ENCODING CONTEXT BOXES */
+.enc-context { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; justify-content:center; align-items:center; }
+.enc-box { border-radius:10px; padding:14px 20px; text-align:center; border:2px solid; }
+.enc-box-label { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.5px; margin-bottom:6px; }
+.enc-box-val   { font-family:var(--sans); font-size:0.85rem; font-weight:700; }
+.enc-arrow { display:flex; align-items:center; color:var(--text-light); font-size:22px; }
+.enc-box-dd { background:#eff6ff; border-color:#93c5fd; color:#1e40af; }
+
+/* CONVENTION BADGE */
+.conv-badge { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 10px; border-radius:5px; margin-right:6px; }
+.cb-thomas { background:#fef9c3; color:#78350f; }
+.cb-ieee   { background:#dbeafe; color:#1e40af; }
+
+/* SVG WAVEFORM WRAPPER */
+.waveform-wrap { background: #f8faff; border: 1px solid #dde3f3; border-radius: 10px; padding: 16px 12px; margin: 16px 0; overflow-x: auto; }
+.waveform-title { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px; }
+.waveform-legend { display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
+.wl-item { font-size:0.78rem; font-family:var(--mono); }
+
+/* STEP BOX */
+.steps-list { list-style:none; display:flex; flex-direction:column; gap:10px; margin:14px 0; }
+.steps-list li { display:flex; gap:12px; font-size:0.86rem; color:#374151; line-height:1.6; align-items:flex-start; }
+.step-num { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--sans); font-size:11px; font-weight:700; color:#fff; flex-shrink:0; margin-top:1px; }
+.sn-b { background:var(--blue); }
+.sn-p { background:var(--pink); }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-kvf  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);   font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);  font-size:0.77rem; }
+.bullet-list li .tag-p{ font-family:var(--mono); color:var(--pink);  font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange);font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,#f0fdf4,#eff6ff); border:1px solid #bbf7d0; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--green); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .rule-grid{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 08</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Manchester Encoding</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 8: Manchester &amp; Differential Manchester Encoding</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 8</span>
+    <span class="hero-tag">PHYSICAL LAYER</span>
+    <span class="hero-tag">DIGITAL ENCODING</span>
+  </div>
+  <h1>MANCHESTER &amp; <span>DIFFERENTIAL MANCHESTER</span> ENCODING</h1>
+  <p class="hero-sub">Digital-to-digital encoding schemes used at the Physical Layer &mdash; two conventions, worked waveform examples, and every rule you need for GATE / UGC NET / KVF exams.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">KVF</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Context -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Where Does Encoding Fit? &mdash; Physical Layer Context</h2>
+    </div>
+    <p class="body-text">
+      The <strong>Physical Layer</strong> (OSI Layer 1) is responsible for transmitting raw data from one node to another. Data from upper layers arrives as a stream of <strong>1s and 0s</strong>. However, the Physical Layer can <em>encode</em> those bits into a different signal form before sending them on the wire.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128225; Four Broad Encoding Categories (Physical Layer)</div>
+      <div class="diagram-body">
+        <div class="enc-context">
+          <div class="enc-box enc-box-dd">
+            <div class="enc-box-label">DIGITAL &rarr; DIGITAL</div>
+            <div class="enc-box-val">NRZ, RZ, Manchester &#9664; HERE</div>
+          </div>
+          <div class="enc-arrow">&rarr;</div>
+          <div class="enc-box" style="background:#f0fdf4;border:2px solid #86efac;color:#14532d;">
+            <div class="enc-box-label">DIGITAL &rarr; ANALOG</div>
+            <div class="enc-box-val">ASK, FSK, PSK</div>
+          </div>
+          <div class="enc-arrow">&rarr;</div>
+          <div class="enc-box" style="background:#fff7ed;border:2px solid #fdba74;color:#9a3412;">
+            <div class="enc-box-label">ANALOG &rarr; DIGITAL</div>
+            <div class="enc-box-val">PCM, Delta Mod.</div>
+          </div>
+          <div class="enc-arrow">&rarr;</div>
+          <div class="enc-box" style="background:#f5f3ff;border:2px solid #c4b5fd;color:#4c1d95;">
+            <div class="enc-box-label">ANALOG &rarr; ANALOG</div>
+            <div class="enc-box-val">AM, FM, PM</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Manchester &amp; Differential Manchester are <strong>Digital-to-Digital</strong> encoding schemes &mdash; purely signal-level transitions, no modulation.</div>
+    </div>
+    <div class="callout callout-blue">
+      &#127919; <strong>Why not just send raw 1s and 0s?</strong> Raw NRZ signals suffer from synchronisation problems &mdash; long runs of identical bits produce no transitions, making it hard for the receiver to track the clock. Manchester encoding <em>guarantees a transition in every bit period</em>, solving this entirely.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Manchester Encoding -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">2</div>
+      <h2>Manchester Encoding</h2>
+    </div>
+    <p class="body-text">
+      In Manchester encoding each bit is represented by a <strong>signal transition at the mid-point</strong> of the bit period. There is never a flat, ambiguous period &mdash; the signal always changes direction at the centre of every bit cell, guaranteeing clock synchronisation.
+    </p>
+    <div class="callout callout-amber">
+      &#9888;&#65039; <strong>Two Conventions Exist!</strong> Exams sometimes specify which to use. If none is mentioned, <strong>IEEE 802.3 is the safe default</strong>.
+    </div>
+
+    <div class="rule-grid">
+      <div class="rule-card rule-card-man">
+        <h4><span class="conv-badge cb-thomas">Dr. Thomas</span> Convention</h4>
+        <div class="rule-item"><span class="rule-badge rb-1">1</span> High&rarr;Low transition (&darr;) at mid-bit &mdash; <strong>Z-shape</strong></div>
+        <div class="rule-item"><span class="rule-badge rb-0">0</span> Low&rarr;High transition (&uarr;) at mid-bit &mdash; <strong>reverse-Z shape</strong></div>
+        <div class="rule-item" style="font-size:0.79rem;color:#1e40af;">Boundary edge only appears when adjacent bits differ in value.</div>
+      </div>
+      <div class="rule-card rule-card-man" style="background:#f0fdf4;border-color:#86efac;">
+        <h4><span class="conv-badge cb-ieee">IEEE 802.3</span> Convention &mdash; Default</h4>
+        <div class="rule-item"><span class="rule-badge rb-1">1</span> Low&rarr;High transition (&uarr;) at mid-bit</div>
+        <div class="rule-item"><span class="rule-badge rb-0">0</span> High&rarr;Low transition (&darr;) at mid-bit</div>
+        <div class="rule-item" style="font-size:0.79rem;color:var(--green);"><strong>IEEE is the exact reverse of Dr. Thomas.</strong></div>
+      </div>
+    </div>
+
+    <!-- Waveform Example 1: 1 0 1 0 0 Dr. Thomas -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Manchester Encoding &mdash; Example 1: Data = 1 0 1 0 0 (Dr. Thomas convention)</div>
+      <div class="diagram-body">
+        <div class="waveform-wrap">
+          <div class="waveform-title">DATA BITS:&nbsp;&nbsp;1 &nbsp;&middot;&nbsp; 0 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 0 &nbsp;&middot;&nbsp; 0</div>
+          <svg viewBox="0 0 580 130" width="100%" style="min-width:420px;display:block;font-family:'JetBrains Mono',monospace;" aria-label="Manchester waveform for 10100 Dr Thomas">
+            <!-- Y labels -->
+            <text x="4" y="30" font-size="10" fill="#6b7280">H</text>
+            <text x="4" y="90" font-size="10" fill="#6b7280">L</text>
+            <!-- Midline guide -->
+            <line x1="26" y1="60" x2="572" y2="60" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
+            <!-- Time axis -->
+            <line x1="26" y1="105" x2="572" y2="105" stroke="#cbd5e1" stroke-width="1"/>
+            <!-- Bit period borders -->
+            <line x1="26"  y1="18" x2="26"  y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="132" y1="18" x2="132" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="238" y1="18" x2="238" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="344" y1="18" x2="344" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="450" y1="18" x2="450" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="572" y1="18" x2="572" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <!-- Mid-bit dashed markers -->
+            <line x1="79"  y1="18" x2="79"  y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="185" y1="18" x2="185" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="291" y1="18" x2="291" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="397" y1="18" x2="397" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="511" y1="18" x2="511" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <!-- WAVEFORM (Dr. Thomas: 1=H->L@mid, 0=L->H@mid)
+                 Bit1(1): start H, stay H to mid, drop L, stay L to end=132
+                 Bit2(0): prev ended L, 0 starts L -> L->H@mid -> H to 238
+                 Bit3(1): prev ended H, 1 starts H -> H->L@mid -> L to 344
+                 Bit4(0): prev ended L, 0 starts L -> L->H@mid -> H to 450
+                 Bit5(0): prev ended H, 0 needs to start L -> boundary at 450 H->L, then L->H@mid -> H to 572
+            -->
+            <polyline points="26,26 79,26 79,92 132,92" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="132,92 185,92 185,26 238,26" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="238,26 291,26 291,92 344,92" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="344,92 397,92 397,26 450,26" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="450,26 450,92 511,92 511,26 572,26" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- Bit labels below time axis -->
+            <text x="79"  y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">1</text>
+            <text x="185" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">0</text>
+            <text x="291" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">1</text>
+            <text x="397" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">0</text>
+            <text x="511" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1d4ed8">0</text>
+            <!-- Mid transition arrows -->
+            <text x="79"  y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&darr;</text>
+            <text x="185" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+            <text x="291" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&darr;</text>
+            <text x="397" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+            <text x="511" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+          </svg>
+        </div>
+        <div class="waveform-legend">
+          <span class="wl-item" style="color:#2563eb;">&#9472;&#9472;&#9472; Waveform</span>
+          <span class="wl-item" style="color:#c7d2fe;">&#9484;&#9488; Mid-bit marker</span>
+          <span class="wl-item" style="color:#7c3aed;">&darr;&uarr; Mid-bit transition (encodes data)</span>
+        </div>
+      </div>
+      <div class="diagram-note">Dr. Thomas: <strong>1 = H&rarr;L (&darr;) at mid</strong>, <strong>0 = L&rarr;H (&uarr;) at mid</strong>. Bits 4&amp;5 (0,0): boundary transition added automatically at the border.</div>
+    </div>
+
+    <!-- Waveform Example 2: 0 0 1 1 1 -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Manchester Encoding &mdash; Example 2: Data = 0 0 1 1 1 (Dr. Thomas convention)</div>
+      <div class="diagram-body">
+        <div class="waveform-wrap">
+          <div class="waveform-title">DATA BITS:&nbsp;&nbsp;0 &nbsp;&middot;&nbsp; 0 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 1</div>
+          <svg viewBox="0 0 580 130" width="100%" style="min-width:420px;display:block;font-family:'JetBrains Mono',monospace;" aria-label="Manchester waveform for 00111 Dr Thomas">
+            <text x="4" y="30" font-size="10" fill="#6b7280">H</text>
+            <text x="4" y="90" font-size="10" fill="#6b7280">L</text>
+            <line x1="26" y1="60" x2="572" y2="60" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="26" y1="105" x2="572" y2="105" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="26"  y1="18" x2="26"  y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="132" y1="18" x2="132" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="238" y1="18" x2="238" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="344" y1="18" x2="344" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="450" y1="18" x2="450" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="572" y1="18" x2="572" y2="105" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="79"  y1="18" x2="79"  y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="185" y1="18" x2="185" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="291" y1="18" x2="291" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="397" y1="18" x2="397" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="511" y1="18" x2="511" y2="105" stroke="#c7d2fe" stroke-width="1" stroke-dasharray="2,3"/>
+            <!--
+              Bit1(0): start L, L->H@mid79, H to 132
+              Bit2(0): prev ended H, 0 starts L -> boundary H->L at 132, L->H@mid185, H to 238
+              Bit3(1): prev ended H, 1 starts H -> H->L@mid291, L to 344
+              Bit4(1): prev ended L, 1 starts L -> L->H@mid397, H to 450
+              Bit5(1): prev ended H, 1 starts H -> H->L@mid511, L to 572
+            -->
+            <polyline points="26,92 79,92 79,26 132,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="132,26 132,92 185,92 185,26 238,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="238,26 291,26 291,92 344,92" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="344,92 397,92 397,26 450,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="450,26 511,26 511,92 572,92" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <text x="79"  y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">0</text>
+            <text x="185" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">0</text>
+            <text x="291" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">1</text>
+            <text x="397" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">1</text>
+            <text x="511" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">1</text>
+            <text x="79"  y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+            <text x="185" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+            <text x="291" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&darr;</text>
+            <text x="397" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&uarr;</text>
+            <text x="511" y="12" text-anchor="middle" font-size="9" fill="#7c3aed">&darr;</text>
+          </svg>
+        </div>
+      </div>
+      <div class="diagram-note">When two <strong>same-value bits</strong> appear consecutively, a boundary transition is inserted automatically so the next bit can start at the correct level.</div>
+    </div>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128393; Step-by-Step: Drawing Manchester Waveforms</div>
+      <div class="diagram-body">
+        <ol class="steps-list">
+          <li><span class="step-num sn-b">1</span>Draw a time axis divided into equal bit-period cells.</li>
+          <li><span class="step-num sn-b">2</span>For each bit, determine the <strong>mid-bit transition direction</strong> using your convention (Dr. Thomas or IEEE 802.3).</li>
+          <li><span class="step-num sn-b">3</span>Set the signal level at the <em>start</em> of the bit period: for a <strong>1</strong> (Dr. Thomas) begin HIGH; for a <strong>0</strong> begin LOW.</li>
+          <li><span class="step-num sn-b">4</span>At the mid-point <strong>flip</strong> the level, then stay flat to the end of the period.</li>
+          <li><span class="step-num sn-b">5</span>Move to the next bit. If it requires a different starting level from where you ended, add a <strong>boundary transition</strong> (vertical line at the bit border).</li>
+          <li><span class="step-num sn-b">6</span>Connect all segments. <strong>Never leave a gap.</strong></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Differential Manchester -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-pink">3</div>
+      <h2>Differential Manchester Encoding</h2>
+    </div>
+    <p class="body-text">
+      Differential Manchester takes a fundamentally different approach. A mid-bit transition is <strong>always present</strong> in every bit period &mdash; but it is used only for <em>clock synchronisation</em>. The actual bit value is determined by whether a transition occurs at the <strong>boundary</strong> between adjacent bits.
+    </p>
+
+    <div class="rule-grid">
+      <div class="rule-card rule-card-diff">
+        <h4>The Two Golden Rules</h4>
+        <div class="rule-item"><span class="rule-badge rb-0">0</span> <strong>Edge at the boundary</strong> &mdash; a transition occurs at the START of the bit period (before the mandatory mid-bit transition).</div>
+        <div class="rule-item"><span class="rule-badge rb-1">1</span> <strong>No edge at the boundary</strong> &mdash; signal continues from where it left off. No extra transition at the start. (Mid-bit transition still occurs.)</div>
+        <div class="rule-item"><span class="rule-badge rb-e">MID</span> A mid-bit transition is <strong>always</strong> present in every bit period &mdash; this is the sync pulse.</div>
+        <div class="rule-item"><span class="rule-badge rb-c">START</span> Your starting level (H or L) is a free choice. The first mid-transition direction follows logically.</div>
+      </div>
+      <div class="rule-card rule-card-diff" style="background:#fff7ed;border-color:#fdba74;">
+        <h4>Memory Tricks &#129504;</h4>
+        <div class="rule-item">&#128204; <strong>0 = Edge</strong> &mdash; Zero &ldquo;has a stroke&rdquo;, needs an extra edge at the boundary.</div>
+        <div class="rule-item">&#128204; <strong>1 = Continue</strong> &mdash; One goes straight, no extra edge.</div>
+        <div class="rule-item">&#128204; A 0 gives <em>2 transitions</em> per bit (boundary + mid). A 1 gives exactly <em>1 transition</em> (mid only).</div>
+        <div class="rule-item">&#128204; Once you fix the starting level, all subsequent transitions are forced by logic &mdash; you have no choice.</div>
+      </div>
+    </div>
+
+    <!-- Differential Waveform Example 1: 1 0 1 0 0 -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Differential Manchester &mdash; Example 1: Data = 1 0 1 0 0 (starting HIGH)</div>
+      <div class="diagram-body">
+        <div class="waveform-wrap">
+          <div class="waveform-title">DATA BITS:&nbsp;&nbsp;1 &nbsp;&middot;&nbsp; 0 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 0 &nbsp;&middot;&nbsp; 0&nbsp;&nbsp;&nbsp;(starting HIGH)</div>
+          <svg viewBox="0 0 580 140" width="100%" style="min-width:420px;display:block;font-family:'JetBrains Mono',monospace;" aria-label="Differential Manchester waveform for 10100">
+            <text x="4" y="30" font-size="10" fill="#6b7280">H</text>
+            <text x="4" y="95" font-size="10" fill="#6b7280">L</text>
+            <line x1="26" y1="62" x2="572" y2="62" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="26" y1="112" x2="572" y2="112" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="26"  y1="18" x2="26"  y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="132" y1="18" x2="132" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="238" y1="18" x2="238" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="344" y1="18" x2="344" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="450" y1="18" x2="450" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="572" y1="18" x2="572" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <!-- Mid-bit sync markers (pink dashes) -->
+            <line x1="79"  y1="18" x2="79"  y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="185" y1="18" x2="185" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="291" y1="18" x2="291" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="397" y1="18" x2="397" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="511" y1="18" x2="511" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <!--
+              Bit1(1=no edge): start H, continue H to mid79, H->L sync, L to 132
+              Bit2(0=edge): boundary at 132: L->H, H to mid185, H->L sync, L to 238
+              Bit3(1=no edge): no boundary at 238, continue L, L->H@mid291, H to 344
+              Bit4(0=edge): boundary at 344: H->L, L to mid397, L->H sync, H to 450
+              Bit5(0=edge): boundary at 450: H->L, L to mid511, L->H sync, H to 572
+            -->
+            <polyline points="26,26 79,26 79,100 132,100" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="132,100 132,26 185,26 185,100 238,100" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="238,100 291,100 291,26 344,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="344,26 344,100 397,100 397,26 450,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="450,26 450,100 511,100 511,26 572,26" fill="none" stroke="#db2777" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <!-- Bit labels -->
+            <text x="79"  y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">1</text>
+            <text x="185" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">0</text>
+            <text x="291" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">1</text>
+            <text x="397" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">0</text>
+            <text x="511" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#9d174d">0</text>
+            <!-- Boundary edge labels -->
+            <text x="132" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#16a34a">EDGE</text>
+            <text x="344" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#16a34a">EDGE</text>
+            <text x="450" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#16a34a">EDGE</text>
+            <text x="26"  y="12" text-anchor="middle" font-size="9" fill="#9ca3af">&mdash;</text>
+            <text x="238" y="12" text-anchor="middle" font-size="9" fill="#9ca3af">NO EDGE</text>
+            <!-- Sync labels -->
+            <text x="79"  y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="185" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="291" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="397" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="511" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+          </svg>
+        </div>
+        <div class="waveform-legend">
+          <span class="wl-item" style="color:#db2777;">&#9472;&#9472;&#9472; Waveform</span>
+          <span class="wl-item" style="color:#fbcfe8;">&#9484;&#9488; Mid-bit sync (always present)</span>
+          <span class="wl-item" style="color:#16a34a;">EDGE = bit 0</span>
+          <span class="wl-item" style="color:#9ca3af;">NO EDGE = bit 1</span>
+        </div>
+      </div>
+      <div class="diagram-note">Bit 1 (1): no boundary edge &mdash; signal continues. Bit 2 (0): boundary edge at start. Bit 3 (1): no boundary edge. Bits 4&amp;5 (0,0): both have boundary edges. Mid-bit sync transition appears in <em>every</em> bit period.</div>
+    </div>
+
+    <!-- Differential Waveform Example 2: 0 1 1 1 0 -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Differential Manchester &mdash; Example 2: Data = 0 1 1 1 0 (starting LOW)</div>
+      <div class="diagram-body">
+        <div class="waveform-wrap">
+          <div class="waveform-title">DATA BITS:&nbsp;&nbsp;0 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 1 &nbsp;&middot;&nbsp; 0&nbsp;&nbsp;&nbsp;(starting LOW)</div>
+          <svg viewBox="0 0 580 140" width="100%" style="min-width:420px;display:block;font-family:'JetBrains Mono',monospace;" aria-label="Differential Manchester waveform for 01110">
+            <text x="4" y="30" font-size="10" fill="#6b7280">H</text>
+            <text x="4" y="95" font-size="10" fill="#6b7280">L</text>
+            <line x1="26" y1="62" x2="572" y2="62" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
+            <line x1="26" y1="112" x2="572" y2="112" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="26"  y1="18" x2="26"  y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="132" y1="18" x2="132" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="238" y1="18" x2="238" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="344" y1="18" x2="344" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="450" y1="18" x2="450" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="572" y1="18" x2="572" y2="112" stroke="#d1d5db" stroke-width="1.2"/>
+            <line x1="79"  y1="18" x2="79"  y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="185" y1="18" x2="185" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="291" y1="18" x2="291" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="397" y1="18" x2="397" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <line x1="511" y1="18" x2="511" y2="112" stroke="#fbcfe8" stroke-width="1" stroke-dasharray="2,3"/>
+            <!--
+              Starting LOW.
+              Bit1(0=edge): boundary edge at 26: starting L, edge L->H at start,
+                            so we start at L then immediately go H (the edge IS at the very start).
+                            Actually: the bit starts; 0 means edge. Starting from L means
+                            edge flips to H at t=26. Then H stays flat to mid79. H->L sync. L to 132.
+              Bit2(1=no edge): continue L (no boundary). L->H@mid185. H to 238.
+              Bit3(1=no edge): continue H. H->L@mid291. L to 344.
+              Bit4(1=no edge): continue L. L->H@mid397. H to 450.
+              Bit5(0=edge): boundary at 450: H->L. L to mid511. L->H sync. H to 572.
+            -->
+            <polyline points="26,100 26,26 79,26 79,100 132,100" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="132,100 185,100 185,26 238,26" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="238,26 291,26 291,100 344,100" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="344,100 397,100 397,26 450,26" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <polyline points="450,26 450,100 511,100 511,26 572,26" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+            <text x="79"  y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">0</text>
+            <text x="185" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">1</text>
+            <text x="291" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">1</text>
+            <text x="397" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">1</text>
+            <text x="511" y="128" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">0</text>
+            <text x="26"  y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#16a34a">EDGE</text>
+            <text x="450" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#16a34a">EDGE</text>
+            <text x="185" y="12" text-anchor="middle" font-size="9" fill="#9ca3af">&mdash;</text>
+            <text x="291" y="12" text-anchor="middle" font-size="9" fill="#9ca3af">&mdash;</text>
+            <text x="397" y="12" text-anchor="middle" font-size="9" fill="#9ca3af">&mdash;</text>
+            <text x="79"  y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="185" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="291" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="397" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+            <text x="511" y="140" text-anchor="middle" font-size="7" fill="#f9a8d4">sync</text>
+          </svg>
+        </div>
+      </div>
+      <div class="diagram-note">Three consecutive 1s (bits 2&ndash;4): no boundary edges &mdash; waveform simply alternates direction at each mid-bit sync. Bits 1 and 5 (0s) have clear boundary edges.</div>
+    </div>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128393; Step-by-Step: Drawing Differential Manchester Waveforms</div>
+      <div class="diagram-body">
+        <ol class="steps-list">
+          <li><span class="step-num sn-p">1</span>Choose any starting level (H or L) &mdash; this is your free choice.</li>
+          <li><span class="step-num sn-p">2</span>For each bit check: <strong>0</strong> &rarr; add a boundary transition first; <strong>1</strong> &rarr; no boundary transition.</li>
+          <li><span class="step-num sn-p">3</span>After handling the boundary (or not), travel flat to the <strong>mid-point</strong> of the bit period.</li>
+          <li><span class="step-num sn-p">4</span>At the mid-point <strong>always</strong> add a transition (sync pulse). Its direction is forced by your current level.</li>
+          <li><span class="step-num sn-p">5</span>Travel flat to the end of the bit period. Repeat for the next bit from step 2.</li>
+          <li><span class="step-num sn-p">6</span>Verification: count transitions &mdash; each <strong>1</strong> has exactly 1, each <strong>0</strong> has exactly 2.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Full Comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">4</div>
+      <h2>Manchester vs Differential Manchester &mdash; Full Comparison</h2>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Manchester</th>
+            <th>Differential Manchester</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Bit encoding mechanism</strong></td><td>Direction of mid-bit transition</td><td>Presence/absence of boundary transition</td></tr>
+          <tr><td><strong>Bit 0 represented by</strong></td><td class="mono">L&rarr;H at mid (Dr. Thomas) / H&rarr;L (IEEE)</td><td class="mono">Edge at start of bit period</td></tr>
+          <tr><td><strong>Bit 1 represented by</strong></td><td class="mono">H&rarr;L at mid (Dr. Thomas) / L&rarr;H (IEEE)</td><td class="mono">No edge at start of bit period</td></tr>
+          <tr><td><strong>Mid-bit transition role</strong></td><td>Encodes data AND syncs clock</td><td>Sync only (no data meaning)</td></tr>
+          <tr><td><strong>Mid-bit transition present?</strong></td><td class="ok">Always</td><td class="ok">Always</td></tr>
+          <tr><td><strong>Boundary transition</strong></td><td class="good">Only when adjacent bits differ</td><td class="must">Only when bit = 0</td></tr>
+          <tr><td><strong>Transitions per bit</strong></td><td class="mono">1 or 2 (depends on adjacent bits)</td><td class="mono">1 (for bit=1) or 2 (for bit=0)</td></tr>
+          <tr><td><strong>Polarity-inversion safe?</strong></td><td class="must">No &mdash; inversion flips all bits</td><td class="ok">Yes &mdash; polarity-inversion immune</td></tr>
+          <tr><td><strong>Clock self-synchronisation</strong></td><td class="ok">Yes</td><td class="ok">Yes</td></tr>
+          <tr><td><strong>Bandwidth (baud rate)</strong></td><td class="mono">2&times; bit rate (minimum)</td><td class="mono">2&times; bit rate (minimum)</td></tr>
+          <tr><td><strong>Standard / Typical usage</strong></td><td>Ethernet (IEEE 802.3), Token Ring</td><td>ISDN, some Token Ring variants</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-teal">
+      &#128273; <strong>Key advantage of Differential Manchester:</strong> Because bit values are encoded as <em>changes relative to the previous state</em> (not absolute levels), swapping the two wires does not corrupt the data. This polarity-inversion immunity is called <em>differential signalling</em>.
+    </div>
+  </div>
+
+  <!-- SECTION 5: Exam Tips -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">5</div>
+      <h2>Exam Angles &amp; Common Pitfalls</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-kvf">KVF</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Question Type</th><th>What to Watch For</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Draw the waveform for a given bit string</strong></td>
+            <td>Check which convention is specified. If none &rarr; use <span class="mono">IEEE 802.3</span>. Don't forget boundary transitions between same-value adjacent bits in Manchester.</td>
+          </tr>
+          <tr>
+            <td><strong>Decode a given waveform back to bits</strong></td>
+            <td>Manchester: look at mid-transition direction. Differential: look at whether a boundary transition exists &mdash; <span class="mono">edge = 0, no edge = 1</span>.</td>
+          </tr>
+          <tr>
+            <td><strong>Count signal transitions</strong></td>
+            <td>Differential: 1s always have 1 transition, 0s always have 2. Manchester: count varies with adjacent-bit patterns.</td>
+          </tr>
+          <tr>
+            <td><strong>Baud rate / bandwidth</strong></td>
+            <td>Both schemes: minimum baud rate = 2&times; bit rate. Signal rate = 2 &times; data rate in worst case.</td>
+          </tr>
+          <tr>
+            <td><strong>Compare with NRZ / RZ</strong></td>
+            <td>NRZ has no guaranteed transitions &rarr; clock sync problem. Manchester and Differential Manchester fix this with guaranteed mid-bit transitions.</td>
+          </tr>
+          <tr>
+            <td><strong>Which uses relative encoding?</strong></td>
+            <td>Differential Manchester uses <em>relative</em> (differential) encoding &rarr; polarity-safe. Manchester uses <em>absolute</em> voltage levels.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-red">
+      &#128680; <strong>Most common mistake:</strong> In Differential Manchester, students often forget the mid-bit sync transition when drawing a long run of 1s. Even a stream of all 1s still has a mid-bit transition in <em>every single bit period</em>!
+    </div>
+    <div class="callout callout-purple">
+      &#128161; <strong>IEEE 802.3 vs Dr. Thomas memory trick:</strong> IEEE is the exact vertical flip of Dr. Thomas. In IEEE: <strong>1 = L&rarr;H at mid</strong>, <strong>0 = H&rarr;L at mid</strong>. If you know one, you know the other.
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-purple" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Quick-scan cards. All rules at a glance. Perfect for last-minute prep.
+  </div>
+
+  <div class="cheat-div"><span>MANCHESTER RULES</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Dr. Thomas Convention</div>
+      <ul class="bullet-list">
+        <li><span class="tag-b">1</span> = H&rarr;L transition at mid-bit (&darr; Z-shape)</li>
+        <li><span class="tag-r">0</span> = L&rarr;H transition at mid-bit (&uarr; reverse-Z)</li>
+        <li>Mid-transition <em>carries the actual bit value</em></li>
+        <li>Boundary edge only appears between <em>different</em> adjacent bits</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">IEEE 802.3 Convention (Exam Default)</div>
+      <ul class="bullet-list">
+        <li><span class="tag-b">1</span> = L&rarr;H transition at mid-bit (&uarr;)</li>
+        <li><span class="tag-r">0</span> = H&rarr;L transition at mid-bit (&darr;)</li>
+        <li>Exact reverse of Dr. Thomas</li>
+        <li>Used in <span class="val">Ethernet</span> &mdash; default when unspecified</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Drawing Tips</div>
+      <ul class="bullet-list">
+        <li>Guaranteed transition at <em>every</em> mid-bit</li>
+        <li>Same adjacent bits &rarr; extra boundary transition added automatically</li>
+        <li>Never leave a gap in the waveform</li>
+        <li>Baud rate = <span class="val">2 &times; bit rate</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>DIFFERENTIAL MANCHESTER RULES</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">The Two Core Rules</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">0</span> = <strong>Edge at boundary</strong> (transition at START of bit)</li>
+        <li><span class="tag-b">1</span> = <strong>No edge at boundary</strong> (continue signal)</li>
+        <li>Mid-bit sync transition: <em>always present</em></li>
+        <li>Memory: <span class="val">0 = Edge</span>, <span class="val">1 = Continue</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Transitions Per Bit</div>
+      <ul class="bullet-list">
+        <li><span class="tag-b">1</span> &rarr; exactly <span class="val">1 transition</span> (mid only)</li>
+        <li><span class="tag-r">0</span> &rarr; exactly <span class="val">2 transitions</span> (boundary + mid)</li>
+        <li>Waveform is <span class="tag-g">polarity-inversion immune</span></li>
+        <li>Starting level (H or L) is a free choice</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Common Pitfalls &#9888;&#65039;</div>
+      <ul class="bullet-list">
+        <li>Forgetting mid sync transition for a run of <span class="tag-b">1s</span></li>
+        <li>Using wrong convention (always check the question)</li>
+        <li>Confusing boundary vs mid-bit transitions when decoding</li>
+        <li>Thinking Diff. Manchester encodes using mid-transition direction &mdash; it does <em>not</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>SIDE-BY-SIDE COMPARISON</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Manchester</th><th>Differential Manchester</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Data encoded in</td><td class="mono">Direction of mid-transition</td><td class="mono">Presence of boundary transition</td></tr>
+        <tr><td>Mid-bit transition role</td><td>Data + Sync</td><td>Sync only</td></tr>
+        <tr><td>Polarity-safe?</td><td class="must">No</td><td class="ok">Yes</td></tr>
+        <tr><td>Guaranteed sync</td><td class="ok">Yes</td><td class="ok">Yes</td></tr>
+        <tr><td>Bandwidth cost</td><td class="mono">2&times; bit rate</td><td class="mono">2&times; bit rate</td></tr>
+        <tr><td>Typical usage</td><td class="mono">Ethernet (IEEE 802.3)</td><td class="mono">ISDN, Token Ring</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cheat-div"><span>QUICK DECODE SHORTCUTS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Decode Manchester Waveform</div>
+      <ul class="bullet-list">
+        <li>Find the mid-point of each bit period</li>
+        <li>&darr; at mid (H&rarr;L) &rarr; <span class="tag-b">1</span> (Dr. Thomas) or <span class="tag-r">0</span> (IEEE)</li>
+        <li>&uarr; at mid (L&rarr;H) &rarr; <span class="tag-r">0</span> (Dr. Thomas) or <span class="tag-b">1</span> (IEEE)</li>
+        <li>Boundary transitions: <em>ignore</em> &mdash; they carry no bit information</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Decode Differential Manchester</div>
+      <ul class="bullet-list">
+        <li>Find each bit boundary</li>
+        <li>Transition at boundary &rarr; <span class="tag-r">0</span></li>
+        <li>No transition at boundary &rarr; <span class="tag-b">1</span></li>
+        <li>Mid-transitions: <em>ignore</em> &mdash; sync only, no data meaning</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Exam Checklist &#9989;</div>
+      <ul class="bullet-list">
+        <li>Identify which encoding and convention is used</li>
+        <li>Draw bit-period grid before starting waveform</li>
+        <li>Mark mid-bit points with dotted lines</li>
+        <li>Verify: every bit has &ge;1 mid-bit transition</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Summary</h3>
+    <ul class="bullet-list">
+      <li>Manchester &mdash; <span class="tag-b">1 = Z-shape</span> (Dr. Thomas), <span class="tag-b">1 = reverse-Z</span> (IEEE); mid-transition encodes the bit</li>
+      <li>Differential Manchester &mdash; <span class="tag-r">0 = edge at boundary</span>, <span class="tag-b">1 = no boundary edge</span>; mid-transition is sync only</li>
+      <li>Every bit in <em>both</em> schemes has exactly <span class="val">1 guaranteed mid-bit transition</span></li>
+      <li>Default convention = <span class="val">IEEE 802.3</span> unless the question says otherwise</li>
+      <li>Baud rate = <span class="val">2 &times; bit rate</span> for both Manchester and Differential Manchester</li>
+      <li>Differential Manchester is <span class="tag-g">polarity-inversion immune</span>; standard Manchester is not</li>
+      <li>Both schemes solve the NRZ clock-sync problem via guaranteed transitions</li>
+    </ul>
+    <div class="tags">
+      <span class="tag">Digital-to-Digital</span>
+      <span class="tag">Physical Layer</span>
+      <span class="tag">Manchester</span>
+      <span class="tag">Differential Manchester</span>
+      <span class="tag">IEEE 802.3</span>
+      <span class="tag">Dr. Thomas</span>
+      <span class="tag">Clock Sync</span>
+      <span class="tag">Biphase Coding</span>
+      <span class="tag">GATE</span>
+      <span class="tag">UGC NET</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
