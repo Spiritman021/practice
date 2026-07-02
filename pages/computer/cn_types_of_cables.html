@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 10: Types of Cables — UTP, Coaxial, Fibre Optic; cable naming conventions (10BaseT, 100BaseFX); attenuation, baseband vs broadband, collisions. GATE/UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Types of Cables in Computer Networks &mdash; CN Topic 10 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_types_of_cables.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed; --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --orange: #ea580c; --orange-light: #fff7ed;
+  --indigo: #4338ca; --indigo-light: #eef2ff;
+  --violet: #6d28d9; --violet-light: #f5f3ff;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 52px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-badge { background: var(--indigo); color: #fff; font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 5px; letter-spacing: 0.5px; }
+.nav-breadcrumb { font-family: var(--sans); font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.nav-breadcrumb .sep { color: var(--text-light); }
+.nav-breadcrumb .current { color: var(--text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted); }
+.nav-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:not(.active):hover { background: var(--bg); color: var(--text); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 35%, #2563eb 70%, #0891b2 100%); padding: 52px 48px 48px; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#bfdbfe; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:620px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-blue   { background:var(--blue); }
+.sn-red    { background:var(--red); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-purple { background:var(--accent); }
+.sn-teal   { background:var(--teal); }
+.sn-orange { background:var(--orange); }
+.sn-indigo { background:var(--indigo); }
+.sn-violet { background:var(--violet); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-orange { border-color:var(--orange);background:var(--orange-light);color:#7c2d12; }
+.callout-indigo { border-color:var(--indigo);background:var(--indigo-light);color:#312e81; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+td.ok   { color:var(--green); font-weight:600; }
+td.info { color:var(--blue); font-weight:600; }
+td.ind  { color:var(--indigo); font-weight:600; }
+
+/* NAMING DECODER */
+.name-decoder { display:flex; align-items:stretch; border-radius:14px; overflow:hidden; border:2px solid var(--indigo); margin:18px 0; }
+.nd-part { flex:1; padding:18px 16px; text-align:center; }
+.nd-part-label { font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.nd-part-val { font-family:var(--mono); font-size:1.8rem; font-weight:700; margin-bottom:6px; }
+.nd-part-name { font-family:var(--sans); font-size:0.76rem; font-weight:700; margin-bottom:4px; }
+.nd-part-desc { font-size:0.72rem; color:#374151; line-height:1.5; }
+.nd-sep { width:2px; background:var(--indigo); opacity:0.3; flex-shrink:0; }
+.nd-p1 { background:#eef2ff; }
+.nd-p2 { background:#eff6ff; }
+.nd-p3 { background:#f0fdfa; }
+
+/* CABLE CARDS */
+.cable-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:18px 0; }
+.cable-card { background:var(--white); border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:transform 0.2s, box-shadow 0.2s; }
+.cable-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+.cable-card-head { padding:20px 18px 14px; text-align:center; }
+.cable-icon { font-size:36px; margin-bottom:10px; }
+.cable-name { font-family:var(--sans); font-size:0.95rem; font-weight:700; margin-bottom:4px; }
+.cable-badge { font-family:var(--mono); font-size:9px; font-weight:700; padding:3px 10px; border-radius:20px; display:inline-block; margin-top:2px; }
+.cable-card-body { padding:0 0 16px; }
+.cable-prop { display:flex; gap:8px; align-items:flex-start; padding:7px 16px; border-top:1px solid #f3f4f6; font-size:0.8rem; }
+.cable-prop-label { font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:0.3px; padding:2px 7px; border-radius:4px; flex-shrink:0; margin-top:1px; }
+.cable-prop-val { color:#374151; line-height:1.5; }
+
+/* ATTENUATION VISUAL */
+.atten-bar { display:flex; align-items:center; gap:0; height:36px; border-radius:10px; overflow:hidden; margin:12px 0; position:relative; }
+.atten-seg { height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
+.atten-label { font-family:var(--mono); font-size:10px; color:var(--text-muted); margin-top:3px; }
+.atten-row { margin-bottom:14px; }
+.atten-row-title { font-family:var(--sans); font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:5px; display:flex; align-items:center; gap:8px; }
+
+/* BASE vs BROAD */
+.bb-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+.bb-card { border-radius:12px; padding:18px; border:2px solid; }
+.bb-base  { background:#fffbeb; border-color:#fcd34d; }
+.bb-broad { background:#f0fdf4; border-color:#86efac; }
+.bb-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:10px; }
+.bb-base h4  { color:#92400e; }
+.bb-broad h4 { color:#14532d; }
+.bb-item { font-size:0.82rem; color:#374151; padding:4px 0; border-bottom:1px solid rgba(0,0,0,0.05); line-height:1.5; }
+.bb-item:last-child { border-bottom:none; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--indigo); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--indigo); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber); font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green); font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);   font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);  font-size:0.77rem; }
+.bullet-list li .tag-i{ font-family:var(--mono); color:var(--indigo);font-size:0.77rem; }
+.bullet-list li .tag-t{ font-family:var(--mono); color:var(--teal);  font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange);font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,#eef2ff,#eff6ff); border:1px solid #a5b4fc; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--indigo); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:700px){
+  .hero{padding:36px 24px;}
+  .cable-grid{grid-template-columns:1fr;}
+  .bb-grid{grid-template-columns:1fr;}
+  .name-decoder{flex-direction:column;}
+  .nd-sep{width:100%;height:2px;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 10</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Types of Cables</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 10: Types of Cables</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 10</span>
+    <span class="hero-tag">PHYSICAL LAYER</span>
+    <span class="hero-tag">GUIDED MEDIA</span>
+  </div>
+  <h1>TYPES OF <span>CABLES</span> IN COMPUTER NETWORKS</h1>
+  <p class="hero-sub">UTP, Coaxial &amp; Fibre Optic cables &mdash; naming conventions (10BaseT, 100BaseFX), signal types, distance limits, attenuation, baseband vs broadband, and every exam angle for GATE / UGC NET / PSUs.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Role and OSI Layer -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Role of Cables &amp; OSI Layer</h2>
+    </div>
+    <p class="body-text">
+      Cables are the <strong>physical medium</strong> that connect networking devices and carry data in the form of signals. They are the most fundamental component of any wired network. Cables are primarily used in:
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="ind">Layer 1 &mdash; Physical Layer only</td></tr>
+          <tr><td><strong>Type</strong></td><td class="ok">Pure Hardware (zero software)</td></tr>
+          <tr><td><strong>Intelligence</strong></td><td class="must">None &mdash; cannot check IP, MAC, or filter data</td></tr>
+          <tr><td><strong>Sole purpose</strong></td><td>Provide a physical connection and carry signals between devices</td></tr>
+          <tr><td><strong>Used in</strong></td><td>Ethernet LANs (&lt;&nbsp;10&nbsp;km), Token Ring, Token Bus networks</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-indigo">
+      &#128273; <strong>Key Exam Point:</strong> Cables are <em>pure hardware</em> &mdash; they have absolutely no software. They cannot check IP addresses, MAC addresses, or filter signals. They simply provide a physical path. All decisions are made by intelligent devices (switches, routers) connected to the cables.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Naming Convention Decoder -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-indigo">2</div>
+      <h2>Decoding Cable Naming Conventions</h2>
+    </div>
+    <p class="body-text">
+      Cable names like <strong>10BaseT</strong>, <strong>10Base2</strong>, <strong>100BaseFX</strong> follow a strict 3-part format. This is a very common question in UGC NET and PSU exams. Understanding each part decodes the cable's complete specification.
+    </p>
+
+    <!-- Decoder visual for 100 Base FX -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128270; Cable Name Decoder &mdash; Reading &ldquo;100 Base FX&rdquo;</div>
+      <div class="diagram-body">
+        <div class="name-decoder">
+          <div class="nd-part nd-p1">
+            <div class="nd-part-label" style="color:var(--indigo);">Part 1</div>
+            <div class="nd-part-val" style="color:var(--indigo);">100</div>
+            <div class="nd-part-name" style="color:var(--indigo);">Bandwidth / Speed</div>
+            <div class="nd-part-desc">Transmission rate in <strong>Mbps</strong>. This cable can carry 100 megabits of data per second.</div>
+          </div>
+          <div class="nd-sep"></div>
+          <div class="nd-part nd-p2">
+            <div class="nd-part-label" style="color:var(--blue);">Part 2</div>
+            <div class="nd-part-val" style="color:var(--blue);">Base</div>
+            <div class="nd-part-name" style="color:var(--blue);">Transmission Type</div>
+            <div class="nd-part-desc"><strong>Base = Baseband</strong> (one signal at a time). <strong>Broad = Broadband</strong> (multiple parallel signals).</div>
+          </div>
+          <div class="nd-sep"></div>
+          <div class="nd-part nd-p3">
+            <div class="nd-part-label" style="color:var(--teal);">Part 3</div>
+            <div class="nd-part-val" style="color:var(--teal);">FX</div>
+            <div class="nd-part-name" style="color:var(--teal);">Distance / Medium</div>
+            <div class="nd-part-desc"><strong>T</strong> = 100 m (Twisted Pair) &bull; <strong>2</strong> = 200 m &bull; <strong>5</strong> = 500 m &bull; <strong>FX</strong> = Fibre Channel (~2 km)</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">The three parts always follow the same order: <strong>[Speed in Mbps] &mdash; [Base or Broad] &mdash; [Distance/Medium code]</strong></div>
+    </div>
+
+    <!-- Examples table -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128203; Common Cable Names &mdash; Decoded</div>
+      <div class="diagram-body">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cable Name</th>
+                <th>Speed</th>
+                <th>Type</th>
+                <th>Distance Code</th>
+                <th>Max Distance</th>
+                <th>Cable Medium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">10 Base T</td>
+                <td class="mono">10 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">T = Twisted Pair</td>
+                <td class="mono">100 m</td>
+                <td>UTP Cable</td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">100 Base T</td>
+                <td class="mono">100 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">T = Twisted Pair</td>
+                <td class="mono">100 m</td>
+                <td>UTP Cable (Fast Ethernet)</td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">10 Base 2</td>
+                <td class="mono">10 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">2 &asymp; 200 m</td>
+                <td class="mono">200 m</td>
+                <td>Coaxial (Thin Ethernet)</td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">10 Base 5</td>
+                <td class="mono">10 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">5 &asymp; 500 m</td>
+                <td class="mono">500 m</td>
+                <td>Coaxial (Thick Ethernet)</td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">100 Base FX</td>
+                <td class="mono">100 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">FX = Fibre Channel</td>
+                <td class="mono">~2 km</td>
+                <td>Fibre Optic</td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:700;color:var(--indigo);">1000 Base FX</td>
+                <td class="mono">1000 Mbps</td>
+                <td class="good">Baseband</td>
+                <td class="mono">FX = Fibre Channel</td>
+                <td class="mono">~2 km</td>
+                <td>Fibre Optic (Gigabit)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="diagram-note">The number after &ldquo;Base&rdquo; is a <em>code</em>, not always exact: T = 100 m, 2 &asymp; 200 m (actually 185 m), 5 = 500 m, FX = Fibre Channel.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Baseband vs Broadband -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Baseband vs Broadband Transmission</h2>
+    </div>
+
+    <div class="bb-grid">
+      <div class="bb-card bb-base">
+        <h4>&#9654; Baseband (Base)</h4>
+        <div class="bb-item">&#128204; Only <strong>one signal</strong> can travel through the cable at a time</div>
+        <div class="bb-item">&#128204; If the sender is transmitting, the receiver <strong>cannot send simultaneously</strong></div>
+        <div class="bb-item">&#128204; If multiple devices send at the <em>exact same time</em> &rarr; <strong>collision occurs</strong></div>
+        <div class="bb-item">&#128204; Uses the <strong>entire bandwidth</strong> of the cable for a single signal</div>
+        <div class="bb-item">&#128204; All three cable types (UTP, Coaxial, Fibre) discussed here are <strong>Baseband</strong></div>
+        <div class="bb-item">&#128204; Example: <span style="font-family:var(--mono);font-size:0.8rem;">10BaseT</span>, <span style="font-family:var(--mono);font-size:0.8rem;">100BaseFX</span></div>
+      </div>
+      <div class="bb-card bb-broad">
+        <h4>&#128257; Broadband (Broad)</h4>
+        <div class="bb-item">&#128204; <strong>Multiple signals</strong> can travel simultaneously in parallel</div>
+        <div class="bb-item">&#128204; Each signal uses a different frequency channel &mdash; <strong>no interference</strong></div>
+        <div class="bb-item">&#128204; Much higher effective throughput</div>
+        <div class="bb-item">&#128204; Used in cable TV (CATV) and modern internet connections</div>
+        <div class="bb-item">&#128204; Signals are modulated (carrier wave) &mdash; requires more complex hardware</div>
+        <div class="bb-item">&#128204; Example: Cable TV coaxial infrastructure</div>
+      </div>
+    </div>
+
+    <div class="callout callout-amber">
+      &#9888;&#65039; <strong>Collision Formula (Exam):</strong> If <strong><em>n</em></strong> devices are all connected to the <em>same baseband cable</em> and all transmit simultaneously, there can be a maximum of <strong><em>n</em> collisions</strong>. This happens because the cable is pure hardware &mdash; it cannot detect, stop, or filter any incoming signal.
+    </div>
+  </div>
+
+  <!-- SECTION 4: Three Cable Types -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">4</div>
+      <h2>Three Types of Cables &mdash; In Detail</h2>
+    </div>
+    <p class="body-text">
+      All three cables carry data as signals but differ in <strong>signal type</strong>, <strong>maximum distance</strong>, <strong>speed</strong>, and <strong>use case</strong>.
+    </p>
+
+    <div class="cable-grid">
+      <!-- UTP -->
+      <div class="cable-card">
+        <div class="cable-card-head" style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);">
+          <div class="cable-icon">&#128279;</div>
+          <div class="cable-name" style="color:var(--indigo);">Unshielded Twisted Pair</div>
+          <span class="cable-badge" style="background:#c7d2fe;color:#3730a3;">UTP</span>
+        </div>
+        <div class="cable-card-body">
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">SIGNAL</span>
+            <span class="cable-prop-val"><strong>Electrical signals</strong></span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">EXAMPLES</span>
+            <span class="cable-prop-val" style="font-family:var(--mono);font-size:0.78rem;">10BaseT, 100BaseT</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">DISTANCE</span>
+            <span class="cable-prop-val"><strong>100 metres</strong> &mdash; the &ldquo;T&rdquo; code</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">STRUCTURE</span>
+            <span class="cable-prop-val">Pairs of copper wires twisted together to reduce EMI (electromagnetic interference)</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">USE CASE</span>
+            <span class="cable-prop-val">Most common office LAN cable (Cat 5e, Cat 6); plugs into RJ-45 connectors</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#eef2ff;color:#3730a3;">LIMIT</span>
+            <span class="cable-prop-val">Signal degrades (attenuates) beyond 100 m; needs a repeater to extend</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coaxial -->
+      <div class="cable-card">
+        <div class="cable-card-head" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+          <div class="cable-icon">&#128388;</div>
+          <div class="cable-name" style="color:#92400e;">Coaxial Cable</div>
+          <span class="cable-badge" style="background:#fcd34d;color:#78350f;">COAX</span>
+        </div>
+        <div class="cable-card-body">
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">SIGNAL</span>
+            <span class="cable-prop-val"><strong>Electrical signals</strong></span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">EXAMPLES</span>
+            <span class="cable-prop-val" style="font-family:var(--mono);font-size:0.78rem;">10Base2, 10Base5</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">DISTANCE</span>
+            <span class="cable-prop-val"><strong>200 m</strong> (Base2) or <strong>500 m</strong> (Base5)</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">STRUCTURE</span>
+            <span class="cable-prop-val">Central copper conductor &rarr; insulation &rarr; metal mesh shield &rarr; outer jacket. Shield reduces interference.</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">VARIANTS</span>
+            <span class="cable-prop-val"><strong>10Base2</strong> = Thin Ethernet (Thinnet) &bull; <strong>10Base5</strong> = Thick Ethernet (Thicknet)</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#fef9c3;color:#78350f;">USE CASE</span>
+            <span class="cable-prop-val">Older Ethernet networks; still used in cable TV (CATV) and antenna connections</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fibre Optic -->
+      <div class="cable-card">
+        <div class="cable-card-head" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+          <div class="cable-icon">&#128161;</div>
+          <div class="cable-name" style="color:#14532d;">Fibre Optic Cable</div>
+          <span class="cable-badge" style="background:#86efac;color:#14532d;">FIBRE</span>
+        </div>
+        <div class="cable-card-body">
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">SIGNAL</span>
+            <span class="cable-prop-val"><strong>Light signals</strong> (NOT electrical)</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">EXAMPLES</span>
+            <span class="cable-prop-val" style="font-family:var(--mono);font-size:0.78rem;">100BaseFX, 1000BaseFX</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">DISTANCE</span>
+            <span class="cable-prop-val"><strong>~2 km</strong> (1.9 km) before degradation</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">SPEED</span>
+            <span class="cable-prop-val">Travels at the <strong>speed of light</strong> (3 &times; 10<sup>8</sup> m/s) inside the glass core</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">STRUCTURE</span>
+            <span class="cable-prop-val">Glass or plastic core &rarr; cladding (reflects light inward) &rarr; protective jacket. Uses total internal reflection.</span>
+          </div>
+          <div class="cable-prop">
+            <span class="cable-prop-label" style="background:#dcfce7;color:#14532d;">ADVANTAGES</span>
+            <span class="cable-prop-val">Immune to EMI; highest bandwidth; very low attenuation; secure (no EM radiation)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Attenuation -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-orange">5</div>
+      <h2>Attenuation &mdash; Why Signals Weaken Over Distance</h2>
+    </div>
+    <p class="body-text">
+      <strong>Attenuation</strong> is the gradual loss of signal strength as it travels through a medium. Every cable has a maximum distance beyond which the signal becomes too weak to be reliably read by a receiving device. Beyond this point, a <strong>Repeater</strong> must be used to regenerate the signal.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Attenuation Across Distance &mdash; Visual Comparison</div>
+      <div class="diagram-body">
+        <!-- UTP Bar -->
+        <div class="atten-row">
+          <div class="atten-row-title">
+            <span style="font-family:var(--mono);font-size:11px;background:#c7d2fe;color:#3730a3;padding:2px 8px;border-radius:4px;">UTP (10BaseT)</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">Max: 100 m</span>
+          </div>
+          <div class="atten-bar">
+            <div class="atten-seg" style="width:10%;background:#4338ca;">Strong</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#4338ca,#818cf8);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#818cf8,#a5b4fc);">&nbsp;</div>
+            <div class="atten-seg" style="width:20%;background:linear-gradient(90deg,#a5b4fc,#c7d2fe);">&nbsp;</div>
+            <div class="atten-seg" style="width:20%;background:#e0e7ff;color:#6366f1;">&#9660; 100m limit</div>
+          </div>
+        </div>
+        <!-- Coaxial 10Base2 Bar -->
+        <div class="atten-row">
+          <div class="atten-row-title">
+            <span style="font-family:var(--mono);font-size:11px;background:#fcd34d;color:#78350f;padding:2px 8px;border-radius:4px;">Coaxial 10Base2</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">Max: 200 m</span>
+          </div>
+          <div class="atten-bar">
+            <div class="atten-seg" style="width:8%;background:#b45309;">Strong</div>
+            <div class="atten-seg" style="width:30%;background:linear-gradient(90deg,#b45309,#d97706);">&nbsp;</div>
+            <div class="atten-seg" style="width:30%;background:linear-gradient(90deg,#d97706,#fbbf24);">&nbsp;</div>
+            <div class="atten-seg" style="width:32%;background:linear-gradient(90deg,#fbbf24,#fef3c7);color:#92400e;">&#9660; 200m limit</div>
+          </div>
+        </div>
+        <!-- Coaxial 10Base5 Bar -->
+        <div class="atten-row">
+          <div class="atten-row-title">
+            <span style="font-family:var(--mono);font-size:11px;background:#fcd34d;color:#78350f;padding:2px 8px;border-radius:4px;">Coaxial 10Base5</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">Max: 500 m</span>
+          </div>
+          <div class="atten-bar">
+            <div class="atten-seg" style="width:5%;background:#78350f;">S</div>
+            <div class="atten-seg" style="width:20%;background:linear-gradient(90deg,#78350f,#b45309);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#b45309,#d97706);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#d97706,#fbbf24);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#fbbf24,#fef3c7);color:#92400e;">&#9660; 500m limit</div>
+          </div>
+        </div>
+        <!-- Fibre Bar -->
+        <div class="atten-row">
+          <div class="atten-row-title">
+            <span style="font-family:var(--mono);font-size:11px;background:#86efac;color:#14532d;padding:2px 8px;border-radius:4px;">Fibre Optic (100BaseFX)</span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">Max: ~2 km</span>
+          </div>
+          <div class="atten-bar">
+            <div class="atten-seg" style="width:5%;background:#14532d;">S</div>
+            <div class="atten-seg" style="width:20%;background:linear-gradient(90deg,#14532d,#16a34a);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#16a34a,#4ade80);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#4ade80,#86efac);">&nbsp;</div>
+            <div class="atten-seg" style="width:25%;background:linear-gradient(90deg,#86efac,#dcfce7);color:#14532d;">&#9660; ~2km limit</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Beyond the maximum distance the signal cannot be reliably read. A <strong>Repeater</strong> must regenerate the signal before this limit is reached.</div>
+    </div>
+
+    <div class="callout callout-teal">
+      &#128161; <strong>Why does fibre travel much farther?</strong> Light signals (fibre optic) suffer almost no energy loss due to heat/resistance like electrical signals do. Light bounces inside the glass core via <em>total internal reflection</em> with minimal loss, allowing it to travel ~2 km vs 100&ndash;500 m for copper cables.
+    </div>
+  </div>
+
+  <!-- SECTION 6: Full Comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">6</div>
+      <h2>Complete Comparison &mdash; All Three Cable Types</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>UTP (Twisted Pair)</th>
+            <th>Coaxial</th>
+            <th>Fibre Optic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Signal Type</strong></td><td>Electrical</td><td>Electrical</td><td class="ok">Light</td></tr>
+          <tr><td><strong>Max Distance</strong></td><td class="must">100 m (T)</td><td class="good">200 m (Base2) / 500 m (Base5)</td><td class="ok">~2 km (FX)</td></tr>
+          <tr><td><strong>Example Names</strong></td><td class="mono">10BaseT, 100BaseT</td><td class="mono">10Base2, 10Base5</td><td class="mono">100BaseFX, 1000BaseFX</td></tr>
+          <tr><td><strong>Bandwidth</strong></td><td>10&ndash;1000 Mbps</td><td>10 Mbps (typical)</td><td class="ok">100 Mbps &ndash; Tbps</td></tr>
+          <tr><td><strong>EMI Immunity</strong></td><td class="must">Low (unshielded)</td><td class="good">Medium (shielded)</td><td class="ok">High (immune)</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="ok">Lowest</td><td class="good">Medium</td><td class="must">Highest</td></tr>
+          <tr><td><strong>Connector</strong></td><td class="mono">RJ-45</td><td class="mono">BNC</td><td class="mono">SC / LC / ST</td></tr>
+          <tr><td><strong>Transmission Type</strong></td><td>Baseband</td><td>Baseband / Broadband</td><td>Baseband</td></tr>
+          <tr><td><strong>Main Use</strong></td><td>Office LAN (Cat 5e, Cat 6)</td><td>Old Ethernet, CATV</td><td>Backbone, ISP, long-distance</td></tr>
+          <tr><td><strong>Attenuation Rate</strong></td><td class="must">Highest</td><td class="good">Medium</td><td class="ok">Lowest</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-indigo" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; All key facts in flash-card form. Optimised for last-minute exam prep.
+  </div>
+
+  <div class="cheat-div"><span>CABLE BASICS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Role &amp; OSI Layer</div>
+      <ul class="bullet-list">
+        <li>OSI Layer: <span class="tag-i">Physical Layer (L1) only</span></li>
+        <li>Type: <span class="tag-g">Pure Hardware</span> &mdash; zero software</li>
+        <li>Cannot check IP, MAC, or filter data</li>
+        <li>Used in Ethernet LAN (&lt;&nbsp;10&nbsp;km), Token Ring, Token Bus</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Name Decoder: [Speed][Base/Broad][Code]</div>
+      <ul class="bullet-list">
+        <li>Part 1: Speed in <span class="val">Mbps</span> (e.g., 10, 100, 1000)</li>
+        <li>Part 2: <span class="tag-g">Base</span> = one signal; <span class="tag-t">Broad</span> = multiple signals</li>
+        <li>Part 3 codes: <span class="val">T</span>=100m &bull; <span class="val">2</span>=200m &bull; <span class="val">5</span>=500m &bull; <span class="val">FX</span>=~2km</li>
+        <li>Example: <span class="tag-i">100BaseFX</span> = 100 Mbps, Baseband, Fibre ~2km</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Baseband vs Broadband</div>
+      <ul class="bullet-list">
+        <li><span class="tag-r">Baseband</span>: 1 signal at a time; collision if many send together</li>
+        <li><span class="tag-g">Broadband</span>: multiple signals parallel; no collision</li>
+        <li>All 3 cable types (UTP, Coax, Fibre) = <span class="tag-r">Baseband</span></li>
+        <li>Collision max = <span class="val">n</span> if n devices send simultaneously</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>THREE CABLE TYPES</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128279; UTP (Twisted Pair)</div>
+      <ul class="bullet-list">
+        <li>Signal: <span class="tag-i">Electrical</span></li>
+        <li>Examples: <span class="val">10BaseT</span>, <span class="val">100BaseT</span></li>
+        <li>Max distance: <span class="tag-r">100 metres</span> (code: T)</li>
+        <li>Connector: <span class="val">RJ-45</span></li>
+        <li>Cheapest; most common in offices (Cat 5e, Cat 6)</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128388; Coaxial Cable</div>
+      <ul class="bullet-list">
+        <li>Signal: <span class="tag-i">Electrical</span></li>
+        <li>10Base<span class="val">2</span> &rarr; max <span class="tag-r">200 m</span> (Thin Ethernet)</li>
+        <li>10Base<span class="val">5</span> &rarr; max <span class="tag-g">500 m</span> (Thick Ethernet)</li>
+        <li>Connector: <span class="val">BNC</span></li>
+        <li>Better EMI shielding than UTP; used in CATV</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128161; Fibre Optic Cable</div>
+      <ul class="bullet-list">
+        <li>Signal: <span class="tag-g">Light</span> (NOT electrical)</li>
+        <li>Examples: <span class="val">100BaseFX</span>, <span class="val">1000BaseFX</span></li>
+        <li>Speed: <span class="val">3 &times; 10&#8312; m/s</span> (speed of light)</li>
+        <li>Max distance: <span class="tag-g">~2 km (1.9 km)</span></li>
+        <li>Immune to EMI; lowest attenuation; most expensive</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>KEY CONCEPTS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Attenuation</div>
+      <ul class="bullet-list">
+        <li>Signal loses strength as it travels through a medium</li>
+        <li>UTP: attenuates after <span class="tag-r">100 m</span></li>
+        <li>Coaxial: attenuates after <span class="tag-o">200 / 500 m</span></li>
+        <li>Fibre: attenuates after <span class="tag-g">~2 km</span></li>
+        <li>Fix: use a <span class="tag-i">Repeater</span> to regenerate the signal</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Collisions on Cables</div>
+      <ul class="bullet-list">
+        <li>Cables are pure hardware &mdash; cannot stop signals</li>
+        <li>On Baseband: only 1 signal allowed at a time</li>
+        <li>If <span class="val">n</span> devices send simultaneously &rarr; <span class="tag-r">n collisions</span></li>
+        <li>Managed by CSMA/CD protocol (not the cable itself)</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Why Fibre Goes Farther &#128161;</div>
+      <ul class="bullet-list">
+        <li>Electrical signals lose energy as heat in copper wires</li>
+        <li>Light bounces inside glass core via <span class="tag-g">total internal reflection</span></li>
+        <li>Almost no energy loss &rarr; travels ~2 km vs 100&ndash;500 m</li>
+        <li>Also immune to EMI since no electric current flows</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>COMPLETE QUICK REFERENCE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Cable</th><th>Signal</th><th>Distance</th><th>Code</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>UTP</strong></td><td>Electrical</td><td class="must">100 m</td><td class="mono">T</td><td class="mono">10BaseT, 100BaseT</td></tr>
+        <tr><td><strong>Coaxial (Thin)</strong></td><td>Electrical</td><td class="good">200 m</td><td class="mono">2</td><td class="mono">10Base2</td></tr>
+        <tr><td><strong>Coaxial (Thick)</strong></td><td>Electrical</td><td class="good">500 m</td><td class="mono">5</td><td class="mono">10Base5</td></tr>
+        <tr><td><strong>Fibre Optic</strong></td><td>Light</td><td class="ok">~2 km</td><td class="mono">FX</td><td class="mono">100BaseFX, 1000BaseFX</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Exam Checklist</h3>
+    <ul class="bullet-list">
+      <li>Cables operate at <span class="tag-i">L1 Physical Layer</span> only &mdash; pure hardware, no intelligence</li>
+      <li>Name format: <span class="val">[Mbps] + [Base/Broad] + [Distance Code]</span></li>
+      <li>T = 100 m &bull; 2 = 200 m &bull; 5 = 500 m &bull; FX = ~2 km (Fibre)</li>
+      <li>UTP &amp; Coaxial: <span class="tag-i">electrical signals</span>; Fibre: <span class="tag-g">light signals</span></li>
+      <li>Fibre speed = <span class="val">3 &times; 10&#8312; m/s</span> (speed of light)</li>
+      <li>Baseband = 1 signal at a time; n simultaneous senders = <span class="tag-r">n collisions</span></li>
+      <li>Beyond max distance &rarr; attenuation &rarr; need a <span class="tag-i">Repeater</span></li>
+      <li>Fibre has the <span class="tag-g">lowest attenuation</span>, <span class="tag-g">highest bandwidth</span>, and <span class="tag-g">EMI immunity</span></li>
+    </ul>
+    <div class="tags">
+      <span class="tag">UTP</span>
+      <span class="tag">Coaxial</span>
+      <span class="tag">Fibre Optic</span>
+      <span class="tag">10BaseT</span>
+      <span class="tag">100BaseFX</span>
+      <span class="tag">Baseband</span>
+      <span class="tag">Broadband</span>
+      <span class="tag">Attenuation</span>
+      <span class="tag">Physical Layer</span>
+      <span class="tag">GATE</span>
+      <span class="tag">UGC NET</span>
+      <span class="tag">PSUs</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
