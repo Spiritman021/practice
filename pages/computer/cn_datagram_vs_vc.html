@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 19: Datagram Switching vs Virtual Circuit — connectionless vs connection-oriented, out-of-order, overhead, packet loss, efficiency, cost, delay. GATE &amp; UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Datagram Switching vs Virtual Circuit &mdash; CN Topic 19 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_datagram_vs_vc.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #0f766e;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --sky: #0284c7;   --sky-light: #f0f9ff;
+  --cyan: #0891b2;  --cyan-light: #ecfeff;
+  --purple:#7c3aed; --purple-light:#f5f3ff;
+  --dg:  #0f766e;   /* datagram = teal */
+  --vc:  #7c3aed;   /* virtual circuit = purple */
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:linear-gradient(90deg,var(--teal),var(--purple)); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:linear-gradient(90deg,var(--teal),var(--purple)); color:#fff; border-color:transparent; }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg, #042f2e 0%, #0f766e 30%, #7c3aed 70%, #c4b5fd 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(1.6rem,4.5vw,2.9rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 .h-dg { color:#5eead4; }
+.hero h1 .h-vc { color:#c4b5fd; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:660px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:980px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:52px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-teal   { background:var(--teal); }
+.sn-purple { background:var(--purple); }
+.sn-blue   { background:var(--blue); }
+.sn-green  { background:var(--green); }
+.sn-red    { background:var(--red); }
+.sn-amber  { background:var(--amber); }
+.sn-sky    { background:var(--sky); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-teal   { border-color:var(--teal);   background:var(--teal-light);  color:#134e4a; }
+.callout-purple { border-color:var(--purple); background:var(--purple-light);color:#4c1d95; }
+.callout-blue   { border-color:var(--blue);   background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green);  background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber);  background:var(--amber-light); color:#78350f; }
+.callout-red    { border-color:var(--red);    background:var(--red-light);   color:#9f1239; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.6; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f0fdfa; }
+td.dg   { color:var(--teal);   font-weight:700; }
+td.vc   { color:var(--purple); font-weight:700; }
+td.ok   { color:var(--green);  font-weight:700; }
+td.must { color:var(--red);    font-weight:700; }
+td.info { color:var(--blue);   font-weight:700; }
+td.amb  { color:var(--amber);  font-weight:700; }
+
+/* SIDE-BY-SIDE CARDS */
+.compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0; }
+.cmp-card { border-radius:14px; padding:20px; border:2px solid; }
+.cmp-dg { background:var(--teal-light);  border-color:#5eead4; }
+.cmp-vc { background:var(--purple-light);border-color:#c4b5fd; }
+.cmp-card h4 { font-family:var(--sans); font-size:1rem; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.cmp-dg h4 { color:var(--teal); }
+.cmp-vc h4 { color:var(--purple); }
+.cmp-item { font-size:0.82rem; color:#374151; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.6; }
+.cmp-item:last-child { border-bottom:none; }
+.cmp-item strong { font-weight:700; }
+
+/* POINT CARDS (property deep-dives) */
+.point-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin:20px 0; }
+.pt-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; }
+.pt-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+.pt-card-top { padding:14px 16px 0; display:flex; align-items:center; gap:10px; }
+.pt-icon { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.pt-title { font-family:var(--sans); font-size:0.9rem; font-weight:700; }
+.pt-card-body { padding:12px 16px 16px; }
+.pt-row { display:flex; gap:8px; margin-top:8px; }
+.pt-label { font-family:var(--sans); font-size:0.72rem; font-weight:700; color:var(--text-muted); width:80px; flex-shrink:0; padding-top:3px; }
+.pt-val { font-size:0.8rem; color:#374151; flex:1; line-height:1.55; }
+.pt-val .dg-tag { font-family:var(--mono); color:var(--teal);   font-size:0.75rem; font-weight:700; }
+.pt-val .vc-tag { font-family:var(--mono); color:var(--purple); font-size:0.75rem; font-weight:700; }
+
+/* PATH DIAGRAM HELPERS */
+.path-legend { display:flex; gap:16px; flex-wrap:wrap; margin:10px 0 14px; font-size:0.78rem; font-family:var(--sans); font-weight:600; }
+.leg-item { display:flex; align-items:center; gap:6px; }
+.leg-dot { width:14px; height:6px; border-radius:3px; }
+
+/* OVERHEAD VISUAL */
+.hdr-bar { display:flex; gap:2px; margin:10px 0; align-items:center; }
+.hdr-hdr { height:28px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:9px; font-weight:700; color:#fff; border-radius:4px; padding:0 6px; }
+.hdr-data { height:28px; flex:1; background:#dcfce7; border:1px solid #86efac; border-radius:4px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:9px; font-weight:700; color:var(--green); }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+.ep-int  { background:var(--teal-light); color:#134e4a; border:1px solid #5eead4; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--teal); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.rev-card-title.vc { color:var(--purple); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--teal); font-weight:700; }
+.bullet-list.vc li::before { color:var(--purple); }
+.bullet-list li .val   { font-family:var(--mono); color:var(--amber);   font-size:0.77rem; }
+.bullet-list li .tag-g { font-family:var(--mono); color:var(--green);   font-size:0.77rem; }
+.bullet-list li .tag-r { font-family:var(--mono); color:var(--red);     font-size:0.77rem; }
+.bullet-list li .tag-b { font-family:var(--mono); color:var(--blue);    font-size:0.77rem; }
+.bullet-list li .tag-t { font-family:var(--mono); color:var(--teal);    font-size:0.77rem; }
+.bullet-list li .tag-p { font-family:var(--mono); color:var(--purple);  font-size:0.77rem; }
+.bullet-list li .tag-o { font-family:var(--mono); color:var(--orange);  font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--teal-light),var(--purple-light)); border:1px solid #c4b5fd; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; background:linear-gradient(90deg,var(--teal),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-dg { background:var(--teal-light);   border-color:#5eead4;  color:#134e4a; }
+.tag-vc { background:var(--purple-light); border-color:#c4b5fd;  color:#4c1d95; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#5eead4;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+  .compare-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 19</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Datagram vs Virtual Circuit</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 19: Datagram vs Virtual Circuit</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 19</span>
+    <span class="hero-tag">PACKET SWITCHING</span>
+    <span class="hero-tag">NETWORK LAYER</span>
+  </div>
+  <h1><span class="h-dg">DATAGRAM</span> vs <span class="h-vc">VIRTUAL CIRCUIT</span></h1>
+  <p class="hero-sub">Connectionless vs connection-oriented, on-demand vs reservation, out-of-order delivery, overhead, packet loss, efficiency, cost and delay &mdash; the complete head-to-head comparison for GATE &amp; UGC NET.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">Interviews</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Introduction -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Recap &mdash; Two Types of Packet Switching</h2>
+    </div>
+    <p class="body-text">
+      As covered in Topic 18, packet switching divides data into small <strong>packets</strong> and sends them over the network. But this can be done in <strong>two fundamentally different ways</strong>:
+    </p>
+
+    <div class="compare-grid">
+      <div class="cmp-card cmp-dg">
+        <h4>&#127760; Datagram Switching</h4>
+        <div class="cmp-item">&#128204; <strong>Connectionless</strong> — no setup before sending</div>
+        <div class="cmp-item">&#128204; No resource reservation in the network</div>
+        <div class="cmp-item">&#128204; Each packet routed independently</div>
+        <div class="cmp-item">&#128204; Packets may take <strong>different paths</strong></div>
+        <div class="cmp-item">&#128204; Works at <strong>Network Layer (L3)</strong></div>
+        <div class="cmp-item">&#128204; Used by: <strong>Internet (IP)</strong>, IP network</div>
+      </div>
+      <div class="cmp-card cmp-vc">
+        <h4>&#128258; Virtual Circuit</h4>
+        <div class="cmp-item">&#128204; <strong>Connection-oriented</strong> — reservation before sending</div>
+        <div class="cmp-item">&#128204; Resources reserved along the path (CPU, Buffer, BW)</div>
+        <div class="cmp-item">&#128204; All packets follow the <strong>same fixed path</strong></div>
+        <div class="cmp-item">&#128204; Mix of circuit + packet switching (50%+50%)</div>
+        <div class="cmp-item">&#128204; Works at <strong>Data Link Layer (L2)</strong></div>
+        <div class="cmp-item">&#128204; Used by: <strong>ATM, Frame Relay, X.25</strong></div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue">
+      &#128204; <strong>Virtual Circuit = 50% Packet + 50% Circuit:</strong> It still divides data into packets (packet switching part). But before sending, it reserves resources along the path (circuit switching part). This is why it is called a <em>hybrid</em> approach.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Connectionless vs Connection-Oriented -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">2</div>
+      <h2>Connectionless vs Connection-Oriented</h2>
+    </div>
+    <p class="body-text">
+      This is the <strong>most fundamental difference</strong> between the two. In <em>Datagram</em>, A sends packets directly to B with no prior setup &mdash; everything is <strong>on demand</strong>. In <em>Virtual Circuit</em>, a <strong>global packet</strong> (setup packet) is first sent from A to B, which reserves all resources (Buffer, CPU, Bandwidth) at every switch along the path.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128268; Datagram (Connectionless) vs Virtual Circuit (Connection-Oriented)</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+          <!-- Datagram side -->
+          <div>
+            <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:var(--teal);margin-bottom:12px;text-align:center;">&#127760; DATAGRAM — On Demand</div>
+            <svg viewBox="0 0 280 190" width="100%" style="display:block;" aria-label="Datagram connectionless routing">
+              <!-- Devices -->
+              <circle cx="30" cy="95" r="20" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+              <text x="30" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#0f766e" font-family="'JetBrains Mono',monospace">A</text>
+              <text x="30" y="103" text-anchor="middle" font-size="7" fill="#0f766e" font-family="'Inter',sans-serif">Sender</text>
+
+              <circle cx="250" cy="95" r="20" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+              <text x="250" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#0f766e" font-family="'JetBrains Mono',monospace">B</text>
+              <text x="250" y="103" text-anchor="middle" font-size="7" fill="#0f766e" font-family="'Inter',sans-serif">Receiver</text>
+
+              <!-- Switches -->
+              <rect x="95" y="20" width="40" height="26" rx="5" fill="#1a2340" stroke="#5eead4" stroke-width="1.5"/>
+              <text x="115" y="37" text-anchor="middle" font-size="8" fill="#a5f3fc" font-family="'Inter',sans-serif">S1</text>
+
+              <rect x="95" y="83" width="40" height="26" rx="5" fill="#1a2340" stroke="#5eead4" stroke-width="1.5"/>
+              <text x="115" y="100" text-anchor="middle" font-size="8" fill="#a5f3fc" font-family="'Inter',sans-serif">S2</text>
+
+              <rect x="95" y="146" width="40" height="26" rx="5" fill="#1a2340" stroke="#5eead4" stroke-width="1.5"/>
+              <text x="115" y="163" text-anchor="middle" font-size="8" fill="#a5f3fc" font-family="'Inter',sans-serif">S3</text>
+
+              <rect x="175" y="52" width="40" height="26" rx="5" fill="#1a2340" stroke="#5eead4" stroke-width="1.5"/>
+              <text x="195" y="69" text-anchor="middle" font-size="8" fill="#a5f3fc" font-family="'Inter',sans-serif">S4</text>
+
+              <rect x="175" y="116" width="40" height="26" rx="5" fill="#1a2340" stroke="#5eead4" stroke-width="1.5"/>
+              <text x="195" y="133" text-anchor="middle" font-size="8" fill="#a5f3fc" font-family="'Inter',sans-serif">S5</text>
+
+              <!-- P1 path (top) - teal solid -->
+              <path d="M 50,90 C 70,60 80,35 95,32" fill="none" stroke="#0f766e" stroke-width="2"/>
+              <path d="M 135,32 C 155,35 165,58 175,62" fill="none" stroke="#0f766e" stroke-width="2"/>
+              <path d="M 215,65 C 230,75 240,85 230,95" fill="none" stroke="#0f766e" stroke-width="2"/>
+              <text x="80" y="22" font-size="9" font-weight="700" fill="#0f766e" font-family="'JetBrains Mono',monospace">P1</text>
+
+              <!-- P2 path (middle) - blue dashed -->
+              <path d="M 50,95 L 95,96" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,2"/>
+              <path d="M 135,96 C 155,90 165,75 175,68" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,2"/>
+              <path d="M 215,65 C 230,75 240,85 230,95" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,2"/>
+              <text x="110" y="110" font-size="9" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">P2</text>
+
+              <!-- P3 path (bottom) - orange dotted -->
+              <path d="M 50,100 C 70,130 80,152 95,158" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="2,3"/>
+              <path d="M 135,158 C 155,152 165,135 175,125" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="2,3"/>
+              <path d="M 215,122 C 230,112 240,102 230,95" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="2,3"/>
+              <text x="110" y="175" font-size="9" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">P3</text>
+
+              <!-- Legend -->
+              <text x="140" y="186" text-anchor="middle" font-size="7.5" fill="#6b7280" font-family="'Inter',sans-serif">Packets take DIFFERENT paths</text>
+            </svg>
+          </div>
+
+          <!-- Virtual Circuit side -->
+          <div>
+            <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:var(--purple);margin-bottom:12px;text-align:center;">&#128258; VIRTUAL CIRCUIT — Fixed Reserved Path</div>
+            <svg viewBox="0 0 280 190" width="100%" style="display:block;" aria-label="Virtual circuit fixed path">
+              <!-- Devices -->
+              <circle cx="30" cy="95" r="20" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+              <text x="30" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed" font-family="'JetBrains Mono',monospace">A</text>
+              <text x="30" y="103" text-anchor="middle" font-size="7" fill="#7c3aed" font-family="'Inter',sans-serif">Sender</text>
+
+              <circle cx="250" cy="95" r="20" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+              <text x="250" y="92" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed" font-family="'JetBrains Mono',monospace">B</text>
+              <text x="250" y="103" text-anchor="middle" font-size="7" fill="#7c3aed" font-family="'Inter',sans-serif">Receiver</text>
+
+              <!-- Reserved switches along fixed path -->
+              <rect x="95" y="83" width="40" height="26" rx="5" fill="#4c1d95" stroke="#c4b5fd" stroke-width="2"/>
+              <text x="115" y="97" text-anchor="middle" font-size="8" font-weight="700" fill="#e9d5ff" font-family="'Inter',sans-serif">S2</text>
+              <text x="115" y="107" text-anchor="middle" font-size="6" fill="#c4b5fd" font-family="'Inter',sans-serif">Reserved</text>
+
+              <rect x="175" y="83" width="40" height="26" rx="5" fill="#4c1d95" stroke="#c4b5fd" stroke-width="2"/>
+              <text x="195" y="97" text-anchor="middle" font-size="8" font-weight="700" fill="#e9d5ff" font-family="'Inter',sans-serif">S4</text>
+              <text x="195" y="107" text-anchor="middle" font-size="6" fill="#c4b5fd" font-family="'Inter',sans-serif">Reserved</text>
+
+              <!-- Unused switches (dim) -->
+              <rect x="95" y="20" width="40" height="26" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+              <text x="115" y="37" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">S1</text>
+
+              <rect x="95" y="146" width="40" height="26" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+              <text x="115" y="163" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">S3</text>
+
+              <rect x="175" y="146" width="40" height="26" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+              <text x="195" y="163" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">S5</text>
+
+              <!-- Fixed path for ALL packets -->
+              <line x1="50" y1="95" x2="95" y2="96" stroke="#7c3aed" stroke-width="3"/>
+              <line x1="135" y1="96" x2="175" y2="96" stroke="#7c3aed" stroke-width="3"/>
+              <line x1="215" y1="96" x2="230" y2="95" stroke="#7c3aed" stroke-width="3"/>
+
+              <!-- All packets on same path -->
+              <text x="140" y="75" text-anchor="middle" font-size="9" font-weight="700" fill="#7c3aed" font-family="'JetBrains Mono',monospace">P1 P2 P3</text>
+              <text x="140" y="85" text-anchor="middle" font-size="7.5" fill="#7c3aed" font-family="'Inter',sans-serif">↑ all follow same path</text>
+
+              <!-- Global packet arrow above -->
+              <path d="M 50,82 Q 140,55 230,82" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+              <text x="140" y="55" text-anchor="middle" font-size="8" font-weight="700" fill="#d97706" font-family="'Inter',sans-serif">Global Packet → Reserves path</text>
+
+              <!-- Legend -->
+              <text x="140" y="186" text-anchor="middle" font-size="7.5" fill="#6b7280" font-family="'Inter',sans-serif">All packets follow SAME path</text>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+      <div class="diagram-note">In Datagram, P1/P2/P3 explore different routes based on routing tables. In Virtual Circuit, a global packet first reserves one path, and then all data packets follow that exact path.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: All Properties Deep-Dive -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Property-by-Property Deep Dive</h2>
+    </div>
+
+    <div class="point-cards">
+
+      <!-- 1. Connection -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#f0fdfa;">&#128268;</div>
+          <div class="pt-title">1. Connection Setup</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val"><span class="dg-tag">Connectionless</span> — No setup. Packets go directly. No reservation needed.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">Connection-Oriented</span> — A global packet first reserves path. Setup phase required.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Resources -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#f0fdfa;">&#128190;</div>
+          <div class="pt-title">2. Resource Reservation</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val"><span class="dg-tag">On Demand</span> — No prior reservation. Buffer, CPU, Bandwidth allocated as packet arrives. If busy, packet waits.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">Pre-reserved</span> — Buffer, CPU, Bandwidth reserved along path before any data packet is sent.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Path -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#f0fdfa;">&#128207;</div>
+          <div class="pt-title">3. Routing / Path</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val"><span class="dg-tag">Independent</span> — Each packet uses routing tables and may follow a different path. Better traffic management; all paths explored.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">Fixed path</span> — The global packet establishes one route. All data packets follow this same route.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Order of delivery -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#fff1f2;">&#128257;</div>
+          <div class="pt-title">4. Order of Delivery</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="dg-tag">Out-of-Order possible</span> — Packets take different paths with different lengths &rarr; P4 may arrive before P1.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val" style="color:var(--green);font-weight:600;"><span class="vc-tag">Always In-Order</span> — Fixed path means P1 &rarr; P2 &rarr; P3 always arrive sequentially.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Overhead / Headers -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#fffbeb;">&#128220;</div>
+          <div class="pt-title">5. Header Overhead</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="dg-tag">HIGH overhead</span> — Every single packet must carry a full header (source IP, dest IP, TTL, fragmentation…) because packets travel independently.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">LOWER overhead</span> — First packet carries the global/full header. Subsequent data packets carry only a smaller local header (VCI label).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Packet Loss -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#fff1f2;">&#128165;</div>
+          <div class="pt-title">6. Packet Loss</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="dg-tag">More packet loss</span> — Packets on different paths have higher chance of getting lost in transit (different routes, different congestion levels).</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">Less packet loss</span> — Known, fixed route with reserved resources &rarr; fewer chances of drops.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Efficiency -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#f0fdf4;">&#9989;</div>
+          <div class="pt-title">7. Efficiency</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--green);font-weight:600;"><span class="dg-tag">HIGH efficiency</span> — On-demand resources. Idle = resources freed for others. No wasted reservation.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="vc-tag">LOWER efficiency</span> — Reserved resources locked even during idle moments, like a pre-booked restaurant table you don't use.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Cost -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#fffbeb;">&#128176;</div>
+          <div class="pt-title">8. Cost</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--green);font-weight:600;"><span class="dg-tag">Less cost</span> — No reservation overhead. Resources used only when needed. Better value for money.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="vc-tag">More cost</span> — Every session requires a new connection setup + reservation. Repeated overhead cost per session.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Delay -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#fff1f2;">&#9203;</div>
+          <div class="pt-title">9. Delay</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val" style="color:var(--red);font-weight:600;"><span class="dg-tag">More delay</span> — On-demand: if switch is busy, packet waits in buffer. Like walking into a full restaurant and waiting for a table.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val" style="color:var(--green);font-weight:600;"><span class="vc-tag">Less delay</span> — Resources pre-reserved: packets don't wait at switches. Like sitting straight at a pre-booked table.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. Real-world use -->
+      <div class="pt-card">
+        <div class="pt-card-top">
+          <div class="pt-icon" style="background:#f0fdfa;">&#127760;</div>
+          <div class="pt-title">10. Real-World Usage</div>
+        </div>
+        <div class="pt-card-body">
+          <div class="pt-row">
+            <span class="pt-label">&#127760; Datagram</span>
+            <span class="pt-val"><span class="dg-tag">Internet (IP)</span> — All IP networking relies on datagram service. Email, web, WhatsApp, streaming all use IP datagrams.</span>
+          </div>
+          <div class="pt-row">
+            <span class="pt-label">&#128258; Virt. Circ.</span>
+            <span class="pt-val"><span class="vc-tag">ATM, Frame Relay, X.25</span> — Older/specialised networks. ATM = Asynchronous Transfer Mode (NOT Automated Teller Machine).</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end point-cards -->
+  </div>
+
+  <!-- SECTION 4: Overhead Deep Dive -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">4</div>
+      <h2>Header Overhead &mdash; Why Datagram Has More</h2>
+    </div>
+    <p class="body-text">
+      In packet switching, a <strong>header</strong> is like the envelope on a courier package &mdash; it carries addressing and routing information. The header is extra data that must be sent alongside the actual payload, adding overhead.
+    </p>
+    <p class="body-text">
+      In Datagram switching, since each packet may follow a completely different route, <em>every single packet</em> must independently carry its full header (source IP, destination IP, TTL, fragmentation info, sequence number, etc.) so that each intermediate router knows what to do with it.
+    </p>
+    <p class="body-text">
+      In Virtual Circuit, only the <strong>first global packet</strong> (setup packet) carries the full header to establish the path. Subsequent data packets carry only a small <strong>VCI (Virtual Circuit Identifier)</strong> label &mdash; much smaller than a full IP header.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128220; Header per Packet &mdash; Datagram vs Virtual Circuit</div>
+      <div class="diagram-body">
+        <!-- Datagram: all packets have full headers -->
+        <div style="margin-bottom:20px;">
+          <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:var(--teal);margin-bottom:8px;">&#127760; Datagram — Every packet carries FULL header</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:var(--red);min-width:90px;">HDR (20B)</div>
+              <div class="hdr-data">Data Payload — Packet 1</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:var(--red);min-width:90px;">HDR (20B)</div>
+              <div class="hdr-data">Data Payload — Packet 2</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:var(--red);min-width:90px;">HDR (20B)</div>
+              <div class="hdr-data">Data Payload — Packet 3</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:var(--red);min-width:90px;">HDR (20B)</div>
+              <div class="hdr-data">Data Payload — Packet 4</div>
+            </div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--red);font-weight:600;margin-top:6px;">Total header overhead = 4 × 20B = 80 bytes extra on top of data</div>
+        </div>
+
+        <!-- Virtual Circuit: only first packet has global header -->
+        <div>
+          <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:var(--purple);margin-bottom:8px;">&#128258; Virtual Circuit — Only first packet carries GLOBAL header; rest carry local VCI label</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:var(--purple);min-width:90px;">Global HDR</div>
+              <div class="hdr-data">Data Payload — Packet 1 (Setup + Data)</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:#7c3aed88;min-width:90px;font-size:8px;">VCI (4B)</div>
+              <div class="hdr-data">Data Payload — Packet 2</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:#7c3aed88;min-width:90px;font-size:8px;">VCI (4B)</div>
+              <div class="hdr-data">Data Payload — Packet 3</div>
+            </div>
+            <div class="hdr-bar">
+              <div class="hdr-hdr" style="background:#7c3aed88;min-width:90px;font-size:8px;">VCI (4B)</div>
+              <div class="hdr-data">Data Payload — Packet 4</div>
+            </div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--purple);font-weight:600;margin-top:6px;">Total header overhead = 1 Global + 3 × 4B = much less than datagram</div>
+        </div>
+      </div>
+      <div class="diagram-note">More headers = more overhead = less actual data per unit of bandwidth used. Datagram has higher overhead; Virtual Circuit is more efficient in terms of header bytes per packet.</div>
+    </div>
+
+    <div class="callout callout-amber">
+      &#128204; <strong>What's in a header?</strong> Source Address, Destination Address, TTL (Time To Live), Fragment Offset, Sequence Number, Protocol type, Checksum &mdash; all required in datagram. In VC, once the path is set up, a tiny VCI label is enough since all switches already know the path.
+    </div>
+  </div>
+
+  <!-- SECTION 5: Restaurant Analogy for Delay/Efficiency -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">5</div>
+      <h2>Restaurant Analogy &mdash; Delay, Efficiency &amp; Cost</h2>
+    </div>
+    <p class="body-text">
+      The restaurant analogy beautifully captures three properties at once:
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#127869; Restaurant Analogy — Datagram vs Virtual Circuit</div>
+      <div class="diagram-body">
+        <div class="compare-grid">
+          <div style="background:var(--teal-light);border:1.5px solid #5eead4;border-radius:10px;padding:16px;">
+            <div style="font-family:var(--sans);font-size:0.85rem;font-weight:700;color:var(--teal);margin-bottom:10px;">&#127760; Datagram = Walk-in</div>
+            <div style="font-size:0.8rem;color:#134e4a;line-height:1.7;">
+              &#128204; You walk into the restaurant without a booking.<br>
+              &#128204; Tables are used <strong>on demand</strong> — only when you arrive.<br>
+              &#128204; You might have to <strong>wait</strong> if all tables are full → <strong>more delay</strong>.<br>
+              &#128204; Tables never sit <strong>empty reserved</strong> → <strong>high efficiency</strong>.<br>
+              &#128204; <strong>No booking cost</strong> → <strong>less cost</strong>.
+            </div>
+          </div>
+          <div style="background:var(--purple-light);border:1.5px solid #c4b5fd;border-radius:10px;padding:16px;">
+            <div style="font-family:var(--sans);font-size:0.85rem;font-weight:700;color:var(--purple);margin-bottom:10px;">&#128258; Virtual Circuit = Pre-booked</div>
+            <div style="font-size:0.8rem;color:#4c1d95;line-height:1.7;">
+              &#128204; You book a table at 5 PM in the morning.<br>
+              &#128204; Resources <strong>pre-reserved</strong> → you sit down straight away.<br>
+              &#128204; <strong>No waiting</strong> → <strong>less delay</strong>.<br>
+              &#128204; Table may sit <strong>empty</strong> from 5–7 PM if you're late → <strong>low efficiency</strong>.<br>
+              &#128204; Booking cost every time → <strong>more cost</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">The same analogy from circuit/packet switching applies here — reservation (VC) gives faster access but wastes resources; on-demand (datagram) is cheaper and more efficient but may have wait times.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Master Summary Table -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">6</div>
+      <h2>Master Comparison Table</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+      <span class="epill ep-int">Interviews</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th style="color:#5eead4;">&#127760; Datagram</th>
+            <th style="color:#c4b5fd;">&#128258; Virtual Circuit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Type</strong></td><td class="dg">Connectionless</td><td class="vc">Connection-Oriented</td></tr>
+          <tr><td><strong>OSI Layer</strong></td><td class="dg">Network Layer (L3)</td><td class="vc">Data Link Layer (L2)</td></tr>
+          <tr><td><strong>Setup packet?</strong></td><td class="ok">No — packets go directly</td><td class="must">Yes — Global packet reserves path first</td></tr>
+          <tr><td><strong>Resource allocation</strong></td><td class="dg">On Demand (no reservation)</td><td class="vc">Pre-reserved (Buffer, CPU, BW)</td></tr>
+          <tr><td><strong>Path per packet</strong></td><td class="dg">Different (independent routing)</td><td class="vc">Same (fixed virtual path)</td></tr>
+          <tr><td><strong>Routing decision</strong></td><td>At every switch using routing table</td><td>Only once during setup; then label switching</td></tr>
+          <tr><td><strong>Order of delivery</strong></td><td class="must">Out-of-order possible</td><td class="ok">Always in-order (same path)</td></tr>
+          <tr><td><strong>Header per packet</strong></td><td class="must">Full header (high overhead)</td><td class="ok">Local VCI label only (low overhead)</td></tr>
+          <tr><td><strong>Packet loss</strong></td><td class="must">More (different paths, unpredictable)</td><td class="ok">Less (fixed path, reserved resources)</td></tr>
+          <tr><td><strong>Efficiency</strong></td><td class="ok">HIGH (on-demand, no idle waste)</td><td class="must">LOWER (reserved resources can be idle)</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="ok">Less (no reservation overhead)</td><td class="must">More (setup cost every session)</td></tr>
+          <tr><td><strong>Delay</strong></td><td class="must">More (may wait at each switch)</td><td class="ok">Less (pre-reserved, no waiting)</td></tr>
+          <tr><td><strong>Traffic management</strong></td><td class="ok">Better (uses all paths)</td><td>Moderate (single fixed path)</td></tr>
+          <tr><td><strong>Examples</strong></td><td class="dg">Internet (IP), all IP networks</td><td class="vc">ATM, Frame Relay, X.25</td></tr>
+          <tr><td><strong>Usage today</strong></td><td class="ok">&#9989; Dominant — powers the entire internet</td><td>Less common; ATM still used in some areas</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-teal" style="margin-top:20px;">
+      &#127919; <strong>Golden Summary:</strong><br>
+      &bull; <strong>Datagram</strong>: Connectionless, on-demand, different paths, out-of-order, more overhead &amp; loss, <em>high efficiency, low cost, more delay</em> &mdash; powers the <strong>Internet</strong>.<br>
+      &bull; <strong>Virtual Circuit</strong>: Connection-oriented, pre-reserved, same path, in-order, lower overhead &amp; loss, <em>lower efficiency, more cost, less delay</em> &mdash; used in <strong>ATM, Frame Relay</strong>.
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-teal" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for GATE, UGC NET &amp; PSU exam quick prep.
+  </div>
+
+  <div class="cheat-div"><span>DATAGRAM (CONNECTIONLESS)</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#127760; Datagram — Identity</div>
+      <ul class="bullet-list">
+        <li>Type: <span class="tag-t">Connectionless</span></li>
+        <li>Layer: <span class="tag-t">Network Layer (L3)</span></li>
+        <li>No setup packet — data goes directly</li>
+        <li>Resources allocated <span class="tag-t">on demand</span></li>
+        <li>Examples: <span class="tag-t">Internet (IP), IP network</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#127760; Datagram — Disadvantages</div>
+      <ul class="bullet-list">
+        <li>Packets may arrive <span class="tag-r">out of order</span></li>
+        <li>HIGH header overhead — <span class="tag-r">full header on every packet</span></li>
+        <li>More <span class="tag-r">packet loss</span> — different paths, unpredictable</li>
+        <li>More <span class="tag-r">delay</span> — may wait if switch is busy</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#127760; Datagram — Advantages</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">HIGH efficiency</span> — on-demand, no idle waste</li>
+        <li><span class="tag-g">Less cost</span> — no reservation overhead</li>
+        <li><span class="tag-g">Better traffic management</span> — all paths explored</li>
+        <li>Dominant in today's networks — powers <span class="tag-g">the Internet</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>VIRTUAL CIRCUIT (CONNECTION-ORIENTED)</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title vc">&#128258; Virtual Circuit — Identity</div>
+      <ul class="bullet-list vc">
+        <li>Type: <span class="tag-p">Connection-Oriented</span></li>
+        <li>Layer: <span class="tag-p">Data Link Layer (L2)</span></li>
+        <li>Global packet → reserves path before data</li>
+        <li>Mix: 50% packet switching + 50% circuit switching</li>
+        <li>Examples: <span class="tag-p">ATM, Frame Relay, X.25</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title vc">&#128258; Virtual Circuit — Advantages</div>
+      <ul class="bullet-list vc">
+        <li>Packets always arrive <span class="tag-g">in order</span></li>
+        <li><span class="tag-g">Less packet loss</span> — fixed known path</li>
+        <li><span class="tag-g">Less delay</span> — resources pre-reserved, no waiting</li>
+        <li>Lower header overhead — only <span class="tag-g">VCI label</span> on data packets</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title vc">&#128258; Virtual Circuit — Disadvantages</div>
+      <ul class="bullet-list vc">
+        <li><span class="tag-r">Lower efficiency</span> — reserved resources may sit idle</li>
+        <li><span class="tag-r">More cost</span> — setup cost per session</li>
+        <li>Less used in modern networks</li>
+        <li>ATM = <span class="tag-p">Asynchronous Transfer Mode</span> (not ATM machine!)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>QUICK COMPARISON TABLE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Property</th><th style="color:#5eead4;">&#127760; Datagram</th><th style="color:#c4b5fd;">&#128258; Virtual Circuit</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Type</td><td class="dg">Connectionless</td><td class="vc">Connection-Oriented</td></tr>
+        <tr><td>Layer</td><td class="dg">Network L3</td><td class="vc">Data Link L2</td></tr>
+        <tr><td>Setup</td><td class="ok">None</td><td class="must">Global packet</td></tr>
+        <tr><td>Resources</td><td class="dg">On Demand</td><td class="vc">Pre-reserved</td></tr>
+        <tr><td>Path</td><td class="must">Different per packet</td><td class="ok">Same (fixed)</td></tr>
+        <tr><td>Order</td><td class="must">Out-of-order ✗</td><td class="ok">In-order ✓</td></tr>
+        <tr><td>Overhead</td><td class="must">High (full header)</td><td class="ok">Low (VCI label)</td></tr>
+        <tr><td>Packet Loss</td><td class="must">More</td><td class="ok">Less</td></tr>
+        <tr><td>Efficiency</td><td class="ok">HIGH ✓</td><td class="must">Lower</td></tr>
+        <tr><td>Cost</td><td class="ok">Less ✓</td><td class="must">More</td></tr>
+        <tr><td>Delay</td><td class="must">More</td><td class="ok">Less ✓</td></tr>
+        <tr><td>Used in</td><td class="dg">Internet / IP</td><td class="vc">ATM, Frame Relay</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#127919; Top Exam Points — Datagram vs Virtual Circuit</h3>
+    <ul class="bullet-list">
+      <li>Datagram = <span class="tag-t">Connectionless</span> (L3) | VC = <span class="tag-p">Connection-Oriented</span> (L2)</li>
+      <li>Datagram: resources <span class="tag-t">on demand</span>; VC: resources <span class="tag-p">pre-reserved</span></li>
+      <li>Datagram: packets may go <span class="tag-r">out of order</span>; VC: always <span class="tag-g">in order</span></li>
+      <li>Datagram: <span class="tag-r">full header</span> on every packet (high overhead); VC: only <span class="tag-g">VCI label</span> on data packets</li>
+      <li>Datagram: more <span class="tag-r">packet loss</span> (different paths); VC: less loss (fixed path)</li>
+      <li>Datagram: <span class="tag-g">high efficiency</span>, <span class="tag-g">low cost</span>, <span class="tag-r">more delay</span></li>
+      <li>VC: <span class="tag-r">lower efficiency</span>, <span class="tag-r">more cost</span>, <span class="tag-g">less delay</span></li>
+      <li>Internet uses <span class="tag-t">Datagram (IP)</span>; ATM/Frame Relay use <span class="tag-p">Virtual Circuit</span></li>
+      <li>ATM = <span class="tag-p">Asynchronous Transfer Mode</span> (NOT Automated Teller Machine)</li>
+      <li>VC = hybrid: <span class="val">50% packet</span> (divides into packets) + <span class="val">50% circuit</span> (reserves path)</li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-dg">Datagram</span>
+      <span class="tag tag-vc">Virtual Circuit</span>
+      <span class="tag tag-dg">Connectionless</span>
+      <span class="tag tag-vc">Connection-Oriented</span>
+      <span class="tag tag-dg">Network Layer L3</span>
+      <span class="tag tag-vc">Data Link Layer L2</span>
+      <span class="tag">Out-of-Order</span>
+      <span class="tag">Header Overhead</span>
+      <span class="tag">ATM Frame Relay X.25</span>
+      <span class="tag tag-dg">Internet IP</span>
+      <span class="tag tag-exam">GATE PYQ</span>
+      <span class="tag tag-exam">UGC NET</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

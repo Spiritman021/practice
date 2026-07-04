@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 18: Packet Switching — data in packets, store-and-forward, datagram vs virtual circuit, pipelining, high efficiency, total time formula (n×Ttx + Tprop). GATE &amp; UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Packet Switching &mdash; CN Topic 18 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_packet_switching.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #0891b2;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --sky: #0284c7;   --sky-light: #f0f9ff;
+  --cyan: #0891b2;  --cyan-light: #ecfeff;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--cyan); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--cyan); color:#fff; border-color:var(--cyan); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg, #083344 0%, #155e75 35%, #0891b2 65%, #22d3ee 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#a5f3fc; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:640px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy   { background:var(--navy); }
+.sn-cyan   { background:var(--cyan); }
+.sn-blue   { background:var(--blue); }
+.sn-teal   { background:var(--teal); }
+.sn-green  { background:var(--green); }
+.sn-amber  { background:var(--amber); }
+.sn-red    { background:var(--red); }
+.sn-sky    { background:var(--sky); }
+.sn-orange { background:var(--orange); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);    background:var(--red-light);    color:#9f1239; }
+.callout-blue   { border-color:var(--blue);   background:var(--blue-light);   color:#1e40af; }
+.callout-green  { border-color:var(--green);  background:var(--green-light);  color:#14532d; }
+.callout-amber  { border-color:var(--amber);  background:var(--amber-light);  color:#78350f; }
+.callout-orange { border-color:var(--orange); background:var(--orange-light); color:#9a3412; }
+.callout-teal   { border-color:var(--teal);   background:var(--teal-light);   color:#134e4a; }
+.callout-sky    { border-color:var(--sky);     background:var(--sky-light);   color:#0c4a6e; }
+.callout-cyan   { border-color:var(--cyan);    background:var(--cyan-light);  color:#164e63; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#ecfeff; }
+td.ok   { color:var(--green);  font-weight:700; }
+td.must { color:var(--red);    font-weight:700; }
+td.info { color:var(--blue);   font-weight:700; }
+td.amb  { color:var(--amber);  font-weight:700; }
+td.cyn  { color:var(--cyan);   font-weight:700; }
+td.org  { color:var(--orange); font-weight:700; }
+
+/* PACKET VISUAL */
+.packet-row { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
+.pkt { font-family:var(--mono); font-size:11px; font-weight:700; padding:8px 14px; border-radius:8px; border:2px solid; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:64px; }
+.pkt-hdr { font-size:8px; font-weight:600; opacity:0.7; }
+.p1 { background:#ecfeff; border-color:var(--cyan);   color:var(--cyan); }
+.p2 { background:#eff6ff; border-color:var(--blue);   color:var(--blue); }
+.p3 { background:#f0fdf4; border-color:var(--green);  color:var(--green); }
+.p4 { background:#fff7ed; border-color:var(--orange); color:var(--orange); }
+
+/* TYPE CARDS */
+.type-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+.type-card { border-radius:14px; padding:20px; border:2px solid; }
+.type-dg   { background:#ecfeff; border-color:#67e8f9; }
+.type-vc   { background:var(--blue-light); border-color:#93c5fd; }
+.type-card h4 { font-family:var(--sans); font-size:1rem; font-weight:700; margin-bottom:12px; }
+.type-dg h4 { color:#155e75; }
+.type-vc h4 { color:#1e40af; }
+.type-item { font-size:0.82rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.6; }
+.type-item:last-child { border-bottom:none; }
+
+/* PIPELINE GRID */
+.pipeline-wrap { overflow-x:auto; }
+.pipeline-table { border-collapse:collapse; font-family:var(--mono); font-size:10px; min-width:600px; }
+.pipeline-table th { background:var(--navy); color:rgba(255,255,255,0.8); padding:8px 12px; text-align:center; font-size:9px; letter-spacing:0.3px; }
+.pipeline-table td { padding:7px 12px; text-align:center; border:1px solid var(--border); }
+.pipeline-table .row-lbl { background:#f8fafc; font-weight:700; color:var(--text-muted); text-align:left; padding-left:12px; }
+.cell-tx  { background:#ecfeff; color:var(--cyan);   font-weight:700; border-radius:4px; }
+.cell-tx2 { background:#eff6ff; color:var(--blue);   font-weight:700; border-radius:4px; }
+.cell-tx3 { background:#f0fdf4; color:var(--green);  font-weight:700; border-radius:4px; }
+.cell-tx4 { background:#fff7ed; color:var(--orange); font-weight:700; border-radius:4px; }
+.cell-emp { background:#f8fafc; color:var(--text-light); }
+
+/* FORMULA BOX */
+.formula-box { background:var(--navy); border-radius:14px; padding:24px 28px; margin:20px 0; text-align:center; }
+.formula-box-title { font-family:var(--mono); font-size:10px; font-weight:600; color:#67e8f9; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; }
+.formula-main { font-family:var(--mono); font-size:1.1rem; color:#fff; font-weight:600; line-height:2; }
+.formula-main .f-term { color:#a5f3fc; font-weight:700; }
+.formula-main .f-op   { color:#22d3ee; }
+.formula-sub { font-size:0.78rem; color:#94a3b8; margin-top:12px; line-height:1.7; }
+.formula-sub span { color:#67e8f9; font-family:var(--mono); }
+
+/* VS GRID (CS vs PS) */
+.vs-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+.vs-card { border-radius:12px; padding:18px; border:2px solid; }
+.vs-cs { background:var(--orange-light); border-color:#fdba74; }
+.vs-ps { background:var(--cyan-light);   border-color:#67e8f9; }
+.vs-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:10px; }
+.vs-cs h4 { color:#9a3412; }
+.vs-ps h4 { color:#155e75; }
+.vs-item { font-size:0.82rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.55; }
+.vs-item:last-child { border-bottom:none; }
+
+/* STORE & FORWARD STEPS */
+.sf-steps { display:flex; flex-direction:column; gap:0; margin:16px 0; }
+.sf-step { display:flex; gap:16px; align-items:flex-start; padding:0 0 22px 0; position:relative; }
+.sf-step::before { content:''; position:absolute; left:20px; top:42px; bottom:0; width:2px; background:linear-gradient(180deg,var(--cyan),var(--teal)); }
+.sf-step:last-child::before { display:none; }
+.sf-dot { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; border:2px solid var(--cyan); background:var(--white); z-index:1; }
+.sf-body { flex:1; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
+.sf-title { font-family:var(--sans); font-size:0.87rem; font-weight:700; margin-bottom:4px; color:var(--cyan); }
+.sf-desc  { font-size:0.8rem; color:#374151; line-height:1.6; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+.ep-int  { background:var(--cyan-light); color:#164e63; border:1px solid #67e8f9; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--cyan); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--cyan); font-weight:700; }
+.bullet-list li .val   { font-family:var(--mono); color:var(--amber);   font-size:0.77rem; }
+.bullet-list li .tag-g { font-family:var(--mono); color:var(--green);   font-size:0.77rem; }
+.bullet-list li .tag-r { font-family:var(--mono); color:var(--red);     font-size:0.77rem; }
+.bullet-list li .tag-b { font-family:var(--mono); color:var(--blue);    font-size:0.77rem; }
+.bullet-list li .tag-c { font-family:var(--mono); color:var(--cyan);    font-size:0.77rem; }
+.bullet-list li .tag-o { font-family:var(--mono); color:var(--orange);  font-size:0.77rem; }
+.bullet-list li .tag-t { font-family:var(--mono); color:var(--teal);    font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--cyan-light),#cffafe); border:1px solid #67e8f9; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--cyan); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-exam { background:var(--cyan-light); border-color:#67e8f9; color:#164e63; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#67e8f9;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+  .type-grid,.vs-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 18</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Packet Switching</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 18: Packet Switching</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 18</span>
+    <span class="hero-tag">NETWORK LAYER</span>
+    <span class="hero-tag">SWITCHING TECHNIQUES</span>
+  </div>
+  <h1>PACKET <span>SWITCHING</span></h1>
+  <p class="hero-sub">Data in packets, store-and-forward, datagram vs virtual circuit, pipelining, high efficiency, total time formula &mdash; everything for GATE, UGC NET &amp; interview mastery.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">Interviews</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: What is Packet Switching -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>What is Packet Switching?</h2>
+    </div>
+    <p class="body-text">
+      <strong>Packet switching</strong> is a communication technique where data is divided into small units called <strong>packets</strong> before being transmitted across the network. Each packet travels independently through the network and may take a different path to reach the destination.
+    </p>
+    <p class="body-text">
+      This is the technology that powers <strong>modern computer networks</strong> &mdash; the internet, email, WhatsApp, web browsing, and all IP-based communication. Unlike circuit switching (which works at the Physical Layer and creates a dedicated path), packet switching uses the full OSI layer stack &mdash; primarily the <strong>Data Link Layer and Network Layer</strong>.
+    </p>
+
+    <div class="callout callout-cyan">
+      &#128232; <strong>Key Idea:</strong> In circuit switching, a dedicated path is reserved before sending. In packet switching, <em>no reservation</em> is needed &mdash; the data is broken into packets, and each packet finds its own way through the network using routing tables. Like walking into a restaurant and finding a free table, vs booking in advance.
+    </div>
+
+    <!-- Data divided into packets visual -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128232; Data Divided into Packets Before Transmission</div>
+      <div class="diagram-body">
+        <div style="display:flex;flex-direction:column;gap:16px;align-items:center;">
+          <!-- Original data -->
+          <div style="background:var(--navy);border-radius:10px;padding:12px 24px;font-family:var(--mono);font-size:12px;font-weight:700;color:#a5f3fc;text-align:center;width:fit-content;">
+            Original Data (from A to B)
+          </div>
+          <div style="font-size:1.4rem;color:var(--cyan);">&#8595; divided into packets</div>
+          <!-- Packets -->
+          <div class="packet-row" style="justify-content:center;">
+            <div class="pkt p1"><span class="pkt-hdr">HEADER</span>P1</div>
+            <div class="pkt p2"><span class="pkt-hdr">HEADER</span>P2</div>
+            <div class="pkt p3"><span class="pkt-hdr">HEADER</span>P3</div>
+            <div class="pkt p4"><span class="pkt-hdr">HEADER</span>P4</div>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;">Each packet has its own header (source IP, destination IP, sequence number) and travels independently through the network</div>
+        </div>
+      </div>
+      <div class="diagram-note">The original continuous data stream is divided into P1, P2, P3, P4. Each packet carries a header with addressing information. They may take different routes to reach B.</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Designed for</strong></td><td class="cyn">Computer Networks (Internet, LAN, WAN)</td></tr>
+          <tr><td><strong>OSI Layer</strong></td><td class="info">Data Link Layer (Virtual Circuit) / Network Layer (Datagram)</td></tr>
+          <tr><td><strong>Data unit</strong></td><td class="cyn">Packet (with header)</td></tr>
+          <tr><td><strong>Connection</strong></td><td class="ok">No dedicated connection required (connectionless in datagram)</td></tr>
+          <tr><td><strong>Technique</strong></td><td class="cyn">Store-and-Forward at each intermediate switch/router</td></tr>
+          <tr><td><strong>Efficiency</strong></td><td class="ok">High &mdash; bandwidth shared dynamically</td></tr>
+          <tr><td><strong>Delay</strong></td><td class="must">More &mdash; store-and-forward at each node adds delay</td></tr>
+          <tr><td><strong>Out-of-order?</strong></td><td class="must">Possible in Datagram service</td></tr>
+          <tr><td><strong>Best for</strong></td><td>Computer data networks: email, web, file transfer, streaming</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2: OSI Layer & Types -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-cyan">2</div>
+      <h2>OSI Layer &amp; Two Types of Packet Switching</h2>
+    </div>
+    <p class="body-text">
+      Packet switching operates in two forms, and they work at <strong>different OSI layers</strong>. This is a frequently tested point in GATE and UGC NET.
+    </p>
+
+    <div class="type-grid">
+      <div class="type-card type-dg">
+        <h4>&#127760; Datagram Service</h4>
+        <div class="type-item">&#128204; Works at <strong>Network Layer (Layer 3)</strong></div>
+        <div class="type-item">&#128204; <strong>Connectionless</strong> &mdash; no setup before sending</div>
+        <div class="type-item">&#128204; Each packet is routed independently</div>
+        <div class="type-item">&#128204; Packets may take different paths</div>
+        <div class="type-item">&#128204; Packets may arrive out of order</div>
+        <div class="type-item">&#128204; Most common &mdash; used in the Internet (IP)</div>
+        <div class="type-item">&#128204; <strong>More important for exams</strong> (in syllabus)</div>
+      </div>
+      <div class="type-card type-vc">
+        <h4>&#128258; Virtual Circuit</h4>
+        <div class="type-item">&#128204; Works at <strong>Data Link Layer (Layer 2)</strong></div>
+        <div class="type-item">&#128204; <strong>Connection-oriented</strong> &mdash; a logical path is set up first</div>
+        <div class="type-item">&#128204; All packets follow the <em>same path</em></div>
+        <div class="type-item">&#128204; Packets arrive in order</div>
+        <div class="type-item">&#128204; Combines benefits of circuit &amp; packet switching</div>
+        <div class="type-item">&#128204; Used in ATM, Frame Relay networks</div>
+        <div class="type-item">&#128204; Less common in modern networks</div>
+      </div>
+    </div>
+
+    <!-- Layer comparison table -->
+    <div class="tbl-wrap" style="margin-top:16px;">
+      <table>
+        <thead><tr><th>Switching Type</th><th>OSI Layer</th><th>Connection?</th><th>Path</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Circuit Switching</strong></td><td class="org">Physical Layer (L1)</td><td>Yes &mdash; dedicated</td><td>Fixed, dedicated</td></tr>
+          <tr><td><strong>Virtual Circuit (PS)</strong></td><td class="info">Data Link Layer (L2)</td><td>Yes &mdash; logical</td><td>Fixed logical path</td></tr>
+          <tr><td><strong>Datagram (PS)</strong></td><td class="cyn">Network Layer (L3)</td><td>No &mdash; connectionless</td><td>Independent per packet</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-cyan">
+      &#127919; <strong>Exam Tip &mdash; Layer Mapping (must memorise):</strong><br>
+      &bull; Circuit Switching &rarr; <strong>Physical Layer (L1)</strong><br>
+      &bull; Virtual Circuit &rarr; <strong>Data Link Layer (L2)</strong><br>
+      &bull; Datagram (Packet Switching) &rarr; <strong>Network Layer (L3)</strong>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Store-and-Forward -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Store-and-Forward &mdash; The Core Mechanism</h2>
+    </div>
+    <p class="body-text">
+      The most fundamental concept of packet switching is <strong>store-and-forward</strong>. When a packet arrives at an intermediate switch or router, it is <em>stored in the buffer</em>, then processed, and then forwarded towards the destination. This is completely different from circuit switching, where data flows straight through without any intermediate storage.
+    </p>
+
+    <div class="sf-steps">
+      <div class="sf-step">
+        <div class="sf-dot">&#128228;</div>
+        <div class="sf-body">
+          <div class="sf-title">Step 1: A sends P1 to Switch S1</div>
+          <div class="sf-desc">Device A divides its data into packets (P1, P2, P3, P4) and sends P1 to the first switch S1. No connection setup is needed &mdash; A just sends the packet directly.</div>
+        </div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-dot">&#128190;</div>
+        <div class="sf-body">
+          <div class="sf-title">Step 2: S1 stores P1 in its buffer</div>
+          <div class="sf-desc">S1 receives the packet and stores it in its <strong>buffer (memory)</strong>. The buffer is necessary to hold the packet while the switch decides how to forward it.</div>
+        </div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-dot">&#128207;</div>
+        <div class="sf-body">
+          <div class="sf-title">Step 3: S1 checks routing table</div>
+          <div class="sf-desc">S1 examines the packet's <strong>destination address</strong> (in the header) and looks up its <strong>routing table</strong> to determine the best path to forward the packet to the destination B.</div>
+        </div>
+      </div>
+      <div class="sf-step">
+        <div class="sf-dot">&#128228;</div>
+        <div class="sf-body">
+          <div class="sf-title">Step 4: S1 forwards P1 to next switch S2</div>
+          <div class="sf-desc">S1 transmits (forwards) P1 to the next switch S2 on the path towards B. S2 repeats the same store-process-forward cycle. This continues until P1 reaches B.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Store and forward network diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128232; Packet Store-and-Forward Through the Network</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 640 160" width="100%" style="min-width:340px;display:block;" aria-label="Packet switching store and forward">
+          <!-- A -->
+          <circle cx="50" cy="80" r="26" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+          <text x="50" y="77" text-anchor="middle" font-size="11" font-weight="700" fill="#0891b2" font-family="'JetBrains Mono',monospace">A</text>
+          <text x="50" y="90" text-anchor="middle" font-size="8" fill="#0891b2" font-family="'Inter',sans-serif">Sender</text>
+
+          <!-- Arrow A to S1 -->
+          <line x1="76" y1="80" x2="155" y2="80" stroke="#0891b2" stroke-width="2"/>
+          <polygon points="151,77 155,80 151,83" fill="#0891b2"/>
+          <text x="115" y="70" text-anchor="middle" font-size="8" fill="#0891b2" font-family="'JetBrains Mono',monospace">P1</text>
+
+          <!-- S1 -->
+          <rect x="156" y="58" width="80" height="44" rx="8" fill="#1a2340" stroke="#22d3ee" stroke-width="2"/>
+          <text x="196" y="77" text-anchor="middle" font-size="10" font-weight="700" fill="#a5f3fc" font-family="'Inter',sans-serif">S1</text>
+          <text x="196" y="90" text-anchor="middle" font-size="7" fill="#67e8f9" font-family="'Inter',sans-serif">Store+Fwd</text>
+
+          <!-- Buffer label -->
+          <rect x="156" y="112" width="80" height="16" rx="4" fill="#ecfeff" stroke="#67e8f9" stroke-width="1"/>
+          <text x="196" y="123" text-anchor="middle" font-size="7.5" font-weight="700" fill="#164e63" font-family="'Inter',sans-serif">Buffer &#128190;</text>
+          <line x1="196" y1="102" x2="196" y2="112" stroke="#67e8f9" stroke-width="1" stroke-dasharray="2,2"/>
+
+          <!-- Arrow S1 to S2 -->
+          <line x1="236" y1="80" x2="315" y2="80" stroke="#0891b2" stroke-width="2"/>
+          <polygon points="311,77 315,80 311,83" fill="#0891b2"/>
+          <text x="275" y="70" text-anchor="middle" font-size="8" fill="#0891b2" font-family="'JetBrains Mono',monospace">P1</text>
+
+          <!-- S2 -->
+          <rect x="316" y="58" width="80" height="44" rx="8" fill="#1a2340" stroke="#22d3ee" stroke-width="2"/>
+          <text x="356" y="77" text-anchor="middle" font-size="10" font-weight="700" fill="#a5f3fc" font-family="'Inter',sans-serif">S2</text>
+          <text x="356" y="90" text-anchor="middle" font-size="7" fill="#67e8f9" font-family="'Inter',sans-serif">Store+Fwd</text>
+
+          <!-- Buffer label S2 -->
+          <rect x="316" y="112" width="80" height="16" rx="4" fill="#ecfeff" stroke="#67e8f9" stroke-width="1"/>
+          <text x="356" y="123" text-anchor="middle" font-size="7.5" font-weight="700" fill="#164e63" font-family="'Inter',sans-serif">Buffer &#128190;</text>
+          <line x1="356" y1="102" x2="356" y2="112" stroke="#67e8f9" stroke-width="1" stroke-dasharray="2,2"/>
+
+          <!-- Arrow S2 to S3 -->
+          <line x1="396" y1="80" x2="475" y2="80" stroke="#0891b2" stroke-width="2"/>
+          <polygon points="471,77 475,80 471,83" fill="#0891b2"/>
+          <text x="435" y="70" text-anchor="middle" font-size="8" fill="#0891b2" font-family="'JetBrains Mono',monospace">P1</text>
+
+          <!-- S3 -->
+          <rect x="476" y="58" width="80" height="44" rx="8" fill="#1a2340" stroke="#22d3ee" stroke-width="2"/>
+          <text x="516" y="77" text-anchor="middle" font-size="10" font-weight="700" fill="#a5f3fc" font-family="'Inter',sans-serif">S3</text>
+          <text x="516" y="90" text-anchor="middle" font-size="7" fill="#67e8f9" font-family="'Inter',sans-serif">Store+Fwd</text>
+
+          <!-- Arrow S3 to B -->
+          <line x1="556" y1="80" x2="590" y2="80" stroke="#0891b2" stroke-width="2"/>
+          <polygon points="586,77 590,80 586,83" fill="#0891b2"/>
+
+          <!-- B -->
+          <circle cx="606" cy="80" r="26" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+          <text x="606" y="77" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">B</text>
+          <text x="606" y="90" text-anchor="middle" font-size="8" fill="#16a34a" font-family="'Inter',sans-serif">Receiver</text>
+
+          <!-- n = 3 switches label -->
+          <text x="320" y="148" text-anchor="middle" font-size="9" font-weight="600" fill="#6b7280" font-family="'Inter',sans-serif">n = 3 switches (S1, S2, S3) — each stores, processes, and forwards the packet</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Each switch stores the incoming packet in its buffer, looks up the routing table, then transmits it to the next hop. This is store-and-forward. With n switches, the packet gets transmitted (n+1) times total.</div>
+    </div>
+
+    <div class="callout callout-teal">
+      &#128204; <strong>Why store?</strong> Because the switch needs to read the packet's destination header and decide <em>which output port</em> to send it through. This requires buffering the entire packet first. In circuit switching, no such decision is needed at intermediate nodes &mdash; the path is already fixed.
+    </div>
+  </div>
+
+  <!-- SECTION 4: High Efficiency – Restaurant Analogy -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">4</div>
+      <h2>High Efficiency &mdash; No Wasted Bandwidth</h2>
+    </div>
+    <p class="body-text">
+      The biggest advantage of packet switching over circuit switching is <strong>high efficiency</strong>. Because there is no dedicated reserved path, the network bandwidth is shared dynamically among all users.
+    </p>
+
+    <!-- Restaurant analogy -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#127869; Restaurant Analogy — Circuit Switching vs Packet Switching</div>
+      <div class="diagram-body">
+        <div class="vs-grid">
+          <div class="vs-card vs-cs">
+            <h4>&#128222; Circuit Switching = Table Reservation</h4>
+            <div class="vs-item">&#128204; You <strong>book a table in advance</strong> for 5:00 PM</div>
+            <div class="vs-item">&#128204; You arrive at <strong>7:00 PM</strong> (2 hours late)</div>
+            <div class="vs-item">&#128204; Table was <strong>reserved and empty</strong> from 5–7 PM</div>
+            <div class="vs-item">&#128204; No one else could use it during that time</div>
+            <div class="vs-item">&#128204; <strong>Wasted resource</strong> → low efficiency</div>
+          </div>
+          <div class="vs-card vs-ps">
+            <h4>&#128232; Packet Switching = Walk-in</h4>
+            <div class="vs-item">&#128204; <strong>No reservation</strong> — you walk in and find a free table</div>
+            <div class="vs-item">&#128204; Table is only used when someone is <strong>actually sitting</strong></div>
+            <div class="vs-item">&#128204; No idle reservation — every table is used to the fullest</div>
+            <div class="vs-item">&#128204; More people can be served overall</div>
+            <div class="vs-item">&#128204; <strong>Maximum resource usage</strong> → high efficiency</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">In packet switching, bandwidth is only consumed when data is actually being sent. No reserved-but-idle waste. This is why packet switching dominates modern networks.</div>
+    </div>
+
+    <div class="callout callout-green">
+      &#9989; <strong>Why efficiency is high:</strong> In circuit switching, even during silence (no data being sent), the reserved bandwidth/channel stays locked. In packet switching, the moment you stop sending packets, the network bandwidth is freed for others to use. This dynamic sharing makes efficiency much higher.
+    </div>
+  </div>
+
+  <!-- SECTION 5: More Delay — The Tradeoff -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-red">5</div>
+      <h2>More Delay &mdash; The Store-and-Forward Cost</h2>
+    </div>
+    <p class="body-text">
+      The flip side of store-and-forward is <strong>higher delay</strong>. At every intermediate switch, the packet must be:
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;">
+      <div style="background:var(--cyan-light);border:1.5px solid #67e8f9;border-radius:10px;padding:12px 16px;font-size:0.82rem;font-weight:700;color:#164e63;flex:1;min-width:140px;text-align:center;">&#128190; Stored in buffer</div>
+      <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--cyan);">&#8594;</div>
+      <div style="background:var(--cyan-light);border:1.5px solid #67e8f9;border-radius:10px;padding:12px 16px;font-size:0.82rem;font-weight:700;color:#164e63;flex:1;min-width:140px;text-align:center;">&#128207; Header read</div>
+      <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--cyan);">&#8594;</div>
+      <div style="background:var(--cyan-light);border:1.5px solid #67e8f9;border-radius:10px;padding:12px 16px;font-size:0.82rem;font-weight:700;color:#164e63;flex:1;min-width:140px;text-align:center;">&#128203; Routing table checked</div>
+      <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--cyan);">&#8594;</div>
+      <div style="background:var(--cyan-light);border:1.5px solid #67e8f9;border-radius:10px;padding:12px 16px;font-size:0.82rem;font-weight:700;color:#164e63;flex:1;min-width:140px;text-align:center;">&#128228; Forwarded out</div>
+    </div>
+    <p class="body-text">
+      Each of these steps takes time. With more intermediate switches, the total delay increases. This is the trade-off: packet switching gains efficiency but pays with higher delay per packet.
+    </p>
+
+    <div class="callout callout-amber">
+      &#9203; <strong>Delay sources in packet switching:</strong><br>
+      &bull; <strong>Transmission delay</strong> — time to push packet bits onto the link (at each node)<br>
+      &bull; <strong>Propagation delay</strong> — physical travel time through the medium<br>
+      &bull; <strong>Queuing delay</strong> — waiting in the buffer at each switch<br>
+      &bull; <strong>Processing delay</strong> — reading header, looking up routing table<br>
+      <br>Circuit switching only has transmission + propagation delay (no queuing or processing at nodes).
+    </div>
+  </div>
+
+  <!-- SECTION 6: Pipelining -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">6</div>
+      <h2>Pipelining &mdash; Parallelism to Boost Efficiency</h2>
+    </div>
+    <p class="body-text">
+      Packet switching uses <strong>pipelining</strong> to dramatically increase efficiency and reduce total transmission time. Instead of waiting for a packet to reach its destination before sending the next one, the sender starts sending the next packet as soon as it finishes transmitting the previous one.
+    </p>
+    <p class="body-text">
+      When S1 is forwarding P1 to S2, A simultaneously sends P2 to S1. When S1 is forwarding P2 and S2 is forwarding P1, A is sending P3 &mdash; all in parallel. This <em>overlapping</em> of transmissions is pipelining.
+    </p>
+
+    <!-- Pipelining diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128640; Pipelining — Parallel Packet Transmission (A sends 4 packets through S1 &rarr; S2 &rarr; B)</div>
+      <div class="diagram-body">
+        <div class="pipeline-wrap">
+          <table class="pipeline-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Who / What</th>
+                <th>Time T1</th>
+                <th>Time T2</th>
+                <th>Time T3</th>
+                <th>Time T4</th>
+                <th>Time T5</th>
+                <th>Time T6</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-lbl">A &rarr; S1 (sends)</td>
+                <td class="cell-tx">P1</td>
+                <td class="cell-tx2">P2</td>
+                <td class="cell-tx3">P3</td>
+                <td class="cell-tx4">P4</td>
+                <td class="cell-emp">&mdash;</td>
+                <td class="cell-emp">&mdash;</td>
+              </tr>
+              <tr>
+                <td class="row-lbl">S1 &rarr; S2 (forwards)</td>
+                <td class="cell-emp">&mdash;</td>
+                <td class="cell-tx">P1</td>
+                <td class="cell-tx2">P2</td>
+                <td class="cell-tx3">P3</td>
+                <td class="cell-tx4">P4</td>
+                <td class="cell-emp">&mdash;</td>
+              </tr>
+              <tr>
+                <td class="row-lbl">S2 &rarr; B (forwards)</td>
+                <td class="cell-emp">&mdash;</td>
+                <td class="cell-emp">&mdash;</td>
+                <td class="cell-tx">P1</td>
+                <td class="cell-tx2">P2</td>
+                <td class="cell-tx3">P3</td>
+                <td class="cell-tx4">P4 ✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:#ecfeff;border-radius:8px;font-size:0.8rem;color:#164e63;">
+          &#128204; At T2: A sends P2 to S1, <strong>simultaneously</strong> S1 forwards P1 to S2. At T3: A sends P3, S1 forwards P2, S2 forwards P1 — all parallel! Without pipelining this would take 6 time slots; <strong>with pipelining it takes 6 but the work is done in parallel</strong>, meaning more packets get through per unit time.
+        </div>
+      </div>
+      <div class="diagram-note">Without pipelining: A waits for P1 to reach B before sending P2 → wastes time. With pipelining: A starts sending P2 as soon as it finishes P1 → links are always busy → higher throughput.</div>
+    </div>
+
+    <div class="callout callout-teal">
+      &#128640; <strong>Why pipelining matters:</strong> Without pipelining, a link is only active for one packet at a time and then sits idle waiting for acknowledgement. With pipelining, multiple packets fill the links simultaneously &mdash; this maximises bandwidth utilisation and is why packet switching is so efficient for bursty computer traffic.
+    </div>
+  </div>
+
+  <!-- SECTION 7: Total Time Formula -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">7</div>
+      <h2>Total Time Formula &mdash; GATE Numericals</h2>
+    </div>
+    <p class="body-text">
+      In packet switching, <strong>no setup or teardown time</strong> is needed (unlike circuit switching). However, because each intermediate switch must <em>transmit</em> the packet forward, the transmission time is multiplied by the number of links (not just one sender).
+    </p>
+
+    <div class="formula-box">
+      <div class="formula-box-title">&#127919; Total Time in Packet Switching (No Pipelining)</div>
+      <div class="formula-main">
+        T<sub style="font-size:0.7em">total</sub>
+        <span class="f-op"> = </span>
+        <span class="f-term">n &times; T<sub style="font-size:0.7em">tx</sub></span>
+        <span class="f-op"> + </span>
+        <span class="f-term">T<sub style="font-size:0.7em">prop</sub></span>
+      </div>
+      <div class="formula-sub">
+        where <span>n</span> = total number of links (or switches + 1) the packet traverses<br>
+        <span>T<sub>tx</sub></span> = Packet Size (bits) ÷ Bandwidth (bps) &nbsp;|&nbsp;
+        <span>T<sub>prop</sub></span> = Distance ÷ Speed of Signal
+      </div>
+    </div>
+
+    <div class="callout callout-cyan">
+      &#128204; <strong>Why n &times; T<sub>tx</sub>?</strong> In circuit switching, only sender A transmits and the data flows straight through. In packet switching, <em>every switch</em> must re-transmit the packet. So if there are 3 switches (S1, S2, S3) between A and B, the packet is transmitted by: A + S1 + S2 + S3 = <strong>4 times</strong> (n = 4 links). Each transmission takes T<sub>tx</sub> time. Hence total transmission delay = n &times; T<sub>tx</sub>.
+    </div>
+
+    <!-- Comparison: Circuit vs Packet formula -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#9878; Formula Comparison — Circuit vs Packet Switching</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="background:var(--orange-light);border:1.5px solid #fdba74;border-radius:10px;padding:16px;">
+            <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:#9a3412;margin-bottom:10px;">&#128222; Circuit Switching</div>
+            <div style="font-family:var(--mono);font-size:0.88rem;color:#1a2340;margin-bottom:8px;">T = <span style="color:var(--orange);font-weight:700;">T<sub>setup</sub></span> + <span style="color:var(--amber);font-weight:700;">T<sub>tx</sub></span> + T<sub>prop</sub> + <span style="color:var(--red);font-weight:700;">T<sub>teardown</sub></span></div>
+            <div style="font-size:0.78rem;color:#374151;">Setup and teardown phases are needed.<br>Only sender transmits once (T<sub>tx</sub> × 1).<br>No store-and-forward at intermediate nodes.</div>
+          </div>
+          <div style="background:var(--cyan-light);border:1.5px solid #67e8f9;border-radius:10px;padding:16px;">
+            <div style="font-family:var(--sans);font-size:0.82rem;font-weight:700;color:#164e63;margin-bottom:10px;">&#128232; Packet Switching</div>
+            <div style="font-family:var(--mono);font-size:0.88rem;color:#1a2340;margin-bottom:8px;">T = <span style="color:var(--cyan);font-weight:700;">n &times; T<sub>tx</sub></span> + T<sub>prop</sub></div>
+            <div style="font-size:0.78rem;color:#374151;">No setup or teardown time needed.<br>Every switch re-transmits → n × T<sub>tx</sub>.<br>Store-and-forward at each hop adds delay.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Worked example -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#9998; Worked Example &mdash; Total Time in Packet Switching</div>
+      <div class="diagram-body">
+        <div style="font-family:var(--sans);font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:14px;">Problem: A sends a 1000-bit packet to B through 3 switches (4 links). Bandwidth = 1 Mbps. Distance = 2000 km. Signal speed = 2×10<sup>8</sup> m/s.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.8rem;">
+            <div style="font-family:var(--mono);font-weight:700;color:var(--text-muted);margin-bottom:8px;font-size:10px;">GIVEN</div>
+            <div>Packet Size = 1000 bits</div>
+            <div>Bandwidth = 1 Mbps = 10<sup>6</sup> bps</div>
+            <div>Switches = 3 &Rightarrow; n (links) = 4</div>
+            <div>Distance = 2000 km = 2×10<sup>6</sup> m</div>
+            <div>Signal Speed = 2×10<sup>8</sup> m/s</div>
+          </div>
+          <div style="background:var(--navy);border-radius:8px;padding:12px;font-size:0.8rem;">
+            <div style="font-family:var(--mono);font-weight:700;color:#67e8f9;margin-bottom:8px;font-size:10px;">SOLUTION</div>
+            <div style="color:#e2e8f0;">T<sub>tx</sub> = 1000 ÷ 10<sup>6</sup> = <span style="color:#a5f3fc;font-weight:700;">0.001 s</span></div>
+            <div style="color:#e2e8f0;">T<sub>prop</sub> = 2×10<sup>6</sup> ÷ 2×10<sup>8</sup> = <span style="color:#a5f3fc;font-weight:700;">0.01 s</span></div>
+            <div style="color:#e2e8f0;margin-top:8px;">T<sub>total</sub> = 4 × 0.001 + 0.01</div>
+            <div style="color:#6ee7b7;font-weight:700;font-family:var(--mono);font-size:0.9rem;">= 0.004 + 0.01 = 0.014 s</div>
+          </div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-muted);border-top:1px solid var(--border);padding-top:10px;margin-top:12px;">
+          &#128204; Note: This is the time WITHOUT pipelining (one packet). With pipelining and multiple packets, the total time changes &mdash; see the pipelining formula covered in numericals.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: CS vs PS full comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">8</div>
+      <h2>Complete Comparison &mdash; Circuit Switching vs Packet Switching</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+      <span class="epill ep-int">Interviews</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Circuit Switching</th><th>Packet Switching</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="org">Physical (L1)</td><td class="cyn">Network L3 (DG) / Data Link L2 (VC)</td></tr>
+          <tr><td><strong>Connection</strong></td><td class="org">Dedicated path, setup before data</td><td class="ok">No connection (DG) / Logical (VC)</td></tr>
+          <tr><td><strong>Data form</strong></td><td>Continuous bit stream</td><td class="cyn">Packets (with headers)</td></tr>
+          <tr><td><strong>Path</strong></td><td>Fixed, same for entire session</td><td class="cyn">Independent per packet (DG)</td></tr>
+          <tr><td><strong>Store-and-forward</strong></td><td class="ok">No — data flows straight through</td><td class="must">Yes — at every switch/router</td></tr>
+          <tr><td><strong>Headers?</strong></td><td class="ok">Not needed (path pre-reserved)</td><td class="must">Required in every packet</td></tr>
+          <tr><td><strong>Efficiency</strong></td><td class="must">Low — bandwidth wasted when idle</td><td class="ok">High — bandwidth shared dynamically</td></tr>
+          <tr><td><strong>Delay</strong></td><td class="ok">Less — no node delay</td><td class="must">More — store-and-forward at each hop</td></tr>
+          <tr><td><strong>Out-of-order?</strong></td><td class="ok">Never (fixed path)</td><td class="must">Possible in datagram</td></tr>
+          <tr><td><strong>Pipelining</strong></td><td class="must">No</td><td class="ok">Yes — boosts throughput</td></tr>
+          <tr><td><strong>Total time</strong></td><td>Setup + T<sub>tx</sub> + T<sub>prop</sub> + Teardown</td><td class="cyn">n × T<sub>tx</sub> + T<sub>prop</sub></td></tr>
+          <tr><td><strong>Best for</strong></td><td>Real-time voice (telephone)</td><td class="ok">Computer networks (internet, data)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-cyan" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for GATE, UGC NET &amp; PSU exam quick prep.
+  </div>
+
+  <div class="cheat-div"><span>BASICS &amp; LAYERS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128232; What is Packet Switching</div>
+      <ul class="bullet-list">
+        <li>Data divided into <span class="tag-c">packets</span> before transmission</li>
+        <li>Each packet has its own <span class="tag-c">header</span> (source, dest, seq no.)</li>
+        <li>No dedicated path — uses shared network</li>
+        <li>Powers modern computer networks (internet)</li>
+        <li>Totally different concept from circuit switching</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#127757; Layer Mapping (KEY)</div>
+      <ul class="bullet-list">
+        <li>Circuit Switching → <span class="tag-o">Physical Layer (L1)</span></li>
+        <li>Virtual Circuit → <span class="tag-b">Data Link Layer (L2)</span></li>
+        <li>Datagram Service → <span class="tag-c">Network Layer (L3)</span></li>
+        <li>Datagram = more important (in syllabus)</li>
+        <li>This mapping is frequently asked in GATE</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128258; Two Types</div>
+      <ul class="bullet-list">
+        <li><span class="tag-c">Datagram</span>: connectionless, packets route independently</li>
+        <li>Datagram: packets may arrive <span class="tag-r">out of order</span></li>
+        <li><span class="tag-b">Virtual Circuit</span>: connection-oriented, fixed logical path</li>
+        <li>VC: packets always arrive <span class="tag-g">in order</span></li>
+        <li>VC used in ATM; Datagram used in IP/Internet</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>STORE-AND-FORWARD &amp; EFFICIENCY</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128190; Store-and-Forward</div>
+      <ul class="bullet-list">
+        <li>Each switch <span class="tag-c">stores</span> packet in buffer</li>
+        <li>Reads header → checks <span class="tag-c">routing table</span></li>
+        <li>Then <span class="tag-c">forwards</span> to next hop</li>
+        <li>Causes delay at each intermediate node</li>
+        <li>Circuit switching does NOT do this</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#9989; High Efficiency</div>
+      <ul class="bullet-list">
+        <li>No reserved bandwidth — shared dynamically</li>
+        <li>Idle users free up bandwidth for others</li>
+        <li>Like walk-in at restaurant (no wasted reserved table)</li>
+        <li>Much better than CS for bursty data traffic</li>
+        <li>Circuit switching wastes bandwidth when idle</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#9203; More Delay</div>
+      <ul class="bullet-list">
+        <li>Queuing delay — wait in buffer at each switch</li>
+        <li>Processing delay — read header, check routing table</li>
+        <li>Transmission delay — re-transmitted at each hop</li>
+        <li>More switches = more total delay</li>
+        <li>CS has less delay (no store-and-forward)</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128640; Pipelining</div>
+      <ul class="bullet-list">
+        <li>While S1 forwards P1, A sends P2 to S1 simultaneously</li>
+        <li>Parallel transmission across multiple links</li>
+        <li>Increases throughput dramatically</li>
+        <li>Reduces total time compared to sequential</li>
+        <li>Key feature that makes PS efficient</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>TOTAL TIME FORMULA</span></div>
+  <div class="tbl-wrap" style="margin-bottom:16px;">
+    <table>
+      <thead><tr><th>Switching Type</th><th>Formula</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Circuit Switching</strong></td>
+          <td class="org">T<sub>setup</sub> + T<sub>tx</sub> + T<sub>prop</sub> + T<sub>teardown</sub></td>
+          <td>One T<sub>tx</sub> (only sender transmits)</td>
+        </tr>
+        <tr>
+          <td><strong>Packet Switching</strong></td>
+          <td class="cyn">n × T<sub>tx</sub> + T<sub>prop</sub></td>
+          <td>n = no. of links; each switch re-transmits</td>
+        </tr>
+        <tr>
+          <td colspan="2"><strong>T<sub>tx</sub></strong> = Packet Size (bits) ÷ Bandwidth (bps)</td>
+          <td><strong>T<sub>prop</sub></strong> = Distance ÷ Speed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#127919; GATE Numerical Tips</div>
+      <ul class="bullet-list">
+        <li>n = number of <span class="val">links</span> (switches + 1)</li>
+        <li>Each switch stores and <span class="tag-c">re-transmits</span> the packet</li>
+        <li>No setup or teardown in packet switching</li>
+        <li>T<sub>prop</sub> counted only <span class="val">once</span> (end-to-end distance)</li>
+        <li>With pipelining: T = (n + p - 1) × T<sub>tx</sub> + T<sub>prop</sub><br><span style="font-size:0.75em;">(p = number of packets; numericals topic)</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#127756; CS vs PS Key Points</div>
+      <ul class="bullet-list">
+        <li>CS: dedicated path; PS: <span class="tag-c">no dedicated path</span></li>
+        <li>CS: no headers; PS: <span class="tag-r">headers required</span></li>
+        <li>CS: low efficiency; PS: <span class="tag-g">high efficiency</span></li>
+        <li>CS: less delay; PS: <span class="tag-r">more delay</span></li>
+        <li>CS: telephone; PS: <span class="tag-c">internet/computer</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#127919; Top Exam Points for Packet Switching</h3>
+    <ul class="bullet-list">
+      <li>Data always transmitted as <span class="tag-c">packets</span> — each has a header</li>
+      <li>Two types: <span class="tag-c">Datagram (L3)</span> and <span class="tag-b">Virtual Circuit (L2)</span></li>
+      <li>Uses <span class="tag-c">store-and-forward</span> at every intermediate switch/router</li>
+      <li>Efficiency is <span class="tag-g">high</span> — no reserved bandwidth when idle</li>
+      <li>Delay is <span class="tag-r">more</span> — queuing + processing at every switch</li>
+      <li>Uses <span class="tag-c">pipelining</span> — multiple packets in transit simultaneously</li>
+      <li>Total Time = <span class="val">n × T<sub>tx</sub> + T<sub>prop</sub></span> (n = number of links)</li>
+      <li>CS uses 1 × T<sub>tx</sub>; PS uses <span class="tag-r">n × T<sub>tx</sub></span> — this is a key GATE distinction</li>
+      <li>Datagram: packets may arrive <span class="tag-r">out of order</span>; VC: always in order</li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-exam">GATE PYQ</span>
+      <span class="tag tag-exam">UGC NET</span>
+      <span class="tag tag-exam">PSU Exam</span>
+      <span class="tag tag-exam">Interviews</span>
+      <span class="tag">Datagram</span>
+      <span class="tag">Virtual Circuit</span>
+      <span class="tag">Store and Forward</span>
+      <span class="tag">Pipelining</span>
+      <span class="tag">n × Ttx</span>
+      <span class="tag">Network Layer</span>
+      <span class="tag">High Efficiency</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
