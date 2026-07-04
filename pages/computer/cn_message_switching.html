@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 20: Message Switching — store and forward, hop-by-hop delivery, no reservation, predecessor of packet switching. GATE &amp; UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Message Switching &mdash; CN Topic 20 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_message_switching.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --red: #e11d48; --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb; --blue-light: #eff6ff;
+  --teal: #0f766e; --teal-light: #f0fdfa;
+  --orange: #ea580c; --orange-light: #fff7ed;
+  --sky: #0284c7; --sky-light: #f0f9ff;
+  --violet: #7c3aed; --violet-light: #f5f3ff;
+  --purple: #9333ea; --purple-light: #faf5ff;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--violet); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--violet); color:#fff; border-color:var(--violet); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+.hero { background:linear-gradient(135deg,#2e1065 0%,#4c1d95 35%,#7c3aed 65%,#a78bfa 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#ddd6fe; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:640px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+.content-wrap { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-violet { background:var(--violet); } .sn-blue { background:var(--blue); } .sn-teal { background:var(--teal); }
+.sn-green { background:var(--green); } .sn-amber { background:var(--amber); } .sn-red { background:var(--red); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-violet { border-color:var(--violet); background:var(--violet-light); color:#4c1d95; }
+.callout-green  { border-color:var(--green);  background:var(--green-light);  color:#14532d; }
+.callout-amber  { border-color:var(--amber);  background:var(--amber-light);  color:#78350f; }
+.callout-purple { border-color:var(--purple); background:var(--purple-light); color:#581c87; }
+.callout strong { font-weight:700; }
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f5f3ff; }
+td.ok   { color:var(--green);  font-weight:700; } td.must { color:var(--red);    font-weight:700; }
+td.info { color:var(--blue);   font-weight:700; } td.amb  { color:var(--amber);  font-weight:700; }
+td.vio  { color:var(--violet); font-weight:700; } td.org  { color:var(--orange); font-weight:700; }
+.prop-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin:16px 0; }
+.prop-card { background:var(--white); border:2px solid var(--border); border-radius:12px; padding:16px 18px; }
+.prop-card .pc-label { font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.prop-card .pc-title { font-family:var(--sans); font-size:0.92rem; font-weight:700; margin-bottom:4px; }
+.prop-card .pc-val  { font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
+.pc-violet { border-color:#c4b5fd; } .pc-violet .pc-label { color:var(--violet); }
+.pc-green  { border-color:#86efac; } .pc-green  .pc-label { color:var(--green);  }
+.pc-red    { border-color:#fca5a5; } .pc-red    .pc-label { color:var(--red);    }
+.pc-amber  { border-color:#fcd34d; } .pc-amber  .pc-label { color:var(--amber);  }
+.pc-blue   { border-color:#93c5fd; } .pc-blue   .pc-label { color:var(--blue);   }
+.pc-orange { border-color:#fdba74; } .pc-orange .pc-label { color:var(--orange); }
+.pc-teal   { border-color:#5eead4; } .pc-teal   .pc-label { color:var(--teal);   }
+.pc-sky    { border-color:#7dd3fc; } .pc-sky    .pc-label { color:var(--sky);    }
+.timeline { display:flex; flex-direction:column; gap:0; margin:16px 0; }
+.tl-step { display:flex; align-items:stretch; gap:0; }
+.tl-line { display:flex; flex-direction:column; align-items:center; width:40px; flex-shrink:0; }
+.tl-dot  { width:16px; height:16px; border-radius:50%; border:3px solid; flex-shrink:0; margin-top:4px; }
+.tl-bar  { width:3px; flex:1; min-height:18px; }
+.tl-content { padding:4px 0 20px 16px; flex:1; }
+.tl-content h4 { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:4px; }
+.tl-content p  { font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
+.t-violet .tl-dot { border-color:var(--violet); background:#f5f3ff; } .t-violet .tl-bar { background:#c4b5fd; } .t-violet h4 { color:var(--violet); }
+.t-orange .tl-dot { border-color:var(--orange); background:#fff7ed; } .t-orange .tl-bar { background:#fdba74; } .t-orange h4 { color:#c2410c; }
+.t-green  .tl-dot { border-color:var(--green);  background:#f0fdf4; } .t-green  .tl-bar { background:#86efac; } .t-green  h4 { color:var(--green);  }
+.cmp-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:16px 0; }
+@media(max-width:640px){ .cmp-grid { grid-template-columns:1fr; } .prop-grid { grid-template-columns:1fr 1fr; } }
+.cmp-card { border-radius:14px; padding:18px; border:2px solid; }
+.cmp-cs { background:#fff7ed; border-color:#fdba74; } .cmp-cs h4 { color:#c2410c; }
+.cmp-ms { background:#f5f3ff; border-color:#c4b5fd; } .cmp-ms h4 { color:#6d28d9; }
+.cmp-ps { background:#f0fdf4; border-color:#86efac; } .cmp-ps h4 { color:#15803d; }
+.cmp-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:8px; }
+.cmp-card ul { padding-left:16px; font-size:0.8rem; line-height:1.8; color:#374151; }
+.storage-row { display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; align-items:center; }
+.stor-badge { display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--white); border:2px solid; border-radius:12px; padding:12px 20px; min-width:100px; text-align:center; }
+.stor-badge .sb-icon { font-size:1.5rem; } .stor-badge .sb-name { font-family:var(--mono); font-size:10px; font-weight:700; } .stor-badge .sb-note { font-size:9px; color:var(--text-muted); }
+.sb-old { border-color:#fcd34d; } .sb-old .sb-name { color:#92400e; }
+.sb-new { border-color:#86efac; } .sb-new .sb-name { color:#166534; }
+.rev-section { margin-bottom:32px; }
+.rev-section h3 { font-family:var(--sans); font-size:1rem; font-weight:700; margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid var(--border); }
+.flash-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
+.flash { background:var(--white); border:1.5px solid var(--border); border-radius:10px; padding:13px 16px; }
+.flash .fq { font-size:0.78rem; font-weight:700; font-family:var(--sans); color:var(--text-muted); margin-bottom:5px; }
+.flash .fa { font-size:0.86rem; font-weight:700; font-family:var(--mono); color:var(--violet); }
+.flash.fh { border-color:#c4b5fd; }
+.exam-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.exam-list li { background:var(--white); border:1.5px solid var(--border); border-radius:10px; padding:12px 16px; font-size:0.85rem; line-height:1.55; display:flex; align-items:flex-start; gap:10px; }
+.exam-list li::before { content:'★'; color:var(--violet); font-size:12px; flex-shrink:0; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &middot; T20</span>
+    <div class="nav-breadcrumb">
+      <a href="../computer_networks.html" style="color:inherit;text-decoration:none;">Computer Networks</a>
+      <span class="sep">&rsaquo;</span>
+      <span class="current">Message Switching</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" id="btn-desc" onclick="switchPanel('desc')">&#128214; Descriptive</button>
+    <button class="nav-btn" id="btn-rev"  onclick="switchPanel('rev')">&#9889; Revision</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">TOPIC 20</span>
+    <span class="hero-tag">SWITCHING</span>
+    <span class="hero-tag">STORE &amp; FORWARD</span>
+    <span class="hero-tag">GATE &middot; UGC NET</span>
+  </div>
+  <h1>Message <span>Switching</span></h1>
+  <p class="hero-sub">The bridge between Circuit Switching and Packet Switching. Introduced the <strong>Store &amp; Forward</strong> concept with hop-by-hop delivery in the 1960s &mdash; paving the way for modern packet networks.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">&#128336; Introduced ~1960</span>
+    <span class="hero-chip">&#128190; Store &amp; Forward</span>
+    <span class="hero-chip">&#128694; Hop-by-Hop</span>
+    <span class="hero-chip">&#128683; No Reservation</span>
+    <span class="hero-chip">&#9201; High Delay</span>
+    <span class="hero-chip">&#128230; Predecessor of Packet Switching</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <!-- ===== DESCRIPTIVE PANEL ===== -->
+  <div class="panel active" id="panel-desc">
+
+    <!-- Section 1 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-violet">1</div>
+        <h2>What is Message Switching? &mdash; The Switching Evolution</h2>
+      </div>
+      <p class="body-text">Switching techniques evolved in a clear chronological order. <strong>Circuit Switching</strong> came first (telephone era), then <strong>Message Switching</strong> (~1960s), and finally <strong>Packet Switching</strong> (modern internet). Each solved limitations of the previous one.</p>
+      <div class="timeline">
+        <div class="tl-step t-orange">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+          <div class="tl-content">
+            <h4>Circuit Switching (Before 1960)</h4>
+            <p>Dedicated physical path established before any data transfer. Designed for telephone networks. Setup &rarr; Transfer &rarr; Teardown. Bandwidth reserved even when idle &rarr; <em>efficiency less</em>.</p>
+          </div>
+        </div>
+        <div class="tl-step t-violet">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+          <div class="tl-content">
+            <h4>Message Switching (~1960s) &larr; This Topic</h4>
+            <p>No dedicated path. Messages sent hop-by-hop. Each intermediate switch stores the entire message, processes it, then forwards to the next hop. <strong>Store &amp; Forward on hard disk originally.</strong></p>
+          </div>
+        </div>
+        <div class="tl-step t-green">
+          <div class="tl-line"><div class="tl-dot"></div><div class="tl-bar"></div></div>
+          <div class="tl-content">
+            <h4>Packet Switching (Modern Internet)</h4>
+            <p>Message divided into small <em>packets</em>. Multiple packets flow in parallel across the network. Pipelining increases throughput, reduces delay. Packet Switching = Modified Message Switching.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-violet">
+        &#128276; <strong>Key Insight:</strong> Message Switching directly evolved into Packet Switching. The only difference: instead of sending one big message hop-by-hop, we <em>divide</em> it into small packets and send them parallelly. Message Switching is therefore the <strong>predecessor (parent) of Packet Switching</strong>.
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-blue">2</div>
+        <h2>Store &amp; Forward &mdash; The Core Mechanism</h2>
+      </div>
+      <p class="body-text">Unlike circuit switching where a path is pre-established, in message switching <strong>A simply transmits its entire message</strong> towards D. There is no end-to-end connection setup. Each intermediate node (switch/router) <strong>receives the full message</strong>, <strong>stores it</strong>, <strong>processes it</strong> (finds the next route), and then <strong>forwards it</strong> to the next hop.</p>
+
+      <div class="diagram-box">
+        <div class="diagram-header">&#128233; Message Switching &mdash; Hop-by-Hop Store &amp; Forward Delivery (A to D)</div>
+        <div class="diagram-body" style="padding:24px 16px 16px;">
+          <svg viewBox="0 0 760 220" width="100%" style="min-width:320px;display:block;" aria-label="Message switching hop by hop diagram">
+            <rect x="20" y="80" width="80" height="60" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2.5"/>
+            <text x="60" y="107" text-anchor="middle" font-size="14" font-weight="800" fill="#7c3aed" font-family="'JetBrains Mono',monospace">A</text>
+            <text x="60" y="122" text-anchor="middle" font-size="8" fill="#7c3aed" font-family="'Inter',sans-serif">Sender</text>
+            <rect x="22" y="148" width="76" height="20" rx="4" fill="#7c3aed"/>
+            <text x="60" y="163" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="'Inter',sans-serif">MSG [A to D]</text>
+            <line x1="100" y1="110" x2="200" y2="110" stroke="#7c3aed" stroke-width="2.5"/>
+            <polygon points="194,106 200,110 194,114" fill="#7c3aed"/>
+            <text x="150" y="102" text-anchor="middle" font-size="8" fill="#6d28d9" font-family="'Inter',sans-serif">full msg</text>
+            <rect x="200" y="70" width="90" height="80" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+            <text x="245" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#a78bfa" font-family="'Inter',sans-serif">Switch 1</text>
+            <rect x="210" y="102" width="70" height="16" rx="3" fill="#4c1d95"/>
+            <text x="245" y="114" text-anchor="middle" font-size="7.5" font-weight="700" fill="#ddd6fe" font-family="'Inter',sans-serif">STORE</text>
+            <rect x="210" y="121" width="70" height="16" rx="3" fill="#1e3a5f"/>
+            <text x="245" y="133" text-anchor="middle" font-size="7.5" font-weight="700" fill="#bae6fd" font-family="'Inter',sans-serif">PROCESS</text>
+            <text x="245" y="160" text-anchor="middle" font-size="8" fill="#64748b" font-family="'Inter',sans-serif">(HDD then RAM)</text>
+            <line x1="290" y1="110" x2="390" y2="110" stroke="#7c3aed" stroke-width="2.5"/>
+            <polygon points="384,106 390,110 384,114" fill="#7c3aed"/>
+            <text x="340" y="102" text-anchor="middle" font-size="8" fill="#6d28d9" font-family="'Inter',sans-serif">full msg</text>
+            <rect x="390" y="70" width="90" height="80" rx="10" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+            <text x="435" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#a78bfa" font-family="'Inter',sans-serif">Switch 2</text>
+            <rect x="400" y="102" width="70" height="16" rx="3" fill="#4c1d95"/>
+            <text x="435" y="114" text-anchor="middle" font-size="7.5" font-weight="700" fill="#ddd6fe" font-family="'Inter',sans-serif">STORE</text>
+            <rect x="400" y="121" width="70" height="16" rx="3" fill="#1e3a5f"/>
+            <text x="435" y="133" text-anchor="middle" font-size="7.5" font-weight="700" fill="#bae6fd" font-family="'Inter',sans-serif">PROCESS</text>
+            <text x="435" y="160" text-anchor="middle" font-size="8" fill="#64748b" font-family="'Inter',sans-serif">(uses RAM)</text>
+            <line x1="480" y1="110" x2="580" y2="110" stroke="#7c3aed" stroke-width="2.5"/>
+            <polygon points="574,106 580,110 574,114" fill="#7c3aed"/>
+            <text x="530" y="102" text-anchor="middle" font-size="8" fill="#6d28d9" font-family="'Inter',sans-serif">full msg</text>
+            <rect x="580" y="80" width="80" height="60" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>
+            <text x="620" y="107" text-anchor="middle" font-size="14" font-weight="800" fill="#16a34a" font-family="'JetBrains Mono',monospace">D</text>
+            <text x="620" y="122" text-anchor="middle" font-size="8" fill="#16a34a" font-family="'Inter',sans-serif">Receiver</text>
+            <rect x="582" y="148" width="76" height="20" rx="4" fill="#16a34a"/>
+            <text x="620" y="163" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="'Inter',sans-serif">MSG [A to D]</text>
+            <rect x="185" y="16" width="360" height="22" rx="6" fill="#fef9c3" stroke="#d97706" stroke-width="1.5"/>
+            <text x="365" y="31" text-anchor="middle" font-size="8.5" font-weight="700" fill="#92400e" font-family="'Inter',sans-serif">No end-to-end connection setup &mdash; message forwarded hop by hop</text>
+            <text x="245" y="195" text-anchor="middle" font-size="8" fill="#64748b" font-family="'Inter',sans-serif">Route decided at each hop</text>
+            <text x="435" y="195" text-anchor="middle" font-size="8" fill="#64748b" font-family="'Inter',sans-serif">Route decided at each hop</text>
+          </svg>
+        </div>
+        <div class="diagram-note">A sends the <strong>entire message</strong> to Switch&nbsp;1. Switch&nbsp;1 stores it (originally HDD, now RAM), processes (routing), then forwards to Switch&nbsp;2 &mdash; until D receives the complete message. <em>No path reserved between A and D.</em></div>
+      </div>
+
+      <p class="body-text"><strong>Evolution of storage at intermediate nodes:</strong></p>
+      <div class="storage-row">
+        <div class="stor-badge sb-old">
+          <span class="sb-icon">&#128190;</span>
+          <span class="sb-name">Hard Disk (HDD)</span>
+          <span class="sb-note">Original 1960s<br>Very slow &mdash; High delay</span>
+        </div>
+        <div style="font-size:1.4rem;color:#64748b;padding:0 8px;">&#8594;</div>
+        <div class="stor-badge sb-new">
+          <span class="sb-icon">&#9889;</span>
+          <span class="sb-name">RAM (Modern)</span>
+          <span class="sb-note">Much faster<br>Lower delay &mdash; Used today</span>
+        </div>
+      </div>
+
+      <div class="callout callout-amber">
+        &#128161; <strong>Why RAM replaced HDD:</strong> When messages were stored on hard disk at each intermediate node, the delay was enormous (HDD is slow). As technology evolved, RAM became the intermediate storage, dramatically reducing the store-and-forward delay at each hop.
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-teal">3</div>
+        <h2>Key Properties of Message Switching</h2>
+      </div>
+      <div class="prop-grid">
+        <div class="prop-card pc-violet"><div class="pc-label">Connection</div><div class="pc-title">Connectionless</div><div class="pc-val">No setup phase. A sends directly. No reserved path A&rarr;D.</div></div>
+        <div class="prop-card pc-orange"><div class="pc-label">Data Unit</div><div class="pc-title">Message (full)</div><div class="pc-val">The entire message is sent as ONE unit, not divided into packets.</div></div>
+        <div class="prop-card pc-blue"><div class="pc-label">Delivery</div><div class="pc-title">Hop-by-Hop</div><div class="pc-val">Message jumps from one intermediate node to the next, one at a time.</div></div>
+        <div class="prop-card pc-amber"><div class="pc-label">Storage</div><div class="pc-title">Store &amp; Forward</div><div class="pc-val">Full message stored at each intermediate node before forwarding.</div></div>
+        <div class="prop-card pc-red"><div class="pc-label">Delay</div><div class="pc-title">High Delay</div><div class="pc-val">Every hop introduces store + process + forward delay. Delay &gt; Circuit Switching.</div></div>
+        <div class="prop-card pc-green"><div class="pc-label">Efficiency</div><div class="pc-title">Better than CS</div><div class="pc-val">No resource reservation &rarr; bandwidth used only when message is transmitted.</div></div>
+        <div class="prop-card pc-teal"><div class="pc-label">Routing</div><div class="pc-title">Dynamic per hop</div><div class="pc-val">Each intermediate node independently decides where to forward the message next.</div></div>
+        <div class="prop-card pc-sky"><div class="pc-label">Headers</div><div class="pc-title">Headers Needed</div><div class="pc-val">Each message carries full address info (source + destination) as a header.</div></div>
+      </div>
+      <div class="callout callout-green">
+        &#9989; <strong>No Reservation Advantage:</strong> Unlike circuit switching (where bandwidth, CPU, and buffer were reserved even during silence), message switching uses resources <em>only</em> when data is actually being transmitted. This makes the network more efficient overall.
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-amber">4</div>
+        <h2>Three-Way Comparison &mdash; Circuit vs Message vs Packet</h2>
+      </div>
+      <div class="cmp-grid">
+        <div class="cmp-card cmp-cs">
+          <h4>&#9889; Circuit Switching</h4>
+          <ul>
+            <li>Dedicated path reserved</li>
+            <li>Setup &rarr; Transfer &rarr; Teardown</li>
+            <li>No store &amp; forward</li>
+            <li>Contiguous (stream) flow</li>
+            <li>No headers needed</li>
+            <li>Delay <strong>less</strong></li>
+            <li>Efficiency <strong>less</strong> (idle wastes BW)</li>
+            <li>Best for voice calls</li>
+          </ul>
+        </div>
+        <div class="cmp-card cmp-ms">
+          <h4>&#128233; Message Switching</h4>
+          <ul>
+            <li>No path reservation</li>
+            <li>Full message stored at each hop</li>
+            <li>Store &amp; Forward (HDD&rarr;RAM)</li>
+            <li>Hop-by-hop delivery</li>
+            <li>Headers required</li>
+            <li>Delay <strong>high</strong></li>
+            <li>Efficiency <strong>better than CS</strong></li>
+            <li>~1960s, predecessor of PS</li>
+          </ul>
+        </div>
+        <div class="cmp-card cmp-ps">
+          <h4>&#128230; Packet Switching</h4>
+          <ul>
+            <li>No path reservation</li>
+            <li>Message divided into packets</li>
+            <li>Store &amp; Forward per packet</li>
+            <li>Pipelining / parallelism</li>
+            <li>Headers on each packet</li>
+            <li>Delay <strong>less than MS</strong></li>
+            <li>Efficiency <strong>highest</strong></li>
+            <li>Internet (IP, TCP/UDP)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-header">&#128196; Message vs Packet &mdash; Why Packets Are Better (Pipelining)</div>
+        <div class="diagram-body" style="padding:20px 16px;">
+          <svg viewBox="0 0 720 180" width="100%" style="min-width:300px;display:block;" aria-label="Message vs packet comparison">
+            <text x="8" y="28" font-size="9" font-weight="700" fill="#6d28d9" font-family="'Inter',sans-serif">MESSAGE SWITCHING:</text>
+            <rect x="120" y="12" width="500" height="30" rx="6" fill="#c4b5fd" stroke="#7c3aed" stroke-width="2"/>
+            <text x="370" y="32" text-anchor="middle" font-size="10" font-weight="700" fill="#4c1d95" font-family="'Inter',sans-serif">M E S S A G E  (entire msg travels as one block &mdash; hop by hop, sequential)</text>
+            <text x="8" y="58" font-size="8" fill="#6d28d9" font-family="'Inter',sans-serif">Switch must wait for entire msg before forwarding &rarr; HIGH DELAY</text>
+            <line x1="0" y1="75" x2="720" y2="75" stroke="#e0e4ef" stroke-width="1"/>
+            <text x="8" y="96" font-size="9" font-weight="700" fill="#15803d" font-family="'Inter',sans-serif">PACKET SWITCHING:</text>
+            <rect x="120" y="82" width="88" height="26" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+            <text x="164" y="100" text-anchor="middle" font-size="8.5" font-weight="700" fill="#166534" font-family="'Inter',sans-serif">PKT 1 [hdr]</text>
+            <rect x="214" y="82" width="88" height="26" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+            <text x="258" y="100" text-anchor="middle" font-size="8.5" font-weight="700" fill="#166534" font-family="'Inter',sans-serif">PKT 2 [hdr]</text>
+            <rect x="308" y="82" width="88" height="26" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+            <text x="352" y="100" text-anchor="middle" font-size="8.5" font-weight="700" fill="#166534" font-family="'Inter',sans-serif">PKT 3 [hdr]</text>
+            <rect x="402" y="82" width="88" height="26" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+            <text x="446" y="100" text-anchor="middle" font-size="8.5" font-weight="700" fill="#166534" font-family="'Inter',sans-serif">PKT 4 [hdr]</text>
+            <rect x="496" y="82" width="88" height="26" rx="5" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.8"/>
+            <text x="540" y="100" text-anchor="middle" font-size="8.5" font-weight="700" fill="#166534" font-family="'Inter',sans-serif">PKT 5 [hdr]</text>
+            <text x="8" y="128" font-size="8" fill="#15803d" font-family="'Inter',sans-serif">Packets travel simultaneously on different paths &rarr; PIPELINING &rarr; LOWER DELAY</text>
+            <line x1="0" y1="142" x2="720" y2="142" stroke="#e0e4ef" stroke-width="1"/>
+            <rect x="8" y="152" width="704" height="22" rx="5" fill="#fef9c3" stroke="#d97706" stroke-width="1.2"/>
+            <text x="360" y="167" text-anchor="middle" font-size="8.5" font-weight="700" fill="#92400e" font-family="'Inter',sans-serif">Message Switching + Divide into Packets + Parallel Transmission = Packet Switching</text>
+          </svg>
+        </div>
+        <div class="diagram-note">Message switching sends one large message hop-by-hop (sequential, slow). Packet switching divides it into small packets that flow in parallel &mdash; achieving <strong>pipelining</strong> and dramatically lower end-to-end delay.</div>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-green">5</div>
+        <h2>Advantages &amp; Disadvantages</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:18px;">
+          <div style="font-family:var(--sans);font-size:0.9rem;font-weight:700;color:#15803d;margin-bottom:12px;">&#10003; Advantages</div>
+          <ul style="padding-left:16px;font-size:0.83rem;line-height:1.9;color:#374151;">
+            <li><strong>No reservation</strong> &mdash; bandwidth, CPU, buffer not pre-allocated</li>
+            <li><strong>Better efficiency</strong> than circuit switching</li>
+            <li><strong>Dynamic routing</strong> &mdash; each hop chooses the best available path</li>
+            <li><strong>Network usage</strong> &mdash; whole network used efficiently</li>
+            <li><strong>No call setup time</strong> &mdash; no setup phase delay</li>
+            <li><strong>Traffic management</strong> &mdash; switches can buffer during congestion</li>
+          </ul>
+        </div>
+        <div style="background:#fff1f4;border:2px solid #fca5a5;border-radius:12px;padding:18px;">
+          <div style="font-family:var(--sans);font-size:0.9rem;font-weight:700;color:#9f1239;margin-bottom:12px;">&#10007; Disadvantages</div>
+          <ul style="padding-left:16px;font-size:0.83rem;line-height:1.9;color:#374151;">
+            <li><strong>Very high delay</strong> &mdash; every hop stores the FULL message</li>
+            <li><strong>Large storage needed</strong> &mdash; each switch must store complete message</li>
+            <li><strong>Not suitable for real-time</strong> &mdash; voice/video calls cannot use this</li>
+            <li><strong>No pipelining</strong> &mdash; one message at a time per route</li>
+            <li><strong>Header overhead</strong> &mdash; full source + destination address per message</li>
+            <li><strong>Superseded by Packet Switching</strong> &mdash; rarely used in modern networks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="section-block">
+      <div class="section-heading">
+        <div class="sec-num sn-red">6</div>
+        <h2>GATE / UGC NET Exam Focus &mdash; Master Comparison Table</h2>
+      </div>
+      <div class="callout callout-purple">
+        &#128170; <strong>Exam Note:</strong> Message switching rarely appears as a direct GATE question on its own, but it is <em>frequently tested in comparison</em> with circuit switching and packet switching. Know the difference table cold.
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Property</th><th>Circuit Switching</th><th>Message Switching</th><th>Packet Switching</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Connection</strong></td><td class="org">Dedicated / Reserved</td><td class="vio">Connectionless</td><td class="vio">Connectionless</td></tr>
+            <tr><td><strong>Data Unit</strong></td><td class="org">Bit stream</td><td class="vio">Message (full)</td><td class="info">Packet (fragment)</td></tr>
+            <tr><td><strong>Store &amp; Forward</strong></td><td class="ok">No</td><td class="must">Yes (HDD&rarr;RAM)</td><td class="must">Yes (per packet)</td></tr>
+            <tr><td><strong>Path</strong></td><td class="org">Fixed (dedicated)</td><td class="vio">Dynamic (hop decides)</td><td class="vio">Dynamic (hop decides)</td></tr>
+            <tr><td><strong>Delay</strong></td><td class="ok">Less</td><td class="must">Most (store at every hop)</td><td class="amb">Less than MS (pipelining)</td></tr>
+            <tr><td><strong>Efficiency</strong></td><td class="must">Less (idle wastes BW)</td><td class="ok">Better than CS</td><td class="ok">Best (pipelining)</td></tr>
+            <tr><td><strong>Pipelining</strong></td><td>&mdash;</td><td class="must">No (one msg at a time)</td><td class="ok">Yes (packets in parallel)</td></tr>
+            <tr><td><strong>Headers</strong></td><td class="ok">Not needed</td><td class="must">Yes (per message)</td><td class="must">Yes (per packet)</td></tr>
+            <tr><td><strong>OSI Layer</strong></td><td class="org">Physical (L1)</td><td class="vio">Network/App (L3+)</td><td class="info">Network (L3)</td></tr>
+            <tr><td><strong>Real-world use</strong></td><td>PSTN Phone network</td><td>Old telegram / telex</td><td>Internet (IP, TCP/UDP)</td></tr>
+            <tr><td><strong>Introduced</strong></td><td>~1900s</td><td class="vio">~1960s</td><td>~1970s (ARPANET)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end panel-desc -->
+
+  <!-- ===== REVISION PANEL ===== -->
+  <div class="panel" id="panel-rev">
+
+    <div class="rev-section">
+      <h3>&#9889; Quick Flash Cards &mdash; Message Switching Core</h3>
+      <div class="flash-grid">
+        <div class="flash fh"><div class="fq">When was message switching introduced?</div><div class="fa">~1960s</div></div>
+        <div class="flash fh"><div class="fq">Core strategy of message switching?</div><div class="fa">Store &amp; Forward</div></div>
+        <div class="flash fh"><div class="fq">Type of delivery in message switching?</div><div class="fa">Hop-by-Hop delivery</div></div>
+        <div class="flash fh"><div class="fq">Is there a connection setup in message switching?</div><div class="fa">No &mdash; Connectionless</div></div>
+        <div class="flash fh"><div class="fq">Original storage at each hop (1960s)?</div><div class="fa">Hard Disk (HDD)</div></div>
+        <div class="flash fh"><div class="fq">What replaced HDD at intermediate nodes?</div><div class="fa">RAM (much faster)</div></div>
+        <div class="flash fh"><div class="fq">Delay: MS vs CS?</div><div class="fa">Delay MORE in MS</div></div>
+        <div class="flash fh"><div class="fq">Efficiency: MS vs CS?</div><div class="fa">Efficiency BETTER in MS</div></div>
+        <div class="flash fh"><div class="fq">Why is efficiency better in MS than CS?</div><div class="fa">No resource reservation</div></div>
+        <div class="flash fh"><div class="fq">Message switching is predecessor of?</div><div class="fa">Packet Switching</div></div>
+        <div class="flash fh"><div class="fq">How does PS differ from MS?</div><div class="fa">Divides msg into packets &rarr; pipelining</div></div>
+        <div class="flash fh"><div class="fq">Are headers required in message switching?</div><div class="fa">Yes &mdash; src + dst address</div></div>
+        <div class="flash fh"><div class="fq">Is pipelining possible in message switching?</div><div class="fa">No &mdash; one msg at a time</div></div>
+        <div class="flash fh"><div class="fq">MS suitable for real-time communication?</div><div class="fa">No &mdash; delay too high</div></div>
+        <div class="flash fh"><div class="fq">Correct order of switching evolution?</div><div class="fa">CS &rarr; MS &rarr; PS</div></div>
+        <div class="flash fh"><div class="fq">Routing in MS: fixed or dynamic?</div><div class="fa">Dynamic &mdash; each hop decides</div></div>
+      </div>
+    </div>
+
+    <div class="rev-section">
+      <h3>&#128203; Three-Way Quick Reference</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Property</th><th>Circuit</th><th>Message</th><th>Packet</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Connection</strong></td><td>Dedicated</td><td style="color:#7c3aed;font-weight:700">None</td><td style="color:#7c3aed;font-weight:700">None</td></tr>
+            <tr><td><strong>Data unit</strong></td><td>Bit stream</td><td>Full message</td><td>Small packet</td></tr>
+            <tr><td><strong>Store &amp; Fwd</strong></td><td style="color:#16a34a;font-weight:700">No</td><td style="color:#e11d48;font-weight:700">Yes</td><td style="color:#e11d48;font-weight:700">Yes</td></tr>
+            <tr><td><strong>Delay</strong></td><td>Less</td><td style="color:#e11d48;font-weight:700">Most</td><td>Medium</td></tr>
+            <tr><td><strong>Efficiency</strong></td><td style="color:#e11d48;font-weight:700">Least</td><td>Better</td><td style="color:#16a34a;font-weight:700">Best</td></tr>
+            <tr><td><strong>Pipelining</strong></td><td>&mdash;</td><td style="color:#e11d48;font-weight:700">No</td><td style="color:#16a34a;font-weight:700">Yes</td></tr>
+            <tr><td><strong>Headers</strong></td><td style="color:#16a34a;font-weight:700">Not needed</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td><strong>OSI Layer</strong></td><td>L1 (Physical)</td><td>L3+ (Network)</td><td>L3 (Network)</td></tr>
+            <tr><td><strong>Era</strong></td><td>1900s</td><td style="color:#7c3aed;font-weight:700">1960s</td><td>1970s+</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rev-section">
+      <h3>&#127919; Most Likely Exam Points</h3>
+      <ul class="exam-list">
+        <li>Correct chronological order: <strong>Circuit Switching &rarr; Message Switching (~1960) &rarr; Packet Switching</strong></li>
+        <li>Message Switching uses <strong>Store &amp; Forward</strong> &mdash; full message stored at each intermediate node before forwarding</li>
+        <li>Originally messages stored on <strong>Hard Disk (HDD)</strong>; later replaced by <strong>RAM</strong> (faster, less delay)</li>
+        <li><strong>No connection setup</strong> in MS &mdash; connectionless (unlike circuit switching)</li>
+        <li><strong>Delay is MORE</strong> in MS than CS because of store-and-process at every hop</li>
+        <li><strong>Efficiency is BETTER</strong> than CS because no bandwidth/CPU/buffer is reserved</li>
+        <li>MS has <strong>NO pipelining</strong>; PS has pipelining &mdash; key advantage of PS over MS</li>
+        <li>MS is the <strong>predecessor / parent</strong> of PS &mdash; PS = MS + divide into packets + parallel transmission</li>
+        <li>Headers are <strong>required</strong> in both MS and PS (carry address per data unit)</li>
+        <li>MS is <strong>NOT suitable</strong> for real-time applications (voice/video) due to high delay</li>
+        <li>In MS, each intermediate node decides the route <strong>independently</strong> &mdash; dynamic routing</li>
+        <li>Three-way comparison table (CS vs MS vs PS) is a <strong>high-frequency exam question</strong></li>
+      </ul>
+    </div>
+
+  </div><!-- end panel-rev -->
+
+</div><!-- end content-wrap -->
+
+<script>
+function switchPanel(p) {
+  ['desc','rev'].forEach(function(x){
+    document.getElementById('panel-'+x).classList.remove('active');
+    document.getElementById('btn-'+x).classList.remove('active');
+  });
+  document.getElementById('panel-'+p).classList.add('active');
+  document.getElementById('btn-'+p).classList.add('active');
+}
+</script>
+</body>
+</html>
