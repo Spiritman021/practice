@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 16: Collision Domain &amp; Broadcast Domain — Repeater, Hub, Bridge, Switch, Router, Gateway. How each device changes collision and broadcast domains. GATE &amp; UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Collision Domain &amp; Broadcast Domain &mdash; CN Topic 16 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_collision_broadcast_domain.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --sky: #0284c7;   --sky-light: #f0f9ff;
+  --cyan: #0891b2;  --cyan-light: #ecfeff;
+  --violet: #7c3aed;--violet-light: #f5f3ff;
+  --indigo: #4338ca;--indigo-light: #eef2ff;
+  --rose: #e11d48;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--violet); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg, #1e1b4b 0%, #4338ca 35%, #7c3aed 65%, #c4b5fd 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(1.8rem,4.5vw,3rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#ddd6fe; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:640px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy    { background:var(--navy); }
+.sn-blue    { background:var(--blue); }
+.sn-red     { background:var(--red); }
+.sn-green   { background:var(--green); }
+.sn-amber   { background:var(--amber); }
+.sn-violet  { background:var(--violet); }
+.sn-teal    { background:var(--teal); }
+.sn-orange  { background:var(--orange); }
+.sn-sky     { background:var(--sky); }
+.sn-indigo  { background:var(--indigo); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-violet { border-color:var(--violet);background:var(--violet-light);color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-sky    { border-color:var(--sky);   background:var(--sky-light);   color:#0c4a6e; }
+.callout-indigo { border-color:var(--indigo);background:var(--indigo-light);color:#312e81; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); border-radius:8px; }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f5f3ff; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must  { color:var(--red);    font-weight:700; }
+td.good  { color:var(--amber);  font-weight:700; }
+td.ok    { color:var(--green);  font-weight:700; }
+td.info  { color:var(--blue);   font-weight:700; }
+td.viol  { color:var(--violet); font-weight:700; }
+td.nc    { color:var(--orange); font-weight:700; font-style:italic; }
+td.red   { color:var(--red);    font-weight:700; }
+
+/* DEVICE DOMAIN CARDS */
+.device-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin:20px 0; }
+.dev-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; }
+.dev-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+.dev-card-header { padding:14px 18px; display:flex; align-items:center; gap:12px; }
+.dev-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.dev-name { font-family:var(--sans); font-size:0.95rem; font-weight:700; }
+.dev-layer { font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.5px; margin-top:2px; }
+.dev-card-body { padding:0 18px 16px; display:flex; flex-direction:column; gap:10px; }
+.domain-row { display:flex; align-items:center; gap:10px; }
+.domain-label { font-family:var(--sans); font-size:0.75rem; font-weight:700; width:120px; flex-shrink:0; color:var(--text-muted); }
+.domain-pill { font-family:var(--mono); font-size:11px; font-weight:700; padding:4px 14px; border-radius:20px; }
+.pill-nc     { background:#fff7ed; color:#9a3412; border:1.5px solid #fdba74; }
+.pill-reduce { background:#f0fdf4; color:#14532d; border:1.5px solid #86efac; }
+.pill-zero   { background:#dcfce7; color:#14532d; border:1.5px solid #4ade80; }
+.pill-reduce-b { background:#f0fdf4; color:#14532d; border:1.5px solid #86efac; }
+.dev-note { font-size:0.78rem; color:var(--text-muted); line-height:1.55; border-top:1px solid var(--border); padding-top:10px; }
+
+/* DOMAIN DEFINITIONS */
+.def-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0; }
+.def-card { border-radius:14px; padding:20px; border:2px solid; }
+.def-col  { background:#fff1f2; border-color:#fda4af; }
+.def-broad{ background:var(--indigo-light); border-color:#a5b4fc; }
+.def-card h4 { font-family:var(--sans); font-size:1rem; font-weight:700; margin-bottom:10px; }
+.def-col h4  { color:#9f1239; }
+.def-broad h4{ color:#312e81; }
+.def-item { font-size:0.83rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.6; }
+.def-item:last-child { border-bottom:none; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+.ep-int  { background:#f5f3ff; color:#4c1d95; border:1px solid #c4b5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--violet); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--violet); font-weight:700; }
+.bullet-list li .val   { font-family:var(--mono); color:var(--amber);   font-size:0.77rem; }
+.bullet-list li .tag-g { font-family:var(--mono); color:var(--green);   font-size:0.77rem; }
+.bullet-list li .tag-r { font-family:var(--mono); color:var(--red);     font-size:0.77rem; }
+.bullet-list li .tag-b { font-family:var(--mono); color:var(--blue);    font-size:0.77rem; }
+.bullet-list li .tag-s { font-family:var(--mono); color:var(--sky);     font-size:0.77rem; }
+.bullet-list li .tag-v { font-family:var(--mono); color:var(--violet);  font-size:0.77rem; }
+.bullet-list li .tag-i { font-family:var(--mono); color:var(--indigo);  font-size:0.77rem; }
+.bullet-list li .tag-o { font-family:var(--mono); color:var(--orange);  font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--violet-light),var(--indigo-light)); border:1px solid #c4b5fd; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--violet); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-exam { background:var(--violet-light); border-color:#c4b5fd; color:#4c1d95; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+/* BUS TOPOLOGY VISUALISER */
+.bus-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; padding:8px 0; }
+.bus-line-row { display:flex; align-items:center; gap:0; position:relative; width:100%; justify-content:center; }
+.bus-device { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bus-circle { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:13px; font-weight:700; border:2px solid; }
+.bus-dev-lbl { font-family:var(--mono); font-size:8px; color:var(--text-muted); }
+.bus-connector { height:20px; width:2px; background:var(--border); }
+.bus-bar { height:6px; background:linear-gradient(90deg,#4338ca,#7c3aed); border-radius:3px; flex:1; }
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#c4b5fd;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .def-grid,.domain-comparison{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 16</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Collision &amp; Broadcast Domains</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 16: Collision &amp; Broadcast Domains</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 16</span>
+    <span class="hero-tag">LAN CONCEPTS</span>
+    <span class="hero-tag">ALL DEVICES</span>
+  </div>
+  <h1>COLLISION &amp; BROADCAST <span>DOMAINS</span></h1>
+  <p class="hero-sub">How Repeater, Hub, Bridge, Switch, Router and Gateway each change the collision domain and broadcast domain &mdash; with diagrams, N-device analysis, and GATE / UGC NET exam mastery.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">Interviews</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Definitions -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>What are Collision Domain &amp; Broadcast Domain?</h2>
+    </div>
+    <p class="body-text">
+      Before studying how each device affects these domains, you must clearly understand what <em>domain</em> means in networking &mdash; the <strong>territory</strong> or <strong>range</strong> over which a particular event (collision or broadcast) can affect devices.
+    </p>
+
+    <div class="def-grid">
+      <div class="def-card def-col">
+        <h4>&#128165; Collision Domain</h4>
+        <div class="def-item">&#128204; <strong>Definition:</strong> The set of all devices that can <em>simultaneously</em> transmit data and cause their signals to collide on the shared medium.</div>
+        <div class="def-item">&#128204; A collision happens when two or more devices send data at the <strong>exact same time</strong> on the same shared medium.</div>
+        <div class="def-item">&#128204; In the <strong>worst case</strong>, if there are <em>N</em> devices on the shared medium and all N transmit simultaneously, all messages collide &mdash; maximum collision domain = <strong>N</strong>.</div>
+        <div class="def-item">&#128204; Devices in separate collision domains <strong>cannot collide</strong> with each other.</div>
+        <div class="def-item">&#128204; Smaller collision domain = better performance.</div>
+      </div>
+      <div class="def-card def-broad">
+        <h4>&#128226; Broadcast Domain</h4>
+        <div class="def-item">&#128204; <strong>Definition:</strong> The set of all devices that receive a <em>broadcast message</em> sent by any one device in the network.</div>
+        <div class="def-item">&#128204; Inside a LAN, by default, if device A sends a broadcast, <strong>all devices B, C, D&hellip;</strong> receive it — even if only A's intended recipient uses it; the rest discard it.</div>
+        <div class="def-item">&#128204; A broadcast domain = <strong>N</strong> when all N devices receive the broadcast.</div>
+        <div class="def-item">&#128204; Devices in different broadcast domains do <strong>not</strong> receive each other's broadcasts.</div>
+        <div class="def-item">&#128204; Smaller broadcast domain = less unnecessary traffic.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-violet">
+      &#128161; <strong>Key Distinction:</strong> Collision domain is about <em>sending simultaneously</em> (physical media sharing). Broadcast domain is about <em>who receives a broadcast message</em>. A device can reduce collisions without reducing broadcasts &mdash; or reduce both &mdash; depending on its layer.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Baseline — No Device -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-indigo">2</div>
+      <h2>Baseline &mdash; Shared Bus with N Devices (No Intermediate Device)</h2>
+    </div>
+    <p class="body-text">
+      Imagine a simple bus topology where N devices (A, B, C, D&hellip;) all share a single wire &mdash; a <strong>shared medium</strong>. This is the starting point before any networking device is added.
+    </p>
+
+    <!-- Bus topology diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128244; Shared Bus &mdash; N Devices, No Intermediate Device</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 580 140" width="100%" style="min-width:320px;display:block;" aria-label="Shared bus topology with N devices">
+          <!-- Shared bus bar -->
+          <rect x="40" y="66" width="500" height="8" rx="4" fill="url(#busGrad)"/>
+          <defs>
+            <linearGradient id="busGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4338ca;stop-opacity:1"/>
+              <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1"/>
+            </linearGradient>
+          </defs>
+          <text x="290" y="58" text-anchor="middle" font-size="9" fill="#6b7280" font-family="'Inter',sans-serif">Shared Medium (Single Wire / Bus)</text>
+
+          <!-- Device A -->
+          <line x1="100" y1="66" x2="100" y2="40" stroke="#e2e8f0" stroke-width="2"/>
+          <circle cx="100" cy="26" r="18" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+          <text x="100" y="31" text-anchor="middle" font-size="12" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+
+          <!-- Device B -->
+          <line x1="200" y1="66" x2="200" y2="40" stroke="#e2e8f0" stroke-width="2"/>
+          <circle cx="200" cy="26" r="18" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="200" y="31" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+
+          <!-- Device C -->
+          <line x1="300" y1="66" x2="300" y2="40" stroke="#e2e8f0" stroke-width="2"/>
+          <circle cx="300" cy="26" r="18" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+          <text x="300" y="31" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">C</text>
+
+          <!-- Device D -->
+          <line x1="400" y1="66" x2="400" y2="40" stroke="#e2e8f0" stroke-width="2"/>
+          <circle cx="400" cy="26" r="18" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+          <text x="400" y="31" text-anchor="middle" font-size="12" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">D</text>
+
+          <!-- Device N -->
+          <line x1="500" y1="66" x2="500" y2="40" stroke="#e2e8f0" stroke-width="2"/>
+          <circle cx="500" cy="26" r="18" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+          <text x="500" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#7c3aed" font-family="'JetBrains Mono',monospace">...N</text>
+
+          <!-- Collision zone indicator -->
+          <rect x="40" y="88" width="500" height="36" rx="6" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="290" y="104" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">&#128165; ONE Collision Domain — All N devices share the same medium</text>
+          <text x="290" y="118" text-anchor="middle" font-size="9" fill="#9f1239" font-family="'Inter',sans-serif">Broadcast Domain = N &nbsp;|&nbsp; Collision Domain = N</text>
+        </svg>
+      </div>
+      <div class="diagram-note">All N devices share a single medium. If any two transmit at the same time, they collide. A broadcast from A reaches all N devices. Both domains = N.</div>
+    </div>
+
+    <div class="callout callout-indigo">
+      &#128204; <strong>Base rule to remember:</strong> Without any intermediate networking device &mdash; <strong>Collision Domain = N</strong> (all devices can collide) and <strong>Broadcast Domain = N</strong> (all devices receive broadcast). Every networking device we study below is measured against this baseline.
+    </div>
+  </div>
+
+  <!-- SECTION 3: Repeater -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-sky">3</div>
+      <h2>Repeater &mdash; No Change in Either Domain</h2>
+    </div>
+    <p class="body-text">
+      When you insert a <strong>repeater</strong> between two segments of the bus (cutting the wire and putting a repeater in the middle), you might expect some isolation &mdash; but there is <strong>none</strong>. The repeater's only job is to <em>regenerate and boost the electrical signal</em>. It has no buffer, no memory, no store-and-forward logic.
+    </p>
+    <p class="body-text">
+      If A sends a message and E sends a message simultaneously, the repeater does not hold either &mdash; it just amplifies both. The signals still collide. The repeater treats both segments as one &mdash; there is no boundary.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128257; Repeater Inserted — No Domain Boundary Created</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 600 160" width="100%" style="min-width:320px;display:block;" aria-label="Repeater between two segments">
+          <!-- Left segment bar -->
+          <rect x="20" y="72" width="200" height="6" rx="3" fill="#4338ca"/>
+          <!-- Right segment bar -->
+          <rect x="380" y="72" width="200" height="6" rx="3" fill="#7c3aed"/>
+
+          <!-- Repeater box -->
+          <rect x="220" y="58" width="160" height="34" rx="8" fill="#1a2340" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="300" y="74" text-anchor="middle" font-size="10" font-weight="700" fill="#e2e8f0" font-family="'Inter',sans-serif">REPEATER</text>
+          <text x="300" y="86" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">Layer 1 · Boosts signal only</text>
+
+          <!-- Device A -->
+          <line x1="70" y1="72" x2="70" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="70" cy="32" r="16" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="70" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+
+          <!-- Device B -->
+          <line x1="150" y1="72" x2="150" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="150" cy="32" r="16" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="150" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+
+          <!-- Device E -->
+          <line x1="450" y1="72" x2="450" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="450" cy="32" r="16" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="450" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">E</text>
+
+          <!-- Device F -->
+          <line x1="530" y1="72" x2="530" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="530" cy="32" r="16" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="530" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">F</text>
+
+          <!-- One large collision domain box spanning everything -->
+          <rect x="20" y="98" width="560" height="40" rx="6" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="300" y="114" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">&#128165; STILL ONE Collision Domain — Repeater creates NO boundary</text>
+          <text x="300" y="128" text-anchor="middle" font-size="9" fill="#9f1239" font-family="'Inter',sans-serif">Collision Domain: NO CHANGE &nbsp;|&nbsp; Broadcast Domain: NO CHANGE</text>
+
+          <!-- Cross arrows through repeater showing NO isolation -->
+          <line x1="200" y1="75" x2="225" y2="75" stroke="#f87171" stroke-width="2"/>
+          <polygon points="221,72 225,75 221,78" fill="#f87171"/>
+          <line x1="380" y1="75" x2="355" y2="75" stroke="#f87171" stroke-width="2"/>
+          <polygon points="359,72 355,75 359,78" fill="#f87171"/>
+        </svg>
+      </div>
+      <div class="diagram-note">A repeater just boosts signal strength. It has no intelligence to block or hold signals. If A and E transmit simultaneously, both signals pass through the repeater and collide.</div>
+    </div>
+
+    <div class="callout callout-sky">
+      &#128204; <strong>Why no change?</strong> A repeater operates at <strong>Layer 1 (Physical Layer)</strong>. It has <em>no buffer</em>, <em>no store-and-forward</em>, <em>no MAC table</em>. It simply amplifies the signal. It cannot separate collision domains or stop broadcast frames.
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Repeater</th><th>After Repeater</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N</td><td>N</td><td class="nc">NO CHANGE</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N</td><td>N</td><td class="nc">NO CHANGE</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Hub -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-orange">4</div>
+      <h2>Hub (Multiport Repeater) &mdash; No Change in Either Domain</h2>
+    </div>
+    <p class="body-text">
+      A <strong>hub</strong> is simply a <em>multiport repeater</em>. Where a repeater has 2 ports, a hub has 4, 8, 16, or 24+ ports &mdash; but the logic is identical. It is a pure Layer 1 device with no software, no buffer, no MAC table.
+    </p>
+    <p class="body-text">
+      When any device sends a signal into the hub, the hub broadcasts it out of <em>every other port</em> simultaneously. If multiple devices transmit at once, all their signals collide inside the hub. The hub cannot separate them or queue them.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128160; Hub — Still NO Domain Separation</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 540 200" width="100%" style="min-width:320px;display:block;" aria-label="Hub with no domain separation">
+          <!-- Hub box -->
+          <rect x="195" y="80" width="150" height="48" rx="10" fill="#1a2340" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="270" y="101" text-anchor="middle" font-size="11" font-weight="700" fill="#e2e8f0" font-family="'Inter',sans-serif">HUB</text>
+          <text x="270" y="117" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">Multiport Repeater · Layer 1</text>
+
+          <!-- Device A -->
+          <circle cx="60" cy="60" r="20" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+          <text x="60" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+          <line x1="80" y1="64" x2="194" y2="100" stroke="#e11d48" stroke-width="1.5"/>
+
+          <!-- Device B -->
+          <circle cx="60" cy="144" r="20" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="60" y="149" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+          <line x1="80" y1="140" x2="194" y2="110" stroke="#2563eb" stroke-width="1.5"/>
+
+          <!-- Device C -->
+          <circle cx="480" cy="60" r="20" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+          <text x="480" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">C</text>
+          <line x1="460" y1="64" x2="346" y2="100" stroke="#16a34a" stroke-width="1.5"/>
+
+          <!-- Device D -->
+          <circle cx="480" cy="144" r="20" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+          <text x="480" y="149" text-anchor="middle" font-size="12" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">D</text>
+          <line x1="460" y1="140" x2="346" y2="110" stroke="#ea580c" stroke-width="1.5"/>
+
+          <!-- One collision domain spanning all -->
+          <rect x="20" y="170" width="500" height="22" rx="5" fill="#fff1f2" stroke="#fda4af" stroke-width="1" stroke-dasharray="5,3"/>
+          <text x="270" y="185" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">&#128165; 1 Collision Domain (N) &nbsp;|&nbsp; Broadcast Domain = N &nbsp;&nbsp; NO CHANGE</text>
+        </svg>
+      </div>
+      <div class="diagram-note">All 4 devices share one collision domain through the hub. A broadcast from A reaches B, C, D. The hub has no intelligence to separate them.</div>
+    </div>
+
+    <div class="callout callout-amber">
+      &#128204; <strong>Same as repeater, just more ports:</strong> Hub = multiport repeater. The funda (principle) is the same &mdash; Layer 1, no buffer, no intelligence. Collision domain remains N. Broadcast domain remains N. <strong>No change in either domain.</strong>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Hub</th><th>After Hub</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N</td><td>N</td><td class="nc">NO CHANGE</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N</td><td>N</td><td class="nc">NO CHANGE</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Bridge -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">5</div>
+      <h2>Bridge &mdash; Reduces Collision Domain, NO Change in Broadcast</h2>
+    </div>
+    <p class="body-text">
+      When you replace the repeater with a <strong>bridge</strong>, something important changes. A bridge is a <strong>Layer 2 device</strong> &mdash; it uses the <em>store-and-forward</em> technique. It has an <strong>internal buffer</strong> (memory). When a frame arrives on Port 1, the bridge stores it in its buffer and then forwards it to Port 2 based on the destination MAC address.
+    </p>
+    <p class="body-text">
+      <strong>Why does this reduce collisions?</strong> If A sends a frame and simultaneously E sends a frame, the bridge stores A's frame in its buffer and E's frame separately. Because they are stored separately, they <em>never collide at the bridge</em>. The two segments are now <strong>independent collision domains</strong>.
+    </p>
+    <p class="body-text">
+      <strong>Why does broadcast NOT change?</strong> A bridge operates at Layer 2 &mdash; the Data Link Layer. When a broadcast frame (destination = FF:FF:FF:FF:FF:FF) arrives at the bridge from Port 1, the bridge <em>does not block it</em>. It forwards the broadcast to Port 2 as well. The broadcast reaches all devices on both sides. Therefore the broadcast domain remains N.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128259; Bridge — Splits Collision Domains, Passes All Broadcasts</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 600 190" width="100%" style="min-width:320px;display:block;" aria-label="Bridge splitting collision domains">
+          <!-- Left bus -->
+          <rect x="20" y="70" width="190" height="6" rx="3" fill="#4338ca"/>
+          <!-- Right bus -->
+          <rect x="390" y="70" width="190" height="6" rx="3" fill="#7c3aed"/>
+
+          <!-- Bridge -->
+          <rect x="210" y="56" width="180" height="34" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+          <text x="300" y="72" text-anchor="middle" font-size="10" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">BRIDGE (Layer 2)</text>
+          <text x="300" y="84" text-anchor="middle" font-size="8" fill="#6ee7b7" font-family="'Inter',sans-serif">Store &amp; Forward · Buffer · MAC Table</text>
+
+          <!-- Left devices A, B -->
+          <line x1="80" y1="70" x2="80" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="80" cy="32" r="16" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="80" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+
+          <line x1="160" y1="70" x2="160" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="160" cy="32" r="16" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="160" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+
+          <!-- Right devices E, F -->
+          <line x1="440" y1="70" x2="440" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="440" cy="32" r="16" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="440" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">E</text>
+
+          <line x1="520" y1="70" x2="520" y2="46" stroke="#e2e8f0" stroke-width="1.5"/>
+          <circle cx="520" cy="32" r="16" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="520" y="37" text-anchor="middle" font-size="11" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">F</text>
+
+          <!-- Left Collision Domain box -->
+          <rect x="20" y="98" width="190" height="34" rx="6" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="115" y="114" text-anchor="middle" font-size="8.5" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">&#128165; CD-1 (A,B can collide)</text>
+          <text x="115" y="125" text-anchor="middle" font-size="7.5" fill="#9f1239" font-family="'Inter',sans-serif">Collision Domain 1</text>
+
+          <!-- Right Collision Domain box -->
+          <rect x="390" y="98" width="200" height="34" rx="6" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <text x="490" y="114" text-anchor="middle" font-size="8.5" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">&#128165; CD-2 (E,F can collide)</text>
+          <text x="490" y="125" text-anchor="middle" font-size="7.5" fill="#9f1239" font-family="'Inter',sans-serif">Collision Domain 2</text>
+
+          <!-- Bridge separator line -->
+          <line x1="300" y1="97" x2="300" y2="132" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2"/>
+          <text x="300" y="145" text-anchor="middle" font-size="9" font-weight="700" fill="#059669" font-family="'Inter',sans-serif">Collision Boundary &#10003;</text>
+
+          <!-- Broadcast domain spanning all -->
+          <rect x="20" y="155" width="560" height="28" rx="6" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="300" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#4338ca" font-family="'Inter',sans-serif">&#128226; ONE Broadcast Domain — Bridge forwards broadcasts to BOTH sides</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Bridge creates 2 separate collision domains (A,B in one; E,F in another). But broadcasts from A still reach E and F — broadcast domain is unchanged at N.</div>
+    </div>
+
+    <div class="callout callout-green">
+      &#9989; <strong>Why store-and-forward stops collisions:</strong> The bridge has a buffer. A's frame is stored in the buffer. E's frame arrives and is also stored separately. Now the bridge forwards A's frame to E's segment when the segment is free. The two frames <em>never physically meet on the wire at the same time</em> &mdash; hence no collision between segments.
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Bridge</th><th>After Bridge</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N (all together)</td><td class="ok">Reduced / Split into smaller zones</td><td class="ok">&#10003; REDUCED</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N</td><td>N (bridge forwards broadcasts)</td><td class="nc">NO CHANGE</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Switch -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">6</div>
+      <h2>Switch &mdash; Reduces Collision Domain (= 0), NO Change in Broadcast</h2>
+    </div>
+    <p class="body-text">
+      A <strong>switch</strong> is a <em>multiport bridge</em> &mdash; it is the same fundamental device as a bridge, but with many ports. The logic is identical: Layer 2, store-and-forward, MAC address table, internal buffer.
+    </p>
+    <p class="body-text">
+      Because every port on a switch is its own dedicated collision domain with a <strong>full-duplex link</strong>, collisions are effectively <strong>zero</strong>. Device A has its own private link to the switch and cannot collide with B, C, or D.
+    </p>
+    <p class="body-text">
+      However, like the bridge, the switch is still a <strong>Layer 2 device</strong>. When a broadcast frame (FF:FF:FF:FF:FF:FF) arrives, the switch forwards it to <em>all other ports</em>. The broadcast domain is therefore <strong>not changed</strong> &mdash; all N devices still receive the broadcast.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128160; Switch — Each Port = Its Own Collision Domain, Broadcasts Still Flood All Ports</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 580 220" width="100%" style="min-width:320px;display:block;" aria-label="Switch domain diagram">
+          <!-- Switch center -->
+          <rect x="215" y="88" width="150" height="44" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+          <text x="290" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">SWITCH</text>
+          <text x="290" y="122" text-anchor="middle" font-size="8" fill="#6ee7b7" font-family="'Inter',sans-serif">Layer 2 · Full Duplex · MAC Table</text>
+
+          <!-- Device A -->
+          <circle cx="60" cy="60" r="22" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+          <text x="60" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+          <line x1="82" y1="66" x2="214" y2="100" stroke="#10b981" stroke-width="1.5"/>
+          <rect x="10" y="90" width="94" height="18" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+          <text x="57" y="103" text-anchor="middle" font-size="7" font-weight="700" fill="#14532d" font-family="'Inter',sans-serif">CD-1 (zero collision)</text>
+
+          <!-- Device B -->
+          <circle cx="60" cy="150" r="22" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+          <text x="60" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+          <line x1="82" y1="144" x2="214" y2="110" stroke="#10b981" stroke-width="1.5"/>
+          <rect x="10" y="155" width="94" height="18" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+          <text x="57" y="168" text-anchor="middle" font-size="7" font-weight="700" fill="#14532d" font-family="'Inter',sans-serif">CD-2 (zero collision)</text>
+
+          <!-- Device C -->
+          <circle cx="520" cy="60" r="22" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+          <text x="520" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">C</text>
+          <line x1="498" y1="66" x2="366" y2="100" stroke="#10b981" stroke-width="1.5"/>
+          <rect x="476" y="90" width="94" height="18" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+          <text x="523" y="103" text-anchor="middle" font-size="7" font-weight="700" fill="#14532d" font-family="'Inter',sans-serif">CD-3 (zero collision)</text>
+
+          <!-- Device D -->
+          <circle cx="520" cy="150" r="22" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+          <text x="520" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">D</text>
+          <line x1="498" y1="144" x2="366" y2="110" stroke="#10b981" stroke-width="1.5"/>
+          <rect x="476" y="155" width="94" height="18" rx="4" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+          <text x="523" y="168" text-anchor="middle" font-size="7" font-weight="700" fill="#14532d" font-family="'Inter',sans-serif">CD-4 (zero collision)</text>
+
+          <!-- Broadcast domain spanning all -->
+          <rect x="10" y="190" width="560" height="24" rx="6" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="290" y="206" text-anchor="middle" font-size="9" font-weight="700" fill="#4338ca" font-family="'Inter',sans-serif">&#128226; ONE Broadcast Domain — Switch floods broadcasts to A, B, C, D</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Each port of the switch is its own collision domain with a full-duplex link → 0 collisions. But broadcasts still go to all ports — broadcast domain unchanged.</div>
+    </div>
+
+    <div class="callout callout-indigo">
+      &#128204; <strong>Switch vs Bridge &mdash; the only difference:</strong> Bridge has 2 ports (2 collision domains); Switch has N ports (N collision domains, all = 0 collisions). The broadcast domain behaviour is <em>identical</em> in both — neither can stop a Layer 2 broadcast.
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Switch</th><th>After Switch</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N (all shared)</td><td class="ok">0 (zero) — each port is isolated, full-duplex</td><td class="ok">&#10003; REDUCED to 0</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N</td><td>N (switch floods all ports)</td><td class="nc">NO CHANGE</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 7: Router -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-red">7</div>
+      <h2>Router &mdash; Reduces BOTH Collision Domain AND Broadcast Domain</h2>
+    </div>
+    <p class="body-text">
+      A <strong>router</strong> is the most intelligent common networking device. It operates at <strong>Layer 3 (Network Layer)</strong> and uses <strong>IP addresses</strong>. A router connects two or more <em>different</em> networks (LANs).
+    </p>
+    <p class="body-text">
+      Since the router is above the switch (Layer 3 vs Layer 2), it naturally inherits the collision isolation that a switch provides &mdash; <strong>collision domain is reduced</strong>.
+    </p>
+    <p class="body-text">
+      But the crucial difference from a bridge/switch is the <strong>broadcast domain</strong>. A router is intelligent enough to read and understand IP broadcast addresses. By default, a router <strong>does NOT forward broadcasts</strong> from one network (LAN) to another. A broadcast from LAN-1 stays inside LAN-1 and does <em>not</em> reach LAN-2. This is why routers <strong>reduce the broadcast domain</strong>.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#127760; Router — Separate Collision AND Broadcast Domains Per LAN</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 600 200" width="100%" style="min-width:320px;display:block;" aria-label="Router splitting broadcast domains">
+
+          <!-- LAN 1 Box -->
+          <rect x="10" y="10" width="225" height="140" rx="12" fill="#fff1f2" stroke="#fda4af" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="122" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48" font-family="'Inter',sans-serif">LAN 1 — Broadcast Domain 1</text>
+
+          <!-- Switch 1 inside LAN 1 -->
+          <rect x="60" y="36" width="110" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+          <text x="115" y="50" text-anchor="middle" font-size="9" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">Switch / Bridge</text>
+          <text x="115" y="61" text-anchor="middle" font-size="7" fill="#6ee7b7" font-family="'Inter',sans-serif">Layer 2</text>
+
+          <!-- LAN 1 devices -->
+          <circle cx="50" cy="110" r="18" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="50" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">A</text>
+          <line x1="50" y1="92" x2="80" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <circle cx="115" cy="110" r="18" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="115" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb" font-family="'JetBrains Mono',monospace">B</text>
+          <line x1="115" y1="92" x2="115" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <circle cx="180" cy="110" r="18" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="180" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a" font-family="'JetBrains Mono',monospace">C</text>
+          <line x1="180" y1="92" x2="150" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <!-- LAN 1 broadcast annotation -->
+          <text x="115" y="142" text-anchor="middle" font-size="8" fill="#9f1239" font-family="'Inter',sans-serif" font-weight="600">&#128226; Broadcasts stay inside LAN 1</text>
+
+          <!-- Router center -->
+          <rect x="254" y="58" width="92" height="48" rx="10" fill="#1a2340" stroke="#c4b5fd" stroke-width="2"/>
+          <text x="300" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="#ddd6fe" font-family="'Inter',sans-serif">ROUTER</text>
+          <text x="300" y="90" text-anchor="middle" font-size="7" fill="#a78bfa" font-family="'Inter',sans-serif">Layer 3 · IP</text>
+          <text x="300" y="100" text-anchor="middle" font-size="7" fill="#a78bfa" font-family="'Inter',sans-serif">Blocks Broadcasts</text>
+
+          <!-- Line from LAN1 switch to router -->
+          <line x1="170" y1="50" x2="253" y2="80" stroke="#c4b5fd" stroke-width="2"/>
+          <!-- Broadcast STOP at router -->
+          <line x1="232" y1="84" x2="252" y2="80" stroke="#e11d48" stroke-width="2"/>
+          <text x="242" y="75" text-anchor="middle" font-size="9" fill="#e11d48" font-family="'Inter',sans-serif" font-weight="700">&#10060;</text>
+
+          <!-- LAN 2 Box -->
+          <rect x="365" y="10" width="225" height="140" rx="12" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1.5" stroke-dasharray="6,3"/>
+          <text x="477" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#4338ca" font-family="'Inter',sans-serif">LAN 2 — Broadcast Domain 2</text>
+
+          <!-- Switch 2 inside LAN 2 -->
+          <rect x="420" y="36" width="110" height="30" rx="6" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+          <text x="475" y="50" text-anchor="middle" font-size="9" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">Switch / Bridge</text>
+          <text x="475" y="61" text-anchor="middle" font-size="7" fill="#6ee7b7" font-family="'Inter',sans-serif">Layer 2</text>
+
+          <!-- LAN 2 devices -->
+          <circle cx="415" cy="110" r="18" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="415" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#7c3aed" font-family="'JetBrains Mono',monospace">X</text>
+          <line x1="415" y1="92" x2="440" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <circle cx="475" cy="110" r="18" fill="#fef9c3" stroke="#d97706" stroke-width="1.5"/>
+          <text x="475" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#d97706" font-family="'JetBrains Mono',monospace">Y</text>
+          <line x1="475" y1="92" x2="475" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <circle cx="535" cy="110" r="18" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
+          <text x="535" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#0891b2" font-family="'JetBrains Mono',monospace">Z</text>
+          <line x1="535" y1="92" x2="510" y2="66" stroke="#10b981" stroke-width="1"/>
+
+          <!-- LAN 2 broadcast annotation -->
+          <text x="475" y="142" text-anchor="middle" font-size="8" fill="#312e81" font-family="'Inter',sans-serif" font-weight="600">&#128226; Broadcasts stay inside LAN 2</text>
+
+          <!-- Line from router to LAN2 switch -->
+          <line x1="346" y1="80" x2="420" y2="50" stroke="#c4b5fd" stroke-width="2"/>
+
+          <!-- Broadcast domains annotation -->
+          <text x="300" y="170" text-anchor="middle" font-size="9" font-weight="700" fill="#7c3aed" font-family="'Inter',sans-serif">&#10060; Broadcast from LAN-1 CANNOT reach LAN-2 — Router blocks it</text>
+          <text x="300" y="185" text-anchor="middle" font-size="9" fill="#6b7280" font-family="'Inter',sans-serif">Router reduces BOTH Collision Domain AND Broadcast Domain</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Router separates both collision and broadcast domains. A broadcast from LAN-1 (A, B, C) stays within LAN-1 and never reaches LAN-2 (X, Y, Z). The router is the key device for broadcast domain isolation.</div>
+    </div>
+
+    <div class="callout callout-violet">
+      &#128204; <strong>Limited vs Direct Broadcast &mdash; The Router's Intelligence:</strong><br>
+      A router understands two types of broadcast:<br>
+      &bull; <strong>Limited broadcast</strong> (255.255.255.255) &mdash; stays inside the local network only. Router does NOT forward it.<br>
+      &bull; <strong>Direct broadcast</strong> (e.g., 192.168.1.255) &mdash; targeted at a specific subnet. Router can forward it to that specific network if configured.
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Router</th><th>After Router</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N</td><td class="ok">Reduced (inherits switch/bridge behavior)</td><td class="ok">&#10003; REDUCED</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N (all connected devices)</td><td class="ok">Reduced (per LAN only)</td><td class="ok">&#10003; REDUCED</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 8: Gateway -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-violet">8</div>
+      <h2>Gateway &mdash; Reduces Both Domains (Works at Layer 4+)</h2>
+    </div>
+    <p class="body-text">
+      A <strong>gateway</strong> operates above the router &mdash; typically at <strong>Layer 4 (Transport Layer)</strong> and above, up to Layer 7 (Application Layer). A gateway is used when two completely <em>different technologies</em> need to communicate &mdash; for example, an IP network connecting to a Fiber Channel or ATM network. The gateway acts as a <strong>translator</strong> between the two protocols.
+    </p>
+    <p class="body-text">
+      Since a gateway is a <em>higher-layer device</em>, it inherits all the properties of lower-layer devices. Just as a car's top model includes everything from the base model plus extras &mdash; a gateway includes collision reduction AND broadcast reduction plus protocol translation.
+    </p>
+
+    <div class="callout callout-teal">
+      &#128204; <strong>The "Base Model" Rule:</strong> Think of networking devices as car models. A hub (base model) has minimal features. As you go up &mdash; bridge → switch → router → gateway (top model) &mdash; each device includes <em>everything the lower device does</em>, plus additional capabilities. Collision domain reduces at bridge/switch level; broadcast domain reduces at router level; gateways do both plus protocol translation.
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Domain</th><th>Before Gateway</th><th>After Gateway</th><th>Change?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Collision Domain</strong></td><td>N</td><td class="ok">Reduced (operates above router)</td><td class="ok">&#10003; REDUCED</td></tr>
+          <tr><td><strong>Broadcast Domain</strong></td><td>N</td><td class="ok">Reduced (operates above router)</td><td class="ok">&#10003; REDUCED</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 9: Master Summary Table -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">9</div>
+      <h2>Master Summary &mdash; All Devices at a Glance</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+      <span class="epill ep-int">Interviews</span>
+    </div>
+
+    <!-- Device Summary Cards -->
+    <div class="device-grid">
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);">
+          <div class="dev-icon" style="background:#bae6fd;">&#128257;</div>
+          <div>
+            <div class="dev-name">Repeater</div>
+            <div class="dev-layer" style="color:var(--sky);">LAYER 1 · PHYSICAL</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="dev-note">Pure amplifier — no buffer, no store-and-forward. Cannot separate any domain.</div>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);">
+          <div class="dev-icon" style="background:#fed7aa;">&#128160;</div>
+          <div>
+            <div class="dev-name">Hub</div>
+            <div class="dev-layer" style="color:var(--orange);">LAYER 1 · PHYSICAL (MULTIPORT)</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="dev-note">Same as repeater — just more ports. No intelligence, broadcasts and collisions still affect all ports.</div>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+          <div class="dev-icon" style="background:#fde68a;">&#128259;</div>
+          <div>
+            <div class="dev-name">Bridge</div>
+            <div class="dev-layer" style="color:var(--amber);">LAYER 2 · DATA LINK</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-reduce">REDUCED ✓</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="dev-note">Store-and-forward + buffer splits collision domains. Broadcasts still forwarded to all ports — Layer 2 cannot stop them.</div>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);">
+          <div class="dev-icon" style="background:#bbf7d0;">&#128160;</div>
+          <div>
+            <div class="dev-name">Switch</div>
+            <div class="dev-layer" style="color:var(--green);">LAYER 2 · DATA LINK (MULTIPORT BRIDGE)</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-zero">ZERO (0) ✓✓</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-nc">NO CHANGE</span>
+          </div>
+          <div class="dev-note">Full-duplex per port = 0 collisions. But Layer 2 device still floods broadcasts to all ports — broadcast domain unchanged.</div>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#fff1f2,#ffe4e6);">
+          <div class="dev-icon" style="background:#fecdd3;">&#127760;</div>
+          <div>
+            <div class="dev-name">Router</div>
+            <div class="dev-layer" style="color:var(--red);">LAYER 3 · NETWORK</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-reduce">REDUCED ✓</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-reduce-b">REDUCED ✓</span>
+          </div>
+          <div class="dev-note">Layer 3 intelligence — reads IP addresses and understands broadcast types. Blocks broadcasts between connected networks by default.</div>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <div class="dev-card-header" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+          <div class="dev-icon" style="background:#ddd6fe;">&#128268;</div>
+          <div>
+            <div class="dev-name">Gateway</div>
+            <div class="dev-layer" style="color:var(--violet);">LAYER 4+ · TRANSPORT &amp; ABOVE</div>
+          </div>
+        </div>
+        <div class="dev-card-body">
+          <div class="domain-row">
+            <span class="domain-label">&#128165; Collision Domain</span>
+            <span class="domain-pill pill-reduce">REDUCED ✓</span>
+          </div>
+          <div class="domain-row">
+            <span class="domain-label">&#128226; Broadcast Domain</span>
+            <span class="domain-pill pill-reduce-b">REDUCED ✓</span>
+          </div>
+          <div class="dev-note">Operates above router — inherits all domain reductions. Also acts as protocol translator between different network technologies (IP ↔ ATM, Fiber Channel, etc.).</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Complete reference table -->
+    <div class="tbl-wrap" style="margin-top:24px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>OSI Layer</th>
+            <th>Collision Domain</th>
+            <th>Broadcast Domain</th>
+            <th>Key Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Repeater</strong></td>
+            <td class="info">L1 &mdash; Physical</td>
+            <td class="nc">No Change (N)</td>
+            <td class="nc">No Change (N)</td>
+            <td>No buffer; just boosts signal</td>
+          </tr>
+          <tr>
+            <td><strong>Hub</strong></td>
+            <td class="info">L1 &mdash; Physical</td>
+            <td class="nc">No Change (N)</td>
+            <td class="nc">No Change (N)</td>
+            <td>Multiport repeater; same Layer 1 logic</td>
+          </tr>
+          <tr>
+            <td><strong>Bridge</strong></td>
+            <td class="viol">L2 &mdash; Data Link</td>
+            <td class="ok">Reduced ✓</td>
+            <td class="nc">No Change (N)</td>
+            <td>Store-and-forward; still forwards broadcasts</td>
+          </tr>
+          <tr>
+            <td><strong>Switch</strong></td>
+            <td class="viol">L2 &mdash; Data Link</td>
+            <td class="ok">Zero (0) ✓✓</td>
+            <td class="nc">No Change (N)</td>
+            <td>Full-duplex per port; same L2 broadcast behavior</td>
+          </tr>
+          <tr>
+            <td><strong>Router</strong></td>
+            <td class="red">L3 &mdash; Network</td>
+            <td class="ok">Reduced ✓</td>
+            <td class="ok">Reduced ✓</td>
+            <td>Blocks broadcasts between networks by default</td>
+          </tr>
+          <tr>
+            <td><strong>Gateway</strong></td>
+            <td class="viol">L4+ &mdash; Transport+</td>
+            <td class="ok">Reduced ✓</td>
+            <td class="ok">Reduced ✓</td>
+            <td>Above router; adds protocol translation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-violet" style="margin-top:20px;">
+      &#127919; <strong>The Golden Rule for Exams:</strong><br>
+      &bull; <strong>L1 devices (Repeater, Hub)</strong> &rarr; No change in either domain.<br>
+      &bull; <strong>L2 devices (Bridge, Switch)</strong> &rarr; Reduce collision domain only. Broadcast domain unchanged.<br>
+      &bull; <strong>L3+ devices (Router, Gateway)</strong> &rarr; Reduce BOTH collision domain AND broadcast domain.
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-violet" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for GATE, UGC NET &amp; PSU exam quick prep.
+  </div>
+
+  <div class="cheat-div"><span>DEFINITIONS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128165; Collision Domain</div>
+      <ul class="bullet-list">
+        <li>Set of devices that can <span class="tag-r">collide</span> when transmitting simultaneously</li>
+        <li>Worst case: all N devices transmit at once → <span class="val">N collisions</span></li>
+        <li>Smaller = better network performance</li>
+        <li>Devices in different CD cannot collide with each other</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128226; Broadcast Domain</div>
+      <ul class="bullet-list">
+        <li>Set of devices that receive a <span class="tag-i">broadcast message</span></li>
+        <li>By default in LAN: broadcast goes to all N devices</li>
+        <li>Smaller = less unnecessary traffic</li>
+        <li>Devices in different BD do not receive each other's broadcasts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>LAYER 1 DEVICES — NO CHANGE IN EITHER</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128257; Repeater (L1)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Broadcast Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Reason: No buffer, no store-and-forward</li>
+        <li>Just boosts signal — cannot separate domains</li>
+        <li>2 ports only</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128160; Hub (L1)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Broadcast Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Reason: Same as repeater — multiport version only</li>
+        <li>Broadcasts to all ports, no MAC intelligence</li>
+        <li>Multiple ports but same Layer 1 logic</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>LAYER 2 DEVICES — COLLISION REDUCED, BROADCAST UNCHANGED</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128259; Bridge (L2)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-g">REDUCED ✓</span></li>
+        <li>Broadcast Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Has buffer + store-and-forward → separates collision domains</li>
+        <li>2 ports → 2 separate collision domains</li>
+        <li>Forwards all broadcasts (Layer 2 cannot block them)</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128160; Switch (L2)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-g">ZERO (0) ✓✓</span></li>
+        <li>Broadcast Domain: <span class="tag-r">NO CHANGE</span></li>
+        <li>Full-duplex per port = absolutely 0 collisions</li>
+        <li>N ports → N separate collision domains, all = 0</li>
+        <li>Floods broadcasts to all ports (same as bridge)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>LAYER 3+ DEVICES — BOTH DOMAINS REDUCED</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#127760; Router (L3)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-g">REDUCED ✓</span></li>
+        <li>Broadcast Domain: <span class="tag-g">REDUCED ✓</span></li>
+        <li>Blocks broadcasts between networks by default</li>
+        <li>Limited broadcast (255.255.255.255) → stays in local LAN</li>
+        <li>Direct broadcast → can send to specific subnet only</li>
+        <li>Layer 3 intelligence = IP address awareness</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128268; Gateway (L4+)</div>
+      <ul class="bullet-list">
+        <li>Collision Domain: <span class="tag-g">REDUCED ✓</span></li>
+        <li>Broadcast Domain: <span class="tag-g">REDUCED ✓</span></li>
+        <li>Operates at Transport layer and above</li>
+        <li>Protocol translator between different technologies</li>
+        <li>Inherits all lower-layer device behavior</li>
+        <li>e.g., IP ↔ ATM, IP ↔ Fiber Channel</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>MASTER QUICK REFERENCE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Device</th><th>Layer</th><th>&#128165; Collision</th><th>&#128226; Broadcast</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Repeater</strong></td><td>L1</td><td class="nc">No Change</td><td class="nc">No Change</td></tr>
+        <tr><td><strong>Hub</strong></td><td>L1</td><td class="nc">No Change</td><td class="nc">No Change</td></tr>
+        <tr><td><strong>Bridge</strong></td><td>L2</td><td class="ok">Reduced ✓</td><td class="nc">No Change</td></tr>
+        <tr><td><strong>Switch</strong></td><td>L2</td><td class="ok">Zero (0) ✓✓</td><td class="nc">No Change</td></tr>
+        <tr><td><strong>Router</strong></td><td>L3</td><td class="ok">Reduced ✓</td><td class="ok">Reduced ✓</td></tr>
+        <tr><td><strong>Gateway</strong></td><td>L4+</td><td class="ok">Reduced ✓</td><td class="ok">Reduced ✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#127919; Golden Rules for Exams</h3>
+    <ul class="bullet-list">
+      <li><span class="tag-r">L1 (Repeater, Hub)</span> → <span class="val">NO change</span> in collision OR broadcast domain</li>
+      <li><span class="tag-v">L2 (Bridge, Switch)</span> → Collision domain <span class="tag-g">REDUCED</span> | Broadcast domain <span class="tag-r">NO CHANGE</span></li>
+      <li><span class="tag-i">L3+ (Router, Gateway)</span> → <span class="tag-g">BOTH</span> collision AND broadcast domains <span class="tag-g">REDUCED</span></li>
+      <li>Switch has <span class="tag-g">ZERO collisions</span> (full-duplex); Bridge just reduces them</li>
+      <li>Router blocks broadcasts between networks — <span class="val">broadcast domain = per-LAN</span></li>
+      <li>Store-and-forward + buffer is what allows Bridge/Switch to separate collision domains</li>
+      <li>Gateway = above router + <span class="tag-v">protocol translation</span></li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-exam">GATE PYQ</span>
+      <span class="tag tag-exam">UGC NET</span>
+      <span class="tag tag-exam">PSU Exam</span>
+      <span class="tag tag-exam">Interviews</span>
+      <span class="tag">Collision Domain</span>
+      <span class="tag">Broadcast Domain</span>
+      <span class="tag">Store and Forward</span>
+      <span class="tag">Full Duplex</span>
+      <span class="tag">MAC Address</span>
+      <span class="tag">IP Address</span>
+      <span class="tag">Layer 1 2 3</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

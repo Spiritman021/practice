@@ -594,7 +594,7 @@ td.em   { color:var(--emerald); font-weight:600; }
   <div class="section-block">
     <div class="section-heading">
       <div class="sec-num sn-purple">6</div>
-      <h2>Spanning Tree Protocol (STP) &mdash; Removing Loops</h2>
+      <h2>Spanning Tree Protocol (STP) &amp; Bridge Protocol Data Unit (BPDU)</h2>
     </div>
     <p class="body-text">
       When there are <strong>multiple paths</strong> between two network segments (e.g., for redundancy), a packet can get stuck in an infinite loop &mdash; travelling in circles between bridges forever. Routers solve this using the <strong>TTL (Time to Live)</strong> field which decrements on each hop and drops the packet when it hits zero. But bridges <em>do not have a TTL field</em>.
@@ -607,6 +607,29 @@ td.em   { color:var(--emerald); font-weight:600; }
       &#128279; <strong>STP vs TTL:</strong>
       <br>&bull; <strong>Router:</strong> Uses TTL field &mdash; decremented at each hop; packet dropped when TTL = 0
       <br>&bull; <strong>Bridge:</strong> No TTL field &rarr; uses <strong>Spanning Tree Protocol</strong> to eliminate loops by blocking redundant paths
+    </div>
+
+    <!-- BPDU -->
+    <div class="feat-list" style="margin-top:18px;">
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f5f3ff;">&#128280;</div>
+        <div>
+          <div class="feat-name">Bridge Protocol Data Unit (BPDU)</div>
+          <div class="feat-desc">
+            <strong>BPDU</strong> is the message/frame that bridges send to each other to build and maintain the spanning tree. When bridges need to decide which links to keep active and which to block (to remove loops), they communicate using BPDU frames.<br><br>
+            <strong>How it works:</strong><br>
+            &bull; Each bridge sends BPDU frames periodically out of all its ports.<br>
+            &bull; All bridges exchange these frames to elect a <strong>Root Bridge</strong> (the central reference point of the spanning tree).<br>
+            &bull; Based on BPDU information, each bridge calculates the shortest path to the root bridge and blocks any redundant paths that would create a loop.<br>
+            &bull; The result is a single loop-free active path across the whole network &mdash; the spanning tree.
+          </div>
+          <span class="feat-verdict v-info">&#128280; BPDU = the communication protocol bridges use to run STP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-emerald">
+      &#128221; <strong>BPDU in one line:</strong> Bridges talk to each other using <strong>BPDU (Bridge Protocol Data Unit)</strong> messages &rarr; elect a Root Bridge &rarr; block redundant links &rarr; produce a loop-free spanning tree topology.
     </div>
 
     <div class="diagram-box">
@@ -632,7 +655,8 @@ td.em   { color:var(--emerald); font-weight:600; }
               <tr><td><strong>Unknown dest action</strong></td><td class="good">Broadcast (flood)</td><td>Then learns from the reply</td></tr>
               <tr><td><strong>Store-and-Forward</strong></td><td class="ok">YES</td><td>Has buffer; prevents collisions</td></tr>
               <tr><td><strong>Collision Domain</strong></td><td class="ok">Separate per port</td><td>Much fewer collisions vs hub/repeater</td></tr>
-              <tr><td><strong>Loop prevention</strong></td><td>Spanning Tree Protocol</td><td>No TTL field; STP creates loop-free tree</td></tr>
+              <tr><td><strong>Loop prevention</strong></td><td>Spanning Tree Protocol (STP)</td><td>No TTL field; STP creates loop-free tree</td></tr>
+              <tr><td><strong>BPDU</strong></td><td class="em">Bridge Protocol Data Unit</td><td>Message bridges exchange to run STP &amp; elect Root Bridge</td></tr>
             </tbody>
           </table>
         </div>
@@ -733,6 +757,8 @@ td.em   { color:var(--emerald); font-weight:600; }
         <li>Bridge has <span class="tag-r">no TTL</span> &rarr; uses <span class="tag-e">Spanning Tree Protocol</span></li>
         <li>STP builds a loop-free logical topology</li>
         <li>Redundant links are <span class="tag-r">blocked</span>; one active path only</li>
+        <li><span class="tag-e">BPDU</span> = Bridge Protocol Data Unit &mdash; messages bridges exchange to run STP</li>
+        <li>BPDU elects a <span class="val">Root Bridge</span> &rarr; calculates shortest paths &rarr; blocks redundant links</li>
       </ul>
     </div>
   </div>
@@ -754,6 +780,7 @@ td.em   { color:var(--emerald); font-weight:600; }
         <tr><td><strong>Store-and-Forward</strong></td><td class="ok">Yes (has buffer)</td></tr>
         <tr><td><strong>Collision Domain</strong></td><td class="ok">Separate per port</td></tr>
         <tr><td><strong>Loop prevention</strong></td><td>Spanning Tree Protocol (STP)</td></tr>
+        <tr><td><strong>BPDU</strong></td><td class="em">Bridge Protocol Data Unit</td></tr>
       </tbody>
     </table>
   </div>
@@ -769,6 +796,7 @@ td.em   { color:var(--emerald); font-weight:600; }
       <li>Dynamic starts <span class="tag-r">empty</span>; floods unknown dest; learns from replies</li>
       <li><span class="tag-e">Store-and-forward</span> = buffer; prevents collisions; unlike Hub</li>
       <li>Loop prevention: Router uses <span class="tag-b">TTL</span>; Bridge uses <span class="tag-e">Spanning Tree Protocol (STP)</span></li>
+      <li><span class="tag-e">BPDU</span> (Bridge Protocol Data Unit) = frames bridges exchange to run STP &rarr; elect Root Bridge &rarr; block redundant paths</li>
     </ul>
     <div class="tags">
       <span class="tag tag-exam">UGC NET</span>
