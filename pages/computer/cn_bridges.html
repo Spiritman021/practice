@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 13: Bridges — connects two LANs, L1+L2, MAC address table, forwarding vs filtering, static vs dynamic bridges, store-and-forward, spanning tree protocol. UGC NET/PSU exam notes.">
+<meta name="robots" content="index, follow">
+<title>Bridges in Computer Networks &mdash; CN Topic 13 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_bridges.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --emerald: #059669; --emerald-light: #ecfdf5;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--emerald); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg,#052e16 0%,#14532d 30%,#059669 65%,#34d399 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#a7f3d0; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:640px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy    { background:var(--navy); }
+.sn-blue    { background:var(--blue); }
+.sn-red     { background:var(--red); }
+.sn-green   { background:var(--green); }
+.sn-emerald { background:var(--emerald); }
+.sn-amber   { background:var(--amber); }
+.sn-purple  { background:var(--accent); }
+.sn-teal    { background:var(--teal); }
+.sn-orange  { background:var(--orange); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red     { border-color:var(--red);     background:var(--red-light);     color:#9f1239; }
+.callout-blue    { border-color:var(--blue);    background:var(--blue-light);    color:#1e40af; }
+.callout-green   { border-color:var(--green);   background:var(--green-light);   color:#14532d; }
+.callout-emerald { border-color:var(--emerald); background:var(--emerald-light); color:#064e3b; }
+.callout-amber   { border-color:var(--amber);   background:var(--amber-light);   color:#78350f; }
+.callout-purple  { border-color:var(--accent);  background:#f5f3ff;              color:#4c1d95; }
+.callout-teal    { border-color:var(--teal);    background:var(--teal-light);    color:#134e4a; }
+.callout-orange  { border-color:var(--orange);  background:var(--orange-light);  color:#7c2d12; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#ecfdf5; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red);     font-weight:600; }
+td.good { color:var(--amber);   font-weight:600; }
+td.ok   { color:var(--green);   font-weight:600; }
+td.info { color:var(--blue);    font-weight:600; }
+td.em   { color:var(--emerald); font-weight:600; }
+
+/* FEAT ROWS */
+.feat-list { display:flex; flex-direction:column; gap:10px; margin:14px 0; }
+.feat-row { display:flex; align-items:flex-start; gap:14px; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.feat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.feat-name { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:4px; }
+.feat-desc { font-size:0.82rem; color:#374151; line-height:1.6; }
+.feat-verdict { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; margin-top:5px; }
+.v-yes  { background:#dcfce7; color:#14532d; }
+.v-no   { background:#fee2e2; color:#991b1b; }
+.v-info { background:#dbeafe; color:#1e40af; }
+
+/* STATIC vs DYNAMIC */
+.br-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+.br-card { border-radius:12px; padding:18px; border:2px solid; }
+.br-static  { background:#fffbeb; border-color:#fcd34d; }
+.br-dynamic { background:var(--emerald-light); border-color:#6ee7b7; }
+.br-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:10px; }
+.br-static h4  { color:#92400e; }
+.br-dynamic h4 { color:#064e3b; }
+.br-item { font-size:0.82rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.55; }
+.br-item:last-child { border-bottom:none; }
+
+/* MAC TABLE VISUAL */
+.mac-table { font-family:var(--mono); font-size:12px; border-radius:8px; overflow:hidden; border:1.5px solid var(--border); }
+.mac-table-head { background:var(--navy); color:rgba(255,255,255,0.85); display:grid; grid-template-columns:1fr 1fr; }
+.mac-table-head div, .mac-table-row div { padding:8px 14px; }
+.mac-table-row { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--border); }
+.mac-table-row:nth-child(even) div { background:#f8fafc; }
+.mac-table-row .port-p1 { color:var(--orange); font-weight:700; }
+.mac-table-row .port-p2 { color:var(--emerald); font-weight:700; }
+
+/* LEARNING STEPS */
+.step-flow { display:flex; flex-direction:column; gap:0; }
+.step-item { display:flex; gap:14px; position:relative; padding-bottom:0; }
+.step-item:not(:last-child)::after { content:''; position:absolute; left:17px; top:38px; bottom:-10px; width:2px; background:linear-gradient(to bottom,var(--emerald),transparent); }
+.step-dot { width:34px; height:34px; border-radius:50%; background:var(--emerald); color:#fff; font-family:var(--mono); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.step-body { flex:1; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+.step-title { font-family:var(--sans); font-size:0.85rem; font-weight:700; color:var(--emerald); margin-bottom:4px; }
+.step-desc { font-size:0.81rem; color:#374151; line-height:1.6; }
+.step-packet { font-family:var(--mono); font-size:10px; background:#f0fdf4; border:1px solid #86efac; border-radius:5px; padding:4px 10px; display:inline-block; margin-top:6px; color:#14532d; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--emerald); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--emerald); font-weight:700; }
+.bullet-list li .val  { font-family:var(--mono); color:var(--amber);   font-size:0.77rem; }
+.bullet-list li .tag-g{ font-family:var(--mono); color:var(--green);   font-size:0.77rem; }
+.bullet-list li .tag-r{ font-family:var(--mono); color:var(--red);     font-size:0.77rem; }
+.bullet-list li .tag-b{ font-family:var(--mono); color:var(--blue);    font-size:0.77rem; }
+.bullet-list li .tag-e{ font-family:var(--mono); color:var(--emerald); font-size:0.77rem; }
+.bullet-list li .tag-t{ font-family:var(--mono); color:var(--teal);    font-size:0.77rem; }
+.bullet-list li .tag-o{ font-family:var(--mono); color:var(--orange);  font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--emerald-light),#f0fdf4); border:1px solid #6ee7b7; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--emerald); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-exam { background:var(--emerald-light); border-color:#6ee7b7; color:#064e3b; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .br-grid{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 13</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span><span class="sep">/</span>
+      <span class="current">Bridges</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a><span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span>
+  <span class="current">Topic 13: Bridges</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 13</span>
+    <span class="hero-tag">DATA LINK LAYER</span>
+    <span class="hero-tag">MAC ADDRESS TABLE</span>
+  </div>
+  <h1>BRIDGES IN <span>COMPUTER NETWORKS</span></h1>
+  <p class="hero-sub">Connects two different LANs at L1+L2 &mdash; forwarding, filtering by MAC address, static vs dynamic (transparent) bridges, store-and-forward, and Spanning Tree Protocol. UGC NET &amp; PSU focused.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">IT Officer</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- =================== DESCRIPTIVE =================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- S1: Identity -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Basic Identity &amp; OSI Layer</h2>
+    </div>
+    <p class="body-text">
+      A bridge is used to <strong>connect two different LANs</strong>. The key word is <em>different</em> &mdash; one side could be a Token Ring network (ring topology) and the other side could be Token Bus / Ethernet (bus topology). Bridges work at both the <strong>Physical Layer (L1)</strong> and the <strong>Data Link Layer (L2)</strong>. Because they operate at L2, they can read and process <strong>MAC addresses</strong> &mdash; something repeaters and hubs cannot do.
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><strong>OSI Layers</strong></td><td class="em">L1 (Physical) + L2 (Data Link)</td></tr>
+          <tr><td><strong>Hardware / Software</strong></td><td class="ok">Hardware + Software (has MAC table logic)</td></tr>
+          <tr><td><strong>Primary purpose</strong></td><td>Connect two <em>different</em> LANs (e.g. Token Ring ↔ Ethernet)</td></tr>
+          <tr><td><strong>Number of LANs connected</strong></td><td class="info">Typically 2 (two-port device)</td></tr>
+          <tr><td><strong>MAC Address awareness</strong></td><td class="ok">YES &mdash; reads MAC from frames to make decisions</td></tr>
+          <tr><td><strong>IP Address awareness</strong></td><td class="must">NO &mdash; does not go up to Network Layer</td></tr>
+          <tr><td><strong>Collision handling</strong></td><td class="ok">Store-and-forward &mdash; has buffer, rarely collides</td></tr>
+          <tr><td><strong>Exam focus</strong></td><td>High for <strong>UGC NET, PSUs, IT Officer</strong>; low for GATE</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-emerald">
+      &#128161; <strong>Name origin:</strong> Just as a physical bridge connects two separated land areas, a network bridge connects two separate LAN segments &mdash; letting traffic flow between them while still being able to block unnecessary traffic.
+    </div>
+  </div>
+
+  <!-- S2: Network Diagram -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-emerald">2</div>
+      <h2>Bridge Network Layout &mdash; P1 and P2</h2>
+    </div>
+    <p class="body-text">
+      A bridge has two interfaces (ports): <strong>P1</strong> on the left and <strong>P2</strong> on the right. Devices M1&ndash;M4 connect to P1; devices M5&ndash;M8 connect to P2. All frames carry a source MAC and a destination MAC. The bridge inspects these addresses to decide whether to forward or filter.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#127760; Bridge Network Diagram &mdash; Two LANs Connected via P1 and P2</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 720 180" width="100%" style="min-width:480px;display:block;" aria-label="Bridge network diagram">
+          <!-- Left LAN background -->
+          <rect x="10" y="10" width="270" height="160" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5"/>
+          <text x="145" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#9a3412" font-family="'Inter',sans-serif">LEFT LAN (P1 side)</text>
+
+          <!-- Right LAN background -->
+          <rect x="440" y="10" width="270" height="160" rx="10" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+          <text x="575" y="28" text-anchor="middle" font-size="9" font-weight="700" fill="#064e3b" font-family="'Inter',sans-serif">RIGHT LAN (P2 side)</text>
+
+          <!-- Bridge -->
+          <rect x="295" y="60" width="130" height="60" rx="10" fill="#1a2340" stroke="#059669" stroke-width="2"/>
+          <text x="360" y="84" text-anchor="middle" font-size="11" font-weight="700" fill="#6ee7b7" font-family="'Inter',sans-serif">BRIDGE</text>
+          <text x="315" y="99" text-anchor="middle" font-size="9" fill="#fbbf24" font-family="'JetBrains Mono',monospace" font-weight="700">P1</text>
+          <text x="405" y="99" text-anchor="middle" font-size="9" fill="#34d399" font-family="'JetBrains Mono',monospace" font-weight="700">P2</text>
+          <text x="360" y="112" text-anchor="middle" font-size="8" fill="#6b7280" font-family="'Inter',sans-serif">MAC Table</text>
+
+          <!-- Connections: Left LAN to Bridge P1 -->
+          <line x1="280" y1="90" x2="293" y2="90" stroke="#ea580c" stroke-width="2"/>
+
+          <!-- Left LAN devices -->
+          <!-- M1 -->
+          <circle cx="60" cy="55" r="20" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="60" y="52" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">M1</text>
+          <text x="60" y="63" text-anchor="middle" font-size="7" fill="#9a3412" font-family="'Inter',sans-serif">mac:01</text>
+          <!-- M2 -->
+          <circle cx="155" cy="55" r="20" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="155" y="52" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">M2</text>
+          <text x="155" y="63" text-anchor="middle" font-size="7" fill="#9a3412" font-family="'Inter',sans-serif">mac:02</text>
+          <!-- M3 -->
+          <circle cx="60" cy="130" r="20" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="60" y="127" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">M3</text>
+          <text x="60" y="138" text-anchor="middle" font-size="7" fill="#9a3412" font-family="'Inter',sans-serif">mac:03</text>
+          <!-- M4 -->
+          <circle cx="155" cy="130" r="20" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+          <text x="155" y="127" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">M4</text>
+          <text x="155" y="138" text-anchor="middle" font-size="7" fill="#9a3412" font-family="'Inter',sans-serif">mac:04</text>
+          <!-- Bus line left -->
+          <line x1="36" y1="90" x2="274" y2="90" stroke="#ea580c" stroke-width="1.5"/>
+          <line x1="60" y1="75" x2="60" y2="90" stroke="#ea580c" stroke-width="1.5"/>
+          <line x1="155" y1="75" x2="155" y2="90" stroke="#ea580c" stroke-width="1.5"/>
+          <line x1="60" y1="110" x2="60" y2="90" stroke="#ea580c" stroke-width="1.5"/>
+          <line x1="155" y1="110" x2="155" y2="90" stroke="#ea580c" stroke-width="1.5"/>
+          <!-- M5 -->
+          <circle cx="565" cy="55" r="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+          <text x="565" y="52" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">M5</text>
+          <text x="565" y="63" text-anchor="middle" font-size="7" fill="#064e3b" font-family="'Inter',sans-serif">mac:05</text>
+          <!-- M6 -->
+          <circle cx="660" cy="55" r="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+          <text x="660" y="52" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">M6</text>
+          <text x="660" y="63" text-anchor="middle" font-size="7" fill="#064e3b" font-family="'Inter',sans-serif">mac:06</text>
+          <!-- M7 -->
+          <circle cx="565" cy="130" r="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+          <text x="565" y="127" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">M7</text>
+          <text x="565" y="138" text-anchor="middle" font-size="7" fill="#064e3b" font-family="'Inter',sans-serif">mac:07</text>
+          <!-- M8 -->
+          <circle cx="660" cy="130" r="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+          <text x="660" y="127" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">M8</text>
+          <text x="660" y="138" text-anchor="middle" font-size="7" fill="#064e3b" font-family="'Inter',sans-serif">mac:08</text>
+          <!-- Bus line right -->
+          <line x1="427" y1="90" x2="684" y2="90" stroke="#059669" stroke-width="1.5"/>
+          <line x1="425" y1="90" x2="440" y2="90" stroke="#059669" stroke-width="2"/>
+          <line x1="565" y1="75" x2="565" y2="90" stroke="#059669" stroke-width="1.5"/>
+          <line x1="660" y1="75" x2="660" y2="90" stroke="#059669" stroke-width="1.5"/>
+          <line x1="565" y1="110" x2="565" y2="90" stroke="#059669" stroke-width="1.5"/>
+          <line x1="660" y1="110" x2="660" y2="90" stroke="#059669" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="diagram-note">M1&ndash;M4 are on the <strong>P1 (left)</strong> side. M5&ndash;M8 are on the <strong>P2 (right)</strong> side. The bridge reads each frame's MAC address to decide: forward to the other side, or filter (block)?</div>
+    </div>
+  </div>
+
+  <!-- S3: Key Functionalities -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">3</div>
+      <h2>Key Functionalities &mdash; Forwarding, Filtering &amp; MAC Table</h2>
+    </div>
+
+    <div class="feat-list">
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#ecfdf5;">&#128228;</div>
+        <div>
+          <div class="feat-name">Forwarding</div>
+          <div class="feat-desc">
+            If <strong>M1 sends a packet to M6</strong>, the bridge checks its MAC table and finds M6 is on the <em>P2 side</em>. Since the destination is on the opposite side, the bridge <strong>forwards</strong> the packet through to P2. The packet reaches M6.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; YES &mdash; Bridge CAN forward (destination on opposite side)</span>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#fff1f2;">&#128683;</div>
+        <div>
+          <div class="feat-name">Filtering</div>
+          <div class="feat-desc">
+            If <strong>M1 sends a packet to M3</strong>, the bridge checks its MAC table and finds M3 is also on the <em>P1 side</em>. Since both source and destination are on the same side, the bridge <strong>filters (blocks)</strong> the packet &mdash; no need to flood the other segment with irrelevant traffic. This concept does NOT exist in repeaters or hubs.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; YES &mdash; Bridge CAN filter (destination on same side)</span>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#eff6ff;">&#128200;</div>
+        <div>
+          <div class="feat-name">MAC Address Table</div>
+          <div class="feat-desc">
+            The bridge maintains a <strong>MAC Address Table</strong> (similar to a routing table in a router) that maps each MAC address to the port (P1 or P2) it is reachable through. This table is the intelligence that enables forwarding and filtering decisions.
+          </div>
+          <span class="feat-verdict v-info">&#128200; MAC Address &harr; Port mapping table</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAC Table visual -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Bridge MAC Address Table Example</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+          <div>
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--emerald);margin-bottom:10px;">MAC Address Table</div>
+            <div class="mac-table">
+              <div class="mac-table-head"><div>MAC Address</div><div>Port</div></div>
+              <div class="mac-table-row"><div>M1 (mac:01)</div><div class="port-p1">P1</div></div>
+              <div class="mac-table-row"><div>M2 (mac:02)</div><div class="port-p1">P1</div></div>
+              <div class="mac-table-row"><div>M3 (mac:03)</div><div class="port-p1">P1</div></div>
+              <div class="mac-table-row"><div>M4 (mac:04)</div><div class="port-p1">P1</div></div>
+              <div class="mac-table-row"><div>M5 (mac:05)</div><div class="port-p2">P2</div></div>
+              <div class="mac-table-row"><div>M6 (mac:06)</div><div class="port-p2">P2</div></div>
+              <div class="mac-table-row"><div>M7 (mac:07)</div><div class="port-p2">P2</div></div>
+              <div class="mac-table-row"><div>M8 (mac:08)</div><div class="port-p2">P2</div></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--emerald);margin-bottom:10px;">Decision Logic</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+                <strong style="color:var(--emerald);">FORWARD &#128228;</strong><br>
+                M1 &rarr; M6: Src=P1, Dst=P2 &rarr; different ports &rarr; forward across bridge
+              </div>
+              <div style="background:#fff1f2;border:1px solid #fda4af;border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+                <strong style="color:var(--red);">FILTER &#128683;</strong><br>
+                M1 &rarr; M3: Src=P1, Dst=P1 &rarr; same port &rarr; block; no need to cross
+              </div>
+              <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+                <strong style="color:var(--blue);">BROADCAST &#128226;</strong><br>
+                Unknown destination &rarr; flood all ports &amp; learn from reply
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">The bridge checks <strong>source port</strong> vs <strong>destination port</strong>: same port = filter; different port = forward; unknown = broadcast and learn.</div>
+    </div>
+  </div>
+
+  <!-- S4: Static vs Dynamic -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">4</div>
+      <h2>Types of Bridges &mdash; Static vs Dynamic (Transparent)</h2>
+    </div>
+    <p class="body-text">
+      Bridges are classified by <strong>how they build their MAC Address Table</strong>. There are two types: Static (manual) and Dynamic / Transparent (self-learning).
+    </p>
+
+    <div class="br-grid">
+      <div class="br-card br-static">
+        <h4>&#9997;&#65039; Static Bridge</h4>
+        <div class="br-item">&#128204; The <strong>network administrator manually</strong> types each MAC address and its corresponding port into the table</div>
+        <div class="br-item">&#128204; Table is fixed until an admin updates it &mdash; does not adapt on its own</div>
+        <div class="br-item">&#128204; <strong>Problem 1:</strong> If a device's MAC address changes, the admin must manually update the entry</div>
+        <div class="br-item">&#128204; <strong>Problem 2:</strong> If a device moves from one port to another (e.g., PC shifted to another lab), admin must update again</div>
+        <div class="br-item">&#128204; No learning ability &mdash; error-prone; time-consuming</div>
+        <div class="br-item" style="color:#92400e;font-weight:600;">&#10005; Rarely used in real networks</div>
+      </div>
+      <div class="br-card br-dynamic">
+        <h4>&#129504; Dynamic / Transparent Bridge</h4>
+        <div class="br-item">&#128204; Starts with a <strong>completely empty table</strong></div>
+        <div class="br-item">&#128204; <strong>Self-learning:</strong> Observes source MAC of every incoming frame and records which port it came from</div>
+        <div class="br-item">&#128204; If destination unknown &rarr; <strong>broadcasts</strong> the frame to all ports; learns from the reply</div>
+        <div class="br-item">&#128204; Continuously updates the table as traffic flows</div>
+        <div class="br-item">&#128204; If a device moves, the table updates automatically the next time that device sends a frame</div>
+        <div class="br-item">&#128204; Slower initially but self-correcting &amp; zero admin effort</div>
+        <div class="br-item" style="color:#064e3b;font-weight:600;">&#10003; Used in real networks &mdash; preferred</div>
+      </div>
+    </div>
+
+    <!-- Dynamic Learning Steps -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#129504; How a Dynamic Bridge Learns &mdash; Step by Step (M1 &rarr; M6, empty table)</div>
+      <div class="diagram-body">
+        <div class="step-flow">
+          <div class="step-item">
+            <div class="step-dot">1</div>
+            <div class="step-body">
+              <div class="step-title">M1 sends a frame to M6</div>
+              <div class="step-desc">The frame arrives at the bridge. Table is currently <strong>empty</strong>.</div>
+              <div class="step-packet">Frame: SRC=M1 (mac:01) &nbsp;|&nbsp; DST=M6 (mac:06)</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">2</div>
+            <div class="step-body">
+              <div class="step-title">Bridge learns M1 is on P1</div>
+              <div class="step-desc">Frame came in from <strong>Port P1</strong>, so the bridge records: <em>"M1 is reachable via P1"</em>. Source learning.</div>
+              <div class="step-packet">Table entry added: M1 &rarr; P1</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div class="step-body">
+              <div class="step-title">M6 is unknown &rarr; Broadcast</div>
+              <div class="step-desc">The bridge has <strong>no entry for M6</strong>, so it broadcasts the frame out of all other ports. M5, M6, M7, M8 all receive it.</div>
+              <div class="step-packet">Action: FLOOD to P2 (and all other ports)</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">4</div>
+            <div class="step-body">
+              <div class="step-title">M6 sends an acknowledgment back to M1</div>
+              <div class="step-desc">M6 replies. This reply frame arrives at the bridge from <strong>Port P2</strong>.</div>
+              <div class="step-packet">Frame: SRC=M6 (mac:06) &nbsp;|&nbsp; DST=M1 (mac:01)</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">5</div>
+            <div class="step-body">
+              <div class="step-title">Bridge learns M6 is on P2 &amp; forwards to M1</div>
+              <div class="step-desc">Source of reply is M6, came from P2 &rarr; records <em>"M6 is reachable via P2"</em>. Since M1 is already known to be on P1, the reply is forwarded correctly.</div>
+              <div class="step-packet">Table entry added: M6 &rarr; P2 &nbsp;|&nbsp; Table now: M1→P1, M6→P2</div>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">6</div>
+            <div class="step-body">
+              <div class="step-title">Future frames: no more broadcast</div>
+              <div class="step-desc">Next time M1 sends to M6, the bridge <strong>already knows</strong> M6 is on P2 &rarr; direct forward, no broadcast. Over time the full table is built from normal traffic.</div>
+              <div class="step-packet">Result: M1→P1, M2→P1 &hellip; M6→P2, M7→P2 &hellip; (self-built table)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Dynamic bridges are slow at first (broadcast on every unknown destination) but get smarter over time. No administrator involvement needed.</div>
+    </div>
+
+    <div class="callout callout-amber">
+      &#9888;&#65039; <strong>Static vs Dynamic at exam:</strong> Static = admin manually fills table; no learning. Dynamic = self-learning from source MAC of incoming frames; starts empty, floods unknown, builds table from replies. Dynamic is always preferred in real networks.
+    </div>
+  </div>
+
+  <!-- S5: Store-and-Forward & Collisions -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">5</div>
+      <h2>Store-and-Forward &amp; Collision Domain</h2>
+    </div>
+    <p class="body-text">
+      Unlike hubs and repeaters (which have no memory), a bridge uses the <strong>store-and-forward</strong> strategy. It stores an incoming frame in its buffer, processes it (checks MAC address), and only then forwards it. This prevents collisions.
+    </p>
+
+    <div class="feat-list">
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#ecfdf5;">&#128190;</div>
+        <div>
+          <div class="feat-name">Store-and-Forward Strategy</div>
+          <div class="feat-desc">
+            When a frame arrives at the bridge, it is <strong>stored in the bridge's buffer (memory)</strong>. If another frame arrives at the same time, it is also stored in the buffer &mdash; one after the other. There is no direct collision inside the bridge because packets are queued, processed, then forwarded.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; Bridge HAS buffer/memory &mdash; no simultaneous crash</span>
+        </div>
+      </div>
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#fff1f2;">&#128165;</div>
+        <div>
+          <div class="feat-name">Collision Domain</div>
+          <div class="feat-desc">
+            In a hub, collision domain = <em>N</em> (all devices on the hub share one domain). In a bridge, each port is its own collision domain. The store-and-forward buffer prevents collisions at the bridge itself. Collisions are <strong>very rare</strong> in a bridged network compared to a hub or repeater.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; Bridge separates collision domains (unlike Hub/Repeater)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128165; Collision Domain Comparison &mdash; Repeater / Hub vs Bridge</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div style="text-align:center;">
+            <div style="font-size:0.8rem;font-weight:700;color:var(--red);margin-bottom:8px;">&#128165; Repeater / Hub</div>
+            <div style="background:#fff1f2;border:2px dashed #fda4af;border-radius:10px;padding:14px;font-size:0.79rem;">
+              All devices share <strong>ONE</strong> collision domain<br>
+              <span style="font-family:var(--mono);color:var(--red);font-weight:700;">Max collisions = N</span><br><br>
+              No buffer &rarr; simultaneous signals crash
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.8rem;font-weight:700;color:var(--emerald);margin-bottom:8px;">&#10003; Bridge</div>
+            <div style="background:#ecfdf5;border:2px dashed #6ee7b7;border-radius:10px;padding:14px;font-size:0.79rem;">
+              Each port = <strong>separate</strong> collision domain<br>
+              <span style="font-family:var(--mono);color:var(--emerald);font-weight:700;">Collisions: very rare</span><br><br>
+              Buffer (store-and-forward) queues packets safely
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">The store-and-forward buffer is why bridges have far fewer collisions than repeaters or hubs.</div>
+    </div>
+  </div>
+
+  <!-- S6: Spanning Tree Protocol -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">6</div>
+      <h2>Spanning Tree Protocol (STP) &mdash; Removing Loops</h2>
+    </div>
+    <p class="body-text">
+      When there are <strong>multiple paths</strong> between two network segments (e.g., for redundancy), a packet can get stuck in an infinite loop &mdash; travelling in circles between bridges forever. Routers solve this using the <strong>TTL (Time to Live)</strong> field which decrements on each hop and drops the packet when it hits zero. But bridges <em>do not have a TTL field</em>.
+    </p>
+    <p class="body-text">
+      Instead, bridges use <strong>Spanning Tree Protocol (STP)</strong> to solve this. STP runs on all bridges in the network and together they construct a <em>spanning tree</em> &mdash; a loop-free logical topology. Any redundant (loop-causing) links are logically blocked. The spanning tree ensures there is exactly <strong>one active path</strong> between any two network points.
+    </p>
+
+    <div class="callout callout-purple">
+      &#128279; <strong>STP vs TTL:</strong>
+      <br>&bull; <strong>Router:</strong> Uses TTL field &mdash; decremented at each hop; packet dropped when TTL = 0
+      <br>&bull; <strong>Bridge:</strong> No TTL field &rarr; uses <strong>Spanning Tree Protocol</strong> to eliminate loops by blocking redundant paths
+    </div>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Full Bridge Quick-Reference</div>
+      <div class="diagram-body">
+        <div class="exam-strip">
+          <span class="epill ep-ugc">UGC NET</span>
+          <span class="epill ep-psu">PSUs</span>
+          <span class="epill ep-gate">GATE (Low Priority)</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Property</th><th>Bridge</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><strong>OSI Layers</strong></td><td class="em">L1 + L2</td><td>Physical + Data Link</td></tr>
+              <tr><td><strong>H/W + S/W?</strong></td><td class="ok">Yes</td><td>Has MAC table software logic</td></tr>
+              <tr><td><strong>Connects</strong></td><td>Two different LANs</td><td>Token Ring ↔ Ethernet etc.</td></tr>
+              <tr><td><strong>Address used</strong></td><td class="mono">MAC Address</td><td>Does NOT use IP</td></tr>
+              <tr><td><strong>Forwarding</strong></td><td class="ok">YES</td><td>Dest on opposite port &rarr; forward</td></tr>
+              <tr><td><strong>Filtering</strong></td><td class="ok">YES</td><td>Dest on same port &rarr; filter/block</td></tr>
+              <tr><td><strong>Static Bridge</strong></td><td class="good">Manual table</td><td>Admin types entries; no self-learning</td></tr>
+              <tr><td><strong>Dynamic Bridge</strong></td><td class="ok">Self-learning</td><td>Starts empty; learns from source MAC</td></tr>
+              <tr><td><strong>Unknown dest action</strong></td><td class="good">Broadcast (flood)</td><td>Then learns from the reply</td></tr>
+              <tr><td><strong>Store-and-Forward</strong></td><td class="ok">YES</td><td>Has buffer; prevents collisions</td></tr>
+              <tr><td><strong>Collision Domain</strong></td><td class="ok">Separate per port</td><td>Much fewer collisions vs hub/repeater</td></tr>
+              <tr><td><strong>Loop prevention</strong></td><td>Spanning Tree Protocol</td><td>No TTL field; STP creates loop-free tree</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- =================== REVISION PANEL =================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-emerald" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for UGC NET, PSU &amp; IT Officer exams.
+  </div>
+
+  <div class="cheat-div"><span>IDENTITY &amp; BASICS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">OSI Layer &amp; Type</div>
+      <ul class="bullet-list">
+        <li>Layers: <span class="tag-e">L1 (Physical) + L2 (Data Link)</span></li>
+        <li>Type: <span class="tag-g">Hardware + Software</span></li>
+        <li>Connects: <span class="tag-e">Two different LANs</span></li>
+        <li>Address used: <span class="val">MAC Address</span> (NOT IP)</li>
+        <li>Exam: High for <span class="tag-g">UGC NET</span>, <span class="tag-b">PSUs</span>, <span class="tag-t">IT Officer</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Forwarding vs Filtering</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">FORWARD</span>: Destination on <em>opposite</em> port &rarr; send across</li>
+        <li><span class="tag-r">FILTER</span>: Destination on <em>same</em> port &rarr; block (no cross-traffic)</li>
+        <li>Hub/Repeater <span class="tag-r">cannot filter</span>; Bridge <span class="tag-g">can filter</span> &mdash; biggest distinction</li>
+        <li>Filtering reduces unnecessary traffic on the other segment</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>STATIC vs DYNAMIC BRIDGE</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#9997; Static Bridge</div>
+      <ul class="bullet-list">
+        <li>Admin <span class="tag-r">manually</span> enters each MAC &rarr; Port mapping</li>
+        <li>No self-learning; fixed table</li>
+        <li>If MAC changes or device moves &rarr; admin must update again</li>
+        <li><span class="tag-r">Rarely used</span> in real networks</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#129504; Dynamic / Transparent Bridge</div>
+      <ul class="bullet-list">
+        <li>Starts with <span class="tag-r">empty table</span></li>
+        <li>Learns by observing <span class="tag-e">source MAC</span> of each arriving frame</li>
+        <li>Unknown destination &rarr; <span class="tag-b">broadcast</span>; learns from reply</li>
+        <li>Self-updating &rarr; <span class="tag-g">preferred in real networks</span></li>
+        <li>Slow initially; smarter over time</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Learning Algorithm (Dynamic)</div>
+      <ul class="bullet-list">
+        <li>Frame arrives: read <span class="val">source MAC + port</span> &rarr; add to table</li>
+        <li>Check destination MAC in table</li>
+        <li>Found &amp; same port &rarr; <span class="tag-r">filter</span></li>
+        <li>Found &amp; different port &rarr; <span class="tag-g">forward</span></li>
+        <li>Not found &rarr; <span class="tag-b">broadcast + wait for reply</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>STORE-AND-FORWARD, COLLISIONS, STP</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128190; Store-and-Forward</div>
+      <ul class="bullet-list">
+        <li>Bridge <span class="tag-g">stores frame in buffer</span> before processing</li>
+        <li>Multiple simultaneous arrivals &rarr; queued; no collision</li>
+        <li>Unlike Hub: no buffer &rarr; simultaneous = collision</li>
+        <li>Makes bridge far safer &amp; more reliable</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128165; Collision Domain</div>
+      <ul class="bullet-list">
+        <li>Hub: collision domain = <span class="tag-r">N (all devices)</span></li>
+        <li>Bridge: each port = <span class="tag-g">separate collision domain</span></li>
+        <li>Bridge separates collision domains; Hub does not</li>
+        <li>Collisions <span class="tag-g">very rare</span> in bridged networks</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128279; Spanning Tree Protocol (STP)</div>
+      <ul class="bullet-list">
+        <li>Problem: multiple paths &rarr; packets loop forever</li>
+        <li>Router uses <span class="tag-b">TTL</span> to kill looping packets</li>
+        <li>Bridge has <span class="tag-r">no TTL</span> &rarr; uses <span class="tag-e">Spanning Tree Protocol</span></li>
+        <li>STP builds a loop-free logical topology</li>
+        <li>Redundant links are <span class="tag-r">blocked</span>; one active path only</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>COMPLETE SUMMARY TABLE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Property</th><th>Bridge</th></tr></thead>
+      <tbody>
+        <tr><td><strong>OSI Layer</strong></td><td class="em">L1 + L2</td></tr>
+        <tr><td><strong>H/W + S/W?</strong></td><td class="ok">Yes (H+SW)</td></tr>
+        <tr><td><strong>Connects</strong></td><td>2 different LANs</td></tr>
+        <tr><td><strong>Address used</strong></td><td class="mono">MAC</td></tr>
+        <tr><td><strong>Forwarding</strong></td><td class="ok">Yes</td></tr>
+        <tr><td><strong>Filtering</strong></td><td class="ok">Yes</td></tr>
+        <tr><td><strong>Static Bridge</strong></td><td class="good">Manual table (rarely used)</td></tr>
+        <tr><td><strong>Dynamic Bridge</strong></td><td class="ok">Self-learning (preferred)</td></tr>
+        <tr><td><strong>Unknown dest</strong></td><td class="good">Broadcast &amp; learn</td></tr>
+        <tr><td><strong>Store-and-Forward</strong></td><td class="ok">Yes (has buffer)</td></tr>
+        <tr><td><strong>Collision Domain</strong></td><td class="ok">Separate per port</td></tr>
+        <tr><td><strong>Loop prevention</strong></td><td>Spanning Tree Protocol (STP)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Exam Checklist (UGC NET / PSUs)</h3>
+    <ul class="bullet-list">
+      <li>Bridge = <span class="tag-e">L1 + L2</span>, Hardware + Software, connects <span class="tag-e">two different LANs</span></li>
+      <li>Uses <span class="val">MAC Address</span> table (NOT IP) &mdash; unlike router</li>
+      <li>Bridge <span class="tag-g">can forward</span> AND <span class="tag-g">can filter</span> &mdash; Hub/Repeater cannot filter</li>
+      <li>Filter = destination on same port; Forward = destination on opposite port</li>
+      <li><span class="tag-r">Static</span> bridge: admin manually fills table; <span class="tag-g">Dynamic</span>: self-learning from source MACs</li>
+      <li>Dynamic starts <span class="tag-r">empty</span>; floods unknown dest; learns from replies</li>
+      <li><span class="tag-e">Store-and-forward</span> = buffer; prevents collisions; unlike Hub</li>
+      <li>Loop prevention: Router uses <span class="tag-b">TTL</span>; Bridge uses <span class="tag-e">Spanning Tree Protocol (STP)</span></li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-exam">UGC NET</span>
+      <span class="tag tag-exam">PSUs</span>
+      <span class="tag tag-exam">IT Officer</span>
+      <span class="tag">Bridge</span>
+      <span class="tag">MAC Table</span>
+      <span class="tag">Forwarding</span>
+      <span class="tag">Filtering</span>
+      <span class="tag">Static Bridge</span>
+      <span class="tag">Dynamic Bridge</span>
+      <span class="tag">Store-and-Forward</span>
+      <span class="tag">Spanning Tree Protocol</span>
+      <span class="tag">Collision Domain</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 14: Switches — multiport bridge, Data Link Layer, full-duplex, MAC address table, zero collision domain, low traffic, unicast forwarding. GATE & UGC NET exam notes.">
+<meta name="robots" content="index, follow">
+<title>Switches in Computer Networks &mdash; CN Topic 14 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_switch.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f2f7; --white: #ffffff; --border: #e0e4ef; --navy: #1a2340;
+  --accent: #7c3aed;
+  --red: #e11d48;   --red-light: #fff1f4;
+  --green: #16a34a; --green-light: #f0fdf4;
+  --amber: #d97706; --amber-light: #fffbeb;
+  --blue: #2563eb;  --blue-light: #eff6ff;
+  --teal: #0f766e;  --teal-light: #f0fdfa;
+  --orange: #ea580c;--orange-light: #fff7ed;
+  --sky: #0284c7;   --sky-light: #f0f9ff;
+  --cyan: #0891b2;  --cyan-light: #ecfeff;
+  --emerald: #059669; --emerald-light: #ecfdf5;
+  --text: #1e2535; --text-muted: #6b7280; --text-light: #9ca3af;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --body: 'Nunito', sans-serif;
+}
+body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* NAVBAR */
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--emerald); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+/* HERO */
+.hero { background:linear-gradient(135deg, #064e3b 0%, #059669 35%, #10b981 65%, #6ee7b7 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2rem,5vw,3.2rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#a7f3d0; }
+.hero-sub { font-size:0.97rem; color:rgba(255,255,255,0.78); max-width:620px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.12); }
+
+/* CONTENT */
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* SECTION */
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy    { background:var(--navy); }
+.sn-blue    { background:var(--blue); }
+.sn-red     { background:var(--red); }
+.sn-green   { background:var(--green); }
+.sn-amber   { background:var(--amber); }
+.sn-purple  { background:var(--accent); }
+.sn-teal    { background:var(--teal); }
+.sn-orange  { background:var(--orange); }
+.sn-sky     { background:var(--sky); }
+.sn-cyan    { background:var(--cyan); }
+.sn-emerald { background:var(--emerald); }
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:0.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+.body-text:last-child { margin-bottom:0; }
+
+/* CALLOUTS */
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:0.88rem; line-height:1.65; }
+.callout-red    { border-color:var(--red);   background:var(--red-light);   color:#9f1239; }
+.callout-blue   { border-color:var(--blue);  background:var(--blue-light);  color:#1e40af; }
+.callout-green  { border-color:var(--green); background:var(--green-light); color:#14532d; }
+.callout-amber  { border-color:var(--amber); background:var(--amber-light); color:#78350f; }
+.callout-purple { border-color:var(--accent);background:#f5f3ff;            color:#4c1d95; }
+.callout-teal   { border-color:var(--teal);  background:var(--teal-light);  color:#134e4a; }
+.callout-sky    { border-color:var(--sky);   background:var(--sky-light);   color:#0c4a6e; }
+.callout-cyan   { border-color:var(--cyan);  background:var(--cyan-light);  color:#164e63; }
+.callout-emerald{ border-color:var(--emerald);background:var(--emerald-light);color:#064e3b; }
+.callout strong { font-weight:700; }
+
+/* DIAGRAM BOX */
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:0.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+
+/* TABLES */
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:0.83rem; font-family:var(--sans); background:var(--white); overflow:hidden; border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,0.85); font-weight:600; font-size:0.78rem; letter-spacing:0.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f0fdf4; }
+td.mono { font-family:var(--mono); font-size:0.8rem; }
+td.must { color:var(--red);   font-weight:600; }
+td.good { color:var(--amber); font-weight:600; }
+td.ok   { color:var(--green); font-weight:600; }
+td.info { color:var(--blue);  font-weight:600; }
+td.sky  { color:var(--sky);   font-weight:600; }
+td.emerald { color:var(--emerald); font-weight:600; }
+
+/* VS GRID */
+.vs-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+.vs-card { border-radius:12px; padding:18px; border:2px solid; }
+.vs-bridge { background:#fff7ed; border-color:#fdba74; }
+.vs-switch { background:var(--emerald-light); border-color:#6ee7b7; }
+.vs-card h4 { font-family:var(--sans); font-size:0.9rem; font-weight:700; margin-bottom:10px; }
+.vs-bridge h4 { color:#9a3412; }
+.vs-switch h4 { color:#064e3b; }
+.vs-item { font-size:0.82rem; color:#374151; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.06); line-height:1.55; }
+.vs-item:last-child { border-bottom:none; }
+
+/* PORT MODELS */
+.port-row { display:flex; gap:12px; flex-wrap:wrap; margin:14px 0; }
+.port-model { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:14px 18px; text-align:center; flex:1; min-width:130px; }
+.port-num { font-family:var(--mono); font-size:2rem; font-weight:700; color:var(--emerald); }
+.port-label { font-family:var(--sans); font-size:0.76rem; font-weight:600; color:var(--text-muted); margin-top:2px; }
+.port-dots { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin:8px 0; }
+.port-dot { width:10px; height:10px; border-radius:50%; background:var(--emerald); opacity:0.7; }
+.port-dot.active { opacity:1; box-shadow:0 0 4px var(--emerald); }
+
+/* FEATURE ROWS */
+.feat-list { display:flex; flex-direction:column; gap:10px; margin:14px 0; }
+.feat-row { display:flex; align-items:flex-start; gap:14px; background:var(--white); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.feat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.feat-name { font-family:var(--sans); font-size:0.88rem; font-weight:700; margin-bottom:4px; }
+.feat-desc { font-size:0.82rem; color:#374151; line-height:1.6; }
+.feat-verdict { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; margin-top:5px; }
+.v-yes  { background:#dcfce7; color:#14532d; }
+.v-no   { background:#fee2e2; color:#991b1b; }
+.v-zero { background:#dcfce7; color:#14532d; }
+.v-low  { background:#dcfce7; color:#14532d; }
+
+/* FULL DUPLEX VISUAL */
+.duplex-wrap { display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; padding:8px 0; }
+.duplex-device { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.duplex-circle { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:14px; font-weight:700; border:2px solid; }
+.duplex-label { font-family:var(--mono); font-size:9px; color:var(--text-muted); }
+.duplex-switch { background:var(--navy); border-radius:12px; padding:12px 20px; font-family:var(--mono); font-size:11px; font-weight:700; color:#a7f3d0; border:2px solid var(--emerald); }
+.duplex-arrows { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.duplex-arrow { font-size:0.75rem; font-family:var(--mono); font-weight:700; display:flex; align-items:center; gap:4px; }
+.arr-send { color:var(--emerald); }
+.arr-recv { color:var(--amber); }
+
+/* COST TIER */
+.cost-track { display:flex; flex-direction:column; gap:6px; margin:14px 0; }
+.cost-row { display:flex; align-items:center; gap:12px; }
+.cost-label { font-family:var(--sans); font-size:0.78rem; font-weight:700; width:80px; flex-shrink:0; }
+.cost-bar-wrap { flex:1; background:#f1f5f9; border-radius:6px; overflow:hidden; height:24px; }
+.cost-bar { height:100%; border-radius:6px; display:flex; align-items:center; padding-left:8px; font-family:var(--mono); font-size:10px; font-weight:700; color:#fff; }
+.cost-price { font-family:var(--mono); font-size:10px; color:var(--text-muted); width:60px; flex-shrink:0; text-align:right; }
+
+/* MAC TABLE */
+.mac-table-wrap { background:var(--navy); border-radius:12px; padding:20px; margin:16px 0; font-family:var(--mono); }
+.mac-table-title { font-size:10px; font-weight:700; color:#6ee7b7; letter-spacing:1px; margin-bottom:12px; text-transform:uppercase; }
+.mac-row { display:grid; grid-template-columns:2fr 2fr 1fr; gap:8px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:11px; }
+.mac-row.header { color:#94a3b8; font-size:10px; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:2px; font-weight:600; }
+.mac-row:last-child { border-bottom:none; }
+.mac-addr { color:#bae6fd; }
+.mac-port { color:#a7f3d0; }
+.mac-device { color:#fde68a; }
+
+/* EXAM PILLS */
+.exam-strip { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+.epill { font-family:var(--mono); font-size:10px; font-weight:700; padding:4px 12px; border-radius:20px; }
+.ep-gate { background:#fef9c3; color:#78350f; border:1px solid #fcd34d; }
+.ep-ugc  { background:#dcfce7; color:#14532d; border:1px solid #86efac; }
+.ep-psu  { background:#dbeafe; color:#1e40af; border:1px solid #93c5fd; }
+.ep-int  { background:#f5f3ff; color:#4c1d95; border:1px solid #c4b5fd; }
+
+/* REV CARDS */
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--emerald); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:0.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--emerald); font-weight:700; }
+.bullet-list li .val   { font-family:var(--mono); color:var(--amber);   font-size:0.77rem; }
+.bullet-list li .tag-g { font-family:var(--mono); color:var(--green);   font-size:0.77rem; }
+.bullet-list li .tag-r { font-family:var(--mono); color:var(--red);     font-size:0.77rem; }
+.bullet-list li .tag-b { font-family:var(--mono); color:var(--blue);    font-size:0.77rem; }
+.bullet-list li .tag-s { font-family:var(--mono); color:var(--sky);     font-size:0.77rem; }
+.bullet-list li .tag-t { font-family:var(--mono); color:var(--teal);    font-size:0.77rem; }
+.bullet-list li .tag-o { font-family:var(--mono); color:var(--orange);  font-size:0.77rem; }
+.bullet-list li .tag-e { font-family:var(--mono); color:var(--emerald); font-size:0.77rem; }
+.final-tips { background:linear-gradient(135deg,var(--emerald-light),#d1fae5); border:1px solid #6ee7b7; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--emerald); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag  { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+.tag-exam { background:var(--emerald-light); border-color:#6ee7b7; color:#064e3b; }
+
+/* BREADCRUMB */
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f1f5f9;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;}
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .vs-grid{grid-template-columns:1fr;}
+  .navbar{padding:0 16px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+  .duplex-wrap{gap:12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 14</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Switches</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 14: Switches</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 14</span>
+    <span class="hero-tag">DATA LINK LAYER</span>
+    <span class="hero-tag">MULTIPORT BRIDGE</span>
+  </div>
+  <h1>SWITCHES IN <span>COMPUTER NETWORKS</span></h1>
+  <p class="hero-sub">Multiport bridge, Layer 2, full-duplex links, MAC address table, zero collision domain, unicast forwarding &mdash; everything needed for GATE, UGC NET &amp; interview success.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">PSUs</span>
+    <span class="hero-chip">Interviews</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+<!-- ===================== DESCRIPTIVE PANEL ===================== -->
+<div id="panel-desc" class="panel active">
+
+  <!-- SECTION 1: Identity & OSI Layer -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Basic Identity &amp; OSI Layer</h2>
+    </div>
+    <p class="body-text">
+      A <strong>switch</strong> is one of the most important and widely used networking devices in modern LANs. It operates at <strong>Layer 2 — the Data Link Layer</strong>. This means it understands both the <em>Physical Layer</em> (signals and bits) and the <em>Data Link Layer</em> (MAC addresses and frames).
+    </p>
+    <p class="body-text">
+      A switch is fundamentally a <strong>multiport bridge</strong>. A bridge connects two LANs using two ports; a switch does the same job but with <em>many ports</em> — which is why it is called a multiport bridge. You have likely seen a switch in a computer lab or office: it is the box with many Ethernet ports that connects all devices in a room.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="emerald">Layer 2 &mdash; Data Link Layer (+ Physical Layer)</td></tr>
+          <tr><td><strong>Also called</strong></td><td class="info">Multiport Bridge</td></tr>
+          <tr><td><strong>Address used</strong></td><td class="ok">MAC Address (Physical Address)</td></tr>
+          <tr><td><strong>Port configurations</strong></td><td>8-port, 24-port, 48-port, 52-port and more</td></tr>
+          <tr><td><strong>Hardware / Software</strong></td><td>Hardware + Software (has MAC address table / CAM table)</td></tr>
+          <tr><td><strong>Link type</strong></td><td class="ok">Full Duplex on every port</td></tr>
+          <tr><td><strong>Collision Domain</strong></td><td class="ok">Zero (0) &mdash; one per port</td></tr>
+          <tr><td><strong>Traffic</strong></td><td class="ok">Minimal / Low (unicast only to destination)</td></tr>
+          <tr><td><strong>Exam focus</strong></td><td>GATE, UGC NET, PSU exams, and technical interviews</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-emerald">
+      &#128161; <strong>One-liner definition:</strong> A Switch = a <strong>multiport bridge</strong> operating at <strong>Layer 2</strong> that uses MAC addresses to forward frames only to the intended destination port, with <strong>full-duplex</strong> links and <strong>zero collisions</strong>.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Switch vs Bridge -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-emerald">2</div>
+      <h2>Switch vs Bridge &mdash; Why Switch is Called a Multiport Bridge</h2>
+    </div>
+    <p class="body-text">
+      Both bridge and switch are Layer 2 devices. The key difference is the <strong>number of ports</strong>. A bridge has exactly <strong>two ports</strong> and is used to connect two LANs. A switch has <strong>many ports</strong> (8, 24, 48, 52+) and can connect many devices &mdash; computers, laptops, printers, wireless access points &mdash; all in one.
+    </p>
+
+    <div class="vs-grid">
+      <div class="vs-card vs-bridge">
+        <h4>&#128259; Bridge</h4>
+        <div class="vs-item">&#128204; <strong>2 ports only</strong> &mdash; Port 1 and Port 2</div>
+        <div class="vs-item">&#128204; Connects LAN1 (Port 1) to LAN2 (Port 2)</div>
+        <div class="vs-item">&#128204; Layer 2 device &mdash; reads MAC addresses</div>
+        <div class="vs-item">&#128204; Has MAC address table (forwarding table)</div>
+        <div class="vs-item">&#128204; Connects only two network segments</div>
+        <div class="vs-item">&#128204; Used to separate two LANs / reduce traffic</div>
+      </div>
+      <div class="vs-card vs-switch">
+        <h4>&#128160; Switch (Multiport Bridge)</h4>
+        <div class="vs-item">&#128204; <strong>Multiple ports</strong> (8, 24, 48, 52+ ports)</div>
+        <div class="vs-item">&#128204; Connects many devices: PC, laptop, printer, wireless AP</div>
+        <div class="vs-item">&#128204; Layer 2 device &mdash; reads MAC addresses</div>
+        <div class="vs-item">&#128204; Has MAC address table / CAM table per port</div>
+        <div class="vs-item">&#128204; Used as the central device in a LAN</div>
+        <div class="vs-item">&#128204; Full duplex &mdash; no collisions between any ports</div>
+      </div>
+    </div>
+
+    <!-- Port configurations visual -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128200; Common Switch Port Configurations</div>
+      <div class="diagram-body">
+        <div class="port-row">
+          <div class="port-model">
+            <div class="port-num">8</div>
+            <div class="port-label">Port Switch</div>
+            <div class="port-dots">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Small home/SOHO</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">24</div>
+            <div class="port-label">Port Switch</div>
+            <div class="port-dots">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Office / Computer Lab</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">48</div>
+            <div class="port-label">Port Switch</div>
+            <div class="port-dots" style="max-width:140px;margin:0 auto 4px;">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+              <div class="port-dot"></div><div class="port-dot"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Large Office LAN</div>
+          </div>
+          <div class="port-model">
+            <div class="port-num">52+</div>
+            <div class="port-label">Port Switch</div>
+            <div class="port-dots" style="max-width:140px;margin:0 auto 4px;">
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+              <div class="port-dot active"></div><div class="port-dot active"></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Enterprise / Data Centre</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Lit dots = active / connected ports. Dim dots = inactive. Enterprise switches commonly have 48 or 52 ports for high-density deployments.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Role in a Network -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Role of Switch in a Real Network</h2>
+    </div>
+    <p class="body-text">
+      In a real network, devices do <strong>not connect directly to the router</strong>. Instead, all devices in a LAN connect to a switch, and the switch connects to the router. This is how internet access works in a computer lab, office, or home.
+    </p>
+
+    <div class="diagram-box">
+      <div class="diagram-header">&#127760; Real-World Network Topology — Switch as Central Hub of LAN</div>
+      <div class="diagram-body">
+        <svg viewBox="0 0 620 260" width="100%" style="min-width:340px;display:block;" aria-label="Switch in real network diagram">
+
+          <!-- Router -->
+          <rect x="260" y="10" width="100" height="48" rx="10" fill="#1a2340" stroke="#6ee7b7" stroke-width="2"/>
+          <text x="310" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">ROUTER</text>
+          <text x="310" y="44" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="'Inter',sans-serif">Gateway / Internet</text>
+
+          <!-- Router to internet arrow -->
+          <line x1="310" y1="10" x2="310" y2="2" stroke="#6ee7b7" stroke-width="2"/>
+          <text x="310" y="0" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">&#127760; WWW</text>
+
+          <!-- Router to Switch line -->
+          <line x1="310" y1="58" x2="310" y2="108" stroke="#059669" stroke-width="2"/>
+          <polygon points="307,104 310,108 313,104" fill="#059669"/>
+
+          <!-- Switch -->
+          <rect x="230" y="108" width="160" height="52" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+          <text x="310" y="130" text-anchor="middle" font-size="11" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">SWITCH</text>
+          <text x="310" y="144" text-anchor="middle" font-size="8" fill="#6ee7b7" font-family="'Inter',sans-serif">Multiport Bridge — Layer 2</text>
+          <!-- LED dots on switch -->
+          <circle cx="242" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="252" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="262" cy="153" r="3" fill="#f59e0b"/>
+          <circle cx="272" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="282" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="292" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="302" cy="153" r="3" fill="#ef4444"/>
+          <circle cx="312" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="322" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="332" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="342" cy="153" r="3" fill="#6b7280"/>
+          <circle cx="352" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="362" cy="153" r="3" fill="#22c55e"/>
+          <circle cx="372" cy="153" r="3" fill="#22c55e"/>
+
+          <!-- Device A: Laptop -->
+          <circle cx="60" cy="210" r="26" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+          <text x="60" y="207" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">A</text>
+          <text x="60" y="220" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">Laptop</text>
+          <line x1="86" y1="200" x2="228" y2="162" stroke="#10b981" stroke-width="1.5"/>
+
+          <!-- Device B: Computer -->
+          <circle cx="180" cy="230" r="26" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+          <text x="180" y="227" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">B</text>
+          <text x="180" y="240" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">Computer</text>
+          <line x1="186" y1="204" x2="255" y2="162" stroke="#10b981" stroke-width="1.5"/>
+
+          <!-- Device C: Printer -->
+          <circle cx="310" cy="240" r="26" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+          <text x="310" y="237" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">C</text>
+          <text x="310" y="250" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">Printer</text>
+          <line x1="310" y1="214" x2="310" y2="162" stroke="#10b981" stroke-width="1.5"/>
+
+          <!-- Device D: Wireless AP -->
+          <circle cx="440" cy="230" r="26" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+          <text x="440" y="227" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">D</text>
+          <text x="440" y="240" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">Wireless AP</text>
+          <line x1="433" y1="204" x2="367" y2="162" stroke="#10b981" stroke-width="1.5"/>
+
+          <!-- Device E: Server -->
+          <circle cx="560" cy="210" r="26" fill="#f0fdf4" stroke="#059669" stroke-width="2"/>
+          <text x="560" y="207" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">E</text>
+          <text x="560" y="220" text-anchor="middle" font-size="8" fill="#059669" font-family="'Inter',sans-serif">Server</text>
+          <line x1="534" y1="198" x2="393" y2="162" stroke="#10b981" stroke-width="1.5"/>
+
+        </svg>
+      </div>
+      <div class="diagram-note">In a computer lab or office: Laptop connects via blue Ethernet cable → Switch → Router → Internet. The switch is the <strong>central device of the LAN</strong>.</div>
+    </div>
+
+    <div class="callout callout-blue">
+      &#128241; <strong>Lab Scenario:</strong> You enter a computer lab, plug your Ethernet cable into the lab switch. The switch connects to the router. The router connects to the internet. This is the standard LAN architecture used everywhere &mdash; switch sits between the devices and the router.
+    </div>
+  </div>
+
+  <!-- SECTION 4: Full Duplex & Zero Collision -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-green">4</div>
+      <h2>Full Duplex Links &amp; Zero Collision Domain</h2>
+    </div>
+    <p class="body-text">
+      Every link between a device and a switch is a <strong>full-duplex link</strong>. This means data can flow in <em>both directions simultaneously</em> on the same wire &mdash; a device can send and receive at the same time without waiting.
+    </p>
+    <p class="body-text">
+      Because of full-duplex operation, there is <strong>no collision</strong> on any port. When A sends to the switch and the switch sends back to A, both happen at once &mdash; they use different pairs of wires (TX and RX) so they never interfere. The switch also creates a <strong>separate, dedicated circuit</strong> for each active conversation (e.g., A&rarr;B and C&rarr;D happen independently and simultaneously).
+    </p>
+
+    <!-- Full Duplex Diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#8644; Full-Duplex Communication &mdash; Simultaneous Send &amp; Receive</div>
+      <div class="diagram-body">
+        <div class="duplex-wrap">
+          <!-- Device A -->
+          <div class="duplex-device">
+            <div class="duplex-circle" style="background:#f0fdf4;border-color:#059669;color:#059669;">A</div>
+            <div class="duplex-label">Device A</div>
+          </div>
+
+          <!-- Arrows A <-> Switch -->
+          <div class="duplex-arrows">
+            <div class="duplex-arrow arr-send">&#8594; Data A to Switch</div>
+            <div class="duplex-arrow arr-recv">&#8592; Switch to A (reply)</div>
+            <div style="font-size:8px;color:var(--text-light);text-align:center;">simultaneous &#x2714;</div>
+          </div>
+
+          <!-- Switch Box -->
+          <div class="duplex-switch">SWITCH<br><span style="font-size:9px;color:#6ee7b7;font-weight:400;">Layer 2 · Full Duplex</span></div>
+
+          <!-- Arrows Switch <-> B -->
+          <div class="duplex-arrows">
+            <div class="duplex-arrow arr-send">Data to B &#8594;</div>
+            <div class="duplex-arrow arr-recv">&#8592; B replies</div>
+            <div style="font-size:8px;color:var(--text-light);text-align:center;">simultaneous &#x2714;</div>
+          </div>
+
+          <!-- Device B -->
+          <div class="duplex-device">
+            <div class="duplex-circle" style="background:#eff6ff;border-color:#2563eb;color:#2563eb;">B</div>
+            <div class="duplex-label">Device B</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+
+        <!-- Circuit isolation -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center;">
+          <div style="background:#f0fdf4;border:1.5px solid #6ee7b7;border-radius:10px;padding:14px;">
+            <div style="font-family:var(--mono);font-size:10px;color:#059669;font-weight:700;margin-bottom:8px;">CIRCUIT 1 (A ↔ B)</div>
+            <div style="font-size:0.8rem;color:#374151;">A sends to B<br><strong>Dedicated path</strong> created inside switch<br>No interference with other traffic</div>
+          </div>
+          <div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:14px;">
+            <div style="font-family:var(--mono);font-size:10px;color:#1e40af;font-weight:700;margin-bottom:8px;">CIRCUIT 2 (C ↔ D)</div>
+            <div style="font-size:0.8rem;color:#374151;">C sends to D<br><strong>Separate path</strong> inside switch<br>Runs concurrently with Circuit 1</div>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">A&rarr;B and C&rarr;D happen simultaneously inside the switch using separate internal circuits. They never collide. This is why collision domain = 0 in a switch.</div>
+    </div>
+
+    <div class="callout callout-green">
+      &#9989; <strong>Key Exam Fact:</strong> The number of collision domains in a switch = <strong>number of ports</strong>. Each port is its <em>own</em> collision domain. Because links are full-duplex, the actual number of collisions = <strong>0 (zero)</strong>. Switch completely eliminates collisions.
+    </div>
+  </div>
+
+  <!-- SECTION 5: MAC Address Table & Unicast Forwarding -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">5</div>
+      <h2>MAC Address Table &amp; Unicast Forwarding</h2>
+    </div>
+    <p class="body-text">
+      A switch works on <strong>Physical Addresses (MAC Addresses)</strong>. It maintains a <strong>MAC Address Table</strong> (also called a CAM table — Content Addressable Memory table) that maps each MAC address to the port it is connected to.
+    </p>
+    <p class="body-text">
+      When a frame arrives, the switch checks the <strong>destination MAC address</strong> and looks it up in its MAC table. It then forwards the frame <em>only</em> to the port where the destination device resides. Devices on other ports do <strong>not</strong> receive the frame. This is called <strong>unicast forwarding</strong> &mdash; sending to one specific destination.
+    </p>
+
+    <!-- MAC Table Visual -->
+    <div class="mac-table-wrap">
+      <div class="mac-table-title">&#128220; Switch MAC Address Table (CAM Table)</div>
+      <div class="mac-row header">
+        <span>MAC Address</span>
+        <span>Port</span>
+        <span>Device</span>
+      </div>
+      <div class="mac-row">
+        <span class="mac-addr">AA:BB:CC:DD:01:01</span>
+        <span class="mac-port">Port 1</span>
+        <span class="mac-device">Laptop A</span>
+      </div>
+      <div class="mac-row">
+        <span class="mac-addr">AA:BB:CC:DD:02:02</span>
+        <span class="mac-port">Port 2</span>
+        <span class="mac-device">Computer B</span>
+      </div>
+      <div class="mac-row">
+        <span class="mac-addr">AA:BB:CC:DD:03:03</span>
+        <span class="mac-port">Port 3</span>
+        <span class="mac-device">Printer C</span>
+      </div>
+      <div class="mac-row">
+        <span class="mac-addr">AA:BB:CC:DD:04:04</span>
+        <span class="mac-port">Port 4</span>
+        <span class="mac-device">Wireless AP D</span>
+      </div>
+    </div>
+
+    <div class="callout callout-teal">
+      &#128161; <strong>How it works:</strong> When A sends a frame to C, the switch reads destination MAC <code>AA:BB:CC:DD:03:03</code>, finds Port 3 in the MAC table, and sends the frame <em>only</em> to Port 3. Devices A, B, and D <strong>never receive</strong> this frame &mdash; this keeps traffic minimal.
+    </div>
+
+    <div class="feat-list">
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f0fdf4;">&#128228;</div>
+        <div>
+          <div class="feat-name">Forwarding (Unicast)</div>
+          <div class="feat-desc">
+            A switch <strong>forwards frames only to the intended destination port</strong> based on the destination MAC address in its table. This is unicast forwarding &mdash; unlike a hub which broadcasts to everyone, the switch sends to <em>one specific port</em>.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; YES &mdash; Forwards to correct port only</span>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f0fdf4;">&#128683;</div>
+        <div>
+          <div class="feat-name">Filtering</div>
+          <div class="feat-desc">
+            A switch <strong>can filter</strong>. Because it knows which device is on which port (via the MAC table), it suppresses the frame on all other ports. Only the destination port receives the frame &mdash; all others are filtered out.
+          </div>
+          <span class="feat-verdict v-yes">&#10003; YES &mdash; Switch CAN filter</span>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        <div class="feat-icon" style="background:#f0f9ff;">&#128226;</div>
+        <div>
+          <div class="feat-name">Broadcasting (Special Case)</div>
+          <div class="feat-desc">
+            A switch <strong>does broadcast</strong> in special cases: (1) When the destination MAC is <strong>unknown</strong> (not yet in the MAC table), it floods the frame to all ports to learn the destination. (2) For <strong>broadcast frames</strong> (destination = FF:FF:FF:FF:FF:FF), it forwards to all ports. But for known unicast traffic, it does <em>not</em> broadcast.
+          </div>
+          <span class="feat-verdict v-no">&#128226; Broadcasts only for unknown MACs / ARP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Traffic Comparison -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">6</div>
+      <h2>Traffic &mdash; Switch vs Hub</h2>
+    </div>
+    <p class="body-text">
+      Traffic in a switch-based network is <strong>minimal</strong> compared to a hub. In a hub, every frame goes to every device &mdash; creating enormous unnecessary traffic. In a switch, only the destination device receives the frame.
+    </p>
+
+    <!-- Traffic comparison diagram -->
+    <div class="diagram-box">
+      <div class="diagram-header">&#128226; Traffic Comparison &mdash; Hub (Broadcast) vs Switch (Unicast)</div>
+      <div class="diagram-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+          <!-- Hub side -->
+          <div style="text-align:center;">
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--red);margin-bottom:12px;">&#128165; HUB &mdash; A sends, ALL receive</div>
+            <svg viewBox="0 0 200 180" width="100%" aria-label="Hub broadcast">
+              <rect x="70" y="70" width="60" height="36" rx="8" fill="#1a2340" stroke="#e11d48" stroke-width="1.5"/>
+              <text x="100" y="87" text-anchor="middle" font-size="9" font-weight="700" fill="#fca5a5" font-family="'Inter',sans-serif">HUB</text>
+              <text x="100" y="98" text-anchor="middle" font-size="7" fill="#6b7280" font-family="'Inter',sans-serif">broadcasts</text>
+              <!-- A sender -->
+              <circle cx="30" cy="88" r="18" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+              <text x="30" y="93" text-anchor="middle" font-size="10" font-weight="700" fill="#ea580c" font-family="'JetBrains Mono',monospace">A</text>
+              <line x1="48" y1="88" x2="69" y2="88" stroke="#ea580c" stroke-width="1.5"/>
+              <!-- B forced -->
+              <circle cx="170" cy="30" r="18" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+              <text x="170" y="35" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">B</text>
+              <line x1="130" y1="74" x2="155" y2="44" stroke="#e11d48" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- C forced -->
+              <circle cx="170" cy="88" r="18" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+              <text x="170" y="93" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">C</text>
+              <line x1="130" y1="88" x2="152" y2="88" stroke="#e11d48" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- D forced -->
+              <circle cx="170" cy="148" r="18" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+              <text x="170" y="153" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48" font-family="'JetBrains Mono',monospace">D</text>
+              <line x1="130" y1="100" x2="155" y2="134" stroke="#e11d48" stroke-width="1" stroke-dasharray="4,2"/>
+              <!-- Labels -->
+              <text x="100" y="170" text-anchor="middle" font-size="7" fill="#9f1239" font-family="'Inter',sans-serif" font-weight="600">B, C, D all forced to receive!</text>
+            </svg>
+          </div>
+          <!-- Switch side -->
+          <div style="text-align:center;">
+            <div style="font-family:var(--sans);font-size:0.8rem;font-weight:700;color:var(--green);margin-bottom:12px;">&#9989; SWITCH &mdash; A sends, only B receives</div>
+            <svg viewBox="0 0 200 180" width="100%" aria-label="Switch unicast">
+              <rect x="70" y="70" width="60" height="36" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+              <text x="100" y="87" text-anchor="middle" font-size="9" font-weight="700" fill="#a7f3d0" font-family="'Inter',sans-serif">SWITCH</text>
+              <text x="100" y="98" text-anchor="middle" font-size="7" fill="#6ee7b7" font-family="'Inter',sans-serif">unicast only</text>
+              <!-- A sender -->
+              <circle cx="30" cy="88" r="18" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+              <text x="30" y="93" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">A</text>
+              <line x1="48" y1="88" x2="69" y2="88" stroke="#059669" stroke-width="1.5"/>
+              <!-- B receives -->
+              <circle cx="170" cy="30" r="18" fill="#f0fdf4" stroke="#059669" stroke-width="1.5"/>
+              <text x="170" y="35" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="'JetBrains Mono',monospace">B</text>
+              <line x1="130" y1="74" x2="155" y2="44" stroke="#059669" stroke-width="1.5"/>
+              <!-- C blocked -->
+              <circle cx="170" cy="88" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+              <text x="170" y="93" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8" font-family="'JetBrains Mono',monospace">C</text>
+              <line x1="130" y1="88" x2="152" y2="88" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
+              <text x="170" y="113" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="'Inter',sans-serif">filtered</text>
+              <!-- D blocked -->
+              <circle cx="170" cy="148" r="18" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+              <text x="170" y="153" text-anchor="middle" font-size="10" font-weight="700" fill="#94a3b8" font-family="'JetBrains Mono',monospace">D</text>
+              <line x1="130" y1="100" x2="155" y2="134" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
+              <text x="170" y="173" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="'Inter',sans-serif">filtered</text>
+              <!-- Target label -->
+              <text x="170" y="15" text-anchor="middle" font-size="7" fill="#059669" font-family="'Inter',sans-serif" font-weight="700">&#x2714; Only B receives</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="diagram-note">Hub wastes bandwidth sending to all devices. Switch sends only to the intended recipient, drastically reducing network traffic.</div>
+    </div>
+
+    <div class="callout callout-amber">
+      &#128202; <strong>Traffic comparison:</strong> With N devices on a hub, each frame consumes <strong>(N−1)</strong> unnecessary bandwidth slots. With a switch, each frame uses <strong>exactly 1</strong> bandwidth slot — only to the destination. This is why switches replaced hubs in all modern networks.
+    </div>
+  </div>
+
+  <!-- SECTION 7: Layer 2 vs Layer 3 (Smart Switch) -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">7</div>
+      <h2>Default Layer 2 &amp; Layer 3 Smart Switches</h2>
+    </div>
+    <p class="body-text">
+      By default, a switch is a <strong>Layer 2 device</strong>. It only understands MAC addresses and operates at the Data Link Layer. However, modern switches can be upgraded to <strong>Layer 3 (smart switches)</strong> &mdash; they gain IP routing capabilities, effectively combining switch and router functionality.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>OSI Layer</th><th>Address Used</th><th>Function</th><th>Also Called</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Standard Switch</strong></td>
+            <td class="emerald">Layer 2</td>
+            <td>MAC Address</td>
+            <td>Forwards frames within a LAN using MAC table</td>
+            <td>Multiport Bridge</td>
+          </tr>
+          <tr>
+            <td><strong>Smart / Layer 3 Switch</strong></td>
+            <td class="info">Layer 3</td>
+            <td>MAC + IP Address</td>
+            <td>Can route packets between different networks (like a router)</td>
+            <td>Multilayer Switch</td>
+          </tr>
+          <tr>
+            <td><strong>Router</strong></td>
+            <td class="info">Layer 3</td>
+            <td>IP Address</td>
+            <td>Routes packets between different networks</td>
+            <td>Network Layer Device</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-purple">
+      &#128161; <strong>Exam Tip:</strong> When a question says "switch", always assume <strong>Layer 2</strong> by default unless "Layer 3 switch" or "multilayer switch" is explicitly mentioned. The router is the standard Layer 3 network device.
+    </div>
+  </div>
+
+  <!-- SECTION 8: Complete Quick-Reference -->
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-sky">8</div>
+      <h2>Complete Switch Quick-Reference</h2>
+    </div>
+    <div class="exam-strip">
+      <span class="epill ep-gate">GATE</span>
+      <span class="epill ep-ugc">UGC NET</span>
+      <span class="epill ep-psu">PSUs</span>
+      <span class="epill ep-int">Interviews</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Switch</th><th>Notes / Why</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>OSI Layer</strong></td><td class="emerald">L2 &mdash; Data Link Layer</td><td>Also includes Physical Layer (L1)</td></tr>
+          <tr><td><strong>Also called</strong></td><td class="info">Multiport Bridge</td><td>Bridge = 2 ports; Switch = many ports</td></tr>
+          <tr><td><strong>Address used</strong></td><td class="ok">MAC Address (Physical)</td><td>Maintains MAC Address Table / CAM table</td></tr>
+          <tr><td><strong>Port configurations</strong></td><td>8 / 24 / 48 / 52+</td><td>Common in labs, offices, data centres</td></tr>
+          <tr><td><strong>Link type</strong></td><td class="ok">Full Duplex</td><td>Send and receive simultaneously; no waiting</td></tr>
+          <tr><td><strong>Forwarding</strong></td><td class="ok">YES &mdash; Unicast</td><td>Sends frame to destination port only</td></tr>
+          <tr><td><strong>Filtering</strong></td><td class="ok">YES</td><td>Drops frame on all ports except destination</td></tr>
+          <tr><td><strong>Broadcasting</strong></td><td class="must">Only for unknown MACs</td><td>Normal unicast traffic is never broadcast</td></tr>
+          <tr><td><strong>Collision Domain</strong></td><td class="ok">Zero (0)</td><td>Full-duplex = no collisions possible</td></tr>
+          <tr><td><strong>Traffic</strong></td><td class="ok">Minimal / Low</td><td>Only destination device receives each frame</td></tr>
+          <tr><td><strong>Default layer</strong></td><td class="emerald">Layer 2</td><td>Can be upgraded to L3 (multilayer/smart switch)</td></tr>
+          <tr><td><strong>Cost</strong></td><td class="good">Medium &mdash; High</td><td>More expensive than hub/repeater; cheaper than router</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- end panel-desc -->
+
+<!-- ===================== REVISION PANEL ===================== -->
+<div id="panel-rev" class="panel">
+
+  <div class="callout callout-emerald" style="margin-bottom:28px;">
+    &#9889; <strong>Revision Mode</strong> &mdash; Flash-card summaries for GATE, UGC NET &amp; PSU exam quick prep.
+  </div>
+
+  <div class="cheat-div"><span>IDENTITY &amp; BASICS</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">OSI Layer &amp; Type</div>
+      <ul class="bullet-list">
+        <li>Layer: <span class="tag-e">Data Link Layer (L2)</span></li>
+        <li>Also called: <span class="val">Multiport Bridge</span></li>
+        <li>Address: <span class="tag-g">MAC Address (Physical Address)</span></li>
+        <li>Has MAC Address Table / CAM table</li>
+        <li>Ports: <span class="val">8 / 24 / 48 / 52+</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Switch vs Bridge</div>
+      <ul class="bullet-list">
+        <li>Bridge: <span class="val">2 ports only</span> — connects 2 LANs</li>
+        <li>Switch: <span class="val">multiple ports</span> — connects many devices</li>
+        <li>Both are <span class="tag-e">Layer 2</span> devices</li>
+        <li>Switch = multiport bridge (key definition)</li>
+        <li>Switch supports full-duplex; bridge often half-duplex</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Role in Network</div>
+      <ul class="bullet-list">
+        <li>Central device of a LAN</li>
+        <li>Devices → Switch → Router → Internet</li>
+        <li>Connects PC, Laptop, Printer, Wireless AP</li>
+        <li>Lab: plug Ethernet → switch → router → WWW</li>
+        <li>Devices do NOT connect directly to router</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>FULL DUPLEX &amp; COLLISION</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#8644; Full Duplex</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">Send and receive simultaneously</span></li>
+        <li>Separate TX and RX wire pairs</li>
+        <li>No need to wait or take turns</li>
+        <li>A→B and C→D can happen at same time</li>
+        <li>Each conversation = dedicated internal circuit</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128165; Collision Domain</div>
+      <ul class="bullet-list">
+        <li>Collisions: <span class="tag-g">ZERO (0)</span></li>
+        <li>Each port = its own collision domain</li>
+        <li>N-port switch = N collision domains</li>
+        <li>Full-duplex makes collisions impossible</li>
+        <li>Hub: 1 shared domain; Switch: 0 collisions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>FORWARDING, FILTERING &amp; TRAFFIC</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#128228; Forwarding (Unicast)</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">YES</span> — forwards to destination port only</li>
+        <li>Checks destination MAC in MAC table</li>
+        <li>Sends frame to exactly 1 port</li>
+        <li>Builds MAC table by learning source MACs</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128683; Filtering</div>
+      <ul class="bullet-list">
+        <li><span class="tag-g">YES</span> — switch CAN filter</li>
+        <li>Drops frame on all ports except destination</li>
+        <li>MAC table enables filtering</li>
+        <li>Hub cannot filter; switch can</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128226; Traffic &amp; Broadcasting</div>
+      <ul class="bullet-list">
+        <li>Traffic: <span class="tag-g">Minimal / Low</span></li>
+        <li>Only destination receives each frame</li>
+        <li>Broadcasts only for <span class="val">unknown MACs</span></li>
+        <li>Broadcast for FF:FF:FF:FF:FF:FF frames</li>
+        <li>Normal unicast: no broadcast, no wasted bandwidth</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>LAYER 2 vs LAYER 3 &amp; COMPARISON</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">&#9889; L2 vs L3 Switch</div>
+      <ul class="bullet-list">
+        <li>Default: <span class="tag-e">Layer 2 switch</span></li>
+        <li>Can be upgraded to <span class="tag-s">Layer 3 (smart switch)</span></li>
+        <li>L3 switch: adds IP routing capability</li>
+        <li>Router = standard L3 device</li>
+        <li>Exam: always assume L2 unless stated</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">&#128161; Switch vs Hub Summary</div>
+      <ul class="bullet-list">
+        <li>Hub: Layer 1; Switch: <span class="tag-e">Layer 2</span></li>
+        <li>Hub: broadcasts all; Switch: <span class="tag-g">unicast</span></li>
+        <li>Hub: collision = N; Switch: <span class="tag-g">collision = 0</span></li>
+        <li>Hub: high traffic; Switch: <span class="tag-g">low traffic</span></li>
+        <li>Hub: no filtering; Switch: <span class="tag-g">filters by MAC</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#127919; Top Exam Points for Switch</h3>
+    <ul class="bullet-list">
+      <li>Switch = <span class="tag-e">Multiport Bridge</span> at <span class="tag-e">Layer 2 (Data Link Layer)</span></li>
+      <li>Uses <span class="val">MAC addresses</span>, not IP addresses (by default)</li>
+      <li>Links are <span class="tag-g">Full Duplex</span> → send &amp; receive simultaneously</li>
+      <li>Collision domain per port → <span class="tag-g">0 total collisions</span></li>
+      <li>Traffic is <span class="tag-g">minimal</span> — unicast to destination only</li>
+      <li>Can filter; hub cannot &mdash; this is the key advantage over hub</li>
+      <li>Broadcasts only for <span class="val">unknown MACs</span> (flooding) or ARP</li>
+      <li>Default = L2; can be made L3 as a smart/multilayer switch</li>
+      <li>In network: Devices → Switch → Router → Internet</li>
+    </ul>
+    <div class="tags">
+      <span class="tag tag-exam">GATE PYQ</span>
+      <span class="tag tag-exam">UGC NET</span>
+      <span class="tag tag-exam">PSU Exam</span>
+      <span class="tag tag-exam">Interviews</span>
+      <span class="tag">Layer 2</span>
+      <span class="tag">MAC Address</span>
+      <span class="tag">Full Duplex</span>
+      <span class="tag">Zero Collision</span>
+      <span class="tag">Unicast</span>
+      <span class="tag">CAM Table</span>
+      <span class="tag">Multiport Bridge</span>
+    </div>
+  </div>
+
+</div><!-- end panel-rev -->
+
+</div><!-- content-wrap -->
+
+<script>
+function switchPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
