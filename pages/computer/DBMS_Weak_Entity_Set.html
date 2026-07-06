@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 20: Weak Entity Set — owner entity, identifying relationship, total participation, partial key, Employee-Dependent example, and relational table conversion.">
+<meta name="robots" content="index, follow">
+<title>Weak Entity Set — DBMS Topic 20 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Weak_Entity_Set.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --bluebg:#E3F2FD;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --amber:#FF8F00; --amberl:#FFF8E1;
+    --indigo:#283593; --indigol:#E8EAF6; --text:#1A1A1A; --dkgray:#424242; --mdgray:#757575;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--red);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--red);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--red);}
+  .toggle-wrap{display:flex;background:var(--redl);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--red);color:#fff;box-shadow:0 2px 12px rgba(198,40,40,.3);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#3b0a0a 0%,#c62828 48%,#6a1b9a 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 76% 42%,rgba(255,205,210,.22) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:860px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#ffcdd2;}
+  .hero-sub{color:rgba(255,255,255,.74);font-size:14px;max-width:650px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.86);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.red{background:var(--redl);border-color:var(--red);color:var(--dkgray);}
+  .info-box.green{background:var(--greenl);border-color:var(--green);color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .symbol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px;}
+  .symbol-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+  .symbol-shape{height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .rect{width:140px;height:48px;border:3px solid var(--blue);background:var(--bluebg);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--blue);}
+  .double-rect{width:148px;height:56px;border:3px double var(--red);background:var(--redl);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--red);}
+  .double-diamond{width:74px;height:74px;border:5px double var(--orange);background:var(--orangel);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;}
+  .double-diamond span{transform:rotate(-45deg);font-weight:800;color:var(--orange);font-size:11px;}
+  .symbol-name{font-weight:700;font-size:13.5px;color:var(--navy);margin-bottom:4px;}
+  .symbol-detail{font-size:12.5px;color:var(--dkgray);line-height:1.5;}
+
+  .er-wrap{padding:24px 18px;overflow-x:auto;}
+  .er-row{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;min-width:680px;}
+  .entity{border:3px solid var(--blue);background:var(--bluebg);border-radius:8px;min-height:92px;padding:12px;text-align:center;}
+  .weak-entity{border:5px double var(--red);background:var(--redl);border-radius:8px;min-height:92px;padding:12px;text-align:center;}
+  .entity-name{font-weight:800;color:var(--blue);font-size:15px;margin-bottom:8px;}
+  .weak-entity .entity-name{color:var(--red);}
+  .attrs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .attr{border:2px solid var(--green);background:var(--greenl);color:var(--green);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;}
+  .attr.key{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;border-color:var(--amber);background:var(--amberl);color:var(--amber);}
+  .attr.partial{text-decoration:underline dotted;text-decoration-thickness:2px;text-underline-offset:3px;border-color:var(--purple);background:var(--purplel);color:var(--purple);}
+  .rel-center{display:grid;grid-template-columns:70px 112px 70px;align-items:center;}
+  .line{height:3px;background:#94a3b8;}
+  .line.double{height:6px;background:repeating-linear-gradient(0deg,#94a3b8 0 2px,transparent 2px 4px);}
+  .line.left{margin-right:-20px;}
+  .line.right{margin-left:-20px;}
+  .relationship{position:relative;width:112px;height:112px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+  .relationship::before{content:'';position:absolute;width:74px;height:74px;border:5px double var(--orange);background:var(--orangel);transform:rotate(45deg);border-radius:4px;}
+  .relationship span{position:relative;font-weight:800;color:var(--orange);font-size:13px;}
+
+  .tables-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+  .table-card{border-radius:10px;overflow:hidden;border:2px solid;}
+  .table-title{padding:9px 14px;color:#fff;font-weight:700;font-size:13px;text-align:center;}
+  .data-table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;}
+  .data-table th{padding:7px 10px;text-align:left;font-size:11.5px;background:#f8fafc;}
+  .data-table td{padding:7px 10px;border-top:1px solid rgba(0,0,0,.07);}
+  .data-table tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .pk{background:var(--amberl)!important;color:var(--amber);font-weight:700;}
+  .fk{background:var(--tealL)!important;color:var(--teal);font-weight:700;}
+  .partial{background:var(--purplel)!important;color:var(--purple);font-weight:700;}
+  .null{color:var(--mdgray);font-style:italic;}
+
+  .flow{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;padding:16px;}
+  .flow-box{border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;padding:16px;}
+  .flow-title{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:8px;}
+  .flow-text{font-size:13px;line-height:1.6;color:var(--dkgray);}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--red);font-size:28px;font-weight:800;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:155px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+  @media(max-width:720px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .symbol-grid,.tables-grid,.flow{grid-template-columns:1fr;}
+    .arrow{line-height:1;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 21</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Weak Entity Set</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 20: Weak Entity Set</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 21 • ER MODEL</div>
+    <h1>Weak Entity<br><span>Set</span></h1>
+    <p class="hero-sub">Weak entity, owner entity, identifying relationship, total participation, partial key, and Employee-Dependent relational conversion.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">ER Model</span><span class="badge">Weak Entity</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);color:#fff;">1</div>
+    <h2>What is a Weak Entity?</h2>
+  </div>
+  <p class="prose">A <b>Weak Entity</b> is an entity that does not have its own Primary Key. It cannot be uniquely identified by its own attributes alone, so it depends on another entity called the <b>Owner Entity</b>.</p>
+  <div class="info-box red">
+    <b>Main rule:</b> Weak entities do not have a proper Primary Key and cannot exist independently.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">2</div>
+    <h2>ER Notation</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">Weak Entity Symbols</div>
+    <div class="symbol-grid">
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="rect">Strong Entity</div></div>
+        <div class="symbol-name">Single Rectangle</div>
+        <div class="symbol-detail">Normal entity with its own Primary Key.</div>
+      </div>
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="double-rect">Weak Entity</div></div>
+        <div class="symbol-name">Double Rectangle</div>
+        <div class="symbol-detail">Entity without its own Primary Key.</div>
+      </div>
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="double-diamond"><span>Has</span></div></div>
+        <div class="symbol-name">Double Diamond</div>
+        <div class="symbol-detail">Identifying relationship with owner entity.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Partial key is shown with dotted underline. Key attribute is shown with normal underline.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">3</div>
+    <h2>Employee-Dependent Example</h2>
+  </div>
+  <p class="prose">A company stores employee data using <code>Emp_ID</code> as Primary Key. Dependents of employees, such as spouse or children, are known through the employee. The company does not identify dependents independently; it identifies them through the owner employee.</p>
+  <div class="diagram">
+    <div class="diagram-title">Employee Has Dependent</div>
+    <div class="er-wrap">
+      <div class="er-row">
+        <div class="entity">
+          <div class="entity-name">Employee</div>
+          <div class="attrs"><span class="attr key">Emp_ID</span><span class="attr">Name</span><span class="attr">Address</span></div>
+        </div>
+        <div class="rel-center">
+          <div class="line left"></div>
+          <div class="relationship"><span>Has</span></div>
+          <div class="line double right"></div>
+        </div>
+        <div class="weak-entity">
+          <div class="entity-name">Dependent</div>
+          <div class="attrs"><span class="attr partial">Dep_Name</span><span class="attr">Age</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Dependent is weak. Has is identifying relationship. Dependent participates totally.</div>
+  </div>
+
+  <div class="info-box green">
+    <b>Total participation:</b> Every dependent must be related to some employee. But every employee need not have a dependent, so Employee participation may be partial.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">4</div>
+    <h2>Why Partial Key?</h2>
+  </div>
+  <p class="prose">A weak entity has no complete Primary Key. So we choose a <b>partial key</b>, also called discriminator, that helps distinguish weak entity records under the same owner. In the example, <code>Dep_Name</code> can be a partial key, even though names may repeat across different employees.</p>
+  <div class="diagram">
+    <div class="diagram-title">Dependent Data Example</div>
+    <div class="tables-grid">
+      <div class="table-card" style="border-color:var(--blue);">
+        <div class="table-title" style="background:var(--blue);">Employee</div>
+        <table class="data-table">
+          <thead><tr><th>Emp_ID</th><th>Name</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td class="pk">E1</td><td>Varun</td><td>Chandigarh</td></tr>
+            <tr><td class="pk">E2</td><td>Ravi</td><td>Delhi</td></tr>
+            <tr><td class="pk">E3</td><td>Amrit</td><td>Bombay</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-card" style="border-color:var(--red);">
+        <div class="table-title" style="background:var(--red);">Dependent Meaning</div>
+        <table class="data-table">
+          <thead><tr><th>Emp_ID</th><th>Dep_Name</th><th>Age</th></tr></thead>
+          <tbody>
+            <tr><td class="fk">E1</td><td class="partial">A</td><td>16</td></tr>
+            <tr><td class="fk">E1</td><td class="partial">B</td><td>17</td></tr>
+            <tr><td class="fk">E2</td><td class="partial">A</td><td>16</td></tr>
+            <tr><td class="fk">E3</td><td class="null">No dependent</td><td class="null">NULL</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="diagram-caption">Dependent name can repeat across employees. It becomes unique only with Emp_ID.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">5</div>
+    <h2>Conversion to Relational Tables</h2>
+  </div>
+  <p class="prose">While converting to relational tables, do not create three separate tables for Employee, Has, and Dependent. The weak entity and identifying relationship are merged. Final result is two tables: <code>Employee</code> and <code>Has_Dependent</code>.</p>
+  <div class="diagram">
+    <div class="diagram-title">Weak Entity Table Conversion</div>
+    <div class="flow">
+      <div class="flow-box">
+        <div class="flow-title">ER View</div>
+        <div class="flow-text">Employee entity + Has identifying relationship + Dependent weak entity.</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-box">
+        <div class="flow-title">Relational View</div>
+        <div class="flow-text">Employee table + Has_Dependent table. Weak entity and identifying relationship are merged.</div>
+      </div>
+    </div>
+    <div class="tables-grid">
+      <div class="table-card" style="border-color:var(--blue);">
+        <div class="table-title" style="background:var(--blue);">Employee</div>
+        <table class="data-table">
+          <thead><tr><th>Emp_ID</th><th>Name</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td class="pk">E1</td><td>Varun</td><td>Chandigarh</td></tr>
+            <tr><td class="pk">E2</td><td>Ravi</td><td>Delhi</td></tr>
+            <tr><td class="pk">E3</td><td>Amrit</td><td>Bombay</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-card" style="border-color:var(--green);">
+        <div class="table-title" style="background:var(--green);">Has_Dependent</div>
+        <table class="data-table">
+          <thead><tr><th>Emp_ID (FK)</th><th>Dep_Name</th><th>Age</th></tr></thead>
+          <tbody>
+            <tr><td class="fk">E1</td><td class="partial">A</td><td>16</td></tr>
+            <tr><td class="fk">E1</td><td class="partial">B</td><td>17</td></tr>
+            <tr><td class="fk">E2</td><td class="partial">A</td><td>16</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="diagram-caption">Primary Key of Has_Dependent is composite: Emp_ID + Dep_Name.</div>
+  </div>
+
+  <div class="info-box orange">
+    <b>Primary key after conversion:</b> <code>Emp_ID</code> alone can repeat, and <code>Dep_Name</code> alone can repeat. Together, <code>(Emp_ID, Dep_Name)</code> form the composite Primary Key.
+  </div>
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);"><div class="rev-num">1</div>Core Definitions</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Weak entity:</span><span class="rv">Entity with no Primary Key of its own.</span></div>
+      <div class="rev-kv"><span class="rk">Owner entity:</span><span class="rv">Strong entity that identifies the weak entity.</span></div>
+      <div class="rev-kv"><span class="rk">Identifying relationship:</span><span class="rv">Relationship connecting weak entity with owner entity.</span></div>
+      <div class="rev-kv"><span class="rk">Partial key:</span><span class="rv">Attribute that helps distinguish weak entity records under the same owner.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);"><div class="rev-num">2</div>Notation Table</div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Concept</th><th>ER Representation</th></tr></thead>
+        <tbody>
+          <tr><td>Strong entity</td><td>Single rectangle</td></tr>
+          <tr><td>Weak entity</td><td>Double rectangle</td></tr>
+          <tr><td>Identifying relationship</td><td>Double diamond</td></tr>
+          <tr><td>Partial key</td><td>Dotted underline</td></tr>
+          <tr><td>Total participation of weak entity</td><td>Double line to identifying relationship</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);"><div class="rev-num">3</div>Employee-Dependent Conversion</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Owner table:</span><span class="rv"><code>Employee(Emp_ID, Name, Address)</code>, where Emp_ID is PK.</span></div>
+      <div class="rev-kv"><span class="rk">Weak table:</span><span class="rv"><code>Has_Dependent(Emp_ID, Dep_Name, Age)</code>.</span></div>
+      <div class="rev-kv"><span class="rk">Foreign key:</span><span class="rv">Emp_ID references Employee(Emp_ID).</span></div>
+      <div class="rev-kv"><span class="rk">Primary key:</span><span class="rv">Composite: <code>(Emp_ID, Dep_Name)</code>.</span></div>
+      <div class="rev-kv"><span class="rk">Number of tables:</span><span class="rv">2 tables, not 3.</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

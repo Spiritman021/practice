@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 22: GATE 2018 ER Model PYQ — many-to-one relationship with total participation, mapping rules, option analysis, and final answer.">
+<meta name="robots" content="index, follow">
+<title>GATE 2018 Many-to-One Relationship PYQ — DBMS Topic 22 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_GATE_2018_Many_to_One_Total_Participation.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --bluebg:#E3F2FD;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --amber:#FF8F00; --amberl:#FFF8E1;
+    --indigo:#283593; --indigol:#E8EAF6; --text:#1A1A1A; --dkgray:#424242; --mdgray:#757575;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--teal);}
+  .toggle-wrap{display:flex;background:var(--tealL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 12px rgba(0,105,92,.3);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#064e3b 0%,#00695c 48%,#283593 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 76% 42%,rgba(128,203,196,.22) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:860px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#80cbc4;}
+  .hero-sub{color:rgba(255,255,255,.74);font-size:14px;max-width:670px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.86);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.teal{background:var(--tealL);border-color:var(--teal);color:var(--teal);}
+  .info-box.green{background:var(--greenl);border-color:var(--green);color:var(--dkgray);}
+  .info-box.red{background:var(--redl);border-color:var(--red);color:var(--dkgray);}
+
+  .question-card{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.06);}
+  .question-head{background:var(--teal);color:#fff;padding:13px 18px;font-weight:700;font-size:14px;}
+  .question-body{padding:18px 20px;}
+  .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .option{padding:11px 14px;border-radius:9px;border:1px solid #e0e0e0;background:#fafafa;font-size:13px;font-weight:700;}
+  .option.correct{background:var(--greenl);border-color:#a5d6a7;color:var(--green);}
+  .option.wrong{background:var(--redl);border-color:#ef9a9a;color:var(--red);}
+
+  .er-wrap{padding:24px 18px;overflow-x:auto;}
+  .er-row{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;min-width:650px;}
+  .entity{border:3px solid var(--blue);background:var(--bluebg);border-radius:8px;min-height:82px;padding:12px;text-align:center;}
+  .entity-name{font-weight:800;color:var(--blue);font-size:15px;margin-bottom:8px;}
+  .set-items{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .item{border:2px solid var(--green);background:var(--greenl);color:var(--green);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;}
+  .rel-center{display:grid;grid-template-columns:70px 112px 70px;align-items:center;}
+  .line{height:3px;background:#94a3b8;}
+  .line.double{height:6px;background:repeating-linear-gradient(0deg,#94a3b8 0 2px,transparent 2px 4px);}
+  .line.left{margin-right:-20px;}
+  .line.right{margin-left:-20px;}
+  .relationship{position:relative;width:112px;height:112px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+  .relationship::before{content:'';position:absolute;width:74px;height:74px;border:3px solid var(--orange);background:var(--orangel);transform:rotate(45deg);border-radius:4px;}
+  .relationship span{position:relative;font-weight:800;color:var(--orange);font-size:13px;}
+  .cardinality{font-family:'Space Mono',monospace;font-size:20px;font-weight:800;color:var(--teal);text-align:center;margin-top:10px;}
+
+  .mapping{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+  .map-box{border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;padding:16px;}
+  .map-title{font-weight:800;color:var(--navy);font-size:13px;margin-bottom:10px;}
+  .map-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;font-weight:700;}
+  .node{min-width:34px;text-align:center;border-radius:999px;padding:5px 10px;background:var(--bluebg);color:var(--blue);border:1px solid #90caf9;}
+  .target{background:var(--tealL);color:var(--teal);border-color:#80cbc4;}
+  .bad{background:var(--redl);color:var(--red);border-color:#ef9a9a;}
+  .map-arrow{color:var(--mdgray);font-family:'Space Mono',monospace;}
+
+  .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .analysis-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .analysis-head{padding:11px 16px;color:#fff;font-weight:700;font-size:13px;}
+  .analysis-body{padding:14px 16px;font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+
+  .answer-strip{background:var(--greenl);border:1.5px solid #a5d6a7;border-radius:12px;padding:16px 20px;margin:18px 0;color:var(--green);font-weight:700;text-align:center;line-height:1.6;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:145px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:720px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .option-grid,.mapping,.analysis-grid{grid-template-columns:1fr;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 23</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>GATE 2018 Relationship PYQ</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 22: GATE 2018 Relationship PYQ</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 23 • GATE 2018 PYQ</div>
+    <h1>Many-to-One<br><span>Total Participation</span></h1>
+    <p class="hero-sub">A solved GATE 2018 ER Model question on many-to-one relationship, total participation, and exactly-one association rules.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE 2018</span><span class="badge">ER Model</span>
+      <span class="badge">Cardinality</span><span class="badge">Total Participation</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">1</div>
+    <h2>Question Statement</h2>
+  </div>
+  <div class="question-card">
+    <div class="question-head">GATE 2018 — Relationship Model</div>
+    <div class="question-body">
+      <p class="prose">Consider two entity sets <code>E1</code> and <code>E2</code> connected by a relationship <code>R</code>. The relationship is <b>many-to-one from E1 to E2</b>, and both entity sets participate <b>totally</b> in the relationship. Which statement is true?</p>
+      <div class="option-grid">
+        <div class="option correct">A. Every entity in E1 is associated with exactly one entity in E2.</div>
+        <div class="option wrong">B. Some entity in E1 is associated with more than one entity in E2.</div>
+        <div class="option wrong">C. Every entity in E2 is associated with exactly one entity in E1.</div>
+        <div class="option wrong">D. Every entity in E2 is associated with at most one entity in E1.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2>Draw the Relationship</h2>
+  </div>
+  <p class="prose">A many-to-one relationship from <code>E1</code> to <code>E2</code> means many entities of <code>E1</code> can map to one entity of <code>E2</code>. But one entity of <code>E1</code> cannot map to multiple entities of <code>E2</code>.</p>
+  <div class="diagram">
+    <div class="diagram-title">Many-to-One with Total Participation</div>
+    <div class="er-wrap">
+      <div class="er-row">
+        <div class="entity">
+          <div class="entity-name">E1: Students</div>
+          <div class="set-items"><span class="item">1</span><span class="item">2</span><span class="item">3</span><span class="item">4</span></div>
+        </div>
+        <div>
+          <div class="rel-center">
+            <div class="line double left"></div>
+            <div class="relationship"><span>R</span></div>
+            <div class="line double right"></div>
+          </div>
+          <div class="cardinality">M : 1</div>
+        </div>
+        <div class="entity">
+          <div class="entity-name">E2: Colleges</div>
+          <div class="set-items"><span class="item">C1</span><span class="item">C2</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Double lines show total participation: every entity on both sides must participate at least once.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">3</div>
+    <h2>Valid Sample Mapping</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">Data Must Follow Both Conditions</div>
+    <div class="mapping">
+      <div class="map-box">
+        <div class="map-title">Valid Mapping</div>
+        <div class="map-row"><span class="node">1</span><span class="map-arrow">→</span><span class="node target">C1</span></div>
+        <div class="map-row"><span class="node">2</span><span class="map-arrow">→</span><span class="node target">C2</span></div>
+        <div class="map-row"><span class="node">3</span><span class="map-arrow">→</span><span class="node target">C2</span></div>
+        <div class="map-row"><span class="node">4</span><span class="map-arrow">→</span><span class="node target">C2</span></div>
+      </div>
+      <div class="map-box">
+        <div class="map-title">Why It Works</div>
+        <p class="prose">Every E1 entity appears exactly once. Every E2 entity appears at least once. Multiple E1 entities may point to the same E2 entity, so the relationship remains many-to-one.</p>
+      </div>
+    </div>
+    <div class="diagram-caption">This is like each student studying in exactly one college, while a college can have many students.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">4</div>
+    <h2>Option Analysis</h2>
+  </div>
+  <div class="analysis-grid">
+    <div class="analysis-card">
+      <div class="analysis-head" style="background:var(--green);">A is True</div>
+      <div class="analysis-body">Total participation of E1 means every E1 must participate. Many-to-one means each E1 can connect to only one E2. So every E1 is associated with exactly one E2.</div>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-head" style="background:var(--red);">B is False</div>
+      <div class="analysis-body">If one E1 entity connects to more than one E2 entity, it becomes many-to-many from the E1 perspective. That violates many-to-one.</div>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-head" style="background:var(--red);">C is False</div>
+      <div class="analysis-body">An E2 entity can be associated with many E1 entities. It is not restricted to exactly one E1.</div>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-head" style="background:var(--red);">D is False</div>
+      <div class="analysis-body">At most one E1 for each E2 would mean one-to-one, not many-to-one. In M:1, an E2 can have multiple E1 entities.</div>
+    </div>
+  </div>
+
+  <div class="info-box teal">
+    <b>Shortcut:</b> M:1 from E1 to E2 + total participation of E1 = every E1 has exactly one E2.
+  </div>
+
+  <div class="answer-strip">
+    Final Answer: <b>Option A</b> — Every entity in E1 is associated with exactly one entity in E2.
+  </div>
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);"><div class="rev-num">1</div>Question Snapshot</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Relationship:</span><span class="rv">Many-to-one from E1 to E2.</span></div>
+      <div class="rev-kv"><span class="rk">Participation:</span><span class="rv">Both E1 and E2 participate totally.</span></div>
+      <div class="rev-kv"><span class="rk">Meaning:</span><span class="rv">Every E1 maps to exactly one E2; every E2 must have at least one E1.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);"><div class="rev-num">2</div>True / False Logic</div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Statement</th><th>Verdict</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Every E1 has exactly one E2</td><td>True</td><td>Total participation + many-to-one.</td></tr>
+          <tr><td>Some E1 has more than one E2</td><td>False</td><td>Would violate M:1.</td></tr>
+          <tr><td>Every E2 has exactly one E1</td><td>False</td><td>E2 may have many E1 entities.</td></tr>
+          <tr><td>Every E2 has at most one E1</td><td>False</td><td>That would be 1:1, not M:1.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);"><div class="rev-num">3</div>Final Answer</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Correct option:</span><span class="rv"><b>A</b></span></div>
+      <div class="rev-kv"><span class="rk">Memory line:</span><span class="rv">In M:1 from E1 to E2, each E1 can point to only one E2.</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
