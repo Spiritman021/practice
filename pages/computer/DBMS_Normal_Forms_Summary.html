@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 32: Summary of all normal forms from 1NF to 5NF with real-life examples, dependency rules, BCNF, multivalued dependency, and lossless decomposition.">
+<meta name="robots" content="index, follow">
+<title>Normal Forms Summary - DBMS Topic 32 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Normal_Forms_Summary.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --blueL:#E3F2FD;
+    --green:#2E7D32; --greenL:#E8F5E9; --red:#C62828; --redL:#FFEBEE;
+    --orange:#E65100; --orangeL:#FFF3E0; --purple:#6A1B9A; --purpleL:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --line:#e2e8f0; --text:#1A1A1A; --muted:#64748b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--purple);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--purple);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--purple);}
+  .toggle-wrap{display:flex;background:var(--purpleL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:#334155;background:transparent;}
+  .toggle-btn.active{background:var(--purple);color:#fff;box-shadow:0 2px 12px rgba(106,27,154,.28);}
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .hero{background:linear-gradient(135deg,#1e1b4b 0%,#6a1b9a 48%,#00695c 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 78% 34%,rgba(243,229,245,.28) 0%,transparent 58%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:920px;}
+  .hero-tag{display:inline-block;background:#FF8F00;color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#e1bee7;}
+  .hero-sub{color:rgba(255,255,255,.8);font-size:14px;max-width:760px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+  .main{max-width:980px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+  .diagram{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-body{padding:18px;overflow-x:auto;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--muted);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+  .nf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0;}
+  .nf-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+  .nf-head{padding:12px 15px;color:#fff;font-weight:800;font-size:13px;}
+  .nf-body{padding:14px 15px;font-size:13.2px;line-height:1.65;color:#334155;}
+  .nf-body b{color:var(--navy);}
+  .ladder{display:grid;grid-template-columns:repeat(6,150px);gap:10px;min-width:940px;align-items:stretch;}
+  .step{border:2px solid var(--line);border-radius:12px;background:#f8fafc;padding:14px;text-align:center;}
+  .step-title{font-family:'Space Mono',monospace;font-weight:800;color:var(--navy);font-size:15px;margin-bottom:8px;}
+  .step-text{font-size:12px;line-height:1.5;color:#334155;}
+  .data-table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px;}
+  .data-table th{background:#0f172a;color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;white-space:nowrap;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top;}
+  .data-table tr:nth-child(even) td{background:#f8fafc;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .problem{background:var(--redL)!important;color:#991b1b;font-weight:800;}
+  .ok{color:var(--green);font-weight:800;}
+  .warn{color:var(--orange);font-weight:800;}
+  .decomp{display:grid;grid-template-columns:1.1fr auto 1.25fr;gap:16px;align-items:center;min-width:760px;}
+  .schema-box{border:2px solid var(--line);border-radius:12px;background:#f8fafc;padding:14px;text-align:center;}
+  .schema-title{font-family:'Space Mono',monospace;font-weight:800;color:var(--navy);font-size:13px;margin-bottom:8px;}
+  .schema-cols{font-size:12.5px;line-height:1.65;color:#334155;}
+  .flow-arrow{font-size:30px;font-weight:900;color:var(--purple);text-align:center;}
+  .stack{display:flex;flex-direction:column;gap:12px;}
+  .stack .schema-box:first-child{background:var(--blueL);border-color:#90caf9;}
+  .stack .schema-box:last-child{background:var(--greenL);border-color:#a5d6a7;}
+  .info-box{border-left:4px solid;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;line-height:1.7;background:#fff;}
+  .info-box.purple{background:var(--purpleL);border-color:var(--purple);}
+  .info-box.green{background:var(--greenL);border-color:var(--green);}
+  .info-box.orange{background:var(--orangeL);border-color:var(--orange);}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+  @media(max-width:760px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .ph-breadcrumb .back-btn{margin-left:0;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:34px;}
+    .main{padding:24px 16px 60px;}
+    .nf-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 33</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Normal Forms Summary</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 32: Normal Forms Summary</span><a class="back-btn" href="dbms.html">Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 33 • NORMAL FORMS SUMMARY</div>
+    <h1>All Normal Forms<br><span>Quick Summary</span></h1>
+    <p class="hero-sub">A fast revision of 1NF, 2NF, 3NF, BCNF, 4NF, and 5NF using exam-friendly rules and real-life style examples.</p>
+    <div class="hero-badges">
+      <span class="badge">1NF to 5NF</span><span class="badge">Dependency Rules</span>
+      <span class="badge">4NF MVD</span><span class="badge">5NF Lossless Join</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);">1</div>
+    <h2>Normal Form Ladder</h2>
+  </div>
+  <p class="prose">Normalization is applied step by step. Each next normal form assumes the previous one and adds one stricter condition.</p>
+  <div class="diagram">
+    <div class="diagram-title">1NF to 5NF Progression</div>
+    <div class="diagram-body">
+      <div class="ladder">
+        <div class="step" style="background:var(--orangeL);"><div class="step-title">1NF</div><div class="step-text">No multivalued attribute</div></div>
+        <div class="step" style="background:var(--greenL);"><div class="step-title">2NF</div><div class="step-text">No partial dependency</div></div>
+        <div class="step" style="background:var(--purpleL);"><div class="step-title">3NF</div><div class="step-text">No transitive dependency</div></div>
+        <div class="step" style="background:var(--blueL);"><div class="step-title">BCNF</div><div class="step-text">LHS is key/super key</div></div>
+        <div class="step" style="background:var(--tealL);"><div class="step-title">4NF</div><div class="step-text">No multivalued dependency</div></div>
+        <div class="step" style="background:#f8fafc;"><div class="step-title">5NF</div><div class="step-text">Lossless join decomposition</div></div>
+      </div>
+    </div>
+    <div class="diagram-caption">Higher normal forms reduce more specific forms of redundancy.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);">2</div>
+    <h2>1NF to BCNF Summary</h2>
+  </div>
+  <div class="nf-grid">
+    <div class="nf-card">
+      <div class="nf-head" style="background:var(--orange);">1NF</div>
+      <div class="nf-body"><b>Rule:</b> no multivalued attribute. Every cell should be atomic. Example: do not store <code>C, C++</code> in one Course cell.</div>
+    </div>
+    <div class="nf-card">
+      <div class="nf-head" style="background:var(--green);">2NF</div>
+      <div class="nf-body"><b>Rule:</b> table must be in 1NF and no partial dependency. If <code>AB</code> is the key, only <code>A</code> or only <code>B</code> should not determine a non-prime attribute.</div>
+    </div>
+    <div class="nf-card">
+      <div class="nf-head" style="background:var(--purple);">3NF</div>
+      <div class="nf-body"><b>Rule:</b> table must be in 2NF and no transitive dependency. Memory line: no non-prime attribute should determine a non-prime attribute.</div>
+    </div>
+    <div class="nf-card">
+      <div class="nf-head" style="background:var(--blue);">BCNF</div>
+      <div class="nf-body"><b>Rule:</b> table must be in 3NF and left side of every FD must be a candidate key or super key.</div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);">3</div>
+    <h2>4NF: Multivalued Dependency</h2>
+  </div>
+  <p class="prose">4NF says the relation should be in BCNF and should not contain multivalued dependency.</p>
+  <div class="diagram">
+    <div class="diagram-title">Varun: Phone Numbers and Email IDs</div>
+    <div class="diagram-body">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Issue</th></tr></thead>
+        <tbody>
+          <tr><td>Varun</td><td>Phone1</td><td>Email1</td><td class="problem">Phone and email combine unnecessarily</td></tr>
+          <tr><td>Varun</td><td>Phone1</td><td>Email2</td><td class="problem">Repeated combinations</td></tr>
+          <tr><td>Varun</td><td>Phone2</td><td>Email1</td><td class="problem">Repeated combinations</td></tr>
+          <tr><td>Varun</td><td>Phone2</td><td>Email2</td><td class="problem">Repeated combinations</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="diagram-caption">If phone numbers and emails are independent multivalued facts, storing all combinations creates unnecessary rows.</div>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">4NF Decomposition</div>
+    <div class="diagram-body">
+      <div class="decomp">
+        <div class="schema-box">
+          <div class="schema-title">Person_Info</div>
+          <div class="schema-cols">Name, Phone, Email<br>many repeated combinations</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="stack">
+          <div class="schema-box"><div class="schema-title">Person_Phone</div><div class="schema-cols">Name, Phone</div></div>
+          <div class="schema-box"><div class="schema-title">Person_Email</div><div class="schema-cols">Name, Email</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Separate independent multivalued facts into separate tables.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);">4</div>
+    <h2>5NF: Lossless Join</h2>
+  </div>
+  <p class="prose">5NF says the relation should be in 4NF and decomposition should be lossless. When tables are joined again, no spurious tuples should appear.</p>
+  <div class="info-box green">
+    Memory line: while decomposing vertically, the common attribute should be a candidate key of one decomposed table or of the original table, so the join remains lossless.
+  </div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);"><span class="rev-num">1</span>One-Line Summary</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Normal Form</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>1NF</td><td>No multivalued attribute; atomic values only.</td></tr>
+          <tr><td>2NF</td><td>In 1NF and no partial dependency.</td></tr>
+          <tr><td>3NF</td><td>In 2NF and no transitive dependency.</td></tr>
+          <tr><td>BCNF</td><td>In 3NF and LHS of every FD is candidate key/super key.</td></tr>
+          <tr><td>4NF</td><td>In BCNF and no multivalued dependency.</td></tr>
+          <tr><td>5NF</td><td>In 4NF and decomposition is lossless.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);"><span class="rev-num">2</span>Exam Cues</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Clue</th><th>Think</th></tr></thead>
+        <tbody>
+          <tr><td>Comma-separated values in one cell</td><td>1NF violation.</td></tr>
+          <tr><td>Part of composite key determines non-prime</td><td>2NF violation.</td></tr>
+          <tr><td>Non-prime determines non-prime</td><td>3NF violation.</td></tr>
+          <tr><td>LHS of FD is not key/super key</td><td>BCNF violation.</td></tr>
+          <tr><td>Independent multiple phones and emails</td><td>4NF / multivalued dependency.</td></tr>
+          <tr><td>Join creates extra tuples</td><td>5NF / lossless decomposition issue.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchView(view, event) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

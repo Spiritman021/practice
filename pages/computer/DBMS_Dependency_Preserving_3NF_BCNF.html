@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 30: Dependency preserving decomposition in 3NF and BCNF, lossless decomposition, candidate keys, BCNF decomposition, and dependency preservation counterexample.">
+<meta name="robots" content="index, follow">
+<title>Dependency Preserving in 3NF and BCNF - DBMS Topic 30 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Dependency_Preserving_3NF_BCNF.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --blueL:#E3F2FD;
+    --green:#2E7D32; --greenL:#E8F5E9; --red:#C62828; --redL:#FFEBEE;
+    --orange:#E65100; --orangeL:#FFF3E0; --purple:#6A1B9A; --purpleL:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --line:#e2e8f0; --text:#1A1A1A; --muted:#64748b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--teal);}
+  .toggle-wrap{display:flex;background:var(--tealL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:#334155;background:transparent;}
+  .toggle-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 12px rgba(0,105,92,.28);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#083344 0%,#00695c 48%,#283593 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 78% 34%,rgba(178,223,219,.28) 0%,transparent 58%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:920px;}
+  .hero-tag{display:inline-block;background:#FF8F00;color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#b2dfdb;}
+  .hero-sub{color:rgba(255,255,255,.8);font-size:14px;max-width:760px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:980px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;line-height:1.7;background:#fff;}
+  .info-box.teal{background:var(--tealL);border-color:var(--teal);}
+  .info-box.green{background:var(--greenL);border-color:var(--green);}
+  .info-box.red{background:var(--redL);border-color:var(--red);}
+  .info-box.orange{background:var(--orangeL);border-color:var(--orange);}
+
+  .diagram{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-body{padding:18px;overflow-x:auto;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--muted);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+  .compare-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+  .compare-head{padding:12px 15px;color:#fff;font-weight:800;font-size:13px;}
+  .compare-body{padding:14px 15px;font-size:13.2px;line-height:1.65;color:#334155;}
+
+  .fd-list{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;}
+  .fd{font-family:'Space Mono',monospace;font-weight:800;font-size:13px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:7px 12px;color:var(--navy);}
+  .data-table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px;}
+  .data-table th{background:#0f172a;color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;white-space:nowrap;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top;}
+  .data-table tr:nth-child(even) td{background:#f8fafc;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .ok{color:var(--green);font-weight:800;}
+  .bad{color:var(--red);font-weight:800;}
+  .warn{color:var(--orange);font-weight:800;}
+
+  .decomp{display:grid;grid-template-columns:1.1fr auto 1.2fr;gap:16px;align-items:center;min-width:760px;}
+  .schema-box{border:2px solid var(--line);border-radius:12px;background:#f8fafc;padding:14px;text-align:center;}
+  .schema-title{font-family:'Space Mono',monospace;font-weight:800;color:var(--navy);font-size:13px;margin-bottom:8px;}
+  .schema-cols{font-size:12.5px;line-height:1.65;color:#334155;}
+  .flow-arrow{font-size:30px;font-weight:900;color:var(--teal);text-align:center;}
+  .stack{display:flex;flex-direction:column;gap:12px;}
+  .stack .schema-box:first-child{background:var(--blueL);border-color:#90caf9;}
+  .stack .schema-box:last-child{background:var(--greenL);border-color:#a5d6a7;}
+  .result-strip{background:linear-gradient(135deg,var(--redL),#fff);border:1.5px solid #ef9a9a;border-radius:12px;padding:16px 20px;margin:18px 0;color:#991b1b;font-weight:800;text-align:center;line-height:1.6;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:155px;flex-shrink:0;}
+  .rev-kv .rv{color:#334155;line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:760px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .ph-breadcrumb .back-btn{margin-left:0;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:34px;}
+    .main{padding:24px 16px 60px;}
+    .compare-grid{grid-template-columns:1fr;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 31</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Dependency Preservation</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 30: Dependency Preservation in 3NF and BCNF</span><a class="back-btn" href="dbms.html">Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 31 • DEPENDENCY PRESERVATION</div>
+    <h1>3NF vs BCNF<br><span>Dependency Preservation</span></h1>
+    <p class="hero-sub">3NF always ensures dependency-preserving decomposition, but BCNF does not always preserve all original dependencies, even though it remains lossless.</p>
+    <div class="hero-badges">
+      <span class="badge">Lossless Decomposition</span><span class="badge">Dependency Preserving</span>
+      <span class="badge">3NF vs BCNF</span><span class="badge">Counterexample</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);">1</div>
+    <h2>Two Rules During Decomposition</h2>
+  </div>
+  <p class="prose">Whenever a table is decomposed, two things are checked: the decomposition should be <b>lossless</b> and the dependencies should be <b>preserved</b>.</p>
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="compare-head" style="background:var(--green);">Lossless Decomposition</div>
+      <div class="compare-body">After joining the decomposed tables, we should get the original table back without extra or missing rows.</div>
+    </div>
+    <div class="compare-card">
+      <div class="compare-head" style="background:var(--teal);">Dependency Preserving</div>
+      <div class="compare-body">Original functional dependencies should still be enforceable from the decomposed tables.</div>
+    </div>
+  </div>
+  <div class="info-box teal">
+    Important fact: <b>3NF always ensures dependency preservation</b>. BCNF decomposition is lossless, but it may fail to preserve dependencies.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);">2</div>
+    <h2>Given Counterexample</h2>
+  </div>
+  <p class="prose">Consider relation <code>R(A, B, C, D)</code> with functional dependencies:</p>
+  <div class="fd-list"><span class="fd">AB → CD</span><span class="fd">D → A</span></div>
+  <table class="data-table">
+    <thead><tr><th>Step</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>RHS attributes</td><td>A, C, D appear on RHS, so B must be part of every candidate key.</td></tr>
+      <tr><td><code>B+</code></td><td>Only B, so B alone is not a candidate key.</td></tr>
+      <tr><td><code>AB+</code></td><td>AB gives C and D. Candidate key = <b>AB</b>.</td></tr>
+      <tr><td><code>CB+</code></td><td>Only C and B, so not a candidate key.</td></tr>
+      <tr><td><code>DB+</code></td><td>D gives A; then AB gives C and D. Candidate key = <b>DB</b>.</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box green">
+    Candidate keys are <code>AB</code> and <code>DB</code>. Prime attributes are <code>A, B, D</code>. Non-prime attribute is <code>C</code>.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);">3</div>
+    <h2>3NF but Not BCNF</h2>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>FD</th><th>3NF check</th><th>BCNF check</th><th>Conclusion</th></tr></thead>
+    <tbody>
+      <tr><td><code>AB → CD</code></td><td class="ok">LHS AB is candidate key</td><td class="ok">LHS AB is candidate key</td><td>Valid in both</td></tr>
+      <tr><td><code>D → A</code></td><td class="ok">RHS A is prime attribute</td><td class="bad">LHS D is not candidate key</td><td>Valid in 3NF, violates BCNF</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box orange">
+    This is exactly where 3NF and BCNF differ: 3NF survives because RHS is prime, but BCNF checks only the left side.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);">4</div>
+    <h2>BCNF Decomposition</h2>
+  </div>
+  <p class="prose">The violating dependency is <code>D → A</code>. Take <code>D+</code>, which gives <code>D, A</code>, and separate those attributes.</p>
+  <div class="diagram">
+    <div class="diagram-title">Decompose R(A, B, C, D)</div>
+    <div class="diagram-body">
+      <div class="decomp">
+        <div class="schema-box">
+          <div class="schema-title">Original R</div>
+          <div class="schema-cols">A, B, C, D<br>FDs: AB→CD, D→A</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="stack">
+          <div class="schema-box">
+            <div class="schema-title">R1</div>
+            <div class="schema-cols">D, A<br>FD: D→A</div>
+          </div>
+          <div class="schema-box">
+            <div class="schema-title">R2</div>
+            <div class="schema-cols">B, C, D<br>Projected FD: BD→C</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The original table is decomposed into R1(D,A) and R2(B,C,D).</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);">5</div>
+    <h2>Lossless Check</h2>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Common attribute of R1 and R2</td><td><code>D</code></td></tr>
+      <tr><td>In R1(D,A)</td><td><code>D → A</code>, so D is candidate key of R1.</td></tr>
+      <tr><td>Lossless?</td><td class="ok">Yes, because common attribute D is a key in one decomposed relation.</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box green">
+    BCNF decomposition is lossless in this example.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);">6</div>
+    <h2>Dependency Preservation Fails</h2>
+  </div>
+  <p class="prose">After decomposition, we can preserve <code>D → A</code> in R1 and derive <code>BD → C</code> in R2. But the original dependency <code>AB → CD</code> is not preserved directly.</p>
+  <table class="data-table">
+    <thead><tr><th>Closure</th><th>Before decomposition</th><th>After BCNF decomposition</th></tr></thead>
+    <tbody>
+      <tr><td><code>AB+</code></td><td class="ok">A, B, C, D using AB→CD</td><td class="bad">Only A, B using D→A and BD→C</td></tr>
+      <tr><td>Conclusion</td><td>Original dependency AB→CD holds.</td><td>AB→CD is not inferable from decomposed dependencies.</td></tr>
+    </tbody>
+  </table>
+  <div class="result-strip">Therefore, BCNF does not always ensure dependency-preserving decomposition.</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);"><span class="rev-num">1</span>Main Fact</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">3NF</span><span class="rv">Always ensures dependency-preserving decomposition.</span></div>
+      <div class="rev-kv"><span class="rk">BCNF</span><span class="rv">Always gives lossless decomposition, but does not always preserve dependencies.</span></div>
+      <div class="rev-kv"><span class="rk">Exam line</span><span class="rv">If “always” is used with BCNF and dependency preservation, answer is No.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);"><span class="rev-num">2</span>Counterexample</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Item</th><th>Answer</th></tr></thead>
+        <tbody>
+          <tr><td>Relation</td><td>R(A, B, C, D)</td></tr>
+          <tr><td>FDs</td><td>AB→CD, D→A</td></tr>
+          <tr><td>Candidate keys</td><td>AB, DB</td></tr>
+          <tr><td>Prime attributes</td><td>A, B, D</td></tr>
+          <tr><td>Non-prime attribute</td><td>C</td></tr>
+          <tr><td>Normal form</td><td>In 3NF, not in BCNF.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);"><span class="rev-num">3</span>Decomposition</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Violation</span><span class="rv"><code>D → A</code>, because D is not candidate key.</span></div>
+      <div class="rev-kv"><span class="rk">BCNF split</span><span class="rv"><code>R1(D,A)</code> and <code>R2(B,C,D)</code>.</span></div>
+      <div class="rev-kv"><span class="rk">Lossless</span><span class="rv">Yes, common attribute D is key in R1.</span></div>
+      <div class="rev-kv"><span class="rk">Preserved?</span><span class="rv">No, original <code>AB → CD</code> is not preserved.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);"><span class="rev-num">4</span>Memory Lines</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Statement</th><th>Truth</th></tr></thead>
+        <tbody>
+          <tr><td>3NF always preserves dependencies.</td><td>True.</td></tr>
+          <tr><td>BCNF always preserves dependencies.</td><td>False.</td></tr>
+          <tr><td>BCNF decomposition is lossless.</td><td>True in the standard decomposition process.</td></tr>
+          <tr><td>BCNF is stricter than 3NF.</td><td>True.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchView(view, event) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

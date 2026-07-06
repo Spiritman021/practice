@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 35: How to normalize a relation from 1NF to 2NF, 3NF and BCNF using decomposition, candidate keys and lossless joins.">
+<meta name="robots" content="index, follow">
+<title>Normal Form Decomposition - DBMS Topic 35 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Normal_Form_Decomposition.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --blueL:#E3F2FD;
+    --green:#2E7D32; --greenL:#E8F5E9; --red:#C62828; --redL:#FFEBEE;
+    --orange:#E65100; --orangeL:#FFF3E0; --purple:#6A1B9A; --purpleL:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --line:#e2e8f0; --text:#1A1A1A; --muted:#64748b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--teal);}
+  .toggle-wrap{display:flex;background:var(--tealL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:#334155;background:transparent;}
+  .toggle-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 12px rgba(0,105,92,.28);}
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .hero{background:linear-gradient(135deg,#0f172a 0%,#00695c 48%,#1565c0 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 78% 34%,rgba(224,242,241,.3) 0%,transparent 58%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:920px;}
+  .hero-tag{display:inline-block;background:#FF8F00;color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#b2dfdb;}
+  .hero-sub{color:rgba(255,255,255,.82);font-size:14px;max-width:780px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+  .main{max-width:1000px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+  .info-box{border-left:4px solid;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;line-height:1.7;background:#fff;}
+  .info-box.red{background:var(--redL);border-color:var(--red);}
+  .info-box.green{background:var(--greenL);border-color:var(--green);}
+  .info-box.orange{background:var(--orangeL);border-color:var(--orange);}
+  .info-box.blue{background:var(--blueL);border-color:var(--blue);}
+  .info-box.teal{background:var(--tealL);border-color:var(--teal);}
+  .fd-list{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;}
+  .fd{font-family:'Space Mono',monospace;font-weight:800;font-size:13px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:7px 12px;color:var(--navy);}
+  .diagram{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-body{padding:18px;overflow-x:auto;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--muted);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+  .flow{display:flex;align-items:stretch;gap:12px;min-width:780px;}
+  .flow-col{flex:1;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .flow-title{font-family:'Space Mono',monospace;font-size:12px;font-weight:800;color:var(--teal);}
+  .rel{background:#fff;border:1px solid #dbe4ef;border-radius:9px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;line-height:1.55;color:#0f172a;}
+  .arrow{align-self:center;font-size:24px;color:var(--teal);font-weight:800;}
+  .data-table{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px;}
+  .data-table th{background:#0f172a;color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;white-space:nowrap;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top;line-height:1.55;}
+  .data-table tr:nth-child(even) td{background:#f8fafc;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .ok{color:var(--green);font-weight:800;}
+  .bad{color:var(--red);font-weight:800;}
+  .warn{color:var(--orange);font-weight:800;}
+  .join-chain{display:flex;gap:10px;align-items:center;min-width:760px;}
+  .join-node{background:#fff;border:1.5px solid #b2dfdb;border-radius:10px;padding:12px 14px;font-family:'Space Mono',monospace;font-size:12px;font-weight:800;color:var(--navy);text-align:center;flex:1;}
+  .join-arrow{font-weight:900;color:var(--teal);}
+  .result-strip{background:linear-gradient(135deg,var(--tealL),#fff);border:1.5px solid #80cbc4;border-radius:12px;padding:16px 20px;margin:18px 0;color:#004d40;font-weight:800;text-align:center;line-height:1.6;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+  @media(max-width:760px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .ph-breadcrumb .back-btn{margin-left:0;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:34px;}
+    .main{padding:24px 16px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 36</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Normal Form Decomposition</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 35: Normal Form Decomposition</span><a class="back-btn" href="dbms.html">Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 36 • NORMALIZATION</div>
+    <h1>How to Normalize<br><span>a Relation</span></h1>
+    <p class="hero-sub">A complete walkthrough for taking one relation from 1NF to 2NF, 3NF, and BCNF using partial dependency checks, decomposition, and lossless joins.</p>
+    <div class="hero-badges">
+      <span class="badge">1NF to BCNF</span><span class="badge">Decomposition</span>
+      <span class="badge">Candidate Keys</span><span class="badge">Lossless Join</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);">1</div>
+    <h2>Given Relation</h2>
+  </div>
+  <p class="prose">We are given relation <code>R(A, B, C, D, E, F)</code>. The goal is to reduce redundancy by normalizing it step by step.</p>
+  <div class="fd-list"><span class="fd">AB → C</span><span class="fd">C → D</span><span class="fd">C → E</span><span class="fd">E → F</span><span class="fd">F → A</span></div>
+  <table class="data-table">
+    <thead><tr><th>Item</th><th>Value</th><th>Use in solution</th></tr></thead>
+    <tbody>
+      <tr><td>Candidate keys</td><td><code>AB</code>, <code>FB</code>, <code>EB</code>, <code>CB</code></td><td>Found by closure method.</td></tr>
+      <tr><td>Prime attributes</td><td class="ok">A, B, C, E, F</td><td>Attributes present in at least one candidate key.</td></tr>
+      <tr><td>Non-prime attribute</td><td class="bad">D</td><td>Main attribute that creates the 2NF violation.</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box blue">The relation is assumed to be in 1NF because the attributes are atomic.</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);">2</div>
+    <h2>2NF Check: Find Partial Dependency</h2>
+  </div>
+  <p class="prose">2NF says that no <b>proper subset of a candidate key</b> should determine a <b>non-prime attribute</b>.</p>
+  <table class="data-table">
+    <thead><tr><th>FD</th><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>AB → C</code></td><td><code>AB</code> is a full candidate key, not a proper subset.</td><td class="ok">No partial dependency</td></tr>
+      <tr><td><code>C → D</code></td><td><code>C</code> is a proper subset of candidate key <code>CB</code>, and <code>D</code> is non-prime.</td><td class="bad">Partial dependency</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box red">Because <code>C → D</code> is partial dependency, original relation is not in 2NF.</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);">3</div>
+    <h2>Decompose to Remove Partial Dependency</h2>
+  </div>
+  <p class="prose">Separate the problematic dependency into its own relation, then keep the remaining useful attributes together.</p>
+  <div class="diagram">
+    <div class="diagram-title">1NF to 2NF / 3NF Decomposition</div>
+    <div class="diagram-body">
+      <div class="flow">
+        <div class="flow-col">
+          <div class="flow-title">Original</div>
+          <div class="rel">R(A, B, C, D, E, F)</div>
+          <div class="rel">Violation: C → D</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-col">
+          <div class="flow-title">After split</div>
+          <div class="rel">R1(A, B, C, E, F)</div>
+          <div class="rel">R2(C, D)</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">R2 isolates C → D. In R2, C becomes the candidate key.</div>
+  </div>
+  <div class="info-box green">This split is lossless and dependency-preserving for the partial dependency.</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);">4</div>
+    <h2>3NF Check After Decomposition</h2>
+  </div>
+  <p class="prose">3NF condition: for every FD, the left side is a super key OR the right side is a prime attribute.</p>
+  <table class="data-table">
+    <thead><tr><th>Relation</th><th>FD</th><th>3NF reason</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>AB → C</code></td><td>AB is candidate key.</td><td class="ok">Valid</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>C → E</code></td><td>E is prime.</td><td class="ok">Valid</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>E → F</code></td><td>F is prime.</td><td class="ok">Valid</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>F → A</code></td><td>A is prime.</td><td class="ok">Valid</td></tr>
+      <tr><td>R2(C, D)</td><td><code>C → D</code></td><td>C is candidate key of R2.</td><td class="ok">Valid</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box green">So R1 and R2 are in 3NF.</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);">5</div>
+    <h2>BCNF Check</h2>
+  </div>
+  <p class="prose">BCNF is stricter: the left side of every FD must be a candidate key or super key.</p>
+  <table class="data-table">
+    <thead><tr><th>Relation</th><th>FD</th><th>BCNF check</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>R2(C, D)</td><td><code>C → D</code></td><td>C is candidate key.</td><td class="ok">BCNF</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>AB → C</code></td><td>AB is candidate key.</td><td class="ok">Valid</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>C → E</code></td><td>C alone is not candidate key.</td><td class="bad">Violation</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>E → F</code></td><td>E alone is not candidate key.</td><td class="bad">Violation</td></tr>
+      <tr><td>R1(A, B, C, E, F)</td><td><code>F → A</code></td><td>F alone is not candidate key.</td><td class="bad">Violation</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box orange">R2 is already in BCNF, but R1 must be decomposed further.</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);">6</div>
+    <h2>Final BCNF Decomposition</h2>
+  </div>
+  <p class="prose">Split R1 according to the dependencies whose left side should become a key in its own relation.</p>
+  <div class="diagram">
+    <div class="diagram-title">Final BCNF Relations</div>
+    <div class="diagram-body">
+      <div class="flow">
+        <div class="flow-col">
+          <div class="flow-title">From earlier split</div>
+          <div class="rel">R2(C, D), key C</div>
+        </div>
+        <div class="arrow">+</div>
+        <div class="flow-col">
+          <div class="flow-title">R1 split into BCNF</div>
+          <div class="rel">R3(A, B, C), key AB</div>
+          <div class="rel">R4(C, E), key C</div>
+          <div class="rel">R5(E, F), key E</div>
+          <div class="rel">R6(F, A), key F</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Every final relation has its determinant as a candidate key, so each one satisfies BCNF.</div>
+  </div>
+  <div class="result-strip">Final BCNF set: R2(C,D), R3(A,B,C), R4(C,E), R5(E,F), R6(F,A)</div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);">7</div>
+    <h2>Rejoining Tables Losslessly</h2>
+  </div>
+  <p class="prose">After normalization, data may be spread across multiple tables. To get combined information, join tables through common attributes. A lossless join is possible when the common attribute is a candidate key in at least one joined relation.</p>
+  <div class="diagram">
+    <div class="diagram-title">Join Path Example</div>
+    <div class="diagram-body">
+      <div class="join-chain">
+        <div class="join-node">R3(A,B,C)</div>
+        <div class="join-arrow">join on C</div>
+        <div class="join-node">R4(C,E)</div>
+        <div class="join-arrow">join on E</div>
+        <div class="join-node">R5(E,F)</div>
+      </div>
+    </div>
+    <div class="diagram-caption">R3 cannot directly join with R5 because they share no common attribute. Use R4 as the bridge.</div>
+  </div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);"><span class="rev-num">1</span>Given Data</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Item</th><th>Remember</th></tr></thead>
+        <tbody>
+          <tr><td>Relation</td><td>R(A, B, C, D, E, F)</td></tr>
+          <tr><td>FDs</td><td>AB→C, C→D, C→E, E→F, F→A</td></tr>
+          <tr><td>Candidate keys</td><td>AB, FB, EB, CB</td></tr>
+          <tr><td>Prime attrs</td><td>A, B, C, E, F</td></tr>
+          <tr><td>Non-prime attr</td><td>D</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);"><span class="rev-num">2</span>Normalization Flow</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Step</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td>1NF</td><td>Assumed atomic.</td></tr>
+          <tr><td>2NF issue</td><td>C→D is partial dependency because C is subset of CB and D is non-prime.</td></tr>
+          <tr><td>2NF / 3NF split</td><td>R1(A,B,C,E,F) and R2(C,D).</td></tr>
+          <tr><td>3NF result</td><td>Both R1 and R2 satisfy 3NF.</td></tr>
+          <tr><td>BCNF issue</td><td>In R1, C→E, E→F, F→A violate BCNF.</td></tr>
+          <tr><td>BCNF final</td><td>R2(C,D), R3(A,B,C), R4(C,E), R5(E,F), R6(F,A).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);"><span class="rev-num">3</span>Join Rule</div>
+    <div class="rev-card-body">
+      <p class="prose">For lossless joining, join through a common attribute that is a candidate key in at least one table. Example path: <code>R3</code> joins <code>R4</code> on <code>C</code>, then joins <code>R5</code> on <code>E</code>.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchView(view, event) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

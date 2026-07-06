@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 33: Minimal cover or irreducible set of functional dependencies with RHS decomposition, redundant FD removal, LHS reduction, and solved example.">
+<meta name="robots" content="index, follow">
+<title>Minimal Cover - DBMS Topic 33 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Minimal_Cover.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --blueL:#E3F2FD;
+    --green:#2E7D32; --greenL:#E8F5E9; --red:#C62828; --redL:#FFEBEE;
+    --orange:#E65100; --orangeL:#FFF3E0; --purple:#6A1B9A; --purpleL:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --line:#e2e8f0; --text:#1A1A1A; --muted:#64748b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--blue);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--blue);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--blue);}
+  .toggle-wrap{display:flex;background:var(--blueL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:#334155;background:transparent;}
+  .toggle-btn.active{background:var(--blue);color:#fff;box-shadow:0 2px 12px rgba(21,101,192,.28);}
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .hero{background:linear-gradient(135deg,#172554 0%,#1565c0 48%,#00695c 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 78% 34%,rgba(187,222,251,.26) 0%,transparent 58%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:920px;}
+  .hero-tag{display:inline-block;background:#FF8F00;color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#bbdefb;}
+  .hero-sub{color:rgba(255,255,255,.8);font-size:14px;max-width:760px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+  .main{max-width:980px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+  .info-box{border-left:4px solid;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;line-height:1.7;background:#fff;}
+  .info-box.blue{background:var(--blueL);border-color:var(--blue);}
+  .info-box.green{background:var(--greenL);border-color:var(--green);}
+  .info-box.orange{background:var(--orangeL);border-color:var(--orange);}
+  .info-box.red{background:var(--redL);border-color:var(--red);}
+  .diagram{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-body{padding:18px;overflow-x:auto;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--muted);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+  .fd-list{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px;}
+  .fd{font-family:'Space Mono',monospace;font-weight:800;font-size:13px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:7px 12px;color:var(--navy);}
+  .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0;}
+  .flow-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+  .flow-head{padding:12px 15px;color:#fff;font-weight:800;font-size:13px;}
+  .flow-body{padding:14px 15px;font-size:13.2px;line-height:1.65;color:#334155;}
+  .data-table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px;}
+  .data-table th{background:#0f172a;color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;white-space:nowrap;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top;}
+  .data-table tr:nth-child(even) td{background:#f8fafc;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .ok{color:var(--green);font-weight:800;}
+  .bad{color:var(--red);font-weight:800;}
+  .remove{background:var(--redL)!important;color:#991b1b;font-weight:800;}
+  .keep{background:var(--greenL)!important;color:#1b5e20;font-weight:800;}
+  .result-strip{background:linear-gradient(135deg,var(--greenL),#fff);border:1.5px solid #a5d6a7;border-radius:12px;padding:16px 20px;margin:18px 0;color:#1b5e20;font-weight:800;text-align:center;line-height:1.6;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+  @media(max-width:760px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .ph-breadcrumb .back-btn{margin-left:0;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:34px;}
+    .main{padding:24px 16px 60px;}
+    .flow{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 34</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Minimal Cover</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 33: Minimal Cover</span><a class="back-btn" href="dbms.html">Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 34 • MINIMAL COVER</div>
+    <h1>Minimal Cover<br><span>Irreducible FD Set</span></h1>
+    <p class="hero-sub">Minimal cover is the smallest equivalent set of functional dependencies after removing multi-attribute RHS, redundant dependencies, and extra LHS attributes.</p>
+    <div class="hero-badges">
+      <span class="badge">Functional Dependencies</span><span class="badge">Closure Test</span>
+      <span class="badge">Redundant FD</span><span class="badge">Irreducible Set</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);">1</div>
+    <h2>Question</h2>
+  </div>
+  <p class="prose">Find the correct <b>minimal cover</b>, also called the irreducible set, for the following functional dependencies:</p>
+  <div class="fd-list"><span class="fd">A → B</span><span class="fd">C → B</span><span class="fd">D → ABC</span><span class="fd">AC → D</span></div>
+  <div class="info-box blue">
+    Minimal cover questions are solved with three checks: single RHS, remove redundant FDs, and remove extra attributes from LHS.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);">2</div>
+    <h2>Three-Step Method</h2>
+  </div>
+  <div class="flow">
+    <div class="flow-card">
+      <div class="flow-head" style="background:var(--orange);">Step 1</div>
+      <div class="flow-body">Make every right-hand side single. Only RHS can be decomposed.</div>
+    </div>
+    <div class="flow-card">
+      <div class="flow-head" style="background:var(--red);">Step 2</div>
+      <div class="flow-body">Remove redundant functional dependencies using closure from the remaining FDs.</div>
+    </div>
+    <div class="flow-card">
+      <div class="flow-head" style="background:var(--green);">Step 3</div>
+      <div class="flow-body">Remove extra attributes from the left-hand side if closure proves they are unnecessary.</div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);">3</div>
+    <h2>Step 1: Split RHS</h2>
+  </div>
+  <p class="prose"><code>D → ABC</code> has three attributes on the right side, so decompose it using decomposition property.</p>
+  <div class="diagram">
+    <div class="diagram-title">After RHS Decomposition</div>
+    <div class="diagram-body">
+      <table class="data-table">
+        <thead><tr><th>Original FD</th><th>After Step 1</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><code>A → B</code></td><td><code>A → B</code></td><td>Already single RHS.</td></tr>
+          <tr><td><code>C → B</code></td><td><code>C → B</code></td><td>Already single RHS.</td></tr>
+          <tr><td><code>D → ABC</code></td><td><code>D → A</code>, <code>D → B</code>, <code>D → C</code></td><td>Split RHS only.</td></tr>
+          <tr><td><code>AC → D</code></td><td><code>AC → D</code></td><td>Do not split LHS.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--red);">4</div>
+    <h2>Step 2: Remove Redundant FD</h2>
+  </div>
+  <p class="prose">For each FD <code>X → Y</code>, temporarily remove it and compute <code>X+</code> using the remaining FDs. If <code>Y</code> still appears, the FD is redundant.</p>
+  <table class="data-table">
+    <thead><tr><th>FD checked</th><th>Closure after removing it</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr><td><code>A → B</code></td><td><code>A+ = A</code></td><td class="keep">Keep: B does not come.</td></tr>
+      <tr><td><code>C → B</code></td><td><code>C+ = C</code></td><td class="keep">Keep: B does not come.</td></tr>
+      <tr><td><code>D → A</code></td><td><code>D+ = DBC</code></td><td class="keep">Keep: A does not come.</td></tr>
+      <tr><td><code>D → B</code></td><td><code>D+ = DACB</code> using <code>D→A</code>, <code>D→C</code>, then <code>A→B</code></td><td class="remove">Remove: B still comes.</td></tr>
+      <tr><td><code>D → C</code></td><td><code>D+ = DAB</code></td><td class="keep">Keep: C does not come.</td></tr>
+      <tr><td><code>AC → D</code></td><td><code>AC+ = ACB</code></td><td class="keep">Keep: D does not come.</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box red">
+    Only <code>D → B</code> is redundant, because D can still determine B through <code>D → A</code> and <code>A → B</code>.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);">5</div>
+    <h2>Step 3: Reduce LHS</h2>
+  </div>
+  <p class="prose">After Step 2, the only FD with multiple attributes on the left side is <code>AC → D</code>. Check whether A or C can be removed.</p>
+  <table class="data-table">
+    <thead><tr><th>Test</th><th>Closure</th><th>Can remove?</th></tr></thead>
+    <tbody>
+      <tr><td>Remove A from <code>AC → D</code></td><td><code>C+ = C, B</code></td><td class="bad">No. A does not come, D does not come.</td></tr>
+      <tr><td>Remove C from <code>AC → D</code></td><td><code>A+ = A, B</code></td><td class="bad">No. C does not come, D does not come.</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box green">
+    So <code>AC → D</code> cannot be reduced further.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);">6</div>
+    <h2>Final Minimal Cover</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">Irreducible Set</div>
+    <div class="diagram-body">
+      <div class="fd-list">
+        <span class="fd">A → B</span>
+        <span class="fd">C → B</span>
+        <span class="fd">D → A</span>
+        <span class="fd">D → C</span>
+        <span class="fd">AC → D</span>
+      </div>
+    </div>
+    <div class="diagram-caption">Using union, D → A and D → C can also be written as D → AC.</div>
+  </div>
+  <div class="result-strip">Final answer: { A → B, C → B, D → A, D → C, AC → D } or equivalently { A → B, C → B, D → AC, AC → D }. Option D matches.</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);"><span class="rev-num">1</span>Minimal Cover Steps</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Step</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Make RHS single: split only the right-hand side.</td></tr>
+          <tr><td>2</td><td>Remove redundant FDs using closure check.</td></tr>
+          <tr><td>3</td><td>Remove redundant attributes from LHS using closure check.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);"><span class="rev-num">2</span>Final Answer</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Form</th><th>Minimal cover</th></tr></thead>
+        <tbody>
+          <tr><td>Split form</td><td>A→B, C→B, D→A, D→C, AC→D</td></tr>
+          <tr><td>Union form</td><td>A→B, C→B, D→AC, AC→D</td></tr>
+          <tr><td>Removed FD</td><td>D→B, because D→A and A→B already give B.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchView(view, event) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

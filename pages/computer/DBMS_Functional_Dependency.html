@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 26: Functional dependency basics, determinant and dependent attributes, valid and invalid cases, trivial/non-trivial FD, and FD inference properties.">
+<meta name="robots" content="index, follow">
+<title>Functional Dependency - DBMS Topic 26 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Functional_Dependency.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --blueL:#E3F2FD;
+    --green:#2E7D32; --greenL:#E8F5E9; --red:#C62828; --redL:#FFEBEE;
+    --orange:#E65100; --orangeL:#FFF3E0; --purple:#6A1B9A; --purpleL:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --line:#e2e8f0; --text:#1A1A1A; --muted:#64748b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--orange);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--orange);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--orange);}
+  .toggle-wrap{display:flex;background:var(--orangeL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:#334155;background:transparent;}
+  .toggle-btn.active{background:var(--orange);color:#fff;box-shadow:0 2px 12px rgba(230,81,0,.28);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid var(--line);padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#172554 0%,#e65100 48%,#00695c 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 76% 36%,rgba(255,243,224,.28) 0%,transparent 58%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:900px;}
+  .hero-tag{display:inline-block;background:var(--purple);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#ffe0b2;}
+  .hero-sub{color:rgba(255,255,255,.8);font-size:14px;max-width:710px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.9);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14px;line-height:1.7;background:#fff;}
+  .info-box.orange{background:var(--orangeL);border-color:var(--orange);}
+  .info-box.green{background:var(--greenL);border-color:var(--green);}
+  .info-box.red{background:var(--redL);border-color:var(--red);}
+  .info-box.blue{background:var(--blueL);border-color:var(--blue);}
+
+  .diagram{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-body{padding:18px;overflow-x:auto;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--muted);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .fd-visual{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;min-width:620px;}
+  .fd-box{border:2px solid var(--line);border-radius:14px;background:#f8fafc;padding:18px;text-align:center;}
+  .fd-box.det{background:var(--blueL);border-color:#90caf9;}
+  .fd-box.dep{background:var(--greenL);border-color:#a5d6a7;}
+  .fd-title{font-family:'Space Mono',monospace;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+  .fd-sub{font-size:12.5px;color:#334155;line-height:1.55;}
+  .arrow{font-size:32px;font-weight:900;color:var(--orange);text-align:center;}
+
+  .data-table{width:100%;min-width:640px;border-collapse:separate;border-spacing:0;font-size:12.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px;}
+  .data-table th{background:#0f172a;color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;white-space:nowrap;}
+  .data-table td{padding:9px 10px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top;}
+  .data-table tr:nth-child(even) td{background:#f8fafc;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .valid{color:var(--green);font-weight:800;}
+  .invalid{color:var(--red);font-weight:800;}
+  .highlight{background:var(--redL)!important;color:#991b1b;font-weight:800;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+  .mini-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);}
+  .mini-head{padding:12px 15px;color:#fff;font-weight:800;font-size:13px;}
+  .mini-body{padding:14px 15px;font-size:13.2px;line-height:1.65;color:#334155;}
+
+  .property-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0;}
+  .prop{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);}
+  .prop-name{padding:10px 14px;background:var(--navy);color:#fff;font-weight:800;font-size:13px;}
+  .prop-body{padding:12px 14px;font-size:13px;line-height:1.65;color:#334155;}
+  .prop-body .formula{font-family:'Space Mono',monospace;font-weight:800;color:var(--orange);display:block;margin-bottom:5px;}
+
+  .takeaway{background:linear-gradient(135deg,var(--greenL),#fff);border:1.5px solid #a5d6a7;border-radius:12px;padding:16px 20px;margin:18px 0;color:#1b5e20;font-weight:800;text-align:center;line-height:1.6;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:150px;flex-shrink:0;}
+  .rev-kv .rv{color:#334155;line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:760px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .ph-breadcrumb .back-btn{margin-left:0;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:34px;}
+    .main{padding:24px 16px 60px;}
+    .grid-2,.property-grid{grid-template-columns:1fr;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 27</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Functional Dependency</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 26: Functional Dependency</span><a class="back-btn" href="dbms.html">Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 27 • FUNCTIONAL DEPENDENCY</div>
+    <h1>Functional Dependency<br><span>in DBMS</span></h1>
+    <p class="hero-sub">Functional dependency describes how one attribute determines another attribute. It is the base idea behind keys, closure, and normalization rules.</p>
+    <div class="hero-badges">
+      <span class="badge">X → Y</span><span class="badge">Determinant</span>
+      <span class="badge">Trivial FD</span><span class="badge">FD Properties</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);">1</div>
+    <h2>Meaning of Functional Dependency</h2>
+  </div>
+  <p class="prose"><b>Functional dependency</b> describes the relationship between attributes of a table. The general form is <code>X → Y</code>.</p>
+  <div class="diagram">
+    <div class="diagram-title">X → Y Diagram</div>
+    <div class="diagram-body">
+      <div class="fd-visual">
+        <div class="fd-box det">
+          <div class="fd-title">X</div>
+          <div class="fd-sub">Determinant attribute<br>main attribute</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="fd-box dep">
+          <div class="fd-title">Y</div>
+          <div class="fd-sub">Dependent attribute<br>determined by X</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">X determines Y. Equivalently, Y is determined by X.</div>
+  </div>
+  <div class="info-box orange">
+    Example: <code>SID → SName</code> means Student ID determines Student Name. If confusion occurs in the name, SID clears it.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);">2</div>
+    <h2>SID → SName Example</h2>
+  </div>
+  <p class="prose">If two students have the same name, SID tells whether they are actually the same student or two different students.</p>
+  <div class="diagram">
+    <div class="diagram-title">How Determinant Removes Confusion</div>
+    <div class="diagram-body">
+      <table class="data-table">
+        <thead><tr><th>Case</th><th>SName values</th><th>SID values</th><th>Meaning</th><th>FD valid?</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Ranjit, Ranjit</td><td>1, 1</td><td>Same student data repeated.</td><td class="valid">Valid</td></tr>
+          <tr><td>2</td><td>Ranjit, Ranjit</td><td>1, 2</td><td>Two different students with same name.</td><td class="valid">Valid</td></tr>
+          <tr><td>3</td><td>Ranjit, Varun</td><td>1, 2</td><td>Two different students with different IDs.</td><td class="valid">Valid</td></tr>
+          <tr><td>4</td><td class="highlight">Ranjit, Varun</td><td class="highlight">1, 1</td><td>Same SID gives two different names.</td><td class="invalid">Invalid</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="diagram-caption">For X → Y, if X values are same, Y values must also be same. The fourth case violates this rule.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);">3</div>
+    <h2>Trivial and Non-Trivial FD</h2>
+  </div>
+  <div class="grid-2">
+    <div class="mini-card">
+      <div class="mini-head" style="background:var(--green);">Trivial Functional Dependency</div>
+      <div class="mini-body">
+        <p><code>X → Y</code> is trivial when <code>Y ⊆ X</code>.</p>
+        <p>Example: <code>SID → SID</code> or <code>SID, SName → SID</code>.</p>
+        <p><b>Always valid</b>, because it is like an attribute determining itself.</p>
+      </div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-head" style="background:var(--red);">Non-Trivial Functional Dependency</div>
+      <div class="mini-body">
+        <p><code>X → Y</code> is non-trivial when <code>Y</code> is not a subset of <code>X</code>.</p>
+        <p>Example: <code>SID → SName</code>, <code>EmpID → EmpName</code>.</p>
+        <p>These need checking for valid/invalid cases.</p>
+      </div>
+    </div>
+  </div>
+  <div class="info-box blue">
+    Shortcut from the transcript: in a trivial FD, the intersection of left side and right side is not empty. In non-trivial examples like <code>SID → SName</code>, the sides are separate attributes.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);">4</div>
+    <h2>Properties of Functional Dependency</h2>
+  </div>
+  <p class="prose">These properties are used to derive new functional dependencies from existing ones.</p>
+  <div class="property-grid">
+    <div class="prop">
+      <div class="prop-name">Reflexivity</div>
+      <div class="prop-body"><span class="formula">If Y ⊆ X, then X → Y</span>Trivial dependency. Always valid.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Augmentation</div>
+      <div class="prop-body"><span class="formula">If X → Y, then XZ → YZ</span>Add the same extra attributes to both sides.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Transitivity</div>
+      <div class="prop-body"><span class="formula">If X → Y and Y → Z, then X → Z</span>Very important for closure and normalization.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Union</div>
+      <div class="prop-body"><span class="formula">If X → Y and X → Z, then X → YZ</span>Same determinant can combine dependent attributes.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Decomposition</div>
+      <div class="prop-body"><span class="formula">If X → YZ, then X → Y and X → Z</span>Only the right side can be decomposed.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Pseudo Transitivity</div>
+      <div class="prop-body"><span class="formula">If X → Y and WY → Z, then WX → Z</span>Used when the middle dependency has an extra attribute.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Composition</div>
+      <div class="prop-body"><span class="formula">If X → Y and Z → W, then XZ → YW</span>Combine left sides and right sides together.</div>
+    </div>
+    <div class="prop">
+      <div class="prop-name">Important Warning</div>
+      <div class="prop-body"><span class="formula">XY → Z does not imply X → Z and Y → Z</span>Never decompose the left side.</div>
+    </div>
+  </div>
+  <div class="takeaway">Most-used properties for upcoming topics: reflexivity and transitivity. Also remember: decompose the right side, not the left side.</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);"><span class="rev-num">1</span>Core Idea</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Functional dependency</span><span class="rv">Relationship between table attributes.</span></div>
+      <div class="rev-kv"><span class="rk">Format</span><span class="rv"><code>X → Y</code>, read as “X determines Y”.</span></div>
+      <div class="rev-kv"><span class="rk">Determinant</span><span class="rv">Left side attribute or attribute set, X.</span></div>
+      <div class="rev-kv"><span class="rk">Dependent</span><span class="rv">Right side attribute or attribute set, Y.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);"><span class="rev-num">2</span>Validity Rule</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>For X → Y</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Same X, same Y</td><td>Valid.</td></tr>
+          <tr><td>Different X, same Y</td><td>Valid.</td></tr>
+          <tr><td>Different X, different Y</td><td>Valid.</td></tr>
+          <tr><td>Same X, different Y</td><td>Invalid.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--green);"><span class="rev-num">3</span>Types</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Type</th><th>Condition</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Trivial FD</td><td><code>Y ⊆ X</code></td><td><code>SID, SName → SID</code></td></tr>
+          <tr><td>Non-trivial FD</td><td><code>Y</code> is not subset of <code>X</code></td><td><code>SID → SName</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);"><span class="rev-num">4</span>Properties</div>
+    <div class="rev-card-body">
+      <table class="quick-table">
+        <thead><tr><th>Property</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>Reflexivity</td><td>If Y ⊆ X, then X → Y.</td></tr>
+          <tr><td>Augmentation</td><td>If X → Y, then XZ → YZ.</td></tr>
+          <tr><td>Transitivity</td><td>If X → Y and Y → Z, then X → Z.</td></tr>
+          <tr><td>Union</td><td>If X → Y and X → Z, then X → YZ.</td></tr>
+          <tr><td>Decomposition</td><td>If X → YZ, then X → Y and X → Z.</td></tr>
+          <tr><td>Pseudo transitivity</td><td>If X → Y and WY → Z, then WX → Z.</td></tr>
+          <tr><td>Composition</td><td>If X → Y and Z → W, then XZ → YW.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchView(view, event) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>
