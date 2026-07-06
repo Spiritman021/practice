@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 15: ER Model basics — Entity Relationship Model purpose, entity, attributes, relationship, symbols, and Student-Course example.">
+<meta name="robots" content="index, follow">
+<title>ER Model Basics — DBMS Topic 15 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_ER_Model_Basics.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --bluebg:#E3F2FD;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --amber:#FF8F00; --amberl:#FFF8E1;
+    --indigo:#283593; --indigol:#E8EAF6; --steel:#37474F; --steell:#ECEFF1;
+    --text:#1A1A1A; --dkgray:#424242; --mdgray:#757575;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--indigo);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--indigo);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--indigo);}
+  .toggle-wrap{display:flex;background:var(--indigol);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--indigo);color:#fff;box-shadow:0 2px 12px rgba(40,53,147,.3);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#172554 0%,#283593 48%,#00695c 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 76% 42%,rgba(165,180,252,.2) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:860px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#a5b4fc;}
+  .hero-sub{color:rgba(255,255,255,.73);font-size:14px;max-width:620px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.86);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.indigo{background:var(--indigol);border-color:var(--indigo);color:var(--indigo);}
+  .info-box.green{background:var(--greenl);border-color:var(--green);color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .info-box.teal{background:var(--tealL);border-color:var(--teal);color:var(--teal);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .analogy-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;}
+  .analogy-side{padding:18px 20px;background:#fafafa;}
+  .analogy-title{font-weight:700;font-size:13px;padding:8px 12px;border-radius:6px;margin-bottom:10px;text-align:center;}
+  .analogy-item{font-size:13px;line-height:1.6;margin-bottom:8px;color:var(--dkgray);}
+  .analogy-arrow{display:flex;align-items:center;justify-content:center;padding:0 16px;color:var(--indigo);font-size:26px;font-weight:700;background:#fff;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0;}
+
+  .symbol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px;}
+  .symbol-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.04);}
+  .symbol-shape{height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .shape-rect{width:130px;height:48px;border:3px solid var(--blue);background:var(--bluebg);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);}
+  .shape-oval{width:140px;height:52px;border-radius:50%;border:3px solid var(--green);background:var(--greenl);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green);}
+  .shape-diamond{width:72px;height:72px;border:3px solid var(--orange);background:var(--orangel);transform:rotate(45deg);display:flex;align-items:center;justify-content:center;}
+  .shape-diamond span{transform:rotate(-45deg);font-weight:700;color:var(--orange);font-size:12px;}
+  .symbol-name{font-weight:700;font-size:13.5px;color:var(--navy);margin-bottom:4px;}
+  .symbol-detail{font-size:12.5px;color:var(--dkgray);line-height:1.5;}
+
+  .er-wrap{padding:24px 18px;overflow-x:auto;}
+  .er-row{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;min-width:640px;}
+  .entity-box{border:3px solid var(--blue);background:var(--bluebg);border-radius:8px;min-height:82px;padding:12px;text-align:center;}
+  .entity-name{font-weight:800;color:var(--blue);font-size:15px;margin-bottom:8px;}
+  .attr-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .attr-pill{border:2px solid var(--green);background:var(--greenl);color:var(--green);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;}
+  .relationship{position:relative;width:112px;height:112px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+  .relationship::before{content:'';position:absolute;width:74px;height:74px;border:3px solid var(--orange);background:var(--orangel);transform:rotate(45deg);border-radius:4px;}
+  .relationship span{position:relative;font-weight:800;color:var(--orange);font-size:13px;}
+  .er-line{height:3px;background:#94a3b8;position:relative;}
+  .er-line.left{margin-right:-20px;}
+  .er-line.right{margin-left:-20px;}
+  .er-center{display:grid;grid-template-columns:70px 112px 70px;align-items:center;}
+
+  .term-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .term-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .term-head{padding:11px 16px;color:#fff;font-weight:700;font-size:13px;}
+  .term-body{padding:14px 16px;font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+
+  .flow{display:flex;flex-direction:column;gap:10px;padding:16px 20px;}
+  .flow-item{display:flex;gap:14px;align-items:flex-start;padding:13px 16px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;}
+  .flow-num{width:32px;height:32px;border-radius:50%;background:var(--indigo);color:#fff;font-family:'Space Mono',monospace;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+  .flow-text{font-size:13.5px;line-height:1.55;color:var(--dkgray);}
+
+  .answer-strip{background:var(--greenl);border:1.5px solid #a5d6a7;border-radius:12px;padding:16px 20px;margin:18px 0;color:var(--green);font-weight:700;text-align:center;line-height:1.6;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:140px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:720px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .analogy-grid,.symbol-grid,.term-grid{grid-template-columns:1fr;}
+    .analogy-arrow{padding:8px 0;transform:rotate(90deg);border:0;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 16</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>ER Model Basics</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 15: ER Model Basics</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 16 • CONCEPTUAL DESIGN</div>
+    <h1>ER Model<br><span>Entity Relationship Model</span></h1>
+    <p class="hero-sub">Why ER Model is used before database implementation, and how entities, attributes, and relationships are represented diagrammatically.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">DB Design</span><span class="badge">Conceptual Schema</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--indigo);color:#fff;">1</div>
+    <h2>Why Do We Use ER Model?</h2>
+  </div>
+  <p class="prose">The <b>ER Model</b>, or <b>Entity Relationship Model</b>, is used for the <b>logical or conceptual representation</b> of data. Before writing SQL commands like <code>CREATE TABLE</code>, we first prepare a diagram that captures the requirement clearly.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Building Blueprint Analogy</div>
+    <div class="analogy-grid">
+      <div class="analogy-side">
+        <div class="analogy-title" style="background:var(--orangel);color:var(--orange);">Without Design</div>
+        <div class="analogy-item">If a building is made directly, problems may appear halfway: wrong room position, wrong kitchen layout, or unmet requirements.</div>
+        <div class="analogy-item">Changing after construction is costly and messy.</div>
+      </div>
+      <div class="analogy-arrow">→</div>
+      <div class="analogy-side">
+        <div class="analogy-title" style="background:var(--greenl);color:var(--green);">With Design</div>
+        <div class="analogy-item">First an architect prepares a blueprint according to requirements.</div>
+        <div class="analogy-item">Then the builder implements it with a clear plan.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">ER Model is the database blueprint before actual SQL implementation.</div>
+  </div>
+
+  <div class="info-box indigo">
+    <b>In DBMS:</b> We discuss requirements with users or management, convert them into an ER diagram, get the design confirmed, and then give it to the implementation team.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2>Basic Terms</h2>
+  </div>
+  <div class="term-grid">
+    <div class="term-card">
+      <div class="term-head" style="background:var(--blue);">Entity</div>
+      <div class="term-body">An <b>entity</b> is an object that has physical or conceptual existence. Example: <code>Student</code>, <code>Course</code>, <code>Employee</code>.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-head" style="background:var(--green);">Attribute</div>
+      <div class="term-body">An <b>attribute</b> is a property or characteristic of an entity. Example: Student has <code>Roll_No</code>, <code>Age</code>, <code>Address</code>.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-head" style="background:var(--orange);">Relationship</div>
+      <div class="term-body">A <b>relationship</b> is an association between two or more entities. Example: Student <b>studies</b> Course.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-head" style="background:var(--purple);">Entity Type / Schema</div>
+      <div class="term-body">The structure of an entity and its attributes is an entity type or schema. Example: <code>Student(Roll_No, Age, Address)</code>.</div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">3</div>
+    <h2>ER Diagram Symbols</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">Core ER Model Notations</div>
+    <div class="symbol-grid">
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="shape-rect">Entity</div></div>
+        <div class="symbol-name">Rectangle</div>
+        <div class="symbol-detail">Represents an entity such as Student or Course.</div>
+      </div>
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="shape-oval">Attribute</div></div>
+        <div class="symbol-name">Oval / Ellipse</div>
+        <div class="symbol-detail">Represents properties such as Roll_No, Age, Course_ID.</div>
+      </div>
+      <div class="symbol-card">
+        <div class="symbol-shape"><div class="shape-diamond"><span>Study</span></div></div>
+        <div class="symbol-name">Diamond</div>
+        <div class="symbol-detail">Represents a relationship between entities.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Entity = rectangle, Attribute = ellipse, Relationship = diamond.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">4</div>
+    <h2>Student-Course ER Example</h2>
+  </div>
+  <p class="prose">A <code>Student</code> entity can have attributes like <code>Roll_No</code>, <code>Address</code>, and <code>Mobile_No</code>. A <code>Course</code> entity can have attributes like <code>Course_ID</code>, <code>Course_Name</code>, and <code>Duration</code>. The relationship between them can be named <b>Study</b>.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Student — Study — Course ER Diagram</div>
+    <div class="er-wrap">
+      <div class="er-row">
+        <div class="entity-box">
+          <div class="entity-name">Student</div>
+          <div class="attr-row">
+            <span class="attr-pill">Roll_No</span>
+            <span class="attr-pill">Address</span>
+            <span class="attr-pill">Mobile_No</span>
+          </div>
+        </div>
+        <div class="er-center">
+          <div class="er-line left"></div>
+          <div class="relationship"><span>Study</span></div>
+          <div class="er-line right"></div>
+        </div>
+        <div class="entity-box">
+          <div class="entity-name">Course</div>
+          <div class="attr-row">
+            <span class="attr-pill">Course_ID</span>
+            <span class="attr-pill">Course_Name</span>
+            <span class="attr-pill">Duration</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Student and Course are entities. Study is the relationship. The small ovals represent attributes.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">5</div>
+    <h2>From Requirement to Database</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">ER Model Workflow</div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text">Talk to users, principal, management, or client to understand requirements.</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text">Convert verbal requirements into an ER diagram on paper or design tool.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text">Confirm the conceptual model before implementation begins.</div></div>
+      <div class="flow-item"><div class="flow-num">4</div><div class="flow-text">Implementation team converts the model into tables using SQL.</div></div>
+      <div class="flow-item"><div class="flow-num">5</div><div class="flow-text">Frontend applications access the backend database through an interface.</div></div>
+    </div>
+  </div>
+
+  <div class="info-box teal">
+    <b>Coming concepts:</b> Types of attributes and relationship cardinality: one-to-one, one-to-many, many-to-one, and many-to-many.
+  </div>
+
+  <div class="answer-strip">
+    Final memory line: <b>ER Model is the conceptual blueprint of a database before SQL implementation.</b>
+  </div>
+
+</div>
+
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--indigo);">
+      <div class="rev-num">1</div>Core Idea
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">ER Model:</span><span class="rv">Entity Relationship Model.</span></div>
+      <div class="rev-kv"><span class="rk">Purpose:</span><span class="rv">Logical / conceptual representation of data before implementation.</span></div>
+      <div class="rev-kv"><span class="rk">Analogy:</span><span class="rv">Like a building blueprint before construction.</span></div>
+      <div class="rev-kv"><span class="rk">Used before:</span><span class="rv">SQL table creation and database coding.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">2</div>Symbols and Meaning
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>ER Component</th><th>Symbol</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Entity</td><td>Rectangle</td><td>Student, Course</td></tr>
+          <tr><td>Attribute</td><td>Oval / Ellipse</td><td>Roll_No, Age, Course_ID</td></tr>
+          <tr><td>Relationship</td><td>Diamond</td><td>Study</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">3</div>Student-Course Example
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Entity 1:</span><span class="rv">Student: Roll_No, Address, Mobile_No.</span></div>
+      <div class="rev-kv"><span class="rk">Entity 2:</span><span class="rv">Course: Course_ID, Course_Name, Duration.</span></div>
+      <div class="rev-kv"><span class="rk">Relationship:</span><span class="rv">Student <b>Study</b> Course.</span></div>
+      <div class="rev-kv"><span class="rk">Schema idea:</span><span class="rv">Entity + attributes together represent the structure or entity type.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">4</div>Next Exam Areas
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Concept</th><th>What to Study Next</th></tr></thead>
+        <tbody>
+          <tr><td>Attributes</td><td>Simple, composite, derived, multivalued, key attributes.</td></tr>
+          <tr><td>Relationships</td><td>One-to-one, one-to-many, many-to-one, many-to-many.</td></tr>
+          <tr><td>Cardinality</td><td>Number of entity instances participating in a relationship.</td></tr>
+          <tr><td>Implementation</td><td>Convert ER design into relational tables using SQL.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
