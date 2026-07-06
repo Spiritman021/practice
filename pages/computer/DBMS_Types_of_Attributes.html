@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 16: Types of attributes in ER Model — single, multivalued, simple, composite, stored, derived, key, non-key, required, optional, and complex attributes.">
+<meta name="robots" content="index, follow">
+<title>Types of Attributes — DBMS Topic 16 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Types_of_Attributes.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --bluebg:#E3F2FD;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --amber:#FF8F00; --amberl:#FFF8E1;
+    --indigo:#283593; --indigol:#E8EAF6; --steel:#37474F; --steell:#ECEFF1;
+    --text:#1A1A1A; --dkgray:#424242; --mdgray:#757575;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--purple);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--purple);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--purple);}
+  .toggle-wrap{display:flex;background:var(--purplel);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--purple);color:#fff;box-shadow:0 2px 12px rgba(106,27,154,.3);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#2e1065 0%,#6a1b9a 48%,#00838f 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 76% 42%,rgba(225,190,231,.22) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:860px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#e1bee7;}
+  .hero-sub{color:rgba(255,255,255,.73);font-size:14px;max-width:650px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.86);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.purple{background:var(--purplel);border-color:var(--purple);color:var(--purple);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .student-card{padding:18px;display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center;}
+  .entity-box{border:3px solid var(--blue);background:var(--bluebg);border-radius:8px;padding:18px;text-align:center;font-weight:800;color:var(--blue);}
+  .attrs{display:flex;flex-wrap:wrap;gap:10px;}
+  .oval{min-width:108px;text-align:center;border:2px solid var(--green);background:var(--greenl);color:var(--green);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;}
+  .oval.double{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--teal);border-color:var(--teal);background:var(--tealL);color:var(--teal);}
+  .oval.dotted{border-style:dashed;background:#fff;color:var(--orange);border-color:var(--orange);}
+  .oval.key{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;border-color:var(--amber);background:var(--amberl);color:var(--amber);}
+
+  .pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .type-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .type-head{padding:11px 16px;color:#fff;font-weight:700;font-size:13px;}
+  .type-body{padding:14px 16px;font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+  .shape-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .mini-oval{border:2px solid #bbb;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;background:#fff;}
+  .mini-oval.double{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--teal);border-color:var(--teal);color:var(--teal);}
+  .mini-oval.dotted{border-style:dashed;border-color:var(--orange);color:var(--orange);}
+  .mini-oval.key{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;border-color:var(--amber);color:var(--amber);}
+
+  .tree-wrap{padding:20px;overflow-x:auto;}
+  .tree{min-width:620px;text-align:center;}
+  .tree-root{display:inline-block;border:2px solid var(--purple);background:var(--purplel);color:var(--purple);border-radius:999px;padding:9px 22px;font-weight:800;margin-bottom:18px;}
+  .tree-children{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .tree-child{border:2px solid var(--green);background:var(--greenl);color:var(--green);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;position:relative;}
+  .tree-child::before{content:'';position:absolute;top:-18px;left:50%;width:2px;height:18px;background:#cbd5e1;}
+
+  .complex-box{padding:18px;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;}
+  .complex-part{border-radius:12px;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;}
+  .complex-title{font-weight:800;color:var(--navy);margin-bottom:8px;font-size:13px;}
+  .complex-text{font-size:13px;line-height:1.6;color:var(--dkgray);}
+  .plus{font-size:28px;font-weight:800;color:var(--purple);text-align:center;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:145px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:720px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .student-card,.pair-grid,.complex-box{grid-template-columns:1fr;}
+    .plus{line-height:1;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 17</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Types of Attributes</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 16: Types of Attributes</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 17 • ER MODEL</div>
+    <h1>Types of<br><span>Attributes</span></h1>
+    <p class="hero-sub">Single, multivalued, simple, composite, stored, derived, key, non-key, required, optional, and complex attributes in ER modeling.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span><span class="badge">UGC NET</span>
+      <span class="badge">ER Model</span><span class="badge">DB Design</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">1</div>
+    <h2>What is an Attribute?</h2>
+  </div>
+  <p class="prose">An <b>attribute</b> is a property or characteristic of an entity. If <code>Student</code> is an entity, then <code>Name</code>, <code>Roll_No</code>, <code>Registration_No</code>, <code>Father_Name</code>, <code>Address</code>, and <code>Mobile_No</code> can be its attributes.</p>
+  <div class="diagram">
+    <div class="diagram-title">Student Entity with Attributes</div>
+    <div class="student-card">
+      <div class="entity-box">Student</div>
+      <div class="attrs">
+        <span class="oval key">Registration_No</span>
+        <span class="oval">Name</span>
+        <span class="oval">Age</span>
+        <span class="oval double">Mobile_No</span>
+        <span class="oval dotted">Age from DOB</span>
+        <span class="oval">Address</span>
+      </div>
+    </div>
+    <div class="diagram-caption">In ER diagrams, normal attributes use an oval. Special attribute types modify that oval.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2>Main Attribute Types</h2>
+  </div>
+  <div class="pair-grid">
+    <div class="type-card">
+      <div class="type-head" style="background:var(--green);">Single-Valued Attribute</div>
+      <div class="type-body">
+        Has only one value for an entity instance. Example: a university <code>Registration_No</code> for a student.
+        <div class="shape-row"><span class="mini-oval">Registration_No</span></div>
+        Normal single oval representation.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--teal);">Multivalued Attribute</div>
+      <div class="type-body">
+        Can have more than one value. Example: <code>Mobile_No</code> or <code>Address</code> when a student has multiple numbers or addresses.
+        <div class="shape-row"><span class="mini-oval double">Mobile_No</span></div>
+        Represented with a double oval.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--orange);">Simple Attribute</div>
+      <div class="type-body">
+        Cannot be divided further. Example: <code>Age</code> as a single value like 20.
+        <div class="shape-row"><span class="mini-oval">Age</span></div>
+        Atomic and indivisible.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--purple);">Composite Attribute</div>
+      <div class="type-body">
+        Can be divided into smaller parts. Example: <code>Name</code> can become first, middle, and last name.
+        <div class="shape-row"><span class="mini-oval">Name</span><span class="mini-oval">First</span><span class="mini-oval">Middle</span><span class="mini-oval">Last</span></div>
+        Also called compound attribute.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--steel);">Stored Attribute</div>
+      <div class="type-body">
+        Its value is stored directly. Example: <code>Date_of_Birth</code>.
+        <div class="shape-row"><span class="mini-oval">Date_of_Birth</span></div>
+        No special ER notation beyond normal oval.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--red);">Derived Attribute</div>
+      <div class="type-body">
+        Its value is calculated from another attribute. Example: <code>Age</code> derived from <code>Date_of_Birth</code>.
+        <div class="shape-row"><span class="mini-oval dotted">Age</span></div>
+        Represented with a dotted oval.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--amber);">Key Attribute</div>
+      <div class="type-body">
+        Uniquely identifies each row/entity instance. Example: <code>Registration_No</code> or <code>Roll_No</code>.
+        <div class="shape-row"><span class="mini-oval key">Registration_No</span></div>
+        Represented by underlining the attribute name.
+      </div>
+    </div>
+    <div class="type-card">
+      <div class="type-head" style="background:var(--indigo);">Non-Key Attribute</div>
+      <div class="type-body">
+        Does not guarantee uniqueness. Example: <code>Name</code>, <code>Age</code>, <code>Date_of_Birth</code>, or sometimes <code>Mobile_No</code>.
+        <div class="shape-row"><span class="mini-oval">Name</span><span class="mini-oval">Age</span></div>
+        Normal oval representation.
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">3</div>
+    <h2>Composite Attribute Diagram</h2>
+  </div>
+  <div class="diagram">
+    <div class="diagram-title">Name as a Composite Attribute</div>
+    <div class="tree-wrap">
+      <div class="tree">
+        <div class="tree-root">Student_Name</div>
+        <div class="tree-children">
+          <div class="tree-child">First_Name</div>
+          <div class="tree-child">Middle_Name</div>
+          <div class="tree-child">Last_Name</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">A composite attribute can be broken into meaningful smaller attributes.</div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--green);color:#fff;">4</div>
+    <h2>Required vs Optional</h2>
+  </div>
+  <p class="prose"><b>Required</b> attributes are mandatory, like a student name during admission. <b>Optional</b> attributes can be left blank depending on the database requirement. This is mostly handled in SQL using constraints like <code>NOT NULL</code>, not by a special ER symbol.</p>
+  <div class="info-box orange">
+    <b>Important:</b> Required vs Optional is not a core ER notation topic. In SQL, the DBA decides it while creating table constraints.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">5</div>
+    <h2>Complex Attribute</h2>
+  </div>
+  <p class="prose">A <b>complex attribute</b> is both composite and multivalued. Example: a student may have multiple addresses, and each address can be broken into street, city, state, and pin code.</p>
+  <div class="diagram">
+    <div class="diagram-title">Complex Attribute = Composite + Multivalued</div>
+    <div class="complex-box">
+      <div class="complex-part">
+        <div class="complex-title">Composite</div>
+        <div class="complex-text">Address can be divided into Street, City, State, Pin_Code.</div>
+      </div>
+      <div class="plus">+</div>
+      <div class="complex-part">
+        <div class="complex-title">Multivalued</div>
+        <div class="complex-text">Student can have permanent address and correspondence address.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Complex attributes combine both ideas at once.</div>
+  </div>
+
+  <div class="info-box purple">
+    <b>Exam memory:</b> Multivalued = double oval, Derived = dotted oval, Key = underlined attribute.
+  </div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);"><div class="rev-num">1</div>Quick Definitions</div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Type</th><th>Meaning</th><th>Example</th><th>ER Notation</th></tr></thead>
+        <tbody>
+          <tr><td>Single-valued</td><td>Only one value</td><td>Registration_No</td><td>Single oval</td></tr>
+          <tr><td>Multivalued</td><td>More than one value possible</td><td>Mobile_No</td><td>Double oval</td></tr>
+          <tr><td>Simple</td><td>Cannot be divided further</td><td>Age</td><td>Single oval</td></tr>
+          <tr><td>Composite</td><td>Can be divided further</td><td>Name</td><td>Oval connected to sub-ovals</td></tr>
+          <tr><td>Stored</td><td>Stored directly</td><td>Date_of_Birth</td><td>Normal oval</td></tr>
+          <tr><td>Derived</td><td>Calculated from stored data</td><td>Age from DOB</td><td>Dotted oval</td></tr>
+          <tr><td>Key</td><td>Uniquely identifies rows</td><td>Roll_No</td><td>Underlined oval text</td></tr>
+          <tr><td>Non-key</td><td>Uniqueness not guaranteed</td><td>Name, Age</td><td>Normal oval</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);"><div class="rev-num">2</div>Important Examples</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Registration_No:</span><span class="rv">Single-valued and key attribute.</span></div>
+      <div class="rev-kv"><span class="rk">Mobile_No:</span><span class="rv">Can be multivalued; may not be key because siblings can share it.</span></div>
+      <div class="rev-kv"><span class="rk">Student_Name:</span><span class="rv">Composite: First_Name, Middle_Name, Last_Name.</span></div>
+      <div class="rev-kv"><span class="rk">Date_of_Birth:</span><span class="rv">Stored attribute.</span></div>
+      <div class="rev-kv"><span class="rk">Age:</span><span class="rv">Derived from Date_of_Birth and current date.</span></div>
+      <div class="rev-kv"><span class="rk">Address:</span><span class="rv">Can be composite, multivalued, or complex depending on the system.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);"><div class="rev-num">3</div>Exam Warnings</div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Required/Optional:</span><span class="rv">Usually SQL constraint idea, not a special ER symbol.</span></div>
+      <div class="rev-kv"><span class="rk">Key attribute:</span><span class="rv">Always unique; represented with underline.</span></div>
+      <div class="rev-kv"><span class="rk">Derived:</span><span class="rv">Do not store if it can be calculated easily from stored attributes.</span></div>
+      <div class="rev-kv"><span class="rk">Complex:</span><span class="rv">Composite plus multivalued.</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
