@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="DBMS Topic 12: UGC NET 2018 Foreign Key PYQ — solved question on referential integrity violations during INSERT and DELETE operations.">
+<meta name="robots" content="index, follow">
+<title>Foreign Key PYQ — DBMS Topic 12 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/DBMS_Foreign_Key_UGC_NET_PYQ.html">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0D1B4B; --blue:#1565C0; --bluebg:#E3F2FD;
+    --red:#C62828; --redl:#FFEBEE; --green:#2E7D32; --greenl:#E8F5E9;
+    --orange:#E65100; --orangel:#FFF3E0; --purple:#6A1B9A; --purplel:#F3E5F5;
+    --teal:#00695C; --tealL:#E0F2F1; --amber:#FF8F00; --amberl:#FFF8E1;
+    --slate:#263238; --slatel:#ECEFF1; --cyan:#00838F; --cyanl:#E0F7FA;
+    --text:#1A1A1A; --dkgray:#424242; --mdgray:#757575;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh;}
+
+  .topbar{background:#fff;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--teal);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .chapter-tag{background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.08em;}
+  .topbar-title{color:var(--navy);font-size:15px;font-weight:600;}
+  .topbar-title span{color:var(--teal);}
+  .toggle-wrap{display:flex;background:var(--tealL);border-radius:8px;padding:4px;gap:4px;}
+  .toggle-btn{padding:7px 20px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .25s;color:var(--dkgray);background:transparent;}
+  .toggle-btn.active{background:var(--teal);color:#fff;box-shadow:0 2px 12px rgba(0,105,92,.3);}
+
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+  .hero{background:linear-gradient(135deg,#0f2f2f 0%,#00695c 48%,#00838f 100%);padding:48px 40px 36px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 78% 42%,rgba(128,222,234,.2) 0%,transparent 60%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;}
+  .hero-content{position:relative;max-width:860px;}
+  .hero-tag{display:inline-block;background:var(--amber);color:#fff;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
+  .hero h1{font-family:'Bebas Neue',cursive;font-size:clamp(36px,6vw,60px);color:#fff;letter-spacing:.04em;line-height:1.05;margin-bottom:10px;}
+  .hero h1 span{color:#80deea;}
+  .hero-sub{color:rgba(255,255,255,.72);font-size:14px;max-width:600px;line-height:1.6;}
+  .hero-badges{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.88);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:.04em;}
+
+  .main{max-width:900px;margin:0 auto;padding:40px 24px 80px;}
+  .view{display:none;animation:fadeUp .35s ease forwards;}
+  .view.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sec-head h2{font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--navy);}
+  .prose{font-size:14.5px;line-height:1.75;color:#2a2a2a;margin-bottom:12px;}
+  .prose b{color:var(--navy);}
+  code{font-family:'Space Mono',monospace;background:#eef2ff;padding:1px 5px;border-radius:4px;font-size:12px;}
+
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.teal{background:var(--tealL);border-color:var(--teal);color:var(--teal);}
+  .info-box.blue{background:var(--bluebg);border-color:var(--blue);color:var(--navy);}
+  .info-box.green{background:var(--greenl);border-color:var(--green);color:var(--dkgray);}
+  .info-box.orange{background:var(--orangel);border-color:var(--orange);color:var(--dkgray);}
+  .info-box.red{background:var(--redl);border-color:var(--red);color:var(--dkgray);}
+
+  .diagram{background:#fff;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:var(--navy);color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:var(--mdgray);font-style:italic;padding:8px 16px;background:#fafafa;border-top:1px solid #f0f0f0;}
+
+  .question-card{background:#fff;border:1px solid #dbe4ef;border-radius:12px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.06);}
+  .question-head{background:var(--slate);color:#fff;padding:13px 18px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;}
+  .question-body{padding:18px 20px;}
+  .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .option{padding:11px 14px;border-radius:9px;border:1px solid #e0e0e0;background:#fafafa;font-size:13px;font-weight:600;}
+  .option.correct{background:var(--greenl);border-color:#a5d6a7;color:var(--green);}
+
+  .rel-wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:0;padding:20px;overflow-x:auto;}
+  .rel-table{border-radius:9px;overflow:hidden;min-width:235px;}
+  .rel-title{padding:9px 14px;color:#fff;font-weight:700;font-size:12.5px;text-align:center;}
+  .rel-mini{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .rel-mini th{padding:7px 10px;text-align:left;font-weight:700;font-size:11.5px;}
+  .rel-mini td{padding:7px 10px;border-top:1px solid rgba(0,0,0,.07);}
+  .rel-mini tr:nth-child(even) td{background:rgba(0,0,0,.03);}
+  .pk-cell{background:var(--amberl)!important;color:var(--amber);font-weight:700;}
+  .fk-cell{background:var(--cyanl)!important;color:var(--cyan);font-weight:700;}
+  .rel-conn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:42px 14px 0;}
+  .rel-arrow{font-size:24px;color:var(--teal);}
+  .rel-label{font-size:10px;color:var(--mdgray);font-weight:700;white-space:nowrap;margin-bottom:4px;}
+  .mini-tag{display:inline-block;color:#fff;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px;}
+
+  .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .op-card{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .op-head{padding:11px 16px;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .op-code{font-family:'Space Mono',monospace;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:3px;font-size:10px;white-space:nowrap;}
+  .op-body{padding:14px 16px;font-size:13px;line-height:1.65;color:var(--dkgray);}
+  .verdict{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+  .safe{background:var(--greenl);color:var(--green);border:1px solid #a5d6a7;}
+  .risk{background:var(--redl);color:var(--red);border:1px solid #ef9a9a;}
+
+  .flow{display:flex;flex-direction:column;gap:10px;padding:16px 20px;}
+  .flow-item{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;}
+  .flow-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;flex-shrink:0;}
+  .flow-text{font-size:13.5px;line-height:1.55;color:var(--dkgray);}
+  .flow-text b{color:var(--navy);}
+
+  .answer-strip{background:var(--greenl);border:1.5px solid #a5d6a7;border-radius:12px;padding:16px 20px;margin:18px 0;color:var(--green);font-weight:700;text-align:center;line-height:1.6;}
+
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #e8eaf6;}
+  .rev-card-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-card-body{padding:16px 20px;}
+  .rev-kv{display:flex;gap:8px;margin-bottom:8px;font-size:13px;align-items:flex-start;}
+  .rev-kv .rk{font-weight:700;color:var(--navy);min-width:150px;flex-shrink:0;}
+  .rev-kv .rv{color:var(--dkgray);line-height:1.55;}
+  .quick-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .quick-table th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11.5px;text-align:left;}
+  .quick-table td{padding:8px 12px;border-bottom:1px solid #e8eaf6;vertical-align:top;line-height:1.55;}
+  .quick-table tr:nth-child(even) td{background:#f5f7ff;}
+  .quick-table tr:last-child td{border-bottom:none;}
+  .quick-table td:first-child{font-weight:700;color:var(--navy);}
+
+  @media(max-width:680px){
+    .topbar{padding:0 16px;}
+    .topbar-title{display:none;}
+    .toggle-btn{padding:7px 12px;font-size:12px;}
+    .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+    .hero{padding:36px 24px 30px;}
+    .hero h1{font-size:32px;}
+    .main{padding:24px 16px 60px;}
+    .option-grid,.ops-grid,.rel-wrap{grid-template-columns:1fr;}
+    .rel-conn{padding:8px 0;flex-direction:row;}
+    .rev-kv{flex-direction:column;gap:3px;}
+    .rev-kv .rk{min-width:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">CH — 13</span>
+    <span class="topbar-title">DBMS &nbsp;/&nbsp; <span>Foreign Key PYQ</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span><a href="computer.html">Computer</a><span class="sep">›</span><a href="dbms.html">DBMS</a><span class="sep">›</span><span class="current">Topic 12: Foreign Key PYQ</span><a class="back-btn" href="dbms.html">← Back</a></nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">DBMS • CHAPTER 13 • UGC NET 2018 PYQ</div>
+    <h1>Foreign Key<br><span>Referential Integrity PYQ</span></h1>
+    <p class="hero-sub">A step-by-step solved question on which operations can violate referential integrity when one relation contains a Foreign Key referencing another relation's Primary Key.</p>
+    <div class="hero-badges">
+      <span class="badge">UGC NET July 2018</span><span class="badge">GATE</span>
+      <span class="badge">IBPS SO IT</span><span class="badge">DBMS Constraints</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal);color:#fff;">1</div>
+    <h2>Question Statement</h2>
+  </div>
+  <div class="question-card">
+    <div class="question-head">UGC NET July 2018 — Foreign Key and Referential Integrity</div>
+    <div class="question-body">
+      <p class="prose">Let <code>R1(a, b, c)</code> and <code>R2(x, y, z)</code> be two relations. Attribute <code>a</code> in <code>R1</code> is a <b>Foreign Key</b> that refers to the <b>Primary Key</b> of <code>R2</code>. Which pair of operations can cause a referential integrity violation?</p>
+      <div class="option-grid">
+        <div class="option">1. Insert into R1 and Insert into R2</div>
+        <div class="option">2. Insert into R2 and Delete from R1</div>
+        <div class="option">3. Delete from R1 and Delete from R2</div>
+        <div class="option correct">4. Delete from R2 and Insert into R1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2>Relationship Setup</h2>
+  </div>
+  <p class="prose">The key to this question is identifying the <b>referenced table</b> and the <b>referencing table</b>. Since <code>a</code> is a Foreign Key in <code>R1</code>, <code>R1</code> depends on <code>R2</code>. The Primary Key in <code>R2</code> is not named in the question, so we can assume <code>x</code> is the Primary Key.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">R1 depends on R2 through Foreign Key a</div>
+    <div class="rel-wrap">
+      <div class="rel-table" style="border:2px solid var(--cyan);">
+        <div class="rel-title" style="background:var(--cyan);">R1 — Referencing Table</div>
+        <table class="rel-mini">
+          <thead style="background:var(--cyanl);">
+            <tr><th>a <span class="mini-tag" style="background:var(--cyan);">FK</span></th><th>b</th><th>c</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="fk-cell">1</td><td>b1</td><td>c1</td></tr>
+            <tr><td class="fk-cell">2</td><td>b2</td><td>c2</td></tr>
+            <tr><td class="fk-cell">3</td><td>b3</td><td>c3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="rel-conn">
+        <div class="rel-label">a references x</div>
+        <div class="rel-arrow">⟶</div>
+      </div>
+      <div class="rel-table" style="border:2px solid var(--amber);">
+        <div class="rel-title" style="background:var(--amber);">R2 — Referenced / Base Table</div>
+        <table class="rel-mini">
+          <thead style="background:var(--amberl);">
+            <tr><th>x <span class="mini-tag" style="background:var(--amber);">PK</span></th><th>y</th><th>z</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="pk-cell">1</td><td>y1</td><td>z1</td></tr>
+            <tr><td class="pk-cell">2</td><td>y2</td><td>z2</td></tr>
+            <tr><td class="pk-cell">3</td><td>y3</td><td>z3</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="diagram-caption">Foreign Key rule: every value in R1.a must already exist in the Primary Key column of R2.</div>
+  </div>
+
+  <div class="info-box teal">
+    <b>Exam language:</b> <code>R2</code> is the <b>base / parent / referenced table</b>. <code>R1</code> is the <b>dependent / child / referencing table</b>.
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">3</div>
+    <h2>Analyze Each Operation</h2>
+  </div>
+  <div class="ops-grid">
+    <div class="op-card">
+      <div class="op-head" style="background:var(--red);">Insert into R1 <span class="op-code">a</span></div>
+      <div class="op-body">
+        <div class="verdict risk">⚠️ Can Violate</div>
+        If a new row is inserted in <code>R1</code>, its FK value in <code>a</code> must already exist in <code>R2.x</code>. Inserting <code>a = 7</code> when <code>7</code> is absent from <code>R2</code> creates an invalid reference.
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-head" style="background:var(--green);">Insert into R2 <span class="op-code">b</span></div>
+      <div class="op-body">
+        <div class="verdict safe">✓ Safe</div>
+        <code>R2</code> is the base table. Adding a new Primary Key value only creates a new possible reference for future rows in <code>R1</code>. It does not break existing FK values.
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-head" style="background:var(--green);">Delete from R1 <span class="op-code">c</span></div>
+      <div class="op-body">
+        <div class="verdict safe">✓ Safe</div>
+        Deleting from the referencing table removes a child row. It does not remove any Primary Key from the base table, so no orphan reference is created.
+      </div>
+    </div>
+    <div class="op-card">
+      <div class="op-head" style="background:var(--red);">Delete from R2 <span class="op-code">d</span></div>
+      <div class="op-body">
+        <div class="verdict risk">⚠️ Can Violate</div>
+        If the deleted Primary Key value is still used in <code>R1.a</code>, those rows in <code>R1</code> will point to a value that no longer exists. That breaks referential integrity.
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">4</div>
+    <h2>Real-Life Analogy</h2>
+  </div>
+  <p class="prose">Imagine <code>R2</code> as the university's main student registry and <code>R1</code> as the course enrollment table. A course enrollment can exist only for a student already present in the university registry.</p>
+  <div class="diagram">
+    <div class="diagram-title">Safe Order of Operations</div>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-num">1</div><div class="flow-text">To enroll a student in a course, the student must first exist in the <b>main registry</b> (<code>R2</code>).</div></div>
+      <div class="flow-item"><div class="flow-num">2</div><div class="flow-text">Trying to insert enrollment directly in <b>course records</b> (<code>R1</code>) for a missing student causes a violation.</div></div>
+      <div class="flow-item"><div class="flow-num">3</div><div class="flow-text">Deleting a course enrollment from <code>R1</code> is safe because the main student record still exists.</div></div>
+      <div class="flow-item"><div class="flow-num">4</div><div class="flow-text">Deleting a student from <code>R2</code> while course records still point to that student creates orphan data.</div></div>
+    </div>
+  </div>
+
+  <div class="answer-strip">
+    Final Answer: operations <b>d</b> and <b>a</b> can cause referential integrity violation. Therefore, <b>Option 4</b> is correct.
+  </div>
+
+</div>
+
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">1</div>Question Snapshot
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Relations:</span><span class="rv"><code>R1(a,b,c)</code> and <code>R2(x,y,z)</code></span></div>
+      <div class="rev-kv"><span class="rk">Given:</span><span class="rv"><code>a</code> in <code>R1</code> is a Foreign Key referring to the Primary Key of <code>R2</code>.</span></div>
+      <div class="rev-kv"><span class="rk">Assumption:</span><span class="rv"><code>x</code> is treated as the Primary Key of <code>R2</code>.</span></div>
+      <div class="rev-kv"><span class="rk">Answer:</span><span class="rv"><b>Delete from R2</b> and <b>Insert into R1</b> can violate referential integrity.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">2</div>Operation Table
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Operation</th><th>Verdict</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Insert into R1</td><td>Can violate</td><td>New FK value must already exist in R2's Primary Key.</td></tr>
+          <tr><td>Insert into R2</td><td>Safe</td><td>Adding parent/base records does not invalidate child records.</td></tr>
+          <tr><td>Delete from R1</td><td>Safe</td><td>Deleting child rows does not affect parent Primary Key values.</td></tr>
+          <tr><td>Delete from R2</td><td>Can violate</td><td>If deleted PK is referenced in R1, R1 will contain orphan FK values.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">3</div>Exam Rule
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Referenced table:</span><span class="rv">Has Primary Key. Insert is safe; Delete can violate.</span></div>
+      <div class="rev-kv"><span class="rk">Referencing table:</span><span class="rv">Has Foreign Key. Insert can violate; Delete is safe.</span></div>
+      <div class="rev-kv"><span class="rk">Memory line:</span><span class="rv"><b>Child insert risky, parent delete risky.</b></span></div>
+      <div class="rev-kv"><span class="rk">Correct option:</span><span class="rv">Option 4: <b>d and a</b>.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">4</div>Quick Definitions
+    </div>
+    <div class="rev-card-body" style="padding:0;">
+      <table class="quick-table">
+        <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Foreign Key</td><td>Attribute in one table that refers to a Primary Key in the same or another table.</td></tr>
+          <tr><td>Referenced Table</td><td>Parent/base table containing the Primary Key being referred to.</td></tr>
+          <tr><td>Referencing Table</td><td>Child/dependent table containing the Foreign Key.</td></tr>
+          <tr><td>Referential Integrity</td><td>Every FK value must match an existing PK value in the referenced table.</td></tr>
+          <tr><td>Orphan Record</td><td>A child row whose FK value points to a missing parent row.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  function switchView(mode, e) {
+    document.getElementById('view-descriptive').classList.remove('active');
+    document.getElementById('view-revision').classList.remove('active');
+    document.getElementById('view-' + mode).classList.add('active');
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    e.target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
