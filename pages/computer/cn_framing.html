@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 27: Framing in Data Link Layer — frames, delimiters, character-oriented framing, byte stuffing with FLAG/ESC, and bit stuffing after five consecutive 1s.">
+<meta name="robots" content="index, follow">
+<title>Framing in Data Link Layer — CN Topic 27 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_framing.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f2f7;--white:#fff;--border:#e0e4ef;--navy:#1a2340;--accent:#7c3aed;--red:#e11d48;--red-light:#fff1f4;--green:#16a34a;--green-light:#f0fdf4;--amber:#d97706;--amber-light:#fffbeb;--blue:#2563eb;--blue-light:#eff6ff;--teal:#0f766e;--teal-light:#f0fdfa;--orange:#ea580c;--orange-light:#fff7ed;--text:#1e2535;--text-muted:#6b7280;--text-light:#9ca3af;--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--body:'Nunito',sans-serif}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh}.navbar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-left{display:flex;align-items:center;gap:12px}.nav-badge{background:var(--amber);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 10px;border-radius:5px;letter-spacing:.5px}.nav-breadcrumb{font-family:var(--sans);font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px}.nav-breadcrumb .sep{color:var(--text-light)}.nav-breadcrumb .current{color:var(--text);font-weight:600}.nav-right{display:flex;align-items:center;gap:6px}.nav-btn{font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;transition:all .2s;background:transparent;color:var(--text-muted)}.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}.nav-btn:not(.active):hover{background:var(--bg);color:var(--text)}
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap}.ph-breadcrumb a{color:#2563eb;text-decoration:none}.ph-breadcrumb a:hover{text-decoration:underline}.ph-breadcrumb .sep{color:#94a3b8}.ph-breadcrumb .current{color:#64748b;font-weight:600}.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap}
+.hero{background:linear-gradient(135deg,#451a03 0%,#d97706 32%,#0f766e 66%,#2563eb 100%);padding:52px 48px 48px;position:relative;overflow:hidden}.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.035'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;position:relative;z-index:1}.hero-tag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.9);background:rgba(255,255,255,.1)}.hero h1{font-family:var(--sans);font-size:clamp(2.1rem,5vw,3.4rem);font-weight:800;color:#fff;line-height:1.05;letter-spacing:-1px;margin-bottom:16px;position:relative;z-index:1}.hero h1 span{color:#fef3c7}.hero-sub{font-size:.97rem;color:rgba(255,255,255,.82);max-width:720px;line-height:1.6;position:relative;z-index:1;margin-bottom:24px}.hero-chips{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}.hero-chip{font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.12)}
+.content-wrap{max-width:940px;margin:0 auto;padding:40px 24px 80px}.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.section-block{margin-bottom:48px}.section-heading{display:flex;align-items:center;gap:14px;margin-bottom:20px}.sec-num{width:36px;height:36px;border-radius:50%;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}.sn-navy{background:var(--navy)}.sn-blue{background:var(--blue)}.sn-red{background:var(--red)}.sn-green{background:var(--green)}.sn-amber{background:var(--amber)}.sn-teal{background:var(--teal)}.sn-purple{background:var(--accent)}.section-heading h2{font-family:var(--sans);font-size:1.2rem;font-weight:700}.body-text{font-size:.94rem;line-height:1.8;color:#374151;margin-bottom:16px}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:.88rem;line-height:1.65}.callout-blue{border-color:var(--blue);background:var(--blue-light);color:#1e40af}.callout-green{border-color:var(--green);background:var(--green-light);color:#14532d}.callout-amber{border-color:var(--amber);background:var(--amber-light);color:#78350f}.callout-red{border-color:var(--red);background:var(--red-light);color:#9f1239}.callout-teal{border-color:var(--teal);background:var(--teal-light);color:#134e4a}.callout strong{font-weight:700}
+.diagram-box{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:20px 0}.diagram-header{background:var(--navy);padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.3px}.diagram-body{padding:24px 20px}.diagram-note{padding:10px 18px 14px;font-size:.8rem;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px solid var(--border)}.study-svg{width:100%;height:auto;display:block}.svg-label{font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:700;fill:#1e2535}.svg-small{font-family:Nunito,Arial,sans-serif;font-size:11px;font-weight:700;fill:#64748b}.svg-mono{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;fill:#475569}
+.tbl-wrap{overflow-x:auto;margin:4px 0}table{width:100%;border-collapse:collapse;font-size:.83rem;font-family:var(--sans);background:var(--white);border:1px solid var(--border)}thead tr{background:var(--navy)}th{text-align:left;padding:11px 16px;color:rgba(255,255,255,.85);font-weight:600;font-size:.78rem;letter-spacing:.3px}td{padding:10px 16px;color:#374151;border-bottom:1px solid var(--border);vertical-align:top}tr:last-child td{border-bottom:none}tr:hover td{background:#f8f9ff}td.mono{font-family:var(--mono);font-size:.8rem}td.ok{color:var(--green);font-weight:600}td.must{color:var(--red);font-weight:600}
+.cheat-div{display:flex;align-items:center;gap:12px;margin:32px 0 16px}.cheat-div span{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-light);white-space:nowrap}.cheat-div::before,.cheat-div::after{content:'';flex:1;height:1px;background:var(--border)}.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0}.rev-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px}.rev-card-title{font-family:var(--sans);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}.bullet-list{list-style:none;display:flex;flex-direction:column;gap:6px}.bullet-list li{font-size:.81rem;color:#374151;padding-left:14px;position:relative;line-height:1.55}.bullet-list li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}.bullet-list li .val{font-family:var(--mono);color:var(--amber);font-size:.77rem}.bullet-list li .tag-g{font-family:var(--mono);color:var(--green);font-size:.77rem}.bullet-list li .tag-r{font-family:var(--mono);color:var(--red);font-size:.77rem}.bullet-list li .tag-b{font-family:var(--mono);color:var(--blue);font-size:.77rem}.final-tips{background:linear-gradient(135deg,#fffbeb,#f0fdfa);border:1px solid #fde68a;border-radius:14px;padding:26px;margin-top:32px}.final-tips h3{font-family:var(--sans);font-size:1rem;font-weight:700;color:var(--amber);margin-bottom:16px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.tag{font-family:var(--mono);font-size:10px;padding:3px 10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;color:#475569}
+@media(max-width:640px){.hero{padding:36px 24px}.navbar{padding:0 16px}.nav-btn{padding:7px 10px;font-size:11px}.content-wrap{padding:28px 16px 60px}.ph-breadcrumb{padding:7px 16px;font-size:11.5px}}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 27</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Framing</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 27: Framing</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 27</span><span class="hero-tag">DATA LINK LAYER</span><span class="hero-tag">BYTE &amp; BIT STUFFING</span></div><h1>FRAMING IN <span>DATA LINK LAYER</span></h1><p class="hero-sub">Framing packs a continuous stream of bits into distinguishable frames. This topic covers delimiters, character-oriented framing, byte stuffing with FLAG/ESC, and bit stuffing after five continuous 1s.</p><div class="hero-chips"><span class="hero-chip">Frame</span><span class="hero-chip">Delimiter</span><span class="hero-chip">Byte Stuffing</span><span class="hero-chip">Bit Stuffing</span></div></div>
+
+<div class="content-wrap">
+<div id="panel-desc" class="panel active">
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-amber">1</div><h2>What Is Framing?</h2></div>
+    <p class="body-text">One major responsibility of the <strong>Data Link Layer</strong> is <strong>framing</strong>. It packs the incoming bit stream into separate units called <strong>frames</strong>. Just like an envelope separates one postal letter from another, delimiters separate one frame from the next.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128230; Bits Packed into Frames</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 250" role="img" aria-label="Data Link Layer packs bits into frames using delimiters">
+        <defs><marker id="packArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d97706"/></marker></defs>
+        <text x="70" y="44" class="svg-label" fill="#92400e">Continuous bit stream from upper layer</text>
+        <rect x="70" y="70" width="300" height="52" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/><text x="92" y="102" class="svg-mono">1011010011110010110...</text>
+        <path d="M400 96 H500" stroke="#d97706" stroke-width="4" fill="none" marker-end="url(#packArrow)"/><text x="410" y="82" class="svg-small">Framing</text>
+        <g transform="translate(535 55)">
+          <rect x="0" y="0" width="92" height="78" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/><text x="24" y="46" class="svg-label">Frame 1</text>
+          <rect x="104" y="0" width="92" height="78" rx="10" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/><text x="128" y="46" class="svg-label">Frame 2</text>
+          <rect x="208" y="0" width="92" height="78" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="3"/><text x="232" y="46" class="svg-label">Frame 3</text>
+        </g>
+        <text x="560" y="168" class="svg-small">Each frame can be recognized separately.</text>
+      </svg>
+    </div><div class="diagram-note">Data Link Layer PDU is called a frame.</div></div>
+    <div class="callout-amber callout"><strong>Exam point:</strong> Network Layer PDU = packet; Data Link Layer PDU = frame.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-blue">2</div><h2>Character-Oriented Framing</h2></div>
+    <p class="body-text">In character-oriented framing, special characters called <strong>flags</strong> are placed at the beginning and end of a frame. The receiver treats everything between two flags as data.</p>
+    <div class="diagram-box"><div class="diagram-header">&#9873; FLAG as Delimiter</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 220" role="img" aria-label="Character oriented framing uses FLAG at start and end">
+        <rect x="120" y="82" width="120" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="158" y="116" class="svg-label" fill="#1d4ed8">FLAG</text>
+        <rect x="250" y="82" width="280" height="58" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><text x="342" y="116" class="svg-mono">A B C D</text>
+        <rect x="540" y="82" width="120" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="578" y="116" class="svg-label" fill="#1d4ed8">FLAG</text>
+        <text x="148" y="165" class="svg-small">Start delimiter</text><text x="335" y="165" class="svg-small">Actual data</text><text x="568" y="165" class="svg-small">End delimiter</text>
+      </svg>
+    </div><div class="diagram-note">FLAG does not belong to user data unless it is protected by stuffing.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-green">3</div><h2>Byte Stuffing: When FLAG Appears in Data</h2></div>
+    <p class="body-text">If the data itself contains the word <strong>FLAG</strong>, the receiver may wrongly treat it as the end of the frame. To prevent this, the sender inserts an <strong>ESC</strong> byte before a data FLAG. This tells the receiver that the following FLAG is data, not a delimiter.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128221; Stuff ESC Before Data FLAG</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 300" role="img" aria-label="Byte stuffing inserts ESC before FLAG in data">
+        <defs><marker id="stuffArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
+        <text x="72" y="42" class="svg-label" fill="#14532d">Original data from upper layer</text>
+        <rect x="72" y="64" width="72" height="48" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><text x="102" y="94" class="svg-label">A</text>
+        <rect x="152" y="64" width="92" height="48" rx="8" fill="#fff1f4" stroke="#e11d48" stroke-width="3"/><text x="176" y="94" class="svg-label" fill="#9f1239">FLAG</text>
+        <rect x="252" y="64" width="72" height="48" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><text x="282" y="94" class="svg-label">C</text>
+        <path d="M356 88 H470" stroke="#16a34a" stroke-width="4" fill="none" marker-end="url(#stuffArrow)"/><text x="366" y="74" class="svg-small">byte stuffing</text>
+        <text x="500" y="42" class="svg-label" fill="#14532d">Transmitted frame</text>
+        <rect x="500" y="64" width="80" height="48" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="520" y="94" class="svg-label" fill="#1d4ed8">FLAG</text>
+        <rect x="586" y="64" width="58" height="48" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><text x="610" y="94" class="svg-label">A</text>
+        <rect x="650" y="64" width="66" height="48" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><text x="671" y="94" class="svg-label" fill="#15803d">ESC</text>
+        <rect x="722" y="64" width="80" height="48" rx="8" fill="#fff1f4" stroke="#e11d48" stroke-width="3"/><text x="741" y="94" class="svg-label" fill="#9f1239">FLAG</text>
+        <rect x="500" y="126" width="58" height="48" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/><text x="523" y="156" class="svg-label">C</text>
+        <rect x="564" y="126" width="80" height="48" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/><text x="584" y="156" class="svg-label" fill="#1d4ed8">FLAG</text>
+        <text x="500" y="218" class="svg-small">Receiver rule: ESC before FLAG means this FLAG is data.</text>
+      </svg>
+    </div><div class="diagram-note">Byte stuffing is also called character stuffing.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-red">4</div><h2>Byte Stuffing: When ESC Appears in Data</h2></div>
+    <p class="body-text">If the data itself contains an <strong>ESC</strong> character, the sender inserts another ESC before it. This allows the receiver to identify that the ESC belongs to user data.</p>
+    <div class="tbl-wrap"><table><thead><tr><th>Data Contains</th><th>Sender Transmits</th><th>Receiver Understands</th></tr></thead><tbody><tr><td class="mono">FLAG</td><td class="mono">ESC FLAG</td><td>FLAG is data, not delimiter</td></tr><tr><td class="mono">ESC</td><td class="mono">ESC ESC</td><td>ESC is data, not control marker</td></tr></tbody></table></div>
+    <div class="callout-green callout"><strong>Shared rule:</strong> Sender and receiver must both know the stuffing/de-stuffing rules in advance.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">5</div><h2>Bit Stuffing</h2></div>
+    <p class="body-text">In bit-oriented framing, stuffing is done at bit level. If five continuous 1s occur in data, the sender inserts a 0 after them. This prevents the data from accidentally looking like a special delimiter pattern.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128290; Insert 0 After Five Continuous 1s</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 270" role="img" aria-label="Bit stuffing inserts zero after five consecutive ones">
+        <text x="70" y="42" class="svg-label" fill="#0f766e">Original data bits</text>
+        <g transform="translate(70 66)">
+          <rect x="0" y="0" width="42" height="42" rx="7" fill="#f8fafc" stroke="#cbd5e1"/><text x="16" y="27" class="svg-label">0</text>
+          <rect x="48" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="64" y="27" class="svg-label">1</text>
+          <rect x="96" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="112" y="27" class="svg-label">1</text>
+          <rect x="144" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="160" y="27" class="svg-label">1</text>
+          <rect x="192" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="208" y="27" class="svg-label">1</text>
+          <rect x="240" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="256" y="27" class="svg-label">1</text>
+          <rect x="288" y="0" width="42" height="42" rx="7" fill="#f8fafc" stroke="#cbd5e1"/><text x="304" y="27" class="svg-label">1</text>
+        </g>
+        <text x="70" y="156" class="svg-label" fill="#0f766e">After bit stuffing</text>
+        <g transform="translate(70 180)">
+          <rect x="0" y="0" width="42" height="42" rx="7" fill="#f8fafc" stroke="#cbd5e1"/><text x="16" y="27" class="svg-label">0</text>
+          <rect x="48" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="64" y="27" class="svg-label">1</text>
+          <rect x="96" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="112" y="27" class="svg-label">1</text>
+          <rect x="144" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="160" y="27" class="svg-label">1</text>
+          <rect x="192" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="208" y="27" class="svg-label">1</text>
+          <rect x="240" y="0" width="42" height="42" rx="7" fill="#ecfeff" stroke="#14b8a6" stroke-width="3"/><text x="256" y="27" class="svg-label">1</text>
+          <rect x="288" y="0" width="42" height="42" rx="7" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/><text x="304" y="27" class="svg-label" fill="#c2410c">0</text>
+          <rect x="336" y="0" width="42" height="42" rx="7" fill="#f8fafc" stroke="#cbd5e1"/><text x="352" y="27" class="svg-label">1</text>
+        </g>
+        <text x="430" y="207" class="svg-small">Stuffed 0 after five 1s</text>
+      </svg>
+    </div><div class="diagram-note">Receiver removes the stuffed 0 during de-stuffing.</div></div>
+    <div class="callout-teal callout"><strong>Rule:</strong> whenever five consecutive 1s appear in data, insert a 0 immediately after them.</div>
+  </div>
+</div>
+
+<div id="panel-rev" class="panel">
+  <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
+  <div class="cards-grid">
+    <div class="rev-card"><div class="rev-card-title">Framing</div><ul class="bullet-list"><li>Data Link Layer packs bits into <span class="val">frames</span></li><li>Frames are separated using delimiters</li><li>Envelope analogy: separates one message from another</li><li>Data Link Layer PDU = <span class="val">frame</span></li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Character-Oriented</div><ul class="bullet-list"><li>Uses special character <span class="val">FLAG</span></li><li>Data between two FLAGs is the frame data</li><li>Problem occurs if FLAG appears inside data</li><li>Solution: byte stuffing</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Byte Stuffing</div><ul class="bullet-list"><li>Data FLAG becomes <span class="val">ESC FLAG</span></li><li>Data ESC becomes <span class="val">ESC ESC</span></li><li>Receiver removes extra ESC</li><li>Also called character stuffing</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Bit Stuffing</div><ul class="bullet-list"><li>Used in bit-oriented framing</li><li>After five continuous 1s, stuff <span class="val">0</span></li><li>Prevents data from looking like delimiter</li><li>Receiver removes stuffed 0</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Receiver Rules</div><ul class="bullet-list"><li>FLAG without ESC: delimiter</li><li>ESC before FLAG: FLAG is data</li><li>ESC before ESC: ESC is data</li><li>Stuffing rules must be known by both sides</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Exam Trap</div><ul class="bullet-list"><li>Do not treat every FLAG as delimiter</li><li>Check whether ESC is before FLAG</li><li>In bit stuffing, count consecutive 1s carefully</li><li>Stuffed bits/bytes are overhead</li></ul></div>
+  </div>
+  <div class="cheat-div"><span>COMPARISON TABLE</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Point</th><th>Byte Stuffing</th><th>Bit Stuffing</th></tr></thead><tbody><tr><td>Unit of stuffing</td><td class="mono">Character / byte</td><td class="mono">Bit</td></tr><tr><td>Used with</td><td>Character-oriented framing</td><td>Bit-oriented framing</td></tr><tr><td>Main rule</td><td>Insert ESC before FLAG or ESC in data</td><td>Insert 0 after five consecutive 1s</td></tr><tr><td>Purpose</td><td>Prevent data FLAG from acting as delimiter</td><td>Prevent data bits from looking like delimiter</td></tr></tbody></table></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Framing distinguishes one frame from another.</li><li>FLAG marks the start and end of a character-oriented frame.</li><li>If FLAG appears in data, send <span class="val">ESC FLAG</span>.</li><li>If ESC appears in data, send <span class="val">ESC ESC</span>.</li><li>In bit stuffing, after five 1s, insert <span class="val">0</span>.</li><li>Sender stuffs; receiver de-stuffs using the same rule.</li></ul><div class="tags"><span class="tag">Framing</span><span class="tag">Data Link Layer</span><span class="tag">Frame</span><span class="tag">Delimiter</span><span class="tag">FLAG</span><span class="tag">ESC</span><span class="tag">Byte Stuffing</span><span class="tag">Bit Stuffing</span></div></div>
+</div>
+</div>
+<script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>
+</body>
+</html>

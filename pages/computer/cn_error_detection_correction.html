@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 28: Error Detection and Correction — single-bit error, burst error, burst length, bandwidth-duration numericals, parity, checksum, CRC, Hamming code, and redundancy.">
+<meta name="robots" content="index, follow">
+<title>Error Detection and Correction — CN Topic 28 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_error_detection_correction.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f2f7;--white:#fff;--border:#e0e4ef;--navy:#1a2340;--accent:#7c3aed;--red:#e11d48;--red-light:#fff1f4;--green:#16a34a;--green-light:#f0fdf4;--amber:#d97706;--amber-light:#fffbeb;--blue:#2563eb;--blue-light:#eff6ff;--teal:#0f766e;--teal-light:#f0fdfa;--orange:#ea580c;--orange-light:#fff7ed;--text:#1e2535;--text-muted:#6b7280;--text-light:#9ca3af;--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--body:'Nunito',sans-serif}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh}.navbar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-left{display:flex;align-items:center;gap:12px}.nav-badge{background:var(--red);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 10px;border-radius:5px;letter-spacing:.5px}.nav-breadcrumb{font-family:var(--sans);font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px}.nav-breadcrumb .sep{color:var(--text-light)}.nav-breadcrumb .current{color:var(--text);font-weight:600}.nav-right{display:flex;align-items:center;gap:6px}.nav-btn{font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;transition:all .2s;background:transparent;color:var(--text-muted)}.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}.nav-btn:not(.active):hover{background:var(--bg);color:var(--text)}
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap}.ph-breadcrumb a{color:#2563eb;text-decoration:none}.ph-breadcrumb a:hover{text-decoration:underline}.ph-breadcrumb .sep{color:#94a3b8}.ph-breadcrumb .current{color:#64748b;font-weight:600}.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap}
+.hero{background:linear-gradient(135deg,#4c0519 0%,#e11d48 32%,#7c3aed 66%,#2563eb 100%);padding:52px 48px 48px;position:relative;overflow:hidden}.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.035'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;position:relative;z-index:1}.hero-tag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.9);background:rgba(255,255,255,.1)}.hero h1{font-family:var(--sans);font-size:clamp(2.05rem,5vw,3.35rem);font-weight:800;color:#fff;line-height:1.05;letter-spacing:-1px;margin-bottom:16px;position:relative;z-index:1}.hero h1 span{color:#fecdd3}.hero-sub{font-size:.97rem;color:rgba(255,255,255,.82);max-width:740px;line-height:1.6;position:relative;z-index:1;margin-bottom:24px}.hero-chips{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}.hero-chip{font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.12)}
+.content-wrap{max-width:950px;margin:0 auto;padding:40px 24px 80px}.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.section-block{margin-bottom:48px}.section-heading{display:flex;align-items:center;gap:14px;margin-bottom:20px}.sec-num{width:36px;height:36px;border-radius:50%;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}.sn-navy{background:var(--navy)}.sn-blue{background:var(--blue)}.sn-red{background:var(--red)}.sn-green{background:var(--green)}.sn-amber{background:var(--amber)}.sn-purple{background:var(--accent)}.sn-teal{background:var(--teal)}.section-heading h2{font-family:var(--sans);font-size:1.2rem;font-weight:700}.body-text{font-size:.94rem;line-height:1.8;color:#374151;margin-bottom:16px}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:.88rem;line-height:1.65}.callout-blue{border-color:var(--blue);background:var(--blue-light);color:#1e40af}.callout-green{border-color:var(--green);background:var(--green-light);color:#14532d}.callout-amber{border-color:var(--amber);background:var(--amber-light);color:#78350f}.callout-red{border-color:var(--red);background:var(--red-light);color:#9f1239}.callout-teal{border-color:var(--teal);background:var(--teal-light);color:#134e4a}.callout strong{font-weight:700}
+.diagram-box{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:20px 0}.diagram-header{background:var(--navy);padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.3px}.diagram-body{padding:24px 20px}.diagram-note{padding:10px 18px 14px;font-size:.8rem;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px solid var(--border)}.study-svg{width:100%;height:auto;display:block}.svg-label{font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:700;fill:#1e2535}.svg-small{font-family:Nunito,Arial,sans-serif;font-size:11px;font-weight:700;fill:#64748b}.svg-mono{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;fill:#475569}
+.formula-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.formula-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px}.formula-card h4{font-family:var(--sans);font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--red)}.formula-card p{font-size:.83rem;line-height:1.6;color:#374151}.mini-tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#f1f5f9;color:#475569;margin-top:10px;margin-right:5px}
+.tbl-wrap{overflow-x:auto;margin:4px 0}table{width:100%;border-collapse:collapse;font-size:.83rem;font-family:var(--sans);background:var(--white);border:1px solid var(--border)}thead tr{background:var(--navy)}th{text-align:left;padding:11px 16px;color:rgba(255,255,255,.85);font-weight:600;font-size:.78rem;letter-spacing:.3px}td{padding:10px 16px;color:#374151;border-bottom:1px solid var(--border);vertical-align:top}tr:last-child td{border-bottom:none}tr:hover td{background:#f8f9ff}td.mono{font-family:var(--mono);font-size:.8rem}td.ok{color:var(--green);font-weight:600}td.must{color:var(--red);font-weight:600}
+.cheat-div{display:flex;align-items:center;gap:12px;margin:32px 0 16px}.cheat-div span{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-light);white-space:nowrap}.cheat-div::before,.cheat-div::after{content:'';flex:1;height:1px;background:var(--border)}.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0}.rev-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px}.rev-card-title{font-family:var(--sans);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}.bullet-list{list-style:none;display:flex;flex-direction:column;gap:6px}.bullet-list li{font-size:.81rem;color:#374151;padding-left:14px;position:relative;line-height:1.55}.bullet-list li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}.bullet-list li .val{font-family:var(--mono);color:var(--amber);font-size:.77rem}.bullet-list li .tag-g{font-family:var(--mono);color:var(--green);font-size:.77rem}.bullet-list li .tag-r{font-family:var(--mono);color:var(--red);font-size:.77rem}.bullet-list li .tag-b{font-family:var(--mono);color:var(--blue);font-size:.77rem}.final-tips{background:linear-gradient(135deg,#fff1f4,#eff6ff);border:1px solid #fecdd3;border-radius:14px;padding:26px;margin-top:32px}.final-tips h3{font-family:var(--sans);font-size:1rem;font-weight:700;color:var(--red);margin-bottom:16px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.tag{font-family:var(--mono);font-size:10px;padding:3px 10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;color:#475569}
+@media(max-width:640px){.hero{padding:36px 24px}.navbar{padding:0 16px}.nav-btn{padding:7px 10px;font-size:11px}.content-wrap{padding:28px 16px 60px}.formula-grid{grid-template-columns:1fr}.ph-breadcrumb{padding:7px 16px;font-size:11.5px}}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 28</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Error Detection &amp; Correction</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 28: Error Detection and Correction</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 28</span><span class="hero-tag">DATA LINK LAYER</span><span class="hero-tag">ERROR CONTROL</span></div><h1>ERROR DETECTION <span>&amp; CORRECTION</span></h1><p class="hero-sub">Introduction to errors in transmitted data: how receiver detects a mismatch, how correction goes one step further, single-bit vs burst error, burst length numericals, detection methods, Hamming code, and redundancy.</p><div class="hero-chips"><span class="hero-chip">Single-bit Error</span><span class="hero-chip">Burst Error</span><span class="hero-chip">CRC</span><span class="hero-chip">Hamming Code</span></div></div>
+
+<div class="content-wrap">
+<div id="panel-desc" class="panel active">
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-red">1</div><h2>What Is an Error?</h2></div>
+    <p class="body-text">An <strong>error</strong> occurs when the data received is different from the data sent. If sender transmits <strong>101</strong> but receiver gets <strong>100</strong>, the meaning changes. In decimal, 101 is 5 while 100 is 4.</p>
+    <div class="diagram-box"><div class="diagram-header">&#9888; Sent Data vs Received Data</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 250" role="img" aria-label="Data changes during transmission causing error">
+        <defs><marker id="errArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e11d48"/></marker></defs>
+        <rect x="78" y="80" width="180" height="72" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/><text x="124" y="108" class="svg-label" fill="#1d4ed8">Sender</text><text x="128" y="136" class="svg-mono">101 = 5</text>
+        <path d="M280 116 H560" stroke="#e11d48" stroke-width="4" fill="none" marker-end="url(#errArrow)"/><text x="365" y="96" class="svg-small">noise / attenuation / lightning</text><circle cx="420" cy="116" r="22" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><text x="412" y="122" class="svg-label" fill="#e11d48">!</text>
+        <rect x="590" y="80" width="190" height="72" rx="14" fill="#fff1f4" stroke="#e11d48" stroke-width="3"/><text x="638" y="108" class="svg-label" fill="#9f1239">Receiver</text><text x="646" y="136" class="svg-mono">100 = 4</text>
+      </svg>
+    </div><div class="diagram-note">Error detection first tells us that something changed; correction identifies and fixes the changed bit.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-blue">2</div><h2>Detection vs Correction</h2></div>
+    <p class="body-text"><strong>Error detection</strong> tells the receiver that the data contains an error. <strong>Error correction</strong> is the advanced step: it also identifies where the error occurred, so the bit can be corrected.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128269; Two Levels of Error Handling</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 250" role="img" aria-label="Error detection and error correction comparison">
+        <rect x="95" y="70" width="285" height="105" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="3"/><text x="145" y="105" class="svg-label" fill="#1d4ed8">Error Detection</text><text x="122" y="134" class="svg-small">Finds that some error exists</text><text x="122" y="156" class="svg-mono">"Data is not reliable"</text>
+        <rect x="480" y="70" width="285" height="105" rx="16" fill="#f0fdf4" stroke="#86efac" stroke-width="3"/><text x="530" y="105" class="svg-label" fill="#15803d">Error Correction</text><text x="506" y="134" class="svg-small">Finds the error position</text><text x="506" y="156" class="svg-mono">"Bit 3 is wrong; flip it"</text>
+      </svg>
+    </div><div class="diagram-note">Correction requires more information than detection.</div></div>
+    <div class="callout-blue callout"><strong>Layer point:</strong> Error detection/correction appears in Data Link Layer and Transport Layer. In this topic, the focus is Data Link Layer bit-level checking.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Types of Error: Single Bit and Burst</h2></div>
+    <p class="body-text"><strong>Single-bit error</strong> means only one bit changes. <strong>Burst error</strong> means two or more bits change. Burst errors are more common because noise usually lasts longer than the duration of one bit.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128290; Single-bit Error vs Burst Error</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 330" role="img" aria-label="Single bit error and burst error examples">
+        <text x="70" y="42" class="svg-label" fill="#92400e">Single-bit error</text>
+        <g transform="translate(70 62)">
+          <text x="0" y="26" class="svg-small">Sent:</text><text x="70" y="26" class="svg-mono">1 0 0</text><text x="0" y="58" class="svg-small">Received:</text><text x="70" y="58" class="svg-mono">1 0 </text><text x="118" y="58" class="svg-mono" fill="#e11d48">1</text><text x="162" y="58" class="svg-small">Only one bit changed</text>
+        </g>
+        <text x="70" y="160" class="svg-label" fill="#92400e">Burst error</text>
+        <g transform="translate(70 182)">
+          <text x="0" y="26" class="svg-small">Sent:</text><text x="70" y="26" class="svg-mono">1 0 1 0 1 0</text>
+          <text x="0" y="58" class="svg-small">Received:</text><text x="70" y="58" class="svg-mono">1 </text><text x="94" y="58" class="svg-mono" fill="#e11d48">1</text><text x="118" y="58" class="svg-mono"> 1 0 1 </text><text x="214" y="58" class="svg-mono" fill="#e11d48">1</text><text x="250" y="58" class="svg-small">More than one bit changed</text>
+          <rect x="88" y="70" width="146" height="34" rx="8" fill="none" stroke="#e11d48" stroke-width="3" stroke-dasharray="6 4"/><text x="104" y="125" class="svg-small">Burst length = from first changed bit to last changed bit</text>
+        </g>
+      </svg>
+    </div><div class="diagram-note">Burst length includes unchanged bits between the first and last corrupted bits.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-green">4</div><h2>Duration Numericals</h2></div>
+    <p class="body-text">If a channel bandwidth is <strong>1 Gbps</strong>, it transmits <strong>10^9 bits per second</strong>. Therefore one bit duration is <strong>1 / 10^9 second = 1 nanosecond</strong>. If noise lasts longer, many bits may be corrupted.</p>
+    <div class="formula-grid">
+      <div class="formula-card"><h4>Bit Duration</h4><p>For 1 Gbps channel, one bit takes 1/10^9 second.</p><span class="mini-tag">1 ns</span></div>
+      <div class="formula-card"><h4>Corrupted Bits</h4><p>Corrupted bits = bandwidth in bps x error duration.</p><span class="mini-tag">B x T</span></div>
+      <div class="formula-card"><h4>Example</h4><p>1/1000 sec error at 1 Gbps corrupts 10^9 x 10^-3 bits.</p><span class="mini-tag">10^6 bits</span></div>
+    </div>
+    <div class="callout-green callout"><strong>Why burst is common:</strong> real noise usually lasts for much more than 1 ns, so it affects many bits, not only one.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-purple">5</div><h2>Detection and Correction Methods</h2></div>
+    <p class="body-text">Common error detection methods are <strong>Simple Parity</strong>, <strong>2-Dimensional Parity Check</strong>, <strong>Checksum</strong>, and <strong>CRC</strong>. For correction, the important method is <strong>Hamming Code</strong>.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128736; Methods Map</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 300" role="img" aria-label="Error detection and correction methods map">
+        <rect x="70" y="40" width="300" height="220" rx="18" fill="#eff6ff" stroke="#93c5fd" stroke-width="3"/><text x="145" y="75" class="svg-label" fill="#1d4ed8">Error Detection</text>
+        <rect x="110" y="100" width="220" height="34" rx="8" fill="#fff" stroke="#cbd5e1"/><text x="138" y="122" class="svg-small">Simple Parity: even / odd</text>
+        <rect x="110" y="144" width="220" height="34" rx="8" fill="#fff" stroke="#cbd5e1"/><text x="134" y="166" class="svg-small">2-Dimensional Parity</text>
+        <rect x="110" y="188" width="220" height="34" rx="8" fill="#fff" stroke="#cbd5e1"/><text x="170" y="210" class="svg-small">Checksum</text>
+        <rect x="110" y="232" width="220" height="34" rx="8" fill="#fff" stroke="#cbd5e1"/><text x="182" y="254" class="svg-small">CRC</text>
+        <rect x="500" y="82" width="290" height="135" rx="18" fill="#f0fdf4" stroke="#86efac" stroke-width="3"/><text x="570" y="118" class="svg-label" fill="#15803d">Error Correction</text><rect x="555" y="150" width="180" height="42" rx="10" fill="#fff" stroke="#cbd5e1"/><text x="596" y="177" class="svg-small">Hamming Code</text>
+      </svg>
+    </div><div class="diagram-note">CRC is especially important at Data Link Layer; checksum is commonly discussed at Transport Layer too.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">6</div><h2>Redundancy: The Base Idea</h2></div>
+    <p class="body-text">All these methods depend on <strong>redundancy</strong>. If we send only the original data bits, the receiver has no extra information to verify correctness. So we add redundant bits that help detect or correct errors.</p>
+    <div class="diagram-box"><div class="diagram-header">&#10133; Extra Bits for Checking</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 230" role="img" aria-label="Redundancy adds extra bits for error detection or correction">
+        <rect x="90" y="80" width="330" height="62" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><text x="154" y="116" class="svg-mono">Original Data Bits</text>
+        <rect x="430" y="80" width="150" height="62" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="3"/><text x="468" y="116" class="svg-mono" fill="#92400e">Extra Bits</text>
+        <rect x="90" y="156" width="490" height="34" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="2"/><text x="200" y="178" class="svg-small">Transmitted block = data + redundant/check bits</text>
+      </svg>
+    </div><div class="diagram-note">Redundant bits are overhead, but they make error detection/correction possible.</div></div>
+  </div>
+</div>
+
+<div id="panel-rev" class="panel">
+  <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
+  <div class="cards-grid">
+    <div class="rev-card"><div class="rev-card-title">Error</div><ul class="bullet-list"><li>Sent data and received data differ</li><li>Example: <span class="val">101</span> sent, <span class="val">100</span> received</li><li>Meaning of data changes</li><li>Error control is important for text/data applications</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Detection vs Correction</div><ul class="bullet-list"><li>Detection: finds that error exists</li><li>Correction: finds which bit is wrong</li><li>Correction is advanced detection</li><li>Data Link Layer checks bit-by-bit</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Single-bit Error</div><ul class="bullet-list"><li>Only one bit changes</li><li>0 becomes 1 or 1 becomes 0</li><li>Less common than burst error</li><li>Example: 100 becomes 101</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Burst Error</div><ul class="bullet-list"><li>Two or more bits change</li><li>Burst length counts from first changed bit to last changed bit</li><li>Unchanged middle bits are included in length</li><li>More common in real channels</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Numerical Rule</div><ul class="bullet-list"><li>1 Gbps = <span class="val">10^9 bits/sec</span></li><li>1 bit duration = <span class="val">1 ns</span></li><li>Corrupted bits = bandwidth x error duration</li><li>1/1000 sec at 1 Gbps = <span class="val">10^6 bits</span></li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Methods</div><ul class="bullet-list"><li>Detection: parity, 2D parity, checksum, CRC</li><li>Correction: Hamming code</li><li>CRC is very important in Data Link Layer</li><li>All methods use redundancy</li></ul></div>
+  </div>
+  <div class="cheat-div"><span>METHOD TABLE</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Category</th><th>Methods</th><th>Purpose</th></tr></thead><tbody><tr><td>Error Detection</td><td class="mono">Parity, 2D Parity, Checksum, CRC</td><td>Know that error has occurred</td></tr><tr><td>Error Correction</td><td class="mono">Hamming Code</td><td>Find and correct the wrong bit</td></tr><tr><td>Base Principle</td><td class="mono">Redundancy</td><td>Add extra bits for checking</td></tr></tbody></table></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Error means received data differs from sent data.</li><li>Error detection tells that an error exists; correction tells where it exists.</li><li>Single-bit error changes one bit; burst error changes two or more bits.</li><li>Burst length is from first corrupted bit to last corrupted bit.</li><li>At 1 Gbps, one bit duration is 1 nanosecond.</li><li>Detection methods: parity, 2D parity, checksum, CRC.</li><li>Correction method: Hamming code.</li><li>All methods depend on redundant extra bits.</li></ul><div class="tags"><span class="tag">Error Detection</span><span class="tag">Error Correction</span><span class="tag">Single-bit Error</span><span class="tag">Burst Error</span><span class="tag">CRC</span><span class="tag">Checksum</span><span class="tag">Parity</span><span class="tag">Hamming Code</span><span class="tag">Redundancy</span></div></div>
+</div>
+</div>
+<script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>
+</body>
+</html>

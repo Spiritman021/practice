@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 23: Stop and Wait ARQ — one-frame window, ACK, timeout, retransmission, sequence numbers 0 and 1, lost frame and lost ACK cases.">
+<meta name="robots" content="index, follow">
+<title>Stop and Wait ARQ — CN Topic 23 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_stop_and_wait.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;--white:#fff;--border:#e0e4ef;--navy:#1a2340;--accent:#7c3aed;
+  --red:#e11d48;--red-light:#fff1f4;--green:#16a34a;--green-light:#f0fdf4;
+  --amber:#d97706;--amber-light:#fffbeb;--blue:#2563eb;--blue-light:#eff6ff;
+  --teal:#0f766e;--teal-light:#f0fdfa;--orange:#ea580c;--orange-light:#fff7ed;
+  --text:#1e2535;--text-muted:#6b7280;--text-light:#9ca3af;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--body:'Nunito',sans-serif;
+}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh}
+.navbar{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-left{display:flex;align-items:center;gap:12px}.nav-badge{background:var(--blue);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 10px;border-radius:5px;letter-spacing:.5px}
+.nav-breadcrumb{font-family:var(--sans);font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px}.nav-breadcrumb .sep{color:var(--text-light)}.nav-breadcrumb .current{color:var(--text);font-weight:600}
+.nav-right{display:flex;align-items:center;gap:6px}.nav-btn{font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;transition:all .2s;background:transparent;color:var(--text-muted)}
+.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}.nav-btn:not(.active):hover{background:var(--bg);color:var(--text)}
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s}.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline}.ph-breadcrumb .sep{color:#94a3b8}.ph-breadcrumb .current{color:#64748b;font-weight:600}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap}.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none}
+.hero{background:linear-gradient(135deg,#172554 0%,#2563eb 38%,#0f766e 72%,#16a34a 100%);padding:52px 48px 48px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.035'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;position:relative;z-index:1}.hero-tag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.9);background:rgba(255,255,255,.1)}
+.hero h1{font-family:var(--sans);font-size:clamp(2.2rem,5vw,3.4rem);font-weight:800;color:#fff;line-height:1.05;letter-spacing:-1px;margin-bottom:16px;position:relative;z-index:1}.hero h1 span{color:#bbf7d0}
+.hero-sub{font-size:.97rem;color:rgba(255,255,255,.82);max-width:680px;line-height:1.6;position:relative;z-index:1;margin-bottom:24px}.hero-chips{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}.hero-chip{font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.12)}
+.content-wrap{max-width:930px;margin:0 auto;padding:40px 24px 80px}.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-block{margin-bottom:48px}.section-heading{display:flex;align-items:center;gap:14px;margin-bottom:20px}.sec-num{width:36px;height:36px;border-radius:50%;color:#fff;font-family:var(--sans);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sn-navy{background:var(--navy)}.sn-blue{background:var(--blue)}.sn-red{background:var(--red)}.sn-green{background:var(--green)}.sn-amber{background:var(--amber)}.sn-purple{background:var(--accent)}.sn-teal{background:var(--teal)}
+.section-heading h2{font-family:var(--sans);font-size:1.2rem;font-weight:700;color:var(--text)}.body-text{font-size:.94rem;line-height:1.8;color:#374151;margin-bottom:16px}
+.callout{border-left:4px solid;border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;font-size:.88rem;line-height:1.65}.callout-blue{border-color:var(--blue);background:var(--blue-light);color:#1e40af}.callout-green{border-color:var(--green);background:var(--green-light);color:#14532d}.callout-amber{border-color:var(--amber);background:var(--amber-light);color:#78350f}.callout-red{border-color:var(--red);background:var(--red-light);color:#9f1239}.callout-teal{border-color:var(--teal);background:var(--teal-light);color:#134e4a}.callout strong{font-weight:700}
+.diagram-box{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:20px 0}.diagram-header{background:var(--navy);padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.3px}.diagram-body{padding:24px 20px}.diagram-note{padding:10px 18px 14px;font-size:.8rem;color:var(--text-muted);font-style:italic;text-align:center;border-top:1px solid var(--border)}
+.study-svg{width:100%;height:auto;display:block}.svg-label{font-family:Inter,Arial,sans-serif;font-size:13px;font-weight:700;fill:#1e2535}.svg-small{font-family:Nunito,Arial,sans-serif;font-size:11px;font-weight:700;fill:#64748b}.svg-mono{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;fill:#475569}
+.formula-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.formula-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px}.formula-card h4{font-family:var(--sans);font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--blue)}.formula-card p{font-size:.83rem;line-height:1.6;color:#374151}.mini-tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:#f1f5f9;color:#475569;margin-top:10px;margin-right:5px}
+.tbl-wrap{overflow-x:auto;margin:4px 0}table{width:100%;border-collapse:collapse;font-size:.83rem;font-family:var(--sans);background:var(--white);border:1px solid var(--border)}thead tr{background:var(--navy)}th{text-align:left;padding:11px 16px;color:rgba(255,255,255,.85);font-weight:600;font-size:.78rem;letter-spacing:.3px}td{padding:10px 16px;color:#374151;border-bottom:1px solid var(--border);vertical-align:top}tr:last-child td{border-bottom:none}tr:hover td{background:#f8f9ff}td.mono{font-family:var(--mono);font-size:.8rem}td.ok{color:var(--green);font-weight:600}td.must{color:var(--red);font-weight:600}
+.cheat-div{display:flex;align-items:center;gap:12px;margin:32px 0 16px}.cheat-div span{font-family:var(--sans);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-light);white-space:nowrap}.cheat-div::before,.cheat-div::after{content:'';flex:1;height:1px;background:var(--border)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0}.rev-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px}.rev-card-title{font-family:var(--sans);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.bullet-list{list-style:none;display:flex;flex-direction:column;gap:6px}.bullet-list li{font-size:.81rem;color:#374151;padding-left:14px;position:relative;line-height:1.55}.bullet-list li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}.bullet-list li .val{font-family:var(--mono);color:var(--amber);font-size:.77rem}.bullet-list li .tag-g{font-family:var(--mono);color:var(--green);font-size:.77rem}.bullet-list li .tag-r{font-family:var(--mono);color:var(--red);font-size:.77rem}.bullet-list li .tag-b{font-family:var(--mono);color:var(--blue);font-size:.77rem}.bullet-list li .tag-p{font-family:var(--mono);color:var(--accent);font-size:.77rem}
+.final-tips{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #bfdbfe;border-radius:14px;padding:26px;margin-top:32px}.final-tips h3{font-family:var(--sans);font-size:1rem;font-weight:700;color:var(--blue);margin-bottom:16px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.tag{font-family:var(--mono);font-size:10px;padding:3px 10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;color:#475569}
+@media(max-width:640px){.hero{padding:36px 24px}.navbar{padding:0 16px}.nav-btn{padding:7px 10px;font-size:11px}.content-wrap{padding:28px 16px 60px}.formula-grid{grid-template-columns:1fr}.ph-breadcrumb{padding:7px 16px;font-size:11.5px}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 23</span>
+    <div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Stop and Wait ARQ</span></div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 23: Stop and Wait ARQ</span><a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 23</span>
+    <span class="hero-tag">FLOW CONTROL</span>
+    <span class="hero-tag">ARQ</span>
+  </div>
+  <h1>STOP AND WAIT <span>ARQ</span></h1>
+  <p class="hero-sub">Send one frame, stop, wait for acknowledgement, then send the next frame. This lecture covers ACK meaning, timeout, retransmission, sequence numbers 0 and 1, and the lost-frame / lost-ACK cases.</p>
+  <div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">Data Link Layer</span><span class="hero-chip">Window Size 1</span></div>
+</div>
+
+<div class="content-wrap">
+<div id="panel-desc" class="panel active">
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-blue">1</div><h2>Basic Idea: Send One, Then Wait</h2></div>
+    <p class="body-text">In <strong>Stop and Wait</strong>, the sender transmits only <strong>one frame</strong> at a time. After sending that frame, the sender stops and waits until an <strong>ACK</strong> returns from the receiver. Only after the ACK arrives does the sender transmit the next frame.</p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128257; Normal Stop-and-Wait Flow</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 860 330" role="img" aria-label="Normal Stop and Wait ARQ frame and ACK flow">
+          <defs><marker id="arrowNormal" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker><marker id="arrowAck" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
+          <line x1="170" y1="55" x2="170" y2="285" stroke="#cbd5e1" stroke-width="4"/><line x1="690" y1="55" x2="690" y2="285" stroke="#cbd5e1" stroke-width="4"/>
+          <rect x="95" y="25" width="150" height="42" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/><text x="130" y="52" class="svg-label" fill="#1d4ed8">Sender</text>
+          <rect x="612" y="25" width="156" height="42" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/><text x="642" y="52" class="svg-label" fill="#15803d">Receiver</text>
+          <path d="M180 96 L680 142" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowNormal)"/><text x="342" y="104" class="svg-label" fill="#1d4ed8">Frame 0</text>
+          <path d="M680 178 L180 224" stroke="#16a34a" stroke-width="4" fill="none" marker-end="url(#arrowAck)"/><text x="346" y="212" class="svg-label" fill="#15803d">ACK 1</text>
+          <path d="M180 254 L680 292" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowNormal)"/><text x="342" y="270" class="svg-label" fill="#1d4ed8">Frame 1</text>
+          <text x="80" y="142" class="svg-small">Stop after sending</text><text x="604" y="166" class="svg-small">Received 0, now wants 1</text><text x="88" y="240" class="svg-small">ACK arrived, send next</text>
+        </svg>
+      </div>
+      <div class="diagram-note">ACK number means the next expected frame, not the same frame number.</div>
+    </div>
+    <div class="callout-blue callout"><strong>ACK meaning:</strong> An acknowledgement tells the sender that the frame reached successfully, so the next frame can be sent.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-green">2</div><h2>Window Size and Sequence Numbers</h2></div>
+    <p class="body-text">In Stop and Wait, both sides handle only one frame at a time. Therefore, the <strong>sender window size = 1</strong> and the <strong>receiver window size = 1</strong>. Because the total movement is small, only two sequence numbers are required: <strong>0 and 1</strong>.</p>
+    <div class="formula-grid">
+      <div class="formula-card"><h4>Sender Window</h4><p>How many frames can be sent without waiting for ACK?</p><span class="mini-tag">1 frame</span></div>
+      <div class="formula-card"><h4>Receiver Window</h4><p>How many frames can be accepted at a time?</p><span class="mini-tag">1 frame</span></div>
+      <div class="formula-card"><h4>Sequence Numbers</h4><p>Frames alternate between sequence number 0 and 1.</p><span class="mini-tag">0, 1</span></div>
+    </div>
+    <div class="callout-green callout"><strong>Most asked point:</strong> Stop and Wait uses only two sequence numbers because sender window size and receiver window size are both 1.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Timeout and Retransmission</h2></div>
+    <p class="body-text">If the ACK does not arrive, the sender cannot know whether the original frame was lost or the ACK was lost. So it waits for a fixed <strong>timeout time</strong>. If the timer expires, the sender retransmits the same frame.</p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#9201; Lost Frame Case</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 860 320" role="img" aria-label="Lost frame causes timeout and retransmission in Stop and Wait">
+          <defs><marker id="arrowLost" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker><marker id="arrowAckLost" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
+          <line x1="170" y1="45" x2="170" y2="285" stroke="#cbd5e1" stroke-width="4"/><line x1="690" y1="45" x2="690" y2="285" stroke="#cbd5e1" stroke-width="4"/>
+          <text x="126" y="34" class="svg-label" fill="#1d4ed8">Sender</text><text x="640" y="34" class="svg-label" fill="#15803d">Receiver</text>
+          <path d="M180 80 L420 112" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowLost)"/><text x="252" y="75" class="svg-label" fill="#1d4ed8">Frame 1</text>
+          <circle cx="448" cy="116" r="19" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><text x="441" y="121" class="svg-label" fill="#e11d48">X</text><text x="475" y="118" class="svg-small">lost in path</text>
+          <rect x="92" y="144" width="156" height="52" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/><text x="116" y="166" class="svg-label" fill="#92400e">Timeout</text><text x="110" y="184" class="svg-small">No ACK arrived</text>
+          <path d="M180 218 L680 258" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowLost)"/><text x="326" y="222" class="svg-label" fill="#1d4ed8">Resend Frame 1</text>
+          <path d="M680 282 L220 292" stroke="#16a34a" stroke-width="4" fill="none" marker-end="url(#arrowAckLost)"/><text x="380" y="306" class="svg-label" fill="#15803d">ACK 0</text>
+        </svg>
+      </div>
+      <div class="diagram-note">If a frame is lost, receiver sends no ACK. Sender waits until timeout, then resends the same frame.</div>
+    </div>
+    <div class="callout-amber callout"><strong>Timeout idea:</strong> It is chosen long enough to cover the frame going to the receiver and ACK coming back, plus practical delay margin.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-red">4</div><h2>Lost ACK and Duplicate Frame</h2></div>
+    <p class="body-text">Sometimes the frame reaches the receiver successfully, but the ACK is lost. The sender times out and sends the same frame again. The receiver uses the sequence number to detect that this is a duplicate frame, discards it, and sends the ACK again.</p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128260; Lost ACK Case</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 860 340" role="img" aria-label="Lost acknowledgement causes duplicate frame and repeated ACK">
+          <defs><marker id="arrowDupF" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker><marker id="arrowDupA" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
+          <line x1="170" y1="45" x2="170" y2="300" stroke="#cbd5e1" stroke-width="4"/><line x1="690" y1="45" x2="690" y2="300" stroke="#cbd5e1" stroke-width="4"/>
+          <text x="126" y="34" class="svg-label" fill="#1d4ed8">Sender</text><text x="640" y="34" class="svg-label" fill="#15803d">Receiver</text>
+          <path d="M180 78 L680 122" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowDupF)"/><text x="342" y="84" class="svg-label" fill="#1d4ed8">Frame 0</text>
+          <text x="592" y="152" class="svg-small">Accepts 0, now expects 1</text>
+          <path d="M680 168 L438 190" stroke="#16a34a" stroke-width="4" fill="none" marker-end="url(#arrowDupA)"/><text x="530" y="166" class="svg-label" fill="#15803d">ACK 1</text>
+          <circle cx="410" cy="193" r="19" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><text x="403" y="198" class="svg-label" fill="#e11d48">X</text>
+          <rect x="92" y="208" width="156" height="48" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/><text x="116" y="237" class="svg-label" fill="#92400e">Timeout</text>
+          <path d="M180 270 L680 298" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowDupF)"/><text x="326" y="268" class="svg-label" fill="#1d4ed8">Resend Frame 0</text>
+          <text x="594" y="324" class="svg-small">Duplicate: discard, send ACK 1 again</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Sequence numbers protect the receiver from accepting the same frame twice.</div>
+    </div>
+    <div class="callout-red callout"><strong>Important:</strong> If receiver is expecting frame 1 and receives frame 0 again, it understands that the ACK for frame 0 was probably lost. It discards duplicate frame 0 and resends ACK 1.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">5</div><h2>ACK Number Means Next Expected Frame</h2></div>
+    <p class="body-text">In Stop and Wait, the receiver does not send ACK for the same frame number. It sends ACK for the <strong>next expected frame</strong>. If frame 0 is accepted, the receiver sends <strong>ACK 1</strong>. If frame 1 is accepted, it sends <strong>ACK 0</strong>.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Frame Received Successfully</th><th>Receiver Moves To</th><th>ACK Sent</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">Frame 0</td><td>Now expects Frame 1</td><td class="ok">ACK 1</td></tr>
+          <tr><td class="mono">Frame 1</td><td>Now expects Frame 0</td><td class="ok">ACK 0</td></tr>
+          <tr><td class="mono">Duplicate Frame</td><td>Expectation does not change</td><td class="must">Repeat previous ACK</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="panel-rev" class="panel">
+  <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
+  <div class="cards-grid">
+    <div class="rev-card"><div class="rev-card-title">Definition</div><ul class="bullet-list"><li>Send <span class="val">1 frame</span></li><li>Wait for ACK</li><li>After ACK, send next frame</li><li>Simple ARQ / flow-control method</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Window Size</div><ul class="bullet-list"><li>Sender window size = <span class="val">1</span></li><li>Receiver window size = <span class="val">1</span></li><li>Only one unacknowledged frame allowed</li><li>Low utilization on long-delay links</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Sequence Numbers</div><ul class="bullet-list"><li>Uses two sequence numbers</li><li>Numbers: <span class="tag-b">0</span> and <span class="tag-g">1</span></li><li>They alternate with every new accepted frame</li><li>Used to detect duplicate frames</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">ACK Rule</div><ul class="bullet-list"><li>ACK means frame reached successfully</li><li>ACK number = <span class="tag-p">next expected frame</span></li><li>Frame 0 received &rarr; ACK 1</li><li>Frame 1 received &rarr; ACK 0</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Timeout</div><ul class="bullet-list"><li>Sender waits for ACK up to timeout</li><li>If no ACK, resend same frame</li><li>Timeout relates to round-trip time</li><li>Handles frame loss and ACK loss</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Lost ACK Case</div><ul class="bullet-list"><li>Frame reaches receiver</li><li>ACK gets lost</li><li>Sender resends same frame</li><li>Receiver discards duplicate and repeats ACK</li></ul></div>
+  </div>
+
+  <div class="cheat-div"><span>EXAM TABLE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Question Point</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>Sender window size in Stop and Wait</td><td class="mono">1</td></tr>
+        <tr><td>Receiver window size in Stop and Wait</td><td class="mono">1</td></tr>
+        <tr><td>Sequence numbers used</td><td class="mono">0 and 1</td></tr>
+        <tr><td>If Frame 0 is received correctly</td><td class="mono">ACK 1</td></tr>
+        <tr><td>If Frame 1 is received correctly</td><td class="mono">ACK 0</td></tr>
+        <tr><td>If frame is lost</td><td>Receiver sends no ACK; sender resends after timeout.</td></tr>
+        <tr><td>If ACK is lost</td><td>Sender resends duplicate; receiver discards duplicate and repeats ACK.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Summary</h3>
+    <ul class="bullet-list">
+      <li>Stop and Wait = send one frame, then wait peacefully for ACK.</li>
+      <li>ACK confirms successful frame delivery and permits the next frame.</li>
+      <li>Sequence numbers are needed because frames or ACKs can be lost.</li>
+      <li>Only <span class="val">0 and 1</span> are required because both windows are size <span class="val">1</span>.</li>
+      <li>ACK always indicates the <span class="tag-p">next expected frame</span>.</li>
+      <li>Timeout expiry means retransmit the same frame.</li>
+    </ul>
+    <div class="tags"><span class="tag">Stop and Wait</span><span class="tag">ARQ</span><span class="tag">ACK</span><span class="tag">Timeout</span><span class="tag">Retransmission</span><span class="tag">Sequence Number</span><span class="tag">0 and 1</span><span class="tag">Window Size 1</span></div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchPanel(id,btn){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
