@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CN Topic 22: Data Link Layer — OSI Layer 2 responsibilities: hop-to-hop delivery, flow control, error control, access control, MAC address, and framing.">
+<meta name="robots" content="index, follow">
+<title>Data Link Layer — CN Topic 22 | Practice Hub</title>
+<link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_data_link_layer.html">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#f0f2f7; --white:#ffffff; --border:#e0e4ef; --navy:#1a2340;
+  --accent:#7c3aed; --red:#e11d48; --red-light:#fff1f4;
+  --green:#16a34a; --green-light:#f0fdf4; --amber:#d97706; --amber-light:#fffbeb;
+  --blue:#2563eb; --blue-light:#eff6ff; --teal:#0f766e; --teal-light:#f0fdfa;
+  --orange:#ea580c; --orange-light:#fff7ed; --pink:#db2777; --pink-light:#fdf2f8;
+  --text:#1e2535; --text-muted:#6b7280; --text-light:#9ca3af;
+  --mono:'JetBrains Mono', monospace; --sans:'Inter', sans-serif; --body:'Nunito', sans-serif;
+}
+body { font-family:var(--body); background:var(--bg); color:var(--text); min-height:100vh; }
+
+.navbar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:52px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.nav-badge { background:var(--teal); color:#fff; font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 10px; border-radius:5px; letter-spacing:0.5px; }
+.nav-breadcrumb { font-family:var(--sans); font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+.nav-breadcrumb .sep { color:var(--text-light); }
+.nav-breadcrumb .current { color:var(--text); font-weight:600; }
+.nav-right { display:flex; align-items:center; gap:6px; }
+.nav-btn { font-family:var(--sans); font-size:12px; font-weight:600; padding:7px 16px; border-radius:7px; border:1px solid var(--border); cursor:pointer; transition:all .2s; background:transparent; color:var(--text-muted); }
+.nav-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.nav-btn:not(.active):hover { background:var(--bg); color:var(--text); }
+
+.ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+.ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+.ph-breadcrumb .sep{color:#94a3b8;}
+.ph-breadcrumb .current{color:#64748b;font-weight:600;}
+.ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;}
+.ph-breadcrumb .back-btn:hover{background:#e2e8f0;text-decoration:none;}
+
+.hero { background:linear-gradient(135deg,#042f2e 0%,#0f766e 32%,#2563eb 68%,#7c3aed 100%); padding:52px 48px 48px; position:relative; overflow:hidden; }
+.hero::after { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.035'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+.hero-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; position:relative; z-index:1; }
+.hero-tag { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:1px; padding:4px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.9); background:rgba(255,255,255,.1); }
+.hero h1 { font-family:var(--sans); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; color:#fff; line-height:1.05; letter-spacing:-1px; margin-bottom:16px; position:relative; z-index:1; }
+.hero h1 span { color:#99f6e4; }
+.hero-sub { font-size:.97rem; color:rgba(255,255,255,.8); max-width:650px; line-height:1.6; position:relative; z-index:1; margin-bottom:24px; }
+.hero-chips { display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1; }
+.hero-chip { font-family:var(--sans); font-size:12px; font-weight:600; padding:6px 16px; border-radius:20px; border:1.5px solid rgba(255,255,255,.4); color:#fff; background:rgba(255,255,255,.12); }
+
+.content-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+.panel { display:none; }
+.panel.active { display:block; animation:fadeUp .3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.section-block { margin-bottom:48px; }
+.section-heading { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.sec-num { width:36px; height:36px; border-radius:50%; color:#fff; font-family:var(--sans); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.sn-navy{background:var(--navy);} .sn-blue{background:var(--blue);} .sn-red{background:var(--red);} .sn-green{background:var(--green);} .sn-amber{background:var(--amber);} .sn-purple{background:var(--accent);} .sn-teal{background:var(--teal);} .sn-orange{background:var(--orange);} .sn-pink{background:var(--pink);}
+.section-heading h2 { font-family:var(--sans); font-size:1.2rem; font-weight:700; color:var(--text); }
+.body-text { font-size:.94rem; line-height:1.8; color:#374151; margin-bottom:16px; }
+
+.callout { border-left:4px solid; border-radius:0 8px 8px 0; padding:14px 18px; margin:18px 0; font-size:.88rem; line-height:1.65; }
+.callout-blue{border-color:var(--blue);background:var(--blue-light);color:#1e40af;}
+.callout-green{border-color:var(--green);background:var(--green-light);color:#14532d;}
+.callout-amber{border-color:var(--amber);background:var(--amber-light);color:#78350f;}
+.callout-purple{border-color:var(--accent);background:#f5f3ff;color:#4c1d95;}
+.callout-teal{border-color:var(--teal);background:var(--teal-light);color:#134e4a;}
+.callout-red{border-color:var(--red);background:var(--red-light);color:#9f1239;}
+.callout strong { font-weight:700; }
+
+.diagram-box { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:20px 0; }
+.diagram-header { background:var(--navy); padding:11px 18px; font-family:var(--mono); font-size:12px; font-weight:600; color:rgba(255,255,255,.85); letter-spacing:.3px; }
+.diagram-body { padding:24px 20px; }
+.diagram-note { padding:10px 18px 14px; font-size:.8rem; color:var(--text-muted); font-style:italic; text-align:center; border-top:1px solid var(--border); }
+.study-svg { width:100%; height:auto; display:block; }
+.svg-label { font-family:Inter, Arial, sans-serif; font-size:13px; font-weight:700; fill:#1e2535; }
+.svg-small { font-family:Nunito, Arial, sans-serif; font-size:11px; font-weight:700; fill:#64748b; }
+.svg-mono { font-family:"JetBrains Mono", monospace; font-size:10px; font-weight:700; fill:#475569; }
+.svg-link { stroke:#94a3b8; stroke-width:3; fill:none; stroke-linecap:round; }
+.svg-hop { stroke:#14b8a6; stroke-width:4; fill:none; stroke-linecap:round; marker-end:url(#arrowHead); }
+
+.osi-stack { display:flex; flex-direction:column; gap:4px; }
+.osi-row { display:flex; border-radius:8px; overflow:hidden; border:1px solid #eef2f7; }
+.osi-n { width:34px; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; font-weight:700; flex-shrink:0; }
+.osi-name { width:155px; padding:9px 12px; font-family:var(--sans); font-size:.78rem; font-weight:700; flex-shrink:0; }
+.osi-info { flex:1; padding:9px 12px; font-size:.76rem; color:#64748b; }
+.r3{background:#eff6ff;} .r3 .osi-n,.r3 .osi-name{color:#1d4ed8;}
+.r2{background:#f0fdfa;border:2px solid #14b8a6;} .r2 .osi-n,.r2 .osi-name{color:#0f766e;}
+.r1{background:#fff7ed;} .r1 .osi-n,.r1 .osi-name{color:#c2410c;}
+
+.hop-flow { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+.node { min-width:62px; border:2px solid; border-radius:10px; padding:10px 12px; text-align:center; font-family:var(--sans); font-size:.78rem; font-weight:700; background:#fff; }
+.host { border-color:#93c5fd; color:#1d4ed8; }
+.router { border-color:#2dd4bf; color:#0f766e; }
+.receiver { border-color:#c4b5fd; color:#6d28d9; }
+.arrow { color:#94a3b8; font-size:20px; }
+
+.func-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:18px 0; }
+.func-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:18px; }
+.func-card h4 { font-family:var(--sans); font-size:.9rem; font-weight:700; margin-bottom:8px; color:var(--teal); }
+.func-card p { font-size:.83rem; line-height:1.6; color:#374151; }
+.mini-tag { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px; background:#f1f5f9; color:#475569; margin-top:10px; margin-right:5px; }
+
+.tbl-wrap { overflow-x:auto; margin:4px 0; }
+table { width:100%; border-collapse:collapse; font-size:.83rem; font-family:var(--sans); background:var(--white); border:1px solid var(--border); }
+thead tr { background:var(--navy); }
+th { text-align:left; padding:11px 16px; color:rgba(255,255,255,.85); font-weight:600; font-size:.78rem; letter-spacing:.3px; }
+td { padding:10px 16px; color:#374151; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f8f9ff; }
+td.mono { font-family:var(--mono); font-size:.8rem; }
+td.must { color:var(--red); font-weight:600; }
+td.ok { color:var(--green); font-weight:600; }
+
+.frame-visual { display:grid; grid-template-columns:1.1fr 2fr 1fr; gap:6px; align-items:stretch; }
+.frame-part { padding:14px 12px; text-align:center; border:2px solid; font-family:var(--mono); font-size:12px; font-weight:700; border-radius:8px; }
+.fp-head { background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; }
+.fp-data { background:#f8fafc; border-color:#cbd5e1; color:#334155; }
+.fp-tail { background:#fff7ed; border-color:#fdba74; color:#c2410c; }
+
+.cheat-div { display:flex; align-items:center; gap:12px; margin:32px 0 16px; }
+.cheat-div span { font-family:var(--sans); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-light); white-space:nowrap; }
+.cheat-div::before,.cheat-div::after { content:''; flex:1; height:1px; background:var(--border); }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:16px 0; }
+.rev-card { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.rev-card-title { font-family:var(--sans); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--accent); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.bullet-list li { font-size:.81rem; color:#374151; padding-left:14px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-weight:700; }
+.bullet-list li .val{font-family:var(--mono);color:var(--amber);font-size:.77rem;}
+.bullet-list li .tag-g{font-family:var(--mono);color:var(--green);font-size:.77rem;}
+.bullet-list li .tag-r{font-family:var(--mono);color:var(--red);font-size:.77rem;}
+.bullet-list li .tag-b{font-family:var(--mono);color:var(--blue);font-size:.77rem;}
+.bullet-list li .tag-p{font-family:var(--mono);color:var(--accent);font-size:.77rem;}
+.final-tips { background:linear-gradient(135deg,#f0fdfa,#eff6ff); border:1px solid #99f6e4; border-radius:14px; padding:26px; margin-top:32px; }
+.final-tips h3 { font-family:var(--sans); font-size:1rem; font-weight:700; color:var(--teal); margin-bottom:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.tag { font-family:var(--mono); font-size:10px; padding:3px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; color:#475569; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#f1f5f9; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+@media(max-width:640px){
+  .hero{padding:36px 24px;}
+  .navbar{padding:0 16px;}
+  .nav-right{gap:4px;}
+  .nav-btn{padding:7px 10px;font-size:11px;}
+  .content-wrap{padding:28px 16px 60px;}
+  .func-grid{grid-template-columns:1fr;}
+  .ph-breadcrumb{padding:7px 16px;font-size:11.5px;}
+  .osi-name{width:118px;}
+  .frame-visual{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-badge">CN &mdash; 22</span>
+    <div class="nav-breadcrumb">
+      <span>Computer Networks</span>
+      <span class="sep">/</span>
+      <span class="current">Data Link Layer</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button>
+    <button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">&#127968; Practice Hub</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer.html">Computer</a>
+  <span class="sep">&rsaquo;</span>
+  <a href="computer_networks.html">Computer Networks</a>
+  <span class="sep">&rsaquo;</span>
+  <span class="current">Topic 22: Data Link Layer</span>
+  <a class="back-btn" href="computer_networks.html">&larr; Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-tags">
+    <span class="hero-tag">COMPUTER NETWORKS</span>
+    <span class="hero-tag">LECTURE 22</span>
+    <span class="hero-tag">OSI LAYER 2</span>
+    <span class="hero-tag">FRAMES &amp; MAC</span>
+  </div>
+  <h1>DATA LINK <span>LAYER</span></h1>
+  <p class="hero-sub">Layer 2 is the hop-to-hop manager of Computer Networks. It takes packets from the Network Layer, converts them into frames, controls local link flow/errors, manages channel access, and uses MAC addresses inside a LAN.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">GATE</span>
+    <span class="hero-chip">UGC NET</span>
+    <span class="hero-chip">B.Tech / BCA</span>
+    <span class="hero-chip">Exam Notes</span>
+  </div>
+</div>
+
+<div class="content-wrap">
+<div id="panel-desc" class="panel active">
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-navy">1</div>
+      <h2>Position in the OSI Model</h2>
+    </div>
+    <p class="body-text">
+      The <strong>Data Link Layer</strong> is the <strong>second layer from the bottom</strong> in the OSI model. It sits between the <strong>Network Layer</strong> and the <strong>Physical Layer</strong>. The Network Layer gives it packets, and the Data Link Layer prepares those packets as frames for transmission over the Physical Layer.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128279; Layer 2 Context</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 760 270" role="img" aria-label="Data Link Layer sits between Network Layer and Physical Layer">
+          <rect x="60" y="22" width="640" height="62" rx="14" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+          <text x="96" y="50" class="svg-label" fill="#1d4ed8">L3: Network Layer</text>
+          <text x="96" y="70" class="svg-small">Source-to-destination delivery using IP / logical address</text>
+          <rect x="60" y="104" width="640" height="72" rx="14" fill="#f0fdfa" stroke="#14b8a6" stroke-width="4"/>
+          <text x="96" y="134" class="svg-label" fill="#0f766e">L2: Data Link Layer</text>
+          <text x="96" y="155" class="svg-small">Hop-to-hop delivery using frame, MAC, flow/error/access control</text>
+          <rect x="60" y="196" width="640" height="52" rx="14" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+          <text x="96" y="226" class="svg-label" fill="#c2410c">L1: Physical Layer</text>
+          <text x="408" y="226" class="svg-small">Raw bits as electrical / optical / radio signals</text>
+          <text x="24" y="146" class="svg-mono" transform="rotate(-90 24 146)">OSI STACK</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Exam line: Network Layer thinks end-to-end; Data Link Layer thinks next hop.</div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-teal">2</div>
+      <h2>Hop-to-Hop / Node-to-Node Delivery</h2>
+    </div>
+    <p class="body-text">
+      The most important responsibility of the Data Link Layer is <strong>hop-to-hop delivery</strong>, also called <strong>node-to-node delivery</strong>. If host A4 wants to send data to host B1 in another network, Layer 2 does not directly handle A4 to B1 as one complete journey. It handles each smaller jump: A4 to R1, R1 to R2, R2 to the next network, and so on.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128225; Hop-by-Hop View</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 820 280" role="img" aria-label="Hop to hop delivery from host A4 to host B1 through routers R1 and R2">
+          <defs>
+            <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#14b8a6"/>
+            </marker>
+          </defs>
+          <rect x="25" y="48" width="160" height="155" rx="18" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+          <text x="58" y="78" class="svg-label" fill="#1d4ed8">Network A</text>
+          <circle cx="72" cy="128" r="22" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+          <text x="62" y="133" class="svg-label">A4</text>
+          <text x="47" y="170" class="svg-small">Sender host</text>
+          <rect x="642" y="48" width="150" height="155" rx="18" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="2"/>
+          <text x="675" y="78" class="svg-label" fill="#6d28d9">Network B</text>
+          <circle cx="722" cy="128" r="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+          <text x="713" y="133" class="svg-label">B1</text>
+          <text x="683" y="170" class="svg-small">Receiver host</text>
+          <rect x="246" y="100" width="70" height="56" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
+          <text x="269" y="133" class="svg-label" fill="#0f766e">R1</text>
+          <rect x="420" y="100" width="70" height="56" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="3"/>
+          <text x="443" y="133" class="svg-label" fill="#0f766e">R2</text>
+          <path class="svg-hop" d="M95 128 H238"/>
+          <path class="svg-hop" d="M316 128 H412"/>
+          <path class="svg-hop" d="M490 128 H690"/>
+          <text x="148" y="112" class="svg-mono">hop 1</text>
+          <text x="342" y="112" class="svg-mono">hop 2</text>
+          <text x="565" y="112" class="svg-mono">hop 3</text>
+          <text x="212" y="224" class="svg-small">Layer 2 manages each local jump</text>
+          <text x="426" y="224" class="svg-small">Layer 3 decides the complete route</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Each arrow is a Data Link Layer responsibility. The full source-to-destination path is Network Layer responsibility.</div>
+    </div>
+    <div class="callout-teal callout">
+      <strong>Key idea:</strong> Within one LAN, communication can be handled using the Data Link Layer and MAC addresses. Across different networks, routing and IP addressing from the Network Layer are required.
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-blue">3</div>
+      <h2>Flow Control at Every Hop</h2>
+    </div>
+    <p class="body-text">
+      <strong>Flow control</strong> means controlling the speed at which frames are sent. If A4 sends frames too fast and R1 cannot process or store them, R1's buffer may overflow and frames may be lost. Data Link Layer flow control checks the capacity of the <strong>next node</strong>, not only the final destination.
+    </p>
+    <div class="func-grid">
+      <div class="func-card">
+        <h4>Data Link Layer Flow Control</h4>
+        <p>Controls flow between two adjacent nodes: sender to next hop, hop to next hop, and so on.</p>
+        <span class="mini-tag">Hop-to-hop</span><span class="mini-tag">Layer 2</span>
+      </div>
+      <div class="func-card">
+        <h4>Transport Layer Flow Control</h4>
+        <p>Controls flow between the original source and the final destination machine.</p>
+        <span class="mini-tag">End-to-end</span><span class="mini-tag">Layer 4</span>
+      </div>
+    </div>
+    <div class="callout-blue callout">
+      <strong>Flow-control protocols:</strong> Stop-and-Wait, Go-Back-N, and Selective Repeat are the important methods used to manage how many frames can be sent before waiting for confirmation.
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-red">4</div>
+      <h2>Error Control: Detect Early, Recover Faster</h2>
+    </div>
+    <p class="body-text">
+      While frames travel through a medium, bits may change. A 0 may become 1, a 1 may become 0, or multiple bits may change together as a burst error. The Data Link Layer performs <strong>error control</strong> hop by hop so that an error can be detected early at an intermediate node instead of waiting until the final receiver.
+    </p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Error Check Method</th><th>Scope</th><th>Why Important?</th></tr></thead>
+        <tbody>
+          <tr><td>Data Link Layer</td><td class="mono">CRC, parity, hamming code</td><td class="ok">Hop-to-hop</td><td>Detects errors earlier and avoids wasting full-path transmission time.</td></tr>
+          <tr><td>Transport Layer</td><td class="mono">Checksum</td><td class="must">Source-to-destination</td><td>Confirms final end-to-end correctness after the message reaches the destination.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout-red callout">
+      <strong>Exam trap:</strong> Error control exists in both Data Link and Transport layers, but their scope is different. Layer 2 checks link by link; Layer 4 checks end to end.
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-amber">5</div>
+      <h2>Access Control on a Shared Channel</h2>
+    </div>
+    <p class="body-text">
+      In a shared medium such as a bus topology or common channel, multiple devices may try to send data at the same time. If two devices transmit simultaneously, their frames can collide and become useless. <strong>Access control</strong> decides who gets the channel and when.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#9888; Shared Channel Collision Picture</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 820 260" role="img" aria-label="Access control prevents collision on a shared bus channel">
+          <defs>
+            <marker id="arrowHeadAccess" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/>
+            </marker>
+          </defs>
+          <line x1="90" y1="136" x2="730" y2="136" stroke="#475569" stroke-width="10" stroke-linecap="round"/>
+          <text x="330" y="172" class="svg-mono">shared channel / bus</text>
+          <g>
+            <circle cx="150" cy="70" r="25" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+            <text x="140" y="75" class="svg-label">B1</text>
+            <line x1="150" y1="96" x2="150" y2="136" stroke="#2563eb" stroke-width="3"/>
+            <path d="M182 112 C238 96, 282 96, 338 120" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowHeadAccess)"/>
+            <text x="185" y="88" class="svg-small">sending</text>
+          </g>
+          <g>
+            <circle cx="660" cy="70" r="25" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+            <text x="650" y="75" class="svg-label">B4</text>
+            <line x1="660" y1="96" x2="660" y2="136" stroke="#ea580c" stroke-width="3"/>
+            <path d="M628 112 C572 96, 528 96, 472 120" stroke="#ea580c" stroke-width="4" fill="none"/>
+            <text x="580" y="88" class="svg-small">sending</text>
+          </g>
+          <polygon points="392,108 410,128 435,105 426,134 455,144 425,151 438,178 410,160 389,181 394,151 365,142 394,132" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/>
+          <text x="378" y="208" class="svg-label" fill="#e11d48">Collision</text>
+          <text x="284" y="232" class="svg-small">Access control decides who transmits first.</text>
+        </svg>
+      </div>
+      <div class="diagram-note">CSMA/CD, ALOHA, Token Ring and Token Bus are ways to control shared-medium access.</div>
+    </div>
+    <div class="func-grid">
+      <div class="func-card">
+        <h4>Collision-Based Methods</h4>
+        <p>CSMA/CD and ALOHA-style methods are used where devices may compete for access and collisions must be handled.</p>
+        <span class="mini-tag">CSMA/CD</span><span class="mini-tag">ALOHA</span><span class="mini-tag">Slotted ALOHA</span>
+      </div>
+      <div class="func-card">
+        <h4>Token-Based Methods</h4>
+        <p>Token Ring and Token Bus allow transmission only when a device has the token, reducing random collisions.</p>
+        <span class="mini-tag">Token Ring</span><span class="mini-tag">Token Bus</span>
+      </div>
+    </div>
+    <div class="callout-amber callout">
+      <strong>Simple meaning:</strong> Access control is like asking, "Who can use the channel now?" Without it, two messages may collide on the same wire.
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading">
+      <div class="sec-num sn-purple">6</div>
+      <h2>MAC Address and Framing</h2>
+    </div>
+    <p class="body-text">
+      The Data Link Layer uses the <strong>physical address</strong>, also called the <strong>MAC address</strong>. A MAC address is generally <strong>48 bits</strong> and is used for communication inside a local network. When a packet comes from the Network Layer, the Data Link Layer converts it into a <strong>frame</strong> by adding a header and trailer.
+    </p>
+    <div class="diagram-box">
+      <div class="diagram-header">&#128230; Frame Structure</div>
+      <div class="diagram-body">
+        <svg class="study-svg" viewBox="0 0 820 220" role="img" aria-label="Data Link Layer frame has header data and trailer">
+          <defs>
+            <marker id="arrowHeadFrame" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#14b8a6"/>
+            </marker>
+          </defs>
+          <rect x="75" y="70" width="190" height="76" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+          <rect x="275" y="70" width="270" height="76" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="3"/>
+          <rect x="555" y="70" width="190" height="76" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+          <text x="136" y="102" class="svg-label" fill="#1d4ed8">HEADER</text>
+          <text x="116" y="125" class="svg-small">MAC + control info</text>
+          <text x="389" y="102" class="svg-label">DATA</text>
+          <text x="337" y="125" class="svg-small">Packet from Network Layer</text>
+          <text x="616" y="102" class="svg-label" fill="#c2410c">TRAILER</text>
+          <text x="608" y="125" class="svg-small">Error check</text>
+          <path d="M205 42 H610" stroke="#14b8a6" stroke-width="3" fill="none" marker-end="url(#arrowHeadFrame)"/>
+          <text x="315" y="32" class="svg-mono">one frame travels hop-to-hop</text>
+          <text x="164" y="178" class="svg-small">Data Link Layer PDU = Frame</text>
+          <text x="482" y="178" class="svg-small">Network Layer PDU = Packet</text>
+        </svg>
+      </div>
+      <div class="diagram-note">Data Link Layer PDU = Frame. Network Layer PDU = Packet.</div>
+    </div>
+    <div class="callout-purple callout">
+      <strong>Train analogy:</strong> Data is like coaches, the header is like the engine, and the trailer is like the last guard section. The complete unit travels properly as a frame from one hop to the next.
+    </div>
+  </div>
+
+</div>
+
+<div id="panel-rev" class="panel">
+  <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
+  <div class="cards-grid">
+    <div class="rev-card">
+      <div class="rev-card-title">Layer Position</div>
+      <ul class="bullet-list">
+        <li>OSI Layer: <span class="val">2</span></li>
+        <li>Between <span class="tag-b">Network Layer</span> and <span class="tag-r">Physical Layer</span></li>
+        <li>Input from L3: <span class="val">Packet</span></li>
+        <li>Output to L1: <span class="val">Frame</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Main Responsibility</div>
+      <ul class="bullet-list">
+        <li>Data Link Layer = <span class="tag-g">hop-to-hop</span> delivery</li>
+        <li>Network Layer = source-to-destination delivery</li>
+        <li>Transport Layer = process-to-process / end-to-end reliability controls</li>
+        <li>Inside one LAN, MAC-based communication is possible</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Flow Control</div>
+      <ul class="bullet-list">
+        <li>Controls sending speed on each link</li>
+        <li>Prevents next-node buffer overflow</li>
+        <li>Important protocols: <span class="val">Stop-and-Wait</span>, <span class="val">Go-Back-N</span>, <span class="val">Selective Repeat</span></li>
+        <li>Scope: <span class="tag-g">node to node</span></li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Error Control</div>
+      <ul class="bullet-list">
+        <li>Detects bit errors and burst errors</li>
+        <li>Layer 2 commonly uses <span class="val">CRC</span></li>
+        <li>Transport Layer commonly uses <span class="val">Checksum</span></li>
+        <li>Early error detection improves performance</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">Access Control</div>
+      <ul class="bullet-list">
+        <li>Controls who can transmit on shared media</li>
+        <li>Prevents or handles collision</li>
+        <li>Methods: <span class="val">CSMA/CD</span>, <span class="val">ALOHA</span>, <span class="val">Token Ring</span>, <span class="val">Token Bus</span></li>
+        <li>Common in LAN/shared-channel discussions</li>
+      </ul>
+    </div>
+    <div class="rev-card">
+      <div class="rev-card-title">MAC &amp; Frame</div>
+      <ul class="bullet-list">
+        <li>MAC address = <span class="val">48-bit</span> physical address</li>
+        <li>Used mainly inside local network communication</li>
+        <li>Frame = <span class="tag-b">Header + Data + Trailer</span></li>
+        <li>Header/trailer help proper delivery and checking</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cheat-div"><span>COMPARISON TABLE</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Function</th><th>Data Link Layer Scope</th><th>Related Methods / Terms</th></tr></thead>
+      <tbody>
+        <tr><td>Delivery</td><td class="ok">Hop-to-hop / Node-to-node</td><td class="mono">MAC address, frame</td></tr>
+        <tr><td>Flow Control</td><td class="ok">Sender to next hop</td><td class="mono">Stop-and-Wait, Go-Back-N, Selective Repeat</td></tr>
+        <tr><td>Error Control</td><td class="ok">Every link</td><td class="mono">CRC, parity, hamming code</td></tr>
+        <tr><td>Access Control</td><td class="ok">Shared channel in LAN</td><td class="mono">CSMA/CD, ALOHA, Token Ring</td></tr>
+        <tr><td>Addressing</td><td class="ok">Local physical address</td><td class="mono">48-bit MAC address</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-tips">
+    <h3>&#9989; Last-Minute Summary</h3>
+    <ul class="bullet-list">
+      <li>Data Link Layer is <span class="tag-g">Layer 2</span> and works between Network and Physical layers.</li>
+      <li>Its golden phrase is <span class="val">hop-to-hop delivery</span>, not final source-to-destination delivery.</li>
+      <li>Flow control at L2 checks the capacity of the <span class="tag-b">next hop</span>; Transport Layer checks the final destination.</li>
+      <li>Error control at L2 detects errors earlier using methods like <span class="val">CRC</span>.</li>
+      <li>Access control decides who can use the shared channel and prevents collision.</li>
+      <li>MAC address is a <span class="val">48-bit physical address</span>; Data Link Layer PDU is a <span class="val">frame</span>.</li>
+    </ul>
+    <div class="tags">
+      <span class="tag">Data Link Layer</span>
+      <span class="tag">Layer 2</span>
+      <span class="tag">Hop-to-Hop</span>
+      <span class="tag">MAC Address</span>
+      <span class="tag">Framing</span>
+      <span class="tag">Flow Control</span>
+      <span class="tag">Error Control</span>
+      <span class="tag">Access Control</span>
+      <span class="tag">CRC</span>
+      <span class="tag">CSMA/CD</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
