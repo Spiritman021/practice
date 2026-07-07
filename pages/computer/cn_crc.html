@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 30: CRC Cyclic Redundancy Check — polynomial to binary divisor, appending zeroes, modulo-2 XOR division, CRC remainder, receiver zero-remainder check, and efficiency.">
+<meta name="description" content="CN Topic 30: Detailed CRC Cyclic Redundancy Check notes from transcript — generator polynomial to binary divisor, appending zeroes, modulo-2 XOR division, CRC remainder, receiver zero-remainder check, efficiency, examples and full forms.">
 <meta name="robots" content="index, follow">
 <title>CRC — CN Topic 30 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_crc.html">
@@ -27,13 +27,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 30</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">CRC</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 30: CRC</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 30</span><span class="hero-tag">ERROR DETECTION</span><span class="hero-tag">CRC</span></div><h1>CYCLIC REDUNDANCY <span>CHECK</span></h1><p class="hero-sub">CRC is a powerful and widely used error detection method. Learn how to convert a generator polynomial to binary, append zeroes, perform modulo-2 XOR division, attach the CRC remainder, and verify at the receiver.</p><div class="hero-chips"><span class="hero-chip">Polynomial</span><span class="hero-chip">XOR Division</span><span class="hero-chip">Remainder</span><span class="hero-chip">Zero Check</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 30</span><span class="hero-tag">ERROR DETECTION</span><span class="hero-tag">CRC</span></div><h1>CYCLIC REDUNDANCY <span>CHECK</span></h1><p class="hero-sub">Detailed teacher-style notes on CRC: why it is powerful, how to convert generator polynomial to binary, append zeroes, perform modulo-2 XOR division, pick the CRC remainder, send the codeword, and verify using zero remainder at receiver.</p><div class="hero-chips"><span class="hero-chip">Polynomial</span><span class="hero-chip">XOR Division</span><span class="hero-chip">Remainder</span><span class="hero-chip">Zero Check</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-teal">1</div><h2>What Is CRC?</h2></div>
     <p class="body-text"><strong>CRC</strong> stands for <strong>Cyclic Redundancy Check</strong>. It is an error detection method used heavily in real communication systems. It sends redundant bits with the message so that the receiver can check whether any bit changed on the path.</p>
+    <p class="body-text">The teacher calls CRC powerful because it can detect single-bit errors, odd-numbered errors, many double-bit errors, and burst errors up to the generator polynomial degree as discussed in the lecture. In real-life applications, CRC is one of the most widely used error detection methods.</p>
     <div class="diagram-box"><div class="diagram-header">&#128737; CRC Adds Redundant Bits</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 230" role="img" aria-label="CRC sends message bits plus redundant CRC bits">
         <rect x="95" y="78" width="330" height="64" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/><text x="172" y="116" class="svg-mono">m message bits</text>
@@ -41,12 +42,13 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <text x="235" y="174" class="svg-label" fill="#0f766e">Transmitted codeword = m + r bits</text>
       </svg>
     </div><div class="diagram-note">CRC bits are redundant bits calculated from modulo-2 division.</div></div>
-    <div class="callout-teal callout"><strong>Power point:</strong> CRC is considered powerful because it can detect single-bit errors, many double-bit errors, odd-count errors, and burst errors up to the generator degree as discussed in the lecture.</div>
+    <div class="callout-teal callout"><strong>Power point:</strong> If the generator polynomial has degree 4, then CRC can detect burst error of length up to 4 in the lecture's explanation.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">2</div><h2>Polynomial to Binary Divisor</h2></div>
-    <p class="body-text">CRC questions may give the divisor directly in binary form or as a polynomial. If the divisor is polynomial, write coefficients from highest degree to zero degree. For example, <strong>x^4 + x^3 + 1</strong> becomes <strong>11001</strong>.</p>
+    <p class="body-text">CRC questions may give the divisor directly in binary form or as a polynomial. The dividend/message may also be given in binary form or polynomial form. If polynomial form is given, convert it into binary using coefficients from highest degree down to zero degree.</p>
+    <p class="body-text">For example, <strong>x^4 + x^3 + 1</strong> becomes <strong>11001</strong>. Why? Coefficient of x^4 is 1, x^3 is 1, x^2 is missing so 0, x^1 is missing so 0, and x^0 is 1.</p>
     <div class="diagram-box"><div class="diagram-header">&#128290; Generator Polynomial Conversion</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 270" role="img" aria-label="CRC polynomial x4 plus x3 plus 1 converted to binary 11001">
         <text x="70" y="44" class="svg-label" fill="#1d4ed8">Generator polynomial</text><rect x="70" y="66" width="300" height="54" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/><text x="112" y="100" class="svg-mono">x^4 + x^3 + 1</text>
@@ -66,6 +68,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>How Many Zeroes to Append?</h2></div>
     <p class="body-text">If the generator polynomial has maximum degree <strong>r</strong>, append <strong>r zeroes</strong> to the message before division. If the divisor is given in binary, append <strong>divisor length - 1</strong> zeroes.</p>
+    <p class="body-text">In the lecture example, maximum polynomial degree is 4, so append four zeroes. If the divisor is directly given as <strong>11001</strong>, it has 5 bits, so append <strong>5 - 1 = 4</strong> zeroes. Do not append 5 zeroes.</p>
     <div class="formula-grid">
       <div class="formula-card"><h4>Polynomial Given</h4><p>Maximum degree is r. Append r zeroes.</p><span class="mini-tag">degree = r</span></div>
       <div class="formula-card"><h4>Binary Divisor Given</h4><p>If divisor has n bits, append n - 1 zeroes.</p><span class="mini-tag">n - 1</span></div>
@@ -83,6 +86,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-purple">4</div><h2>Modulo-2 Division Uses XOR</h2></div>
     <p class="body-text">CRC division is binary division using <strong>XOR</strong>, not normal subtraction. Same bits give 0, different bits give 1. Quotient is not important; only the remainder is used.</p>
+    <p class="body-text">The teacher's shortcut: always start division from a leading 1. If the current part does not have enough bits to match the divisor length, bring down bits from above until the divisor-length group is formed. This keeps the division shorter and avoids unnecessary work.</p>
     <div class="diagram-box"><div class="diagram-header">&#10006; XOR Division Rule</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 290" role="img" aria-label="CRC modulo 2 division uses XOR and remainder">
         <text x="80" y="48" class="svg-label" fill="#6d28d9">XOR rule</text>
@@ -91,11 +95,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <text x="210" y="238" class="svg-label" fill="#6d28d9">Example remainder from lecture: 0010</text>
       </svg>
     </div><div class="diagram-note">After division, take the last r bits of the remainder as CRC bits.</div></div>
+    <div class="callout-blue callout"><strong>Full form:</strong> XOR means <strong>Exclusive OR</strong>. In CRC, modulo-2 subtraction is performed using XOR.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-green">5</div><h2>Make the Codeword and Check at Receiver</h2></div>
-    <p class="body-text">The sender replaces the appended zeroes with the calculated CRC remainder. In the lecture example, the remainder bits are <strong>0010</strong>. The receiver divides the complete codeword by the same divisor. If the final remainder is all zero, no error is detected.</p>
+    <p class="body-text">The sender replaces the appended zeroes with the calculated CRC remainder. In the lecture example, the final remainder area may look longer during division, but only the last <strong>r</strong> bits are used. Since <strong>r = 4</strong>, take the last four bits from the LSB side. The CRC bits are <strong>0010</strong>.</p>
+    <p class="body-text">The complete transmitted codeword is original message + CRC bits. In the example, message bits are <strong>m = 10</strong> and redundant bits are <strong>r = 4</strong>, so the receiver gets <strong>14 bits</strong>.</p>
+    <p class="body-text">At the receiver side, the receiver divides the complete 14-bit codeword by the same divisor. If the final remainder is all zero, no error is detected. If any bit changes from 0 to 1 or 1 to 0, the division normally produces a non-zero remainder and receiver detects an error.</p>
     <div class="diagram-box"><div class="diagram-header">&#9989; Sender and Receiver CRC Flow</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 320" role="img" aria-label="Sender attaches CRC remainder and receiver checks zero remainder">
         <defs><marker id="crcArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
@@ -111,28 +118,38 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-red">6</div><h2>Efficiency / Channel Utilization</h2></div>
-    <p class="body-text">Efficiency here means how many transmitted bits are actual message bits. If message length is <strong>m</strong> and CRC length is <strong>r</strong>, total transmitted bits are <strong>m + r</strong>.</p>
+    <p class="body-text">Efficiency here means how many transmitted bits are actual message bits. If message length is <strong>m</strong> and CRC length is <strong>r</strong>, total transmitted bits are <strong>m + r</strong>. This can also be understood as channel utilization for useful message bits.</p>
     <div class="formula-grid">
       <div class="formula-card"><h4>Efficiency Formula</h4><p>Useful bits divided by total transmitted bits.</p><span class="mini-tag">m / (m + r) x 100</span></div>
       <div class="formula-card"><h4>Lecture Example</h4><p>m = 10 data bits, r = 4 CRC bits.</p><span class="mini-tag">10 / 14 x 100</span></div>
       <div class="formula-card"><h4>Total Sent</h4><p>The receiver gets the complete codeword, not only the original message.</p><span class="mini-tag">14 bits</span></div>
     </div>
   </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-navy">7</div><h2>Teacher-Style Complete Steps</h2></div>
+    <p class="body-text"><strong>Step 1:</strong> Identify the message/dividend and the divisor/generator. If the divisor is polynomial, convert it into binary. Example: <strong>x^4 + x^3 + 1</strong> becomes <strong>11001</strong>.</p>
+    <p class="body-text"><strong>Step 2:</strong> Find how many zeroes to append. Polynomial degree 4 means append 4 zeroes. Binary divisor 11001 has 5 bits, so append 5 - 1 = 4 zeroes.</p>
+    <p class="body-text"><strong>Step 3:</strong> Divide the message with appended zeroes by divisor 11001 using XOR. Same values give 0 and different values give 1. Ignore quotient.</p>
+    <p class="body-text"><strong>Step 4:</strong> Pick the last r bits of the remainder. In the lecture example, the CRC bits are <strong>0010</strong>. Replace the appended zeroes with these bits.</p>
+    <p class="body-text"><strong>Step 5:</strong> Send the full codeword to receiver. Receiver divides it by the same divisor. Remainder 0000 means no error detected; non-zero remainder means error detected.</p>
+    <div class="callout-amber callout"><strong>Exam note:</strong> Most CRC questions are numerical. Theory is short, but mistakes happen in zero-appending, polynomial-to-binary conversion, and remainder selection.</div>
+  </div>
 </div>
 
 <div id="panel-rev" class="panel">
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
-    <div class="rev-card"><div class="rev-card-title">CRC Meaning</div><ul class="bullet-list"><li>CRC = <span class="val">Cyclic Redundancy Check</span></li><li>Error detection method</li><li>Powerful and widely used</li><li>Works by adding redundant CRC bits</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">CRC Meaning</div><ul class="bullet-list"><li>CRC = <span class="val">Cyclic Redundancy Check</span></li><li>Error detection method</li><li>Powerful and widely used</li><li>Works by adding redundant CRC bits</li><li>Detects burst errors up to generator degree in lecture rule</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Generator</div><ul class="bullet-list"><li>Polynomial may be given in question</li><li>Convert coefficients to binary</li><li>x^4 + x^3 + 1 -> <span class="val">11001</span></li><li>Missing powers become 0</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Append Zeroes</div><ul class="bullet-list"><li>If degree is r, append r zeroes</li><li>If divisor has n bits, append n - 1 zeroes</li><li>Divisor 11001 has 5 bits</li><li>So append <span class="val">4 zeroes</span></li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Division</div><ul class="bullet-list"><li>Use modulo-2 division</li><li>Modulo-2 subtraction = XOR</li><li>Start division from leading 1</li><li>Quotient is ignored; remainder matters</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Receiver Check</div><ul class="bullet-list"><li>Receiver divides full codeword</li><li>Uses same divisor</li><li>Remainder 0000 -> no error detected</li><li>Non-zero remainder -> error detected</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Division</div><ul class="bullet-list"><li>Use modulo-2 division</li><li>Modulo-2 subtraction = XOR</li><li>XOR = <span class="val">Exclusive OR</span></li><li>Start division from leading 1</li><li>Quotient is ignored; remainder matters</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Receiver Check</div><ul class="bullet-list"><li>Receiver divides full codeword</li><li>Uses same divisor</li><li>Remainder 0000 -> no error detected</li><li>Non-zero remainder -> error detected</li><li>Any changed bit normally makes remainder non-zero</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Efficiency</div><ul class="bullet-list"><li>Total sent = <span class="val">m + r</span></li><li>Efficiency = <span class="val">m/(m+r) x 100</span></li><li>Example: m=10, r=4</li><li>Efficiency = <span class="val">10/14 x 100</span></li></ul></div>
   </div>
   <div class="cheat-div"><span>EXAM STEPS</span></div>
   <div class="tbl-wrap"><table><thead><tr><th>Step</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Convert divisor polynomial to binary, if needed.</td></tr><tr><td>2</td><td>Find r = degree of polynomial or divisor length - 1.</td></tr><tr><td>3</td><td>Append r zeroes to the message.</td></tr><tr><td>4</td><td>Divide using XOR / modulo-2 division.</td></tr><tr><td>5</td><td>Take last r bits of remainder as CRC.</td></tr><tr><td>6</td><td>Send message + CRC; receiver expects zero remainder.</td></tr></tbody></table></div>
-  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>CRC is used for error detection, not correction.</li><li>CRC bits are redundant bits.</li><li>Polynomial degree tells how many zeroes to append.</li><li>Binary divisor length n means append n - 1 zeroes.</li><li>Use XOR, not normal subtraction.</li><li>Only the remainder is useful; quotient is ignored.</li><li>Receiver gets zero remainder if no error is detected.</li></ul><div class="tags"><span class="tag">CRC</span><span class="tag">Cyclic Redundancy Check</span><span class="tag">Generator Polynomial</span><span class="tag">11001</span><span class="tag">XOR</span><span class="tag">Remainder</span><span class="tag">Modulo-2 Division</span><span class="tag">Error Detection</span></div></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>CRC is used for error detection, not correction.</li><li>CRC bits are redundant bits.</li><li>CRC = Cyclic Redundancy Check; XOR = Exclusive OR.</li><li>Polynomial degree tells how many zeroes to append.</li><li>Binary divisor length n means append n - 1 zeroes.</li><li>Use XOR, not normal subtraction.</li><li>Only the remainder is useful; quotient is ignored.</li><li>Take last r bits of the remainder from LSB side.</li><li>Receiver gets zero remainder if no error is detected.</li></ul><div class="tags"><span class="tag">CRC</span><span class="tag">Cyclic Redundancy Check</span><span class="tag">Generator Polynomial</span><span class="tag">11001</span><span class="tag">XOR</span><span class="tag">Exclusive OR</span><span class="tag">Remainder</span><span class="tag">Modulo-2 Division</span><span class="tag">Error Detection</span></div></div>
 </div>
 </div>
 <script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>

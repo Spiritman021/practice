@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 24: Detailed Go-Back-N ARQ notes from transcript — sliding window, sender window 2^m - 1, receiver window 1, m bits, cumulative ACKs, out-of-order discard, and retransmission with examples.">
+<meta name="description" content="CN Topic 24: Detailed Go-Back-N ARQ notes — sliding window, receiver-side working, sender window, receiver window 1, cumulative ACKs, efficiency, sequence-number ambiguity, out-of-order discard, and retransmission.">
 <meta name="robots" content="index, follow">
 <title>Go-Back-N ARQ — CN Topic 24 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_go_back_n.html">
@@ -30,7 +30,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 24</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Go-Back-N ARQ</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 24: Go-Back-N ARQ</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 24</span><span class="hero-tag">SLIDING WINDOW</span><span class="hero-tag">ARQ</span></div><h1>GO-BACK-N <span>ARQ</span></h1><p class="hero-sub">A sliding-window protocol where the sender can send multiple frames, the receiver accepts only the next expected frame, ACKs are cumulative, and a lost frame makes the sender go back and retransmit from that frame onward. These notes follow the teacher's examples using m = 2 and m = 3.</p><div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">Sender Window 2^m - 1</span><span class="hero-chip">Receiver Window 1</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 24</span><span class="hero-tag">SLIDING WINDOW</span><span class="hero-tag">ARQ</span></div><h1>GO-BACK-N <span>ARQ</span></h1><p class="hero-sub">A sliding-window protocol where the sender can send multiple frames, the receiver accepts only the next expected frame, ACKs are cumulative, and a lost frame makes the sender go back and retransmit from that frame onward. Now includes a clear receiver-side explanation and sequence-number rules.</p><div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">Sender Window 2^m - 1</span><span class="hero-chip">Receiver Window 1</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
@@ -127,7 +127,52 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="section-block">
-    <div class="section-heading"><div class="sec-num sn-teal">6</div><h2>Teacher-Style Complete Summary</h2></div>
+    <div class="section-heading"><div class="sec-num sn-blue">6</div><h2>Receiver-Side Working</h2></div>
+    <p class="body-text">On the receiver side of Go-Back-N, the most important rule is <strong>WR = 1</strong>. That means the receiver has space for only one expected frame. It accepts a frame only if it is exactly the next expected sequence number.</p>
+    <p class="body-text">If the expected frame arrives correctly, receiver accepts it, sends an ACK, and updates the expected sequence number. If an out-of-order frame arrives, receiver discards it and repeats the ACK for the last correctly received frame, indirectly saying, "I am still waiting for the missing one."</p>
+    <div class="diagram-box"><div class="diagram-header">&#128229; Receiver Window = 1: Accept Only Expected Frame</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 360" role="img" aria-label="Go Back N receiver accepts only expected frame and discards out of order frames">
+        <defs><marker id="rxFrame" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker><marker id="rxAck" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
+        <line x1="165" y1="45" x2="165" y2="315" stroke="#cbd5e1" stroke-width="4"/><line x1="690" y1="45" x2="690" y2="315" stroke="#cbd5e1" stroke-width="4"/>
+        <text x="118" y="34" class="svg-label" fill="#1d4ed8">Sender</text><text x="634" y="34" class="svg-label" fill="#15803d">Receiver</text>
+        <rect x="596" y="62" width="150" height="38" rx="9" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/><text x="622" y="86" class="svg-mono">expects 0</text>
+        <path d="M178 92 L680 118" stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#rxFrame)"/><text x="356" y="88" class="svg-mono">Frame 0</text>
+        <path d="M680 145 L178 170" stroke="#16a34a" stroke-width="3" fill="none" marker-end="url(#rxAck)"/><text x="408" y="150" class="svg-label" fill="#15803d">ACK 1</text><text x="598" y="144" class="svg-small">accept 0, now expects 1</text>
+        <path d="M178 198 L680 224" stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#rxFrame)"/><text x="356" y="194" class="svg-mono">Frame 2 arrives</text>
+        <rect x="594" y="205" width="176" height="58" rx="12" fill="#fff1f4" stroke="#fb7185" stroke-width="2"/><text x="628" y="230" class="svg-label" fill="#9f1239">Discard 2</text><text x="616" y="250" class="svg-small">Receiver still expects 1</text>
+        <path d="M680 282 L178 306" stroke="#16a34a" stroke-width="3" fill="none" marker-end="url(#rxAck)"/><text x="390" y="288" class="svg-label" fill="#15803d">Repeat ACK 1</text>
+      </svg>
+    </div><div class="diagram-note">Out-of-order frames are not buffered in Go-Back-N.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-green">7</div><h2>Efficiency, Throughput and Sequence-Number Rule</h2></div>
+    <p class="body-text">Let <strong>N</strong> be the sender window size. In the ideal case, when processing delay, queuing delay and ACK transmission delay are ignored, Go-Back-N efficiency is:</p>
+    <div class="formula-grid">
+      <div class="formula-card"><h4>Ideal Efficiency</h4><p>Useful transmission over total round-trip cycle.</p><span class="mini-tag">N / (1 + 2a)</span></div>
+      <div class="formula-card"><h4>a value</h4><p>Ratio of propagation delay to transmission delay.</p><span class="mini-tag">a = Tp / Tt</span></div>
+      <div class="formula-card"><h4>Throughput</h4><p>Actual data rate achieved on a channel of bandwidth B.</p><span class="mini-tag">Efficiency x B</span></div>
+    </div>
+    <p class="body-text">When extra delays are included, use the general idea: <strong>Efficiency = N x useful time / total time</strong>. Useful time is the data-frame transmission time. Total time includes data-frame transmission, round-trip propagation, processing delay, queuing delay and ACK transmission delay.</p>
+    <div class="callout-green callout"><strong>Symbols:</strong> Tp = propagation delay, Tt = transmission delay of data frame, B = bandwidth, N = sender window size.</div>
+    <p class="body-text">For sequence numbers, the safe relation is <strong>Ws + WR &lt;= ASN</strong>, where Ws is sender window size, WR is receiver window size and ASN is available sequence numbers. In Go-Back-N, <strong>WR = 1</strong>, so <strong>Ws + 1 &lt;= ASN</strong>. Therefore, if sender window is N, minimum sequence numbers required are <strong>N + 1</strong>.</p>
+    <div class="diagram-box"><div class="diagram-header">&#128260; Why One Extra Sequence Number Is Needed</div><div class="diagram-body">
+      <svg class="study-svg" viewBox="0 0 860 340" role="img" aria-label="Go Back N needs one extra sequence number to avoid duplicate ambiguity">
+        <text x="58" y="42" class="svg-label" fill="#9f1239">Wrong: GBN-4 with only 4 sequence numbers</text>
+        <rect x="58" y="70" width="54" height="44" rx="8" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><rect x="118" y="70" width="54" height="44" rx="8" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><rect x="178" y="70" width="54" height="44" rx="8" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/><rect x="238" y="70" width="54" height="44" rx="8" fill="#fee2e2" stroke="#e11d48" stroke-width="3"/>
+        <text x="79" y="98" class="svg-label">0</text><text x="139" y="98" class="svg-label">1</text><text x="199" y="98" class="svg-label">2</text><text x="259" y="98" class="svg-label">3</text>
+        <text x="330" y="88" class="svg-small">Receiver accepts 0,1,2,3 and wraps to expect 0 again.</text><text x="330" y="110" class="svg-small">If ACK is lost, duplicate 0 may look like new 0.</text>
+        <text x="58" y="185" class="svg-label" fill="#15803d">Correct: add one extra sequence number</text>
+        <rect x="58" y="213" width="54" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><rect x="118" y="213" width="54" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><rect x="178" y="213" width="54" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><rect x="238" y="213" width="54" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><rect x="298" y="213" width="54" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
+        <text x="79" y="241" class="svg-label">0</text><text x="139" y="241" class="svg-label">1</text><text x="199" y="241" class="svg-label">2</text><text x="259" y="241" class="svg-label">3</text><text x="319" y="241" class="svg-label">4</text>
+        <text x="392" y="232" class="svg-small">Receiver can now wait for 4 after accepting 0-3.</text><text x="392" y="254" class="svg-small">Duplicate retransmitted 0 is rejected.</text>
+        <rect x="170" y="292" width="520" height="34" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/><text x="246" y="314" class="svg-label" fill="#92400e">Bits required = ceil(log2(N + 1))</text>
+      </svg>
+    </div><div class="diagram-note">For sender window N, Go-Back-N needs at least N + 1 sequence numbers.</div></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">8</div><h2>Teacher-Style Complete Summary</h2></div>
     <p class="body-text"><strong>Step 1:</strong> Decide the number of bits <strong>m</strong> used for sequence numbering. If m = 2, sequence numbers are 0, 1, 2, 3. If m = 3, sequence numbers are 0 to 7.</p>
     <p class="body-text"><strong>Step 2:</strong> Sender window size becomes <strong>2^m - 1</strong>. Receiver window size remains <strong>1</strong>. So with m = 2, sender can send 3 frames at once, but receiver accepts only one expected frame at a time.</p>
     <p class="body-text"><strong>Step 3:</strong> ACKs are cumulative. ACK 3 means frames before 3 are accepted. ACK 4 means frames before 4 are accepted.</p>
@@ -146,9 +191,12 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
     <div class="rev-card"><div class="rev-card-title">Out of Order</div><ul class="bullet-list"><li>Out-of-order frames are <span class="tag-r">not accepted</span></li><li>Receiver window size is 1</li><li>If receiver wants 1, frames 2 and 3 are discarded</li><li>Sender later retransmits from 1</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Exam Trap</div><ul class="bullet-list"><li>Do not write sender window = 2^m</li><li>Using 2^m creates old/new frame ambiguity</li><li>Correct maximum = <span class="val">2^m - 1</span></li><li>Receiver window remains <span class="val">1</span></li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Teacher Example</div><ul class="bullet-list"><li>m = 2: sender window = <span class="val">3</span></li><li>Safe send: <span class="val">0,1,2</span></li><li>Wrong window 4 sends <span class="val">0,1,2,3</span></li><li>After wrap, old 0 can look new</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Receiver Side</div><ul class="bullet-list"><li>Receiver window <span class="val">WR = 1</span></li><li>Accepts only next expected frame</li><li>Does not buffer out-of-order frames</li><li>Repeats ACK for last correct frame</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Efficiency</div><ul class="bullet-list"><li>Ideal efficiency = <span class="val">N/(1+2a)</span></li><li>a = <span class="val">Tp/Tt</span></li><li>Throughput = <span class="val">Efficiency x B</span></li><li>N = sender window size</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Sequence Space</div><ul class="bullet-list"><li>General rule: <span class="val">Ws + WR <= ASN</span></li><li>GBN: <span class="val">Ws + 1 <= ASN</span></li><li>Minimum sequence numbers = <span class="val">N + 1</span></li><li>Bits required = <span class="val">ceil(log2(N+1))</span></li></ul></div>
   </div>
   <div class="cheat-div"><span>EXAM TABLE</span></div>
-  <div class="tbl-wrap"><table><thead><tr><th>Question Point</th><th>Answer</th></tr></thead><tbody><tr><td>Protocol type</td><td>Sliding Window ARQ</td></tr><tr><td>ARQ full form</td><td>Automatic Repeat reQuest</td></tr><tr><td>ACK full form</td><td>Acknowledgement</td></tr><tr><td>Sender window size</td><td class="mono">2^m - 1</td></tr><tr><td>Receiver window size</td><td class="mono">1</td></tr><tr><td>Total sequence numbers</td><td class="mono">2^m</td></tr><tr><td>ACK type</td><td>Cumulative acknowledgement</td></tr><tr><td>ACK number means</td><td>Next expected frame</td></tr><tr><td>Out-of-order frame</td><td class="must">Discarded</td></tr><tr><td>Lost frame handling</td><td>Go back and retransmit from missing frame onward.</td></tr></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Question Point</th><th>Answer</th></tr></thead><tbody><tr><td>Protocol type</td><td>Sliding Window ARQ</td></tr><tr><td>ARQ full form</td><td>Automatic Repeat reQuest</td></tr><tr><td>ACK full form</td><td>Acknowledgement</td></tr><tr><td>Sender window size</td><td class="mono">2^m - 1</td></tr><tr><td>Receiver window size</td><td class="mono">1</td></tr><tr><td>Total sequence numbers</td><td class="mono">2^m</td></tr><tr><td>ACK type</td><td>Cumulative acknowledgement</td></tr><tr><td>ACK number means</td><td>Next expected frame</td></tr><tr><td>Out-of-order frame</td><td class="must">Discarded</td></tr><tr><td>Lost frame handling</td><td>Go back and retransmit from missing frame onward.</td></tr><tr><td>Ideal efficiency</td><td class="mono">N/(1+2a)</td></tr><tr><td>Throughput</td><td class="mono">Efficiency x B</td></tr><tr><td>Sequence-number rule</td><td class="mono">Ws + WR <= ASN</td></tr><tr><td>Minimum sequence numbers for GBN-N</td><td class="mono">N + 1</td></tr></tbody></table></div>
   <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Go-Back-N is a sliding-window protocol; Stop-and-Wait is not considered sliding here because window size is only 1.</li><li>For m sequence bits, total numbers = <span class="val">2^m</span>.</li><li>Sender window = <span class="val">2^m - 1</span>; receiver window = <span class="val">1</span>.</li><li>m = 2 gives 0,1,2,3; sender window = 3.</li><li>Window cannot be 2^m, otherwise old frames may be accepted after wrap-around.</li><li>Cumulative ACK: ACK 4 means frames up to 3 are accepted.</li><li>Receiver does not accept out-of-order frames.</li><li>If frame 1 is lost, later frames are discarded and sender retransmits from frame 1.</li></ul><div class="tags"><span class="tag">Go-Back-N</span><span class="tag">Sliding Window</span><span class="tag">2^m - 1</span><span class="tag">Receiver Window 1</span><span class="tag">Cumulative ACK</span><span class="tag">Out of Order Discard</span><span class="tag">ARQ</span><span class="tag">ACK</span></div></div>
 </div>
 </div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 29: Single Parity Bit — even parity, odd parity, m+1 codeword, single-bit error detection, odd/even error limitations, and Hamming distance.">
+<meta name="description" content="CN Topic 29: Detailed Single Parity Bit notes from transcript — least expensive error detection, m+1 codeword, even parity, odd parity, single-bit and odd-error detection, even-error limitation, Hamming distance examples and d-1 rule.">
 <meta name="robots" content="index, follow">
 <title>Single Parity Bit — CN Topic 29 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_single_parity_bit.html">
@@ -26,13 +26,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 29</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Single Parity Bit</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 29: Single Parity Bit</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 29</span><span class="hero-tag">ERROR DETECTION</span><span class="hero-tag">PARITY</span></div><h1>SINGLE <span>PARITY BIT</span></h1><p class="hero-sub">A least-expensive error detection method: add one redundant parity bit to make the number of 1s even or odd. Learn even/odd parity, what errors it detects, what it misses, and how Hamming distance explains its limit.</p><div class="hero-chips"><span class="hero-chip">Even Parity</span><span class="hero-chip">Odd Parity</span><span class="hero-chip">m + 1 bits</span><span class="hero-chip">Hamming Distance</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 29</span><span class="hero-tag">ERROR DETECTION</span><span class="hero-tag">PARITY</span></div><h1>SINGLE <span>PARITY BIT</span></h1><p class="hero-sub">Detailed teacher-style notes on the least-expensive error detection method: add one redundant parity bit to make the number of 1s even or odd, understand what errors it detects/misses, and use Hamming distance to explain the detection limit.</p><div class="hero-chips"><span class="hero-chip">Even Parity</span><span class="hero-chip">Odd Parity</span><span class="hero-chip">m + 1 bits</span><span class="hero-chip">Hamming Distance</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">1</div><h2>What Is Single Parity Bit?</h2></div>
-    <p class="body-text"><strong>Single Parity Bit</strong> is a simple and least-expensive error detection method. If the message has <strong>m bits</strong>, we add only <strong>1 redundant bit</strong>, so the transmitted codeword has <strong>m + 1 bits</strong>.</p>
+    <p class="body-text"><strong>Single Parity Bit</strong> is a simple and least-expensive error detection method. Least expensive does not mean money here; it means we add very few redundant bits. If the message has <strong>m bits</strong>, we add only <strong>1 redundant bit</strong>, so the transmitted codeword has <strong>m + 1 bits</strong>.</p>
+    <p class="body-text">The teacher explains that in methods like double parity, CRC, or checksum, more redundant bits may be added. But in single parity, only one extra bit is added, so overhead is low. This method is useful where the application can tolerate a little error or wants a very cheap checking method, for example some audio communication where a tiny sound disturbance may be bearable.</p>
     <div class="diagram-box"><div class="diagram-header">&#10133; m Bits + 1 Parity Bit</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 230" role="img" aria-label="Single parity adds one redundant bit to message bits">
         <rect x="110" y="82" width="360" height="62" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/><text x="210" y="120" class="svg-mono">m message bits</text>
@@ -45,6 +46,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-green">2</div><h2>Even and Odd Parity</h2></div>
     <p class="body-text"><strong>Even parity</strong> makes the total number of 1s even. <strong>Odd parity</strong> makes the total number of 1s odd. Even parity is used more commonly in basic examples.</p>
+    <p class="body-text">Data words are often discussed in fixed binary sizes such as 4 bits, 8 bits, 16 bits, 32 bits, or 64 bits because data communication is based on binary 0 and 1. In the lecture, examples use 4-bit data words.</p>
     <div class="diagram-box"><div class="diagram-header">&#128290; Choosing the Parity Bit</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 300" role="img" aria-label="Even parity and odd parity examples">
         <text x="70" y="42" class="svg-label" fill="#15803d">Even parity examples</text>
@@ -54,11 +56,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <rect x="70" y="198" width="505" height="62" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/><text x="96" y="226" class="svg-mono">Choose parity bit so total number of 1s becomes odd.</text><text x="96" y="248" class="svg-small">Same data can use even or odd rule, but both sides must agree.</text>
       </svg>
     </div><div class="diagram-note">Sender and receiver must follow the same parity rule.</div></div>
+    <div class="callout-green callout"><strong>Example:</strong> Data <span class="svg-mono">1010</span> has two 1s, so even parity bit is 0. Data <span class="svg-mono">1110</span> has three 1s, so even parity bit is 1, making codeword <span class="svg-mono">11101</span>.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-red">3</div><h2>What It Detects and What It Misses</h2></div>
     <p class="body-text">Single parity can detect every <strong>single-bit error</strong>. More generally, it detects errors when an <strong>odd number of bits</strong> change. It cannot detect errors when an <strong>even number of bits</strong> change, because parity remains the same.</p>
+    <p class="body-text">Suppose sender sends <strong>11101</strong>, where the last bit is the parity bit. If one bit changes and receiver gets <strong>01101</strong>, the number of 1s becomes odd, so receiver detects that something is wrong. But receiver does not know exactly which bit changed, so it cannot correct the error.</p>
+    <p class="body-text">Now suppose two bits change and receiver gets <strong>00101</strong>. The total number of 1s is still even. Receiver thinks it is valid, even though sender had sent a different codeword. This is why even-count errors are missed. If three bits change, parity flips again, so the error is detected.</p>
     <div class="diagram-box"><div class="diagram-header">&#9888; Odd Errors Detected, Even Errors Missed</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 360" role="img" aria-label="Parity detects odd number of bit errors but misses even number of bit errors">
         <text x="70" y="42" class="svg-label" fill="#15803d">Single-bit error: detected</text>
@@ -79,6 +84,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-purple">4</div><h2>Hamming Distance</h2></div>
     <p class="body-text"><strong>Hamming Distance</strong> between two codewords is the number of positions where they differ. To calculate it, perform XOR between the two codewords and count the number of 1s in the result.</p>
+    <p class="body-text">In the transcript, the teacher uses XOR examples. XOR gives 0 when bits are same and 1 when bits are different. So after XOR, the number of 1s directly tells the Hamming distance.</p>
     <div class="diagram-box"><div class="diagram-header">&#128208; XOR and Count 1s</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 270" role="img" aria-label="Hamming distance is number of one bits after XOR">
         <text x="90" y="54" class="svg-label" fill="#6d28d9">Example 1</text><text x="120" y="90" class="svg-mono">0000</text><text x="120" y="122" class="svg-mono">1111</text><line x1="116" y1="134" x2="210" y2="134" stroke="#94a3b8" stroke-width="2"/><text x="120" y="165" class="svg-mono">1111</text><text x="250" y="128" class="svg-small">Hamming distance = 4</text>
@@ -90,6 +96,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-amber">5</div><h2>Minimum Hamming Distance and Detection Power</h2></div>
     <p class="body-text">If the minimum Hamming distance among valid codewords is <strong>d</strong>, then the code can detect up to <strong>d - 1</strong> bit errors. For single parity, minimum Hamming distance is <strong>2</strong>, so it detects <strong>1-bit errors</strong>.</p>
+    <p class="body-text">Why not detect 2-bit errors? If a valid codeword like <strong>00000</strong> changes by two bits, it may become another valid codeword such as <strong>11000</strong>. Receiver sees a valid codeword and cannot know that an error happened. But if only one bit changes, such as <strong>10000</strong>, that pattern is not a valid even-parity codeword, so receiver detects the error.</p>
     <div class="diagram-box"><div class="diagram-header">&#9989; Valid Codewords and d - 1 Rule</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 300" role="img" aria-label="Minimum Hamming distance two detects one bit error">
         <rect x="70" y="60" width="230" height="52" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/><text x="128" y="92" class="svg-mono">00000</text>
@@ -99,21 +106,31 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       </svg>
     </div><div class="diagram-note">Changing two bits can turn one valid parity codeword into another valid codeword, so 2-bit errors may be missed.</div></div>
   </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">6</div><h2>Teacher-Style Complete Summary</h2></div>
+    <p class="body-text"><strong>Step 1:</strong> Take a message of m bits and add one redundant bit. Codeword size becomes <strong>m + 1</strong>. This is why single parity is called least expensive.</p>
+    <p class="body-text"><strong>Step 2:</strong> In even parity, make total 1s even. Example: 1010 already has two 1s, so parity is 0. Data 1110 has three 1s, so parity is 1 and codeword becomes 11101.</p>
+    <p class="body-text"><strong>Step 3:</strong> If one bit changes, parity becomes invalid, so error is detected. If two bits change, parity may remain valid, so the error may be missed.</p>
+    <p class="body-text"><strong>Step 4:</strong> Single parity detects all odd-numbered bit errors: 1, 3, 5, 7 and so on. It misses even-numbered bit errors: 2, 4, 6 and so on.</p>
+    <p class="body-text"><strong>Step 5:</strong> Hamming distance explains the limit. Minimum Hamming distance for single parity is 2, so it can detect d - 1 = 1 bit error.</p>
+    <div class="callout-blue callout"><strong>Full form:</strong> XOR means <strong>Exclusive OR</strong>. In Hamming distance, XOR gives 1 at positions where two codewords differ.</div>
+  </div>
 </div>
 
 <div id="panel-rev" class="panel">
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
-    <div class="rev-card"><div class="rev-card-title">Single Parity</div><ul class="bullet-list"><li>Error detection method</li><li>Least expensive: only <span class="val">1 extra bit</span></li><li>Message size m -> codeword size <span class="val">m + 1</span></li><li>Cannot correct error</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Single Parity</div><ul class="bullet-list"><li>Error detection method</li><li>Least expensive: only <span class="val">1 extra bit</span></li><li>Message size m -> codeword size <span class="val">m + 1</span></li><li>Cannot correct error</li><li>Useful when very low overhead is needed</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Even Parity</div><ul class="bullet-list"><li>Total number of 1s must be even</li><li>1010 has two 1s -> parity <span class="val">0</span></li><li>1110 has three 1s -> parity <span class="val">1</span></li><li>Mostly used in basic examples</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Odd Parity</div><ul class="bullet-list"><li>Total number of 1s must be odd</li><li>Sender and receiver must agree on rule</li><li>Same idea, opposite target count</li><li>Used for detection only</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Detection Power</div><ul class="bullet-list"><li>Detects all single-bit errors</li><li>Detects odd number of bit errors</li><li>Misses even number of bit errors</li><li>Cannot tell which bit is wrong</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Hamming Distance</div><ul class="bullet-list"><li>XOR two codewords</li><li>Count number of 1s in XOR result</li><li>That count is Hamming distance</li><li>Minimum distance decides detection power</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Detection Power</div><ul class="bullet-list"><li>Detects all single-bit errors</li><li>Detects odd number of bit errors</li><li>Misses even number of bit errors</li><li>Cannot tell which bit is wrong</li><li>Detects but does not correct</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Hamming Distance</div><ul class="bullet-list"><li>XOR two codewords</li><li>XOR = <span class="val">Exclusive OR</span></li><li>Count number of 1s in XOR result</li><li>That count is Hamming distance</li><li>Minimum distance decides detection power</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">d - 1 Rule</div><ul class="bullet-list"><li>If minimum Hamming distance is <span class="val">d</span></li><li>Detectable errors = <span class="val">d - 1</span></li><li>Single parity has min distance <span class="val">2</span></li><li>So it detects <span class="val">1-bit</span> errors</li></ul></div>
   </div>
   <div class="cheat-div"><span>COMPARISON TABLE</span></div>
   <div class="tbl-wrap"><table><thead><tr><th>Point</th><th>Single Parity Bit</th></tr></thead><tbody><tr><td>Type</td><td>Error detection</td></tr><tr><td>Redundant bits</td><td class="mono">1</td></tr><tr><td>Codeword size</td><td class="mono">m + 1</td></tr><tr><td>Can detect</td><td class="ok">Odd number of bit errors</td></tr><tr><td>Cannot detect</td><td class="must">Even number of bit errors</td></tr><tr><td>Can correct?</td><td class="must">No</td></tr><tr><td>Minimum Hamming distance</td><td class="mono">2</td></tr></tbody></table></div>
-  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Single parity adds exactly one redundant bit.</li><li>Even parity makes total 1s even; odd parity makes total 1s odd.</li><li>It detects all single-bit errors.</li><li>It detects odd-count errors and misses even-count errors.</li><li>It detects error but cannot correct it.</li><li>Hamming distance = number of differing bit positions.</li><li>If minimum distance is d, detectable errors = d - 1.</li></ul><div class="tags"><span class="tag">Parity</span><span class="tag">Single Parity Bit</span><span class="tag">Even Parity</span><span class="tag">Odd Parity</span><span class="tag">Error Detection</span><span class="tag">Hamming Distance</span><span class="tag">d - 1</span></div></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Single parity adds exactly one redundant bit.</li><li>Even parity makes total 1s even; odd parity makes total 1s odd.</li><li>It detects all single-bit errors.</li><li>It detects odd-count errors and misses even-count errors.</li><li>It detects error but cannot correct it.</li><li>Hamming distance = number of differing bit positions.</li><li>If minimum distance is d, detectable errors = d - 1.</li><li>Full form: XOR = Exclusive OR.</li></ul><div class="tags"><span class="tag">Parity</span><span class="tag">Single Parity Bit</span><span class="tag">Even Parity</span><span class="tag">Odd Parity</span><span class="tag">Error Detection</span><span class="tag">Hamming Distance</span><span class="tag">XOR</span><span class="tag">d - 1</span></div></div>
 </div>
 </div>
 <script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>
