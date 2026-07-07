@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 23: Stop and Wait ARQ — one-frame window, ACK, timeout, retransmission, sequence numbers 0 and 1, lost frame and lost ACK cases.">
+<meta name="description" content="CN Topic 23: Detailed Stop and Wait ARQ notes from transcript — ACK, timeout, RTT, retransmission, sequence numbers 0 and 1, lost frame, lost ACK and duplicate frame cases with textbook-style diagram.">
 <meta name="robots" content="index, follow">
 <title>Stop and Wait ARQ — CN Topic 23 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_stop_and_wait.html">
@@ -71,7 +71,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
     <span class="hero-tag">ARQ</span>
   </div>
   <h1>STOP AND WAIT <span>ARQ</span></h1>
-  <p class="hero-sub">Send one frame, stop, wait for acknowledgement, then send the next frame. This lecture covers ACK meaning, timeout, retransmission, sequence numbers 0 and 1, and the lost-frame / lost-ACK cases.</p>
+  <p class="hero-sub">Send one frame, stop peacefully, wait for acknowledgement, then send the next frame. These teacher-style notes cover ACK meaning, timeout time, RTT, retransmission, sequence numbers 0 and 1, lost-frame case, lost-ACK case and duplicate discard.</p>
   <div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">Data Link Layer</span><span class="hero-chip">Window Size 1</span></div>
 </div>
 
@@ -81,39 +81,181 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">1</div><h2>Basic Idea: Send One, Then Wait</h2></div>
     <p class="body-text">In <strong>Stop and Wait</strong>, the sender transmits only <strong>one frame</strong> at a time. After sending that frame, the sender stops and waits until an <strong>ACK</strong> returns from the receiver. Only after the ACK arrives does the sender transmit the next frame.</p>
+    <p class="body-text">The name itself explains the method: send a frame, then wait peacefully. If the frame reaches successfully, the receiver sends an acknowledgement. If the acknowledgement reaches the sender, the sender becomes sure that the previous frame was accepted and it can send the next frame.</p>
     <div class="diagram-box">
-      <div class="diagram-header">&#128257; Normal Stop-and-Wait Flow</div>
+      <div class="diagram-header">&#128257; Stop-and-Wait ARQ Complete Flow Diagram</div>
       <div class="diagram-body">
-        <svg class="study-svg" viewBox="0 0 860 330" role="img" aria-label="Normal Stop and Wait ARQ frame and ACK flow">
-          <defs><marker id="arrowNormal" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker><marker id="arrowAck" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/></marker></defs>
-          <line x1="170" y1="55" x2="170" y2="285" stroke="#cbd5e1" stroke-width="4"/><line x1="690" y1="55" x2="690" y2="285" stroke="#cbd5e1" stroke-width="4"/>
-          <rect x="95" y="25" width="150" height="42" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/><text x="130" y="52" class="svg-label" fill="#1d4ed8">Sender</text>
-          <rect x="612" y="25" width="156" height="42" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/><text x="642" y="52" class="svg-label" fill="#15803d">Receiver</text>
-          <path d="M180 96 L680 142" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowNormal)"/><text x="342" y="104" class="svg-label" fill="#1d4ed8">Frame 0</text>
-          <path d="M680 178 L180 224" stroke="#16a34a" stroke-width="4" fill="none" marker-end="url(#arrowAck)"/><text x="346" y="212" class="svg-label" fill="#15803d">ACK 1</text>
-          <path d="M180 254 L680 292" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#arrowNormal)"/><text x="342" y="270" class="svg-label" fill="#1d4ed8">Frame 1</text>
-          <text x="80" y="142" class="svg-small">Stop after sending</text><text x="604" y="166" class="svg-small">Received 0, now wants 1</text><text x="88" y="240" class="svg-small">ACK arrived, send next</text>
+        <svg class="study-svg" viewBox="0 0 900 640" role="img" aria-label="Stop and Wait ARQ complete flow diagram with normal delivery lost frame timeout lost ACK and duplicate discard">
+          <defs>
+            <marker id="arrBlackSW" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#111827"/></marker>
+            <filter id="softShadowSW" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="1" dy="2" stdDeviation="1.2" flood-color="#0f172a" flood-opacity=".28"/></filter>
+          </defs>
+
+          <rect x="0" y="0" width="900" height="640" fill="#fff"/>
+          <line x1="22" y1="18" x2="878" y2="18" stroke="#e11d48" stroke-width="3"/>
+          <line x1="22" y1="620" x2="878" y2="620" stroke="#ef4444" stroke-width="5"/>
+
+          <rect x="338" y="38" width="50" height="36" fill="#f8fafc" stroke="#6b7280" stroke-width="2"/>
+          <text x="345" y="32" class="svg-small">Sender</text>
+          <text x="358" y="62" class="svg-label">A</text>
+          <rect x="560" y="38" width="50" height="36" fill="#f8fafc" stroke="#6b7280" stroke-width="2"/>
+          <text x="562" y="32" class="svg-small">Receiver</text>
+          <text x="580" y="62" class="svg-label">B</text>
+
+          <line x1="360" y1="75" x2="360" y2="594" stroke="#6b7280" stroke-width="2" stroke-dasharray="7 5"/>
+          <line x1="585" y1="75" x2="585" y2="594" stroke="#6b7280" stroke-width="2" stroke-dasharray="7 5"/>
+          <text x="350" y="614" class="svg-small">Time</text>
+          <text x="575" y="614" class="svg-small">Time</text>
+
+          <line x1="96" y1="74" x2="96" y2="584" stroke="#64748b" stroke-width="3"/>
+          <circle cx="96" cy="86" r="13" fill="#7fb529" stroke="#4d7c0f" stroke-width="2"/><text x="91" y="91" class="svg-small" fill="#111827">t</text><text x="48" y="92" class="svg-small">Start</text>
+          <circle cx="96" cy="144" r="5" fill="#e11d48"/><text x="48" y="151" class="svg-small">Stop</text>
+          <circle cx="96" cy="210" r="13" fill="#7fb529" stroke="#4d7c0f" stroke-width="2"/><text x="91" y="215" class="svg-small" fill="#111827">t</text>
+          <circle cx="96" cy="286" r="13" fill="#f8fafc" stroke="#64748b" stroke-width="2"/><text x="90" y="291" class="svg-small">L</text><text x="23" y="282" class="svg-small">Time-out</text><text x="25" y="298" class="svg-small">restart</text>
+          <circle cx="96" cy="350" r="5" fill="#e11d48"/><text x="48" y="357" class="svg-small">Stop</text>
+          <circle cx="96" cy="412" r="13" fill="#7fb529" stroke="#4d7c0f" stroke-width="2"/><text x="91" y="417" class="svg-small" fill="#111827">t</text><text x="48" y="418" class="svg-small">Start</text>
+          <circle cx="96" cy="506" r="13" fill="#f8fafc" stroke="#64748b" stroke-width="2"/><text x="90" y="511" class="svg-small">L</text><text x="23" y="502" class="svg-small">Time-out</text><text x="25" y="518" class="svg-small">restart</text>
+          <circle cx="96" cy="582" r="5" fill="#e11d48"/><text x="48" y="588" class="svg-small">Stop</text>
+
+          <text x="158" y="92" class="svg-small">Request</text>
+          <text x="160" y="154" class="svg-small" fill="#db2777">Arrival</text>
+          <text x="158" y="216" class="svg-small">Request</text>
+          <text x="150" y="288" class="svg-small">Time-out</text>
+          <text x="160" y="352" class="svg-small" fill="#db2777">Arrival</text>
+          <text x="158" y="416" class="svg-small">Request</text>
+          <text x="150" y="508" class="svg-small">Time-out</text>
+          <text x="160" y="586" class="svg-small" fill="#db2777">Arrival</text>
+
+          <g font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">
+            <text x="224" y="64" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="642" y="120" fill="#475569">R<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="142" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="206" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="278" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="642" y="328" fill="#475569">R<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="346" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="410" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="642" y="450" fill="#475569">R<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="500" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="224" y="578" fill="#475569">S<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+            <text x="642" y="554" fill="#475569">R<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+          </g>
+
+          <g>
+            <rect x="226" y="72" width="16" height="22" fill="#f97316"/><text x="231" y="88" class="svg-mono" fill="#fff">0</text>
+            <rect x="244" y="72" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="249" y="88" class="svg-mono">1</text>
+            <rect x="262" y="72" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="88" class="svg-mono">0</text>
+            <rect x="280" y="72" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="88" class="svg-mono">1</text>
+            <line x1="296" y1="83" x2="352" y2="90" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          </g>
+          <polygon points="360,84 585,116 585,142 360,110" fill="#8ed9ef" stroke="#3b82a0" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="390" y="112" class="svg-label" transform="rotate(8 390 112)">Frame 0</text>
+          <line x1="585" y1="130" x2="632" y2="130" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="648" y="118" width="16" height="22" fill="#f97316"/><text x="653" y="134" class="svg-mono" fill="#fff">0</text>
+          <rect x="666" y="118" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="671" y="134" class="svg-mono">1</text>
+          <rect x="684" y="118" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="689" y="134" class="svg-mono">0</text>
+          <rect x="702" y="118" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="707" y="134" class="svg-mono">1</text>
+          <text x="724" y="135" class="svg-small" fill="#db2777">Arrival</text>
+
+          <polygon points="585,154 360,176 360,202 585,180" fill="#fb8c00" stroke="#c2410c" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="520" y="174" class="svg-label" transform="rotate(-5 520 174)">ACK 1</text>
+          <line x1="360" y1="190" x2="300" y2="190" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="226" y="178" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="231" y="194" class="svg-mono">0</text>
+          <rect x="244" y="178" width="16" height="22" fill="#f97316"/><text x="249" y="194" class="svg-mono" fill="#fff">1</text>
+          <rect x="262" y="178" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="194" class="svg-mono">0</text>
+          <rect x="280" y="178" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="194" class="svg-mono">1</text>
+
+          <rect x="226" y="228" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="231" y="244" class="svg-mono">0</text>
+          <rect x="244" y="228" width="16" height="22" fill="#f97316"/><text x="249" y="244" class="svg-mono" fill="#fff">1</text>
+          <rect x="262" y="228" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="244" class="svg-mono">0</text>
+          <rect x="280" y="228" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="244" class="svg-mono">1</text>
+          <line x1="296" y1="239" x2="352" y2="246" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <polygon points="360,232 492,248 492,274 360,258" fill="#8ed9ef" stroke="#3b82a0" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="389" y="256" class="svg-label" transform="rotate(7 389 256)">Frame 1</text>
+          <text x="454" y="291" class="svg-small">Lost</text>
+          <path d="M486 275 l18 15 m0 -15 l-18 15" stroke="#111827" stroke-width="4" stroke-linecap="round"/>
+
+          <rect x="226" y="300" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="231" y="316" class="svg-mono">0</text>
+          <rect x="244" y="300" width="16" height="22" fill="#f97316"/><text x="249" y="316" class="svg-mono" fill="#fff">1</text>
+          <rect x="262" y="300" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="316" class="svg-mono">0</text>
+          <rect x="280" y="300" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="316" class="svg-mono">1</text>
+          <line x1="296" y1="311" x2="352" y2="318" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <polygon points="360,304 585,336 585,362 360,330" fill="#8ed9ef" stroke="#3b82a0" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="386" y="331" class="svg-label" transform="rotate(8 386 331)">Frame 1 (resent)</text>
+          <line x1="585" y1="350" x2="632" y2="350" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="648" y="338" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="653" y="354" class="svg-mono">0</text>
+          <rect x="666" y="338" width="16" height="22" fill="#f97316"/><text x="671" y="354" class="svg-mono" fill="#fff">1</text>
+          <rect x="684" y="338" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="689" y="354" class="svg-mono">0</text>
+          <rect x="702" y="338" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="707" y="354" class="svg-mono">1</text>
+          <text x="724" y="355" class="svg-small" fill="#db2777">Arrival</text>
+
+          <polygon points="585,374 360,394 360,420 585,400" fill="#fb8c00" stroke="#c2410c" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="520" y="395" class="svg-label" transform="rotate(-5 520 395)">ACK 0</text>
+          <line x1="360" y1="408" x2="300" y2="408" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="226" y="396" width="16" height="22" fill="#f97316"/><text x="231" y="412" class="svg-mono" fill="#fff">0</text>
+          <rect x="244" y="396" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="249" y="412" class="svg-mono">1</text>
+          <rect x="262" y="396" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="412" class="svg-mono">0</text>
+          <rect x="280" y="396" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="412" class="svg-mono">1</text>
+
+          <rect x="226" y="440" width="16" height="22" fill="#f97316"/><text x="231" y="456" class="svg-mono" fill="#fff">0</text>
+          <rect x="244" y="440" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="249" y="456" class="svg-mono">1</text>
+          <rect x="262" y="440" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="456" class="svg-mono">0</text>
+          <rect x="280" y="440" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="456" class="svg-mono">1</text>
+          <line x1="296" y1="451" x2="352" y2="458" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <polygon points="360,444 585,476 585,502 360,470" fill="#8ed9ef" stroke="#3b82a0" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="390" y="472" class="svg-label" transform="rotate(8 390 472)">Frame 0</text>
+          <line x1="585" y1="490" x2="632" y2="490" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="648" y="478" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="653" y="494" class="svg-mono">0</text>
+          <rect x="666" y="478" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="671" y="494" class="svg-mono">1</text>
+          <rect x="684" y="478" width="16" height="22" fill="#f97316"/><text x="689" y="494" class="svg-mono" fill="#fff">0</text>
+          <rect x="702" y="478" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="707" y="494" class="svg-mono">1</text>
+          <text x="724" y="495" class="svg-small" fill="#db2777">Arrival</text>
+
+          <polygon points="585,516 485,530 485,556 585,542" fill="#fb8c00" stroke="#c2410c" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="525" y="534" class="svg-label" transform="rotate(-6 525 534)">ACK 1</text>
+          <text x="473" y="573" class="svg-small">Lost</text>
+          <path d="M493 555 l18 15 m0 -15 l-18 15" stroke="#111827" stroke-width="4" stroke-linecap="round"/>
+
+          <rect x="226" y="522" width="16" height="22" fill="#f97316"/><text x="231" y="538" class="svg-mono" fill="#fff">0</text>
+          <rect x="244" y="522" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="249" y="538" class="svg-mono">1</text>
+          <rect x="262" y="522" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="267" y="538" class="svg-mono">0</text>
+          <rect x="280" y="522" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="285" y="538" class="svg-mono">1</text>
+          <line x1="296" y1="533" x2="352" y2="540" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <polygon points="360,526 585,558 585,584 360,552" fill="#8ed9ef" stroke="#3b82a0" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="386" y="553" class="svg-label" transform="rotate(8 386 553)">Frame 0 (resent)</text>
+          <line x1="585" y1="572" x2="632" y2="572" stroke="#111827" stroke-width="2" marker-end="url(#arrBlackSW)"/>
+          <rect x="648" y="560" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="653" y="576" class="svg-mono">0</text>
+          <rect x="666" y="560" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="671" y="576" class="svg-mono">1</text>
+          <rect x="684" y="560" width="16" height="22" fill="#f97316"/><text x="689" y="576" class="svg-mono" fill="#fff">0</text>
+          <rect x="702" y="560" width="16" height="22" fill="#fff" stroke="#94a3b8" stroke-dasharray="3 2"/><text x="707" y="576" class="svg-mono">1</text>
+          <text x="724" y="566" class="svg-small" fill="#db2777">Arrival</text>
+          <text x="630" y="592" class="svg-small">Discard, duplicate</text>
+
+          <polygon points="585,590 360,606 360,628 585,612" fill="#fb8c00" stroke="#c2410c" stroke-width="2" filter="url(#softShadowSW)"/>
+          <text x="520" y="606" class="svg-label" transform="rotate(-4 520 606)">ACK 1</text>
         </svg>
       </div>
-      <div class="diagram-note">ACK number means the next expected frame, not the same frame number.</div>
+      <div class="diagram-note">This follows the reference flow: Frame 0 succeeds, Frame 1 is lost and resent, then ACK 1 is lost so Frame 0 is resent and discarded as duplicate.</div>
     </div>
-    <div class="callout-blue callout"><strong>ACK meaning:</strong> An acknowledgement tells the sender that the frame reached successfully, so the next frame can be sent.</div>
+    <div class="callout-blue callout"><strong>ACK meaning:</strong> ACK means <strong>acknowledgement</strong>. It tells the sender that the frame reached successfully, just like a successful online transaction message confirms that the transaction completed.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-green">2</div><h2>Window Size and Sequence Numbers</h2></div>
-    <p class="body-text">In Stop and Wait, both sides handle only one frame at a time. Therefore, the <strong>sender window size = 1</strong> and the <strong>receiver window size = 1</strong>. Because the total movement is small, only two sequence numbers are required: <strong>0 and 1</strong>.</p>
+    <p class="body-text">The first important question in the lecture is: why do we need sequence numbers? Suppose there is no numbering. The sender sends one frame, the receiver accepts it, and the receiver sends ACK. But if the ACK is lost, the sender waits until timeout and sends the same frame again. Without a sequence number, the receiver may not know whether this is a new frame or the old frame repeated.</p>
+    <p class="body-text">In Stop and Wait, both sides handle only one frame at a time. Therefore, the <strong>sender window size = 1</strong> and the <strong>receiver window size = 1</strong>. Because one frame can be in movement from sender and one expected position exists at receiver side, only two sequence numbers are required: <strong>0 and 1</strong>.</p>
     <div class="formula-grid">
       <div class="formula-card"><h4>Sender Window</h4><p>How many frames can be sent without waiting for ACK?</p><span class="mini-tag">1 frame</span></div>
       <div class="formula-card"><h4>Receiver Window</h4><p>How many frames can be accepted at a time?</p><span class="mini-tag">1 frame</span></div>
       <div class="formula-card"><h4>Sequence Numbers</h4><p>Frames alternate between sequence number 0 and 1.</p><span class="mini-tag">0, 1</span></div>
     </div>
-    <div class="callout-green callout"><strong>Most asked point:</strong> Stop and Wait uses only two sequence numbers because sender window size and receiver window size are both 1.</div>
+    <div class="callout-green callout"><strong>Most asked point:</strong> Stop and Wait uses only two sequence numbers because sender window size and receiver window size are both 1. This is one of the highest-chance exam points from the lecture.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Timeout and Retransmission</h2></div>
-    <p class="body-text">If the ACK does not arrive, the sender cannot know whether the original frame was lost or the ACK was lost. So it waits for a fixed <strong>timeout time</strong>. If the timer expires, the sender retransmits the same frame.</p>
+    <p class="body-text">If the ACK does not arrive, the sender cannot know whether the original frame was lost or the ACK was lost. The sender can only make a decision based on ACK arrival. So it waits for a fixed <strong>timeout time</strong>. If the timer expires, the sender retransmits the same frame.</p>
+    <p class="body-text">The teacher explains <strong>RTT</strong> as <strong>Round-Trip Time</strong>: the time for data to go to the receiver and for ACK to come back. Timeout is generally taken around <strong>2 &times; RTT</strong> or a little more, so normal path delay is also tolerated before retransmission.</p>
     <div class="diagram-box">
       <div class="diagram-header">&#9201; Lost Frame Case</div>
       <div class="diagram-body">
@@ -130,12 +272,13 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       </div>
       <div class="diagram-note">If a frame is lost, receiver sends no ACK. Sender waits until timeout, then resends the same frame.</div>
     </div>
-    <div class="callout-amber callout"><strong>Timeout idea:</strong> It is chosen long enough to cover the frame going to the receiver and ACK coming back, plus practical delay margin.</div>
+    <div class="callout-amber callout"><strong>Timeout idea:</strong> Timeout is not a very tiny time. It should cover the round trip and some extra delay margin. If ACK still does not arrive, sender resends the same frame.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-red">4</div><h2>Lost ACK and Duplicate Frame</h2></div>
-    <p class="body-text">Sometimes the frame reaches the receiver successfully, but the ACK is lost. The sender times out and sends the same frame again. The receiver uses the sequence number to detect that this is a duplicate frame, discards it, and sends the ACK again.</p>
+    <p class="body-text">Sometimes the frame reaches the receiver successfully, but the ACK is lost. Example: sender sends Frame 0, receiver accepts Frame 0 and now expects Frame 1, so it sends ACK 1. But ACK 1 gets lost in the middle. The sender waits, times out, and sends Frame 0 again.</p>
+    <p class="body-text">Now the receiver is already expecting Frame 1, but Frame 0 arrives again. From this mismatch, the receiver understands that this is a duplicate old frame. It discards Frame 0 and sends ACK 1 again. This is why sequence numbers are compulsory.</p>
     <div class="diagram-box">
       <div class="diagram-header">&#128260; Lost ACK Case</div>
       <div class="diagram-body">
@@ -159,7 +302,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-teal">5</div><h2>ACK Number Means Next Expected Frame</h2></div>
-    <p class="body-text">In Stop and Wait, the receiver does not send ACK for the same frame number. It sends ACK for the <strong>next expected frame</strong>. If frame 0 is accepted, the receiver sends <strong>ACK 1</strong>. If frame 1 is accepted, it sends <strong>ACK 0</strong>.</p>
+    <p class="body-text">In Stop and Wait, the receiver does not send ACK for the same frame number. It sends ACK for the <strong>next expected frame</strong>. If frame 0 is accepted, the receiver shifts to 1 and sends <strong>ACK 1</strong>. If frame 1 is accepted, the receiver shifts to 0 and sends <strong>ACK 0</strong>.</p>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Frame Received Successfully</th><th>Receiver Moves To</th><th>ACK Sent</th></tr></thead>
@@ -171,17 +314,27 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       </table>
     </div>
   </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-purple">6</div><h2>Teacher-Style Complete Example</h2></div>
+    <p class="body-text"><strong>Step 1:</strong> Sender sends Frame 0. Receiver accepts Frame 0, moves its expectation to 1, and sends ACK 1. ACK 1 reaches sender, so sender is allowed to send the next frame.</p>
+    <p class="body-text"><strong>Step 2:</strong> Sender sends Frame 1. Frame 1 is lost in the path. Receiver receives nothing, so it sends no ACK. Sender waits until timeout and resends Frame 1.</p>
+    <p class="body-text"><strong>Step 3:</strong> Receiver now accepts resent Frame 1, moves expectation to 0, and sends ACK 0. ACK 0 reaches sender, so sender sends Frame 0.</p>
+    <p class="body-text"><strong>Step 4:</strong> Receiver accepts Frame 0, moves expectation to 1, and sends ACK 1. But this ACK 1 is lost. Sender times out and resends Frame 0. Receiver was already expecting Frame 1, so it discards duplicate Frame 0 and sends ACK 1 again.</p>
+    <div class="callout-teal callout"><strong>Final understanding:</strong> Stop-and-Wait solves reliability using ACK, timeout, retransmission and sequence numbers. It is simple, but inefficient on long-delay links because the sender remains idle while waiting.</div>
+  </div>
 </div>
 
 <div id="panel-rev" class="panel">
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
-    <div class="rev-card"><div class="rev-card-title">Definition</div><ul class="bullet-list"><li>Send <span class="val">1 frame</span></li><li>Wait for ACK</li><li>After ACK, send next frame</li><li>Simple ARQ / flow-control method</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Definition</div><ul class="bullet-list"><li>Send <span class="val">1 frame</span></li><li>Wait for ACK</li><li>After ACK, send next frame</li><li>Stop peacefully until acknowledgement</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Window Size</div><ul class="bullet-list"><li>Sender window size = <span class="val">1</span></li><li>Receiver window size = <span class="val">1</span></li><li>Only one unacknowledged frame allowed</li><li>Low utilization on long-delay links</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Sequence Numbers</div><ul class="bullet-list"><li>Uses two sequence numbers</li><li>Numbers: <span class="tag-b">0</span> and <span class="tag-g">1</span></li><li>They alternate with every new accepted frame</li><li>Used to detect duplicate frames</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">ACK Rule</div><ul class="bullet-list"><li>ACK means frame reached successfully</li><li>ACK number = <span class="tag-p">next expected frame</span></li><li>Frame 0 received &rarr; ACK 1</li><li>Frame 1 received &rarr; ACK 0</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Timeout</div><ul class="bullet-list"><li>Sender waits for ACK up to timeout</li><li>If no ACK, resend same frame</li><li>Timeout relates to round-trip time</li><li>Handles frame loss and ACK loss</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Timeout</div><ul class="bullet-list"><li>Sender waits for ACK up to timeout</li><li>If no ACK, resend same frame</li><li>RTT = Round-Trip Time</li><li>Timeout is generally around <span class="val">2 &times; RTT</span> or more</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Lost ACK Case</div><ul class="bullet-list"><li>Frame reaches receiver</li><li>ACK gets lost</li><li>Sender resends same frame</li><li>Receiver discards duplicate and repeats ACK</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Full Forms</div><ul class="bullet-list"><li>ACK = <span class="val">Acknowledgement</span></li><li>RTT = <span class="val">Round-Trip Time</span></li><li>ARQ = <span class="val">Automatic Repeat reQuest</span></li><li>Stop and Wait is a simple ARQ method</li></ul></div>
   </div>
 
   <div class="cheat-div"><span>EXAM TABLE</span></div>
@@ -196,6 +349,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <tr><td>If Frame 1 is received correctly</td><td class="mono">ACK 0</td></tr>
         <tr><td>If frame is lost</td><td>Receiver sends no ACK; sender resends after timeout.</td></tr>
         <tr><td>If ACK is lost</td><td>Sender resends duplicate; receiver discards duplicate and repeats ACK.</td></tr>
+        <tr><td>ACK number means</td><td class="mono">Next expected frame</td></tr>
+        <tr><td>Timeout time idea</td><td class="mono">About 2 &times; RTT or more</td></tr>
       </tbody>
     </table>
   </div>
@@ -209,6 +364,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       <li>Only <span class="val">0 and 1</span> are required because both windows are size <span class="val">1</span>.</li>
       <li>ACK always indicates the <span class="tag-p">next expected frame</span>.</li>
       <li>Timeout expiry means retransmit the same frame.</li>
+      <li>Duplicate frames are discarded using sequence numbers.</li>
     </ul>
     <div class="tags"><span class="tag">Stop and Wait</span><span class="tag">ARQ</span><span class="tag">ACK</span><span class="tag">Timeout</span><span class="tag">Retransmission</span><span class="tag">Sequence Number</span><span class="tag">0 and 1</span><span class="tag">Window Size 1</span></div>
   </div>
