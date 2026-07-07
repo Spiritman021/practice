@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 25: Selective Repeat ARQ — sliding window protocol, sender and receiver window 2^(m-1), out-of-order acceptance, buffering, NAK, and selective retransmission.">
+<meta name="description" content="CN Topic 25: Detailed Selective Repeat ARQ notes from transcript — sliding window, sender and receiver window 2^(m-1), out-of-order acceptance, buffering, NAK, selective retransmission, examples and full forms.">
 <meta name="robots" content="index, follow">
 <title>Selective Repeat ARQ — CN Topic 25 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_selective_repeat.html">
@@ -28,13 +28,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 25</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Selective Repeat ARQ</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 25: Selective Repeat ARQ</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 25</span><span class="hero-tag">SLIDING WINDOW</span><span class="hero-tag">SELECTIVE ARQ</span></div><h1>SELECTIVE <span>REPEAT</span> ARQ</h1><p class="hero-sub">A sliding-window protocol where both sender and receiver have equal windows, out-of-order frames are accepted and buffered, and only the missing frame is retransmitted using NAK.</p><div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">2^(m-1)</span><span class="hero-chip">Out-of-Order Accepted</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 25</span><span class="hero-tag">SLIDING WINDOW</span><span class="hero-tag">SELECTIVE ARQ</span></div><h1>SELECTIVE <span>REPEAT</span> ARQ</h1><p class="hero-sub">A sliding-window protocol where both sender and receiver have equal windows, out-of-order frames are accepted and buffered, and only the missing frame is retransmitted using NAK. These notes follow the teacher's m = 2 and m = 3 examples.</p><div class="hero-chips"><span class="hero-chip">GATE</span><span class="hero-chip">UGC NET</span><span class="hero-chip">2^(m-1)</span><span class="hero-chip">Out-of-Order Accepted</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-pink">1</div><h2>What Is Selective Repeat?</h2></div>
-    <p class="body-text"><strong>Selective Repeat</strong> is a sliding-window ARQ protocol. Unlike Go-Back-N, the receiver window is not 1. Here, both sender and receiver maintain windows of the same size, so the receiver can accept frames that arrive out of order and keep them in buffer.</p>
+    <p class="body-text"><strong>Selective Repeat</strong> is the next category of <strong>sliding window</strong> protocol after Go-Back-N. The main change is on the receiver side. In Go-Back-N, receiver window size was only 1, so out-of-order frames were rejected. In Selective Repeat, receiver window is also large.</p>
+    <p class="body-text">Here, both sender and receiver maintain windows of the same size. Because the receiver window is bigger, the receiver can accept frames that arrive out of order and keep them in buffer. Later, when the missing frame arrives, the complete ordered data can be delivered upward.</p>
     <div class="diagram-box"><div class="diagram-header">&#129681; Equal Sender and Receiver Windows</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 280" role="img" aria-label="Selective Repeat has equal sender and receiver windows">
         <text x="70" y="42" class="svg-label" fill="#be185d">m = 3, total sequence numbers = 0 to 7</text>
@@ -56,6 +57,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">2</div><h2>Window Size Formula</h2></div>
     <p class="body-text">If sequence numbers are represented using <strong>m bits</strong>, then total sequence numbers are <strong>2^m</strong>. In Selective Repeat, the maximum sender window and receiver window are both <strong>2^(m-1)</strong>, which is half of the sequence-number space.</p>
+    <p class="body-text">The teacher stresses the exponent carefully: in Go-Back-N, the sender window was <strong>2^m - 1</strong>, where minus 1 is outside the power. But in Selective Repeat, the formula is <strong>2^(m-1)</strong>, where <strong>m - 1</strong> is inside the power. That difference is a common exam trap.</p>
+    <p class="body-text">Example: if <strong>m = 2</strong>, total sequence numbers are <strong>2^2 = 4</strong>, so the sequence range is <strong>0, 1, 2, 3</strong>. Selective Repeat window size is <strong>2^(2-1) = 2</strong>. So sender window is 0,1 and receiver window is also 0,1.</p>
     <div class="formula-grid">
       <div class="formula-card"><h4>Total Sequence Numbers</h4><p>m bits can represent values from 0 to 2^m - 1.</p><span class="mini-tag">2^m</span></div>
       <div class="formula-card"><h4>Sender Window</h4><p>Frames sender can transmit without waiting.</p><span class="mini-tag">2^(m-1)</span></div>
@@ -68,6 +71,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Why Window Cannot Be Greater Than 2^(m-1)</h2></div>
     <p class="body-text">If the Selective Repeat window becomes larger than half the sequence-number space, duplicate old frames can fall inside the receiver's current window after wraparound. Then an old frame may be accepted again as if it were new.</p>
+    <p class="body-text"><strong>Safe case with m = 2:</strong> sequence numbers are 0,1,2,3 and correct window size is 2. Sender sends 0 and 1. Receiver accepts 0 and 1, then its window moves to 2 and 3. If ACKs are lost and sender again sends old 0, receiver can reject it because its current window wants 2 and 3.</p>
+    <p class="body-text"><strong>Wrong case:</strong> if window size is wrongly increased to 3, sender sends 0,1,2. Receiver accepts all three and its window moves to 3,0,1. Now if ACKs are lost and sender retransmits old 0 or 1, those old frames are inside the receiver's current window, so duplicates may be accepted. That is why Selective Repeat window must not be greater than <strong>2^(m-1)</strong>.</p>
     <div class="diagram-box"><div class="diagram-header">&#9888; Duplicate Ambiguity When Window Is Too Large</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 310" role="img" aria-label="Selective Repeat ambiguity if window is greater than half sequence space">
         <defs><marker id="badSr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e11d48"/></marker></defs>
@@ -82,7 +87,9 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-green">4</div><h2>Out-of-Order Frames Are Accepted</h2></div>
-    <p class="body-text">In Go-Back-N, if frame 1 is missing, frames 2 and 3 are discarded. In Selective Repeat, the receiver window is larger, so frames 2 and 3 can be accepted and buffered even if frame 1 is missing. However, data is delivered to the upper layer only after the missing frame arrives and the sequence becomes complete.</p>
+    <p class="body-text">In Go-Back-N, if frame 1 is missing, frames 2 and 3 are discarded. In Selective Repeat, the receiver window is larger, so frames 2 and 3 can be accepted and buffered even if frame 1 is missing.</p>
+    <p class="body-text">Teacher's example: with <strong>m = 3</strong>, total sequence numbers are 0 to 7 and window size is <strong>2^(3-1) = 4</strong>. So the receiver window can be 0,1,2,3. If frame 0 arrives, it is accepted and the receiver moves forward. If frame 1 is lost but frames 2 and 3 arrive, receiver accepts 2 and 3 because they are inside its window.</p>
+    <p class="body-text">But accepting does not mean delivering incomplete data to the upper layer. The receiver still needs frame 1. Like a file, if 90% has arrived but one middle part is missing, the file cannot be opened properly. So frames 2 and 3 are buffered until frame 1 arrives.</p>
     <div class="diagram-box"><div class="diagram-header">&#128230; Buffering Out-of-Order Frames</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 360" role="img" aria-label="Selective Repeat accepts and buffers out of order frames">
         <defs><marker id="srFrame" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker></defs>
@@ -98,7 +105,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-red">5</div><h2>NAK and Selective Retransmission</h2></div>
-    <p class="body-text">When the receiver notices that frame 1 is missing while later frames have arrived, it sends <strong>NAK 1</strong>. NAK means negative acknowledgement: "I need this missing frame." The sender retransmits only frame 1, not every frame after it.</p>
+    <p class="body-text">When the receiver notices that frame 1 is missing while later frames have arrived, it sends <strong>NAK 1</strong>. <strong>NAK</strong> means <strong>Negative Acknowledgement</strong>: "I need this missing frame." The sender retransmits only frame 1, not every frame after it.</p>
+    <p class="body-text">This is why it is called <strong>Selective Repeat</strong>. It does not go back and resend all later frames like Go-Back-N. It selectively repeats only the frame that is missing or damaged.</p>
     <div class="diagram-box"><div class="diagram-header">&#128257; Only Missing Frame Is Repeated</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 330" role="img" aria-label="Selective Repeat sends NAK and retransmits only missing frame">
         <defs><marker id="nakArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e11d48"/></marker><marker id="retArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2563eb"/></marker></defs>
@@ -111,21 +119,31 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
     </div><div class="diagram-note">Selective Repeat repeats selectively: only the missing or damaged frame is resent.</div></div>
     <div class="callout-red callout"><strong>Important:</strong> If the receiver sent ACK 4 instead of NAK 1, the sender would assume 0,1,2,3 are all accepted. NAK tells exactly which frame is missing.</div>
   </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-teal">6</div><h2>Teacher-Style Complete Example</h2></div>
+    <p class="body-text"><strong>Step 1:</strong> Take <strong>m = 3</strong>. Total sequence numbers are <strong>2^3 = 8</strong>, so range is <strong>0 to 7</strong>. Selective Repeat window size is <strong>2^(3-1) = 4</strong>. Sender and receiver both have window size 4.</p>
+    <p class="body-text"><strong>Step 2:</strong> Sender sends frame 0. Receiver accepts 0, shifts its window, and sends ACK 1 to show that 0 is received and it can now accept from the next window range.</p>
+    <p class="body-text"><strong>Step 3:</strong> Sender sends frame 1, but frame 1 is lost. Sender also sends frame 2 and frame 3. Unlike Go-Back-N, receiver accepts 2 and 3 because its receiver window is large enough.</p>
+    <p class="body-text"><strong>Step 4:</strong> Receiver still cannot pass the data upward because frame 1 is missing. So it sends <strong>NAK 1</strong>. Sender retransmits only frame 1. After frame 1 arrives, the receiver can arrange 1,2,3 in order and move its window forward to accept later frames such as 4,5,6,7.</p>
+    <div class="callout-pink callout"><strong>Full forms:</strong> ARQ = <strong>Automatic Repeat reQuest</strong>, ACK = <strong>Acknowledgement</strong>, NAK = <strong>Negative Acknowledgement</strong>.</div>
+  </div>
 </div>
 
 <div id="panel-rev" class="panel">
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
-    <div class="rev-card"><div class="rev-card-title">Definition</div><ul class="bullet-list"><li>Selective Repeat is a <span class="tag-b">sliding window</span> ARQ protocol</li><li>Only missing frames are retransmitted</li><li>Out-of-order frames are accepted</li><li>Receiver buffers accepted frames</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Definition</div><ul class="bullet-list"><li>Selective Repeat is a <span class="tag-b">sliding window</span> ARQ protocol</li><li>ARQ = <span class="val">Automatic Repeat reQuest</span></li><li>Only missing frames are retransmitted</li><li>Out-of-order frames are accepted</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Window Size</div><ul class="bullet-list"><li>Sender window = <span class="val">2^(m-1)</span></li><li>Receiver window = <span class="val">2^(m-1)</span></li><li>Total sequence numbers = <span class="val">2^m</span></li><li>Both windows are equal</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Examples</div><ul class="bullet-list"><li>m = 2: sequence numbers <span class="val">0,1,2,3</span></li><li>Window size = <span class="val">2</span></li><li>m = 3: sequence numbers <span class="val">0 to 7</span></li><li>Window size = <span class="val">4</span></li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Out of Order</div><ul class="bullet-list"><li>Frame 1 lost, frames 2 and 3 arrive</li><li>Receiver accepts and buffers 2,3</li><li>Still waits for frame 1</li><li>Upper layer gets data after sequence is complete</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">NAK</div><ul class="bullet-list"><li>NAK = negative acknowledgement</li><li>NAK 1 means frame 1 is missing</li><li>Sender retransmits frame 1 only</li><li>No Go-Back retransmission needed</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">NAK</div><ul class="bullet-list"><li>NAK = <span class="val">Negative Acknowledgement</span></li><li>ACK = <span class="val">Acknowledgement</span></li><li>NAK 1 means frame 1 is missing</li><li>Sender retransmits frame 1 only</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Exam Trap</div><ul class="bullet-list"><li>Window must not exceed <span class="val">2^(m-1)</span></li><li>Larger window creates duplicate ambiguity</li><li>Do not confuse with Go-Back-N: <span class="tag-r">2^m - 1</span></li><li>Selective Repeat receiver window is not 1</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Teacher Example</div><ul class="bullet-list"><li>m = 3 gives sequence numbers <span class="val">0 to 7</span></li><li>Window size = <span class="val">4</span></li><li>If 1 is lost, 2 and 3 are still accepted</li><li>Receiver sends <span class="val">NAK 1</span></li></ul></div>
   </div>
   <div class="cheat-div"><span>EXAM TABLE</span></div>
-  <div class="tbl-wrap"><table><thead><tr><th>Question Point</th><th>Answer</th></tr></thead><tbody><tr><td>Protocol type</td><td>Sliding Window ARQ</td></tr><tr><td>Sender window size</td><td class="mono">2^(m-1)</td></tr><tr><td>Receiver window size</td><td class="mono">2^(m-1)</td></tr><tr><td>Total sequence numbers</td><td class="mono">2^m</td></tr><tr><td>Out-of-order frames</td><td class="ok">Accepted and buffered</td></tr><tr><td>Missing frame indication</td><td class="mono">NAK</td></tr><tr><td>Retransmission</td><td>Only selected missing frame is retransmitted.</td></tr></tbody></table></div>
-  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Selective Repeat has equal sender and receiver windows.</li><li>Window size = <span class="val">2^(m-1)</span>, not 2^m - 1.</li><li>Out-of-order packets are <span class="tag-g">accepted</span>, unlike Go-Back-N.</li><li>Accepted out-of-order frames are buffered until missing frames arrive.</li><li>NAK identifies the missing frame.</li><li>Sender retransmits only the missing frame, not the whole group.</li></ul><div class="tags"><span class="tag">Selective Repeat</span><span class="tag">Sliding Window</span><span class="tag">2^(m-1)</span><span class="tag">Equal Windows</span><span class="tag">NAK</span><span class="tag">Out-of-Order Accepted</span><span class="tag">Selective Retransmission</span></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Question Point</th><th>Answer</th></tr></thead><tbody><tr><td>Protocol type</td><td>Sliding Window ARQ</td></tr><tr><td>ARQ full form</td><td>Automatic Repeat reQuest</td></tr><tr><td>ACK full form</td><td>Acknowledgement</td></tr><tr><td>NAK full form</td><td>Negative Acknowledgement</td></tr><tr><td>Sender window size</td><td class="mono">2^(m-1)</td></tr><tr><td>Receiver window size</td><td class="mono">2^(m-1)</td></tr><tr><td>Total sequence numbers</td><td class="mono">2^m</td></tr><tr><td>Out-of-order frames</td><td class="ok">Accepted and buffered</td></tr><tr><td>Missing frame indication</td><td class="mono">NAK</td></tr><tr><td>Retransmission</td><td>Only selected missing frame is retransmitted.</td></tr></tbody></table></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Selective Repeat has equal sender and receiver windows.</li><li>Window size = <span class="val">2^(m-1)</span>, not 2^m - 1.</li><li>m = 2 gives window size 2; m = 3 gives window size 4.</li><li>Window cannot be greater than 2^(m-1), otherwise duplicates may be accepted after wraparound.</li><li>Out-of-order packets are <span class="tag-g">accepted</span>, unlike Go-Back-N.</li><li>Accepted out-of-order frames are buffered until missing frames arrive.</li><li>NAK identifies the missing frame.</li><li>Sender retransmits only the missing frame, not the whole group.</li></ul><div class="tags"><span class="tag">Selective Repeat</span><span class="tag">Sliding Window</span><span class="tag">2^(m-1)</span><span class="tag">Equal Windows</span><span class="tag">NAK</span><span class="tag">ACK</span><span class="tag">ARQ</span><span class="tag">Out-of-Order Accepted</span><span class="tag">Selective Retransmission</span></div></div>
 </div>
 </div>
 <script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>

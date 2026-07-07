@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 28: Error Detection and Correction — single-bit error, burst error, burst length, bandwidth-duration numericals, parity, checksum, CRC, Hamming code, and redundancy.">
+<meta name="description" content="CN Topic 28: Detailed Error Detection and Correction notes from transcript — single-bit error, burst error, burst length, bandwidth-duration numericals, parity, checksum, CRC, Hamming code, redundancy, examples and full forms.">
 <meta name="robots" content="index, follow">
 <title>Error Detection and Correction — CN Topic 28 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_error_detection_correction.html">
@@ -27,13 +27,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 28</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Error Detection &amp; Correction</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 28: Error Detection and Correction</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 28</span><span class="hero-tag">DATA LINK LAYER</span><span class="hero-tag">ERROR CONTROL</span></div><h1>ERROR DETECTION <span>&amp; CORRECTION</span></h1><p class="hero-sub">Introduction to errors in transmitted data: how receiver detects a mismatch, how correction goes one step further, single-bit vs burst error, burst length numericals, detection methods, Hamming code, and redundancy.</p><div class="hero-chips"><span class="hero-chip">Single-bit Error</span><span class="hero-chip">Burst Error</span><span class="hero-chip">CRC</span><span class="hero-chip">Hamming Code</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 28</span><span class="hero-tag">DATA LINK LAYER</span><span class="hero-tag">ERROR CONTROL</span></div><h1>ERROR DETECTION <span>&amp; CORRECTION</span></h1><p class="hero-sub">Detailed teacher-style introduction to transmitted data errors: how receiver detects mismatch, how correction goes one step further, single-bit vs burst error, burst length numericals, detection methods, Hamming code, redundancy and full forms.</p><div class="hero-chips"><span class="hero-chip">Single-bit Error</span><span class="hero-chip">Burst Error</span><span class="hero-chip">CRC</span><span class="hero-chip">Hamming Code</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-red">1</div><h2>What Is an Error?</h2></div>
     <p class="body-text">An <strong>error</strong> occurs when the data received is different from the data sent. If sender transmits <strong>101</strong> but receiver gets <strong>100</strong>, the meaning changes. In decimal, 101 is 5 while 100 is 4.</p>
+    <p class="body-text">The teacher asks the basic question: if sender and receiver are far away, for example sender is in India and receiver is in the USA, how will the receiver know that something changed on the way? If we have no error detection, the receiver may simply accept the wrong data. That is why error detection methods are required.</p>
     <div class="diagram-box"><div class="diagram-header">&#9888; Sent Data vs Received Data</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 250" role="img" aria-label="Data changes during transmission causing error">
         <defs><marker id="errArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e11d48"/></marker></defs>
@@ -47,18 +48,20 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">2</div><h2>Detection vs Correction</h2></div>
     <p class="body-text"><strong>Error detection</strong> tells the receiver that the data contains an error. <strong>Error correction</strong> is the advanced step: it also identifies where the error occurred, so the bit can be corrected.</p>
+    <p class="body-text">Error handling can also depend on the application. In audio or video, a small amount of error may be tolerated because humans may still understand the content. But in text-based data such as chat messages, database values, or real-time textual communication, even one wrong bit can change the meaning completely, so error detection and correction become very important.</p>
     <div class="diagram-box"><div class="diagram-header">&#128269; Two Levels of Error Handling</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 250" role="img" aria-label="Error detection and error correction comparison">
         <rect x="95" y="70" width="285" height="105" rx="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="3"/><text x="145" y="105" class="svg-label" fill="#1d4ed8">Error Detection</text><text x="122" y="134" class="svg-small">Finds that some error exists</text><text x="122" y="156" class="svg-mono">"Data is not reliable"</text>
         <rect x="480" y="70" width="285" height="105" rx="16" fill="#f0fdf4" stroke="#86efac" stroke-width="3"/><text x="530" y="105" class="svg-label" fill="#15803d">Error Correction</text><text x="506" y="134" class="svg-small">Finds the error position</text><text x="506" y="156" class="svg-mono">"Bit 3 is wrong; flip it"</text>
       </svg>
     </div><div class="diagram-note">Correction requires more information than detection.</div></div>
-    <div class="callout-blue callout"><strong>Layer point:</strong> Error detection/correction appears in Data Link Layer and Transport Layer. In this topic, the focus is Data Link Layer bit-level checking.</div>
+    <div class="callout-blue callout"><strong>Layer point:</strong> Error detection/correction appears in Data Link Layer and Transport Layer. In this topic, the focus is Data Link Layer bit-level checking. OSI means <strong>Open Systems Interconnection</strong>.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Types of Error: Single Bit and Burst</h2></div>
-    <p class="body-text"><strong>Single-bit error</strong> means only one bit changes. <strong>Burst error</strong> means two or more bits change. Burst errors are more common because noise usually lasts longer than the duration of one bit.</p>
+    <p class="body-text"><strong>Single-bit error</strong> means only one bit changes. In digital data, this means 0 becomes 1 or 1 becomes 0. Example: sender sends <strong>100</strong> and receiver gets <strong>101</strong>; only one bit has changed.</p>
+    <p class="body-text"><strong>Burst error</strong> means two or more bits change. Burst errors are more common because noise usually lasts longer than the duration of one bit. Causes may include long-distance attenuation, energy loss, environmental effects, lightning, thunder, or noise from machines starting suddenly.</p>
     <div class="diagram-box"><div class="diagram-header">&#128290; Single-bit Error vs Burst Error</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 330" role="img" aria-label="Single bit error and burst error examples">
         <text x="70" y="42" class="svg-label" fill="#92400e">Single-bit error</text>
@@ -73,22 +76,25 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         </g>
       </svg>
     </div><div class="diagram-note">Burst length includes unchanged bits between the first and last corrupted bits.</div></div>
+    <div class="callout-amber callout"><strong>Burst length rule:</strong> Count from the first corrupted bit to the last corrupted bit. Even if middle bits did not change, they are included in the burst length.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-green">4</div><h2>Duration Numericals</h2></div>
     <p class="body-text">If a channel bandwidth is <strong>1 Gbps</strong>, it transmits <strong>10^9 bits per second</strong>. Therefore one bit duration is <strong>1 / 10^9 second = 1 nanosecond</strong>. If noise lasts longer, many bits may be corrupted.</p>
+    <p class="body-text">The teacher's example: if an error-causing event lasts for <strong>1/1000 second</strong> on a 1 Gbps channel, then corrupted bits = <strong>10^9 x 1/1000 = 10^6 bits</strong>. This shows why burst errors are more common than single-bit errors in real transmission.</p>
     <div class="formula-grid">
       <div class="formula-card"><h4>Bit Duration</h4><p>For 1 Gbps channel, one bit takes 1/10^9 second.</p><span class="mini-tag">1 ns</span></div>
       <div class="formula-card"><h4>Corrupted Bits</h4><p>Corrupted bits = bandwidth in bps x error duration.</p><span class="mini-tag">B x T</span></div>
       <div class="formula-card"><h4>Example</h4><p>1/1000 sec error at 1 Gbps corrupts 10^9 x 10^-3 bits.</p><span class="mini-tag">10^6 bits</span></div>
     </div>
-    <div class="callout-green callout"><strong>Why burst is common:</strong> real noise usually lasts for much more than 1 ns, so it affects many bits, not only one.</div>
+    <div class="callout-green callout"><strong>Full form:</strong> Gbps = <strong>Gigabits per second</strong>. Why burst is common: real noise usually lasts for much more than 1 ns, so it affects many bits, not only one.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-purple">5</div><h2>Detection and Correction Methods</h2></div>
     <p class="body-text">Common error detection methods are <strong>Simple Parity</strong>, <strong>2-Dimensional Parity Check</strong>, <strong>Checksum</strong>, and <strong>CRC</strong>. For correction, the important method is <strong>Hamming Code</strong>.</p>
+    <p class="body-text">Each method has its own advantages and limitations. The lecture introduces these methods here, and then later chapters discuss them one by one. CRC and Checksum are especially important: CRC is heavily used in the Data Link Layer discussion, while Checksum is commonly discussed in Transport Layer too.</p>
     <div class="diagram-box"><div class="diagram-header">&#128736; Methods Map</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 300" role="img" aria-label="Error detection and correction methods map">
         <rect x="70" y="40" width="300" height="220" rx="18" fill="#eff6ff" stroke="#93c5fd" stroke-width="3"/><text x="145" y="75" class="svg-label" fill="#1d4ed8">Error Detection</text>
@@ -99,11 +105,13 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <rect x="500" y="82" width="290" height="135" rx="18" fill="#f0fdf4" stroke="#86efac" stroke-width="3"/><text x="570" y="118" class="svg-label" fill="#15803d">Error Correction</text><rect x="555" y="150" width="180" height="42" rx="10" fill="#fff" stroke="#cbd5e1"/><text x="596" y="177" class="svg-small">Hamming Code</text>
       </svg>
     </div><div class="diagram-note">CRC is especially important at Data Link Layer; checksum is commonly discussed at Transport Layer too.</div></div>
+    <div class="callout-red callout"><strong>Full form:</strong> CRC = <strong>Cyclic Redundancy Check</strong>. It is one of the most important error detection methods.</div>
   </div>
 
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-teal">6</div><h2>Redundancy: The Base Idea</h2></div>
-    <p class="body-text">All these methods depend on <strong>redundancy</strong>. If we send only the original data bits, the receiver has no extra information to verify correctness. So we add redundant bits that help detect or correct errors.</p>
+    <p class="body-text">All these methods depend on <strong>redundancy</strong>. Redundancy means extra bits are added to the actual data for checking. If we send only the original data bits, the receiver has no extra information to verify correctness.</p>
+    <p class="body-text">For example, suppose there are 8 available bits in a block. If all 8 bits are used only for original data, error checking becomes difficult. Instead, we may send 6 or 7 data bits and use the remaining bits as redundant/check bits. These extra bits help detect or correct errors.</p>
     <div class="diagram-box"><div class="diagram-header">&#10133; Extra Bits for Checking</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 860 230" role="img" aria-label="Redundancy adds extra bits for error detection or correction">
         <rect x="90" y="80" width="330" height="62" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><text x="154" y="116" class="svg-mono">Original Data Bits</text>
@@ -112,21 +120,30 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       </svg>
     </div><div class="diagram-note">Redundant bits are overhead, but they make error detection/correction possible.</div></div>
   </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-navy">7</div><h2>Teacher-Style Complete Summary</h2></div>
+    <p class="body-text"><strong>Step 1:</strong> Sender sends data, but during transmission some bit may change because of noise, attenuation, lightning, environmental effects or machine noise. If receiver gets different data, an error has occurred.</p>
+    <p class="body-text"><strong>Step 2:</strong> Detection means receiver only knows that some error exists. Correction means receiver also knows which bit is wrong and can correct it.</p>
+    <p class="body-text"><strong>Step 3:</strong> If only one bit changes, it is a single-bit error. If two or more bits change, it is a burst error. Burst length is counted from the first changed bit to the last changed bit, including unchanged bits in between.</p>
+    <p class="body-text"><strong>Step 4:</strong> For numericals, corrupted bits = bandwidth x error duration. At 1 Gbps, 1 ns affects one bit, but 1/1000 second can affect 10^6 bits.</p>
+    <p class="body-text"><strong>Step 5:</strong> Detection methods include parity, 2D parity, checksum and CRC. Correction uses Hamming Code. All of them depend on redundancy.</p>
+  </div>
 </div>
 
 <div id="panel-rev" class="panel">
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
     <div class="rev-card"><div class="rev-card-title">Error</div><ul class="bullet-list"><li>Sent data and received data differ</li><li>Example: <span class="val">101</span> sent, <span class="val">100</span> received</li><li>Meaning of data changes</li><li>Error control is important for text/data applications</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Detection vs Correction</div><ul class="bullet-list"><li>Detection: finds that error exists</li><li>Correction: finds which bit is wrong</li><li>Correction is advanced detection</li><li>Data Link Layer checks bit-by-bit</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Detection vs Correction</div><ul class="bullet-list"><li>Detection: finds that error exists</li><li>Correction: finds which bit is wrong</li><li>Correction is advanced detection</li><li>Data Link Layer checks bit-by-bit</li><li>OSI = <span class="val">Open Systems Interconnection</span></li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Single-bit Error</div><ul class="bullet-list"><li>Only one bit changes</li><li>0 becomes 1 or 1 becomes 0</li><li>Less common than burst error</li><li>Example: 100 becomes 101</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Burst Error</div><ul class="bullet-list"><li>Two or more bits change</li><li>Burst length counts from first changed bit to last changed bit</li><li>Unchanged middle bits are included in length</li><li>More common in real channels</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Numerical Rule</div><ul class="bullet-list"><li>1 Gbps = <span class="val">10^9 bits/sec</span></li><li>1 bit duration = <span class="val">1 ns</span></li><li>Corrupted bits = bandwidth x error duration</li><li>1/1000 sec at 1 Gbps = <span class="val">10^6 bits</span></li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Methods</div><ul class="bullet-list"><li>Detection: parity, 2D parity, checksum, CRC</li><li>Correction: Hamming code</li><li>CRC is very important in Data Link Layer</li><li>All methods use redundancy</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Burst Error</div><ul class="bullet-list"><li>Two or more bits change</li><li>Burst length counts from first changed bit to last changed bit</li><li>Unchanged middle bits are included in length</li><li>More common in real channels</li><li>Noise duration is often longer than one bit time</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Numerical Rule</div><ul class="bullet-list"><li>1 Gbps = <span class="val">10^9 bits/sec</span></li><li>Gbps = <span class="val">Gigabits per second</span></li><li>1 bit duration = <span class="val">1 ns</span></li><li>Corrupted bits = bandwidth x error duration</li><li>1/1000 sec at 1 Gbps = <span class="val">10^6 bits</span></li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Methods</div><ul class="bullet-list"><li>Detection: parity, 2D parity, checksum, CRC</li><li>CRC = <span class="val">Cyclic Redundancy Check</span></li><li>Correction: Hamming code</li><li>CRC is very important in Data Link Layer</li><li>All methods use redundancy</li></ul></div>
   </div>
   <div class="cheat-div"><span>METHOD TABLE</span></div>
   <div class="tbl-wrap"><table><thead><tr><th>Category</th><th>Methods</th><th>Purpose</th></tr></thead><tbody><tr><td>Error Detection</td><td class="mono">Parity, 2D Parity, Checksum, CRC</td><td>Know that error has occurred</td></tr><tr><td>Error Correction</td><td class="mono">Hamming Code</td><td>Find and correct the wrong bit</td></tr><tr><td>Base Principle</td><td class="mono">Redundancy</td><td>Add extra bits for checking</td></tr></tbody></table></div>
-  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Error means received data differs from sent data.</li><li>Error detection tells that an error exists; correction tells where it exists.</li><li>Single-bit error changes one bit; burst error changes two or more bits.</li><li>Burst length is from first corrupted bit to last corrupted bit.</li><li>At 1 Gbps, one bit duration is 1 nanosecond.</li><li>Detection methods: parity, 2D parity, checksum, CRC.</li><li>Correction method: Hamming code.</li><li>All methods depend on redundant extra bits.</li></ul><div class="tags"><span class="tag">Error Detection</span><span class="tag">Error Correction</span><span class="tag">Single-bit Error</span><span class="tag">Burst Error</span><span class="tag">CRC</span><span class="tag">Checksum</span><span class="tag">Parity</span><span class="tag">Hamming Code</span><span class="tag">Redundancy</span></div></div>
+  <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Error means received data differs from sent data.</li><li>Error detection tells that an error exists; correction tells where it exists.</li><li>Single-bit error changes one bit; burst error changes two or more bits.</li><li>Burst length is from first corrupted bit to last corrupted bit, including middle unchanged bits.</li><li>At 1 Gbps, one bit duration is 1 nanosecond.</li><li>Detection methods: parity, 2D parity, checksum, CRC.</li><li>Correction method: Hamming code.</li><li>All methods depend on redundant extra bits.</li><li>Full forms: OSI = Open Systems Interconnection, Gbps = Gigabits per second, CRC = Cyclic Redundancy Check.</li></ul><div class="tags"><span class="tag">Error Detection</span><span class="tag">Error Correction</span><span class="tag">Single-bit Error</span><span class="tag">Burst Error</span><span class="tag">CRC</span><span class="tag">Checksum</span><span class="tag">Parity</span><span class="tag">Hamming Code</span><span class="tag">Redundancy</span></div></div>
 </div>
 </div>
 <script>function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});document.getElementById('panel-'+id).classList.add('active');btn.classList.add('active')}</script>

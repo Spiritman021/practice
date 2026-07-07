@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CN Topic 26: Flow Control Protocols comparison — Stop and Wait, Go-Back-N, and Selective Repeat formulas, window sizes, efficiency, retransmission, ACK types, and exam points.">
+<meta name="description" content="CN Topic 26: Detailed Flow Control Protocols notes from transcript — Stop and Wait, Go-Back-N, Selective Repeat formulas, window sizes, efficiency, retransmission, ACK/NAK, RTT, examples and exam points.">
 <meta name="robots" content="index, follow">
 <title>Flow Control Protocols — CN Topic 26 | Practice Hub</title>
 <link rel="canonical" href="https://spiritman021.github.io/practice/pages/computer/cn_flow_control_protocols.html">
@@ -28,13 +28,14 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <body>
 <nav class="navbar"><div class="nav-left"><span class="nav-badge">CN &mdash; 26</span><div class="nav-breadcrumb"><span>Computer Networks</span><span class="sep">/</span><span class="current">Flow Control Protocols</span></div></div><div class="nav-right"><button class="nav-btn active" onclick="switchPanel('desc',this)">&#128203; Descriptive</button><button class="nav-btn" onclick="switchPanel('rev',this)">&#9889; Revision Notes</button></div></nav>
 <nav class="ph-breadcrumb" aria-label="Breadcrumb"><a href="../../index.html">&#127968; Practice Hub</a><span class="sep">&rsaquo;</span><a href="computer.html">Computer</a><span class="sep">&rsaquo;</span><a href="computer_networks.html">Computer Networks</a><span class="sep">&rsaquo;</span><span class="current">Topic 26: Flow Control Protocols</span><a class="back-btn" href="computer_networks.html">&larr; Back</a></nav>
-<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 26</span><span class="hero-tag">LAST-MINUTE</span><span class="hero-tag">FLOW CONTROL</span></div><h1>FLOW CONTROL <span>PROTOCOLS</span></h1><p class="hero-sub">Exam-focused comparison of Stop-and-Wait, Go-Back-N, and Selective Repeat: window sizes, efficiency formulas, ACK style, retransmission load, out-of-order handling, and implementation difficulty.</p><div class="hero-chips"><span class="hero-chip">Stop &amp; Wait</span><span class="hero-chip">Go-Back-N</span><span class="hero-chip">Selective Repeat</span><span class="hero-chip">Numericals</span></div></div>
+<div class="hero"><div class="hero-tags"><span class="hero-tag">COMPUTER NETWORKS</span><span class="hero-tag">LECTURE 26</span><span class="hero-tag">LAST-MINUTE</span><span class="hero-tag">FLOW CONTROL</span></div><h1>FLOW CONTROL <span>PROTOCOLS</span></h1><p class="hero-sub">Detailed exam-focused comparison of Stop-and-Wait, Go-Back-N, and Selective Repeat from the transcript: window sizes, efficiency formulas, ACK style, retransmission load, out-of-order handling, NAK, timeout and implementation difficulty.</p><div class="hero-chips"><span class="hero-chip">Stop &amp; Wait</span><span class="hero-chip">Go-Back-N</span><span class="hero-chip">Selective Repeat</span><span class="hero-chip">Numericals</span></div></div>
 
 <div class="content-wrap">
 <div id="panel-desc" class="panel active">
   <div class="section-block">
     <div class="section-heading"><div class="sec-num sn-blue">1</div><h2>Three Protocols at a Glance</h2></div>
     <p class="body-text">Data Link Layer flow control protocols decide how many frames can be sent before waiting for acknowledgement. The three important exam protocols are <strong>Stop-and-Wait</strong>, <strong>Go-Back-N</strong>, and <strong>Selective Repeat</strong>.</p>
+    <p class="body-text">This lecture is a last-minute comparison video, so the main target is exam points: which protocol has which window size, which one is least efficient, which one retransmits the most, which one accepts out-of-order frames, and which formula to use in numericals.</p>
     <div class="diagram-box"><div class="diagram-header">&#128202; Window Size Comparison</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 880 330" role="img" aria-label="Comparison of sender and receiver window sizes in flow control protocols">
         <text x="60" y="42" class="svg-label" fill="#1d4ed8">Stop-and-Wait</text><text x="350" y="42" class="svg-label" fill="#c2410c">Go-Back-N</text><text x="620" y="42" class="svg-label" fill="#be185d">Selective Repeat</text>
@@ -46,19 +47,39 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="section-block">
-    <div class="section-heading"><div class="sec-num sn-green">2</div><h2>Efficiency Formulas</h2></div>
-    <p class="body-text">Efficiency means useful transmission time divided by total time. For Stop-and-Wait, only one frame is sent per cycle, so efficiency is lowest. Sliding-window protocols multiply the base efficiency by the sender window size.</p>
+    <div class="section-heading"><div class="sec-num sn-navy">2</div><h2>Stop-and-Wait: One Frame, Then ACK</h2></div>
+    <p class="body-text">In <strong>Stop-and-Wait</strong>, the sender transmits only <strong>one frame</strong> at a time. After sending that frame, it waits for <strong>ACK</strong>. Until acknowledgement returns, the sender does not send the second frame. So sender window size is <strong>1</strong> and receiver window size is also <strong>1</strong>.</p>
+    <p class="body-text">Because the sender waits so much, bandwidth utilization is very poor. If an exam asks which protocol has the least efficiency, the default answer is <strong>Stop-and-Wait</strong>.</p>
+    <p class="body-text">The teacher gives a simple transaction analogy: when we use PayTM or any payment app, we wait for the successful transaction message. Until that acknowledgement comes, we do not feel the transaction is complete. Similarly, sender waits for ACK before moving ahead.</p>
+    <div class="callout-blue callout"><strong>Sequence number point:</strong> Available sequence numbers = sender window + receiver window. For Stop-and-Wait, this is 1 + 1 = <strong>2 sequence numbers</strong>, usually 0 and 1.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-green">3</div><h2>Efficiency Formulas</h2></div>
+    <p class="body-text">Efficiency means useful transmission time divided by total time. For Stop-and-Wait, useful time is the frame transmission time, while total time is transmission time plus round-trip time. So the idea is:</p>
+    <p class="body-text"><strong>Efficiency = Transmission Time / (Transmission Time + Round Trip Time)</strong>. Since <strong>RTT = 2 &times; propagation delay</strong>, the formula becomes <strong>1 / (1 + 2x)</strong>, where <strong>x = propagation delay / transmission time</strong>.</p>
+    <p class="body-text">For sliding-window protocols, more than one frame may be sent in the same waiting cycle, so the base Stop-and-Wait formula is multiplied by the sender window size.</p>
     <div class="formula-grid">
       <div class="formula-card fc-blue"><h4>Stop-and-Wait</h4><p>Only one frame is transmitted, then sender waits for ACK.</p><span class="mini-tag">1 / (1 + 2x)</span></div>
       <div class="formula-card fc-orange"><h4>Go-Back-N</h4><p>Sender can transmit a full sender window before waiting.</p><span class="mini-tag">(2^k - 1) / (1 + 2x)</span></div>
       <div class="formula-card fc-pink"><h4>Selective Repeat</h4><p>Sender window is half the sequence-number space.</p><span class="mini-tag">2^(k-1) / (1 + 2x)</span></div>
     </div>
-    <div class="callout-green callout"><strong>x = propagation delay / transmission time.</strong> Stop-and-Wait is least efficient because it sends only one frame in the whole cycle.</div>
+    <div class="callout-green callout"><strong>x = propagation delay / transmission time.</strong> Stop-and-Wait is least efficient because it sends only one frame in the whole cycle. Sliding-window protocols improve efficiency by sending multiple frames at a time.</div>
   </div>
 
   <div class="section-block">
-    <div class="section-heading"><div class="sec-num sn-amber">3</div><h2>Retransmission Load</h2></div>
-    <p class="body-text">Retransmission tells us how many frames may need to be sent again when a frame or acknowledgement is lost. Stop-and-Wait resends only one frame. Go-Back-N may resend the whole window. Selective Repeat resends only the missing or corrupt frame.</p>
+    <div class="section-heading"><div class="sec-num sn-blue">4</div><h2>k Bits and Window Size</h2></div>
+    <p class="body-text">In the transcript, <strong>k</strong> means the number of bits used to represent sequence numbers. If k = 3, it does not mean window size is 3. It means 3 bits are available, so the number of possible sequence numbers is <strong>2^3 = 8</strong>, ranging from 0 to 7.</p>
+    <p class="body-text">Similarly, k = 4 gives <strong>2^4 = 16</strong> possible sequence numbers, ranging from 0 to 15. Once total sequence numbers are known, use the protocol-specific window formula.</p>
+    <div class="tbl-wrap"><table><thead><tr><th>Given in Question</th><th>Total Sequence Numbers</th><th>Go-Back-N Sender Window</th><th>Selective Repeat Window</th></tr></thead><tbody><tr><td class="mono">k = 3 bits</td><td class="mono">2^3 = 8</td><td class="mono">2^3 - 1 = 7</td><td class="mono">2^(3-1) = 4</td></tr><tr><td class="mono">k = 4 bits</td><td class="mono">2^4 = 16</td><td class="mono">2^4 - 1 = 15</td><td class="mono">2^(4-1) = 8</td></tr></tbody></table></div>
+    <div class="callout-teal callout"><strong>Teacher's warning:</strong> If the question says "represented by 3 bits", do not answer 3. First calculate <strong>2^3</strong>.</div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-amber">5</div><h2>Retransmission Load</h2></div>
+    <p class="body-text">Retransmission tells us how many frames may need to be sent again when a frame or acknowledgement is lost, or when a packet becomes corrupt. Stop-and-Wait resends only one frame because only one frame was sent. Go-Back-N may resend the whole window. Selective Repeat resends only the missing or corrupt frame.</p>
+    <p class="body-text">In Go-Back-N, suppose frames 1, 2, 3, 4 are sent and frame 1 is lost. Receiver window is 1, so it wants frame 1 first. Even if 2, 3 and 4 reach, they are rejected. Therefore the sender may need to retransmit 1, 2, 3 and 4 again. That is why retransmission is highest in Go-Back-N.</p>
+    <p class="body-text">In Selective Repeat, if frame 1 is lost but 2, 3 and 4 reach, the receiver can accept and buffer 2, 3 and 4. It asks only for 1 using NAK, so retransmission is very low, almost like Stop-and-Wait: only one missing frame.</p>
     <div class="diagram-box"><div class="diagram-header">&#9194; What Gets Retransmitted?</div><div class="diagram-body">
       <svg class="study-svg" viewBox="0 0 880 300" role="img" aria-label="Retransmission comparison between Stop and Wait Go Back N and Selective Repeat">
         <text x="70" y="42" class="svg-label" fill="#1d4ed8">Stop-and-Wait</text><text x="332" y="42" class="svg-label" fill="#c2410c">Go-Back-N</text><text x="612" y="42" class="svg-label" fill="#be185d">Selective Repeat</text>
@@ -70,15 +91,23 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="section-block">
-    <div class="section-heading"><div class="sec-num sn-purple">4</div><h2>ACK Types and Out-of-Order Handling</h2></div>
-    <p class="body-text">ACK style and receiver behavior are favorite theory questions. Stop-and-Wait uses simple acknowledgement. Go-Back-N uses cumulative acknowledgement and rejects out-of-order frames. Selective Repeat can use cumulative, independent ACK, and NAK; it accepts out-of-order frames.</p>
+    <div class="section-heading"><div class="sec-num sn-purple">6</div><h2>ACK Types and Out-of-Order Handling</h2></div>
+    <p class="body-text">ACK style and receiver behavior are favorite theory questions. Stop-and-Wait uses simple acknowledgement. Go-Back-N uses cumulative acknowledgement and rejects out-of-order frames. Selective Repeat can use cumulative ACK, independent ACK, and NAK; it accepts out-of-order frames.</p>
+    <p class="body-text"><strong>Cumulative ACK</strong> means one acknowledgement can represent many received frames. If frames 1, 2, 3 are received, receiver may send ACK 4, meaning "I have received up to 3; now send 4." This reduces network traffic compared to sending separate ACKs for every frame.</p>
+    <p class="body-text"><strong>Independent ACK</strong> means each frame may get its own acknowledgement. <strong>NAK</strong> helps when a frame is missing or corrupt. Instead of waiting until timeout, receiver can immediately say that a particular packet has a problem, so sender retransmits earlier and saves time.</p>
     <div class="tbl-wrap"><table><thead><tr><th>Protocol</th><th>ACK Style</th><th>Out-of-Order Frames</th><th>Implementation</th></tr></thead><tbody><tr><td>Stop-and-Wait</td><td>Simple ACK</td><td class="must">Not applicable</td><td class="ok">Very easy</td></tr><tr><td>Go-Back-N</td><td>Cumulative ACK</td><td class="must">Not accepted</td><td class="good">Moderate</td></tr><tr><td>Selective Repeat</td><td>Cumulative + independent ACK + NAK</td><td class="ok">Accepted and buffered</td><td class="must">Most complex</td></tr></tbody></table></div>
-    <div class="callout-amber callout"><strong>Why Selective Repeat is complex:</strong> it needs searching for missing frames and sorting/buffering out-of-order frames before delivery to the upper layer.</div>
+    <div class="callout-amber callout"><strong>Why Selective Repeat is complex:</strong> it needs searching for missing frames and sorting/buffering out-of-order frames before delivery to the upper layer. That is why implementation is hardest for Selective Repeat.</div>
   </div>
 
   <div class="section-block">
-    <div class="section-heading"><div class="sec-num sn-teal">5</div><h2>Master Comparison Table</h2></div>
+    <div class="section-heading"><div class="sec-num sn-teal">7</div><h2>Master Comparison Table</h2></div>
     <div class="tbl-wrap"><table><thead><tr><th>Point</th><th>Stop-and-Wait</th><th>Go-Back-N</th><th>Selective Repeat</th></tr></thead><tbody><tr><td>Frames sent at once</td><td class="mono">1</td><td>Multiple</td><td>Multiple</td></tr><tr><td>Sender window</td><td class="mono">1</td><td class="mono">2^k - 1</td><td class="mono">2^(k-1)</td></tr><tr><td>Receiver window</td><td class="mono">1</td><td class="mono">1</td><td class="mono">2^(k-1)</td></tr><tr><td>Efficiency</td><td class="mono">1/(1+2x)</td><td class="mono">(2^k-1)/(1+2x)</td><td class="mono">2^(k-1)/(1+2x)</td></tr><tr><td>Retransmission</td><td>1 frame</td><td class="must">Highest, full window possible</td><td class="ok">Only missing frame</td></tr><tr><td>Least efficiency</td><td class="must">Yes</td><td>No</td><td>No</td></tr><tr><td>Out-of-order accepted?</td><td>No</td><td class="must">No</td><td class="ok">Yes</td></tr></tbody></table></div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-heading"><div class="sec-num sn-red">8</div><h2>Full Forms and Final Exam Memory</h2></div>
+    <p class="body-text">The lecture mentions several short forms that are useful in both theory and numericals. <strong>ACK</strong> means <strong>Acknowledgement</strong>. <strong>NAK</strong> means <strong>Negative Acknowledgement</strong>. <strong>RTT</strong> means <strong>Round Trip Time</strong>. In these ARQ-style protocols, <strong>ARQ</strong> means <strong>Automatic Repeat reQuest</strong>.</p>
+    <div class="callout-red callout"><strong>One-line memory:</strong> Stop-and-Wait is simplest but least efficient; Go-Back-N has highest retransmission; Selective Repeat is most efficient in retransmission but hardest to implement.</div>
   </div>
 </div>
 
@@ -86,11 +115,12 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="cheat-div"><span>ONE-PAGE REVISION</span></div>
   <div class="cards-grid">
     <div class="rev-card"><div class="rev-card-title">Stop-and-Wait</div><ul class="bullet-list"><li>Sends <span class="val">1 frame</span> at a time</li><li>Sender window = <span class="val">1</span></li><li>Receiver window = <span class="val">1</span></li><li>Efficiency = <span class="val">1/(1+2x)</span></li><li>Least efficiency, easiest implementation</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Go-Back-N</div><ul class="bullet-list"><li>Sliding window protocol</li><li>Sender window = <span class="val">2^k - 1</span></li><li>Receiver window = <span class="val">1</span></li><li>Uses <span class="tag-b">cumulative ACK</span></li><li>Out-of-order frames rejected</li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Go-Back-N</div><ul class="bullet-list"><li>Sliding window protocol</li><li>N = sender window size</li><li>Sender window = <span class="val">2^k - 1</span></li><li>Receiver window = <span class="val">1</span></li><li>Uses <span class="tag-b">cumulative ACK</span></li><li>Out-of-order frames rejected</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Selective Repeat</div><ul class="bullet-list"><li>Sliding window protocol</li><li>Sender window = <span class="val">2^(k-1)</span></li><li>Receiver window = <span class="val">2^(k-1)</span></li><li>Out-of-order frames accepted</li><li>Uses NAK and selective retransmission</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Retransmission</div><ul class="bullet-list"><li>Stop-and-Wait: <span class="tag-g">1 frame</span></li><li>Go-Back-N: <span class="tag-r">highest</span>, full window possible</li><li>Selective Repeat: <span class="tag-g">only missing frame</span></li><li>NAK saves timeout wait in Selective Repeat</li></ul></div>
     <div class="rev-card"><div class="rev-card-title">Efficiency Ranking</div><ul class="bullet-list"><li>Stop-and-Wait is lowest</li><li>Sliding-window protocols improve utilization</li><li>Go-Back-N sends more frames but may waste retransmission</li><li>Selective Repeat has good efficiency and low retransmission</li></ul></div>
-    <div class="rev-card"><div class="rev-card-title">Exam Symbols</div><ul class="bullet-list"><li>k = bits used for sequence numbers</li><li>Total sequence numbers = <span class="val">2^k</span></li><li>x = propagation delay / transmission time</li><li>RTT = <span class="val">2 x propagation delay</span></li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Exam Symbols</div><ul class="bullet-list"><li>k = bits used for sequence numbers</li><li>Total sequence numbers = <span class="val">2^k</span></li><li>x = propagation delay / transmission time</li><li>RTT = <span class="val">Round Trip Time</span></li><li>RTT = <span class="val">2 x propagation delay</span></li></ul></div>
+    <div class="rev-card"><div class="rev-card-title">Full Forms</div><ul class="bullet-list"><li>ACK = <span class="val">Acknowledgement</span></li><li>NAK = <span class="val">Negative Acknowledgement</span></li><li>RTT = <span class="val">Round Trip Time</span></li><li>ARQ = <span class="val">Automatic Repeat reQuest</span></li></ul></div>
   </div>
   <div class="final-tips"><h3>&#9989; Last-Minute Summary</h3><ul class="bullet-list"><li>Least efficiency: <span class="tag-r">Stop-and-Wait</span>.</li><li>Highest retransmission: <span class="tag-r">Go-Back-N</span>.</li><li>Most complex implementation: <span class="tag-r">Selective Repeat</span>.</li><li>Go-Back-N receiver window is always <span class="val">1</span>, so out-of-order frames are rejected.</li><li>Selective Repeat receiver window is <span class="val">2^(k-1)</span>, so out-of-order frames are accepted and buffered.</li><li>Available sequence numbers for Stop-and-Wait = sender window + receiver window = <span class="val">2</span>.</li></ul><div class="tags"><span class="tag">Flow Control</span><span class="tag">Stop-and-Wait</span><span class="tag">Go-Back-N</span><span class="tag">Selective Repeat</span><span class="tag">Efficiency</span><span class="tag">Window Size</span><span class="tag">NAK</span><span class="tag">Cumulative ACK</span></div></div>
 </div>
