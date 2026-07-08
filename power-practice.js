@@ -49,7 +49,8 @@ function switchTab(tabName) {
 function startPractice() {
     const count = parseInt(document.getElementById('question-count').value, 10);
     const mode = document.getElementById('practice-mode').value;
-    const shuffledFacts = shuffle([...facts]);
+    const practiceFacts = getPracticeFacts();
+    const shuffledFacts = shuffle([...practiceFacts]);
     questions = Array.from({ length: count }, (_, index) => {
         const fact = shuffledFacts[index % shuffledFacts.length];
         const type = mode === 'mixed' ? (Math.random() > 0.5 ? 'value' : 'root') : mode;
@@ -64,6 +65,28 @@ function startPractice() {
     currentIndex = 0;
     document.getElementById('result-panel').classList.remove('active');
     loadQuestion();
+}
+
+function getPracticeFacts() {
+    const startInput = document.getElementById('range-start');
+    const endInput = document.getElementById('range-end');
+
+    if (!startInput || !endInput) {
+        return facts;
+    }
+
+    const max = config.max;
+    let start = clampNumber(parseInt(startInput.value, 10), 1, max, 1);
+    let end = clampNumber(parseInt(endInput.value, 10), 1, max, max);
+
+    if (start > end) {
+        [start, end] = [end, start];
+    }
+
+    startInput.value = start;
+    endInput.value = end;
+
+    return facts.filter(fact => fact.number >= start && fact.number <= end);
 }
 
 function loadQuestion() {
@@ -166,6 +189,14 @@ function shuffle(items) {
         [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
     }
     return items;
+}
+
+function clampNumber(value, min, max, fallback) {
+    if (Number.isNaN(value)) {
+        return fallback;
+    }
+
+    return Math.min(Math.max(value, min), max);
 }
 
 function formatTime(milliseconds) {
