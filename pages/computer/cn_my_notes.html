@@ -496,72 +496,85 @@
         </div>
 
         <div class="note-body">
+
           <h4>The Basic Problem</h4>
-          <p>A shared communication channel (radio/satellite) is used by multiple stations. If two transmit simultaneously, their signals <strong>collide</strong> — both frames are corrupted. ALOHA protocols are the earliest solution to this problem. Developed at the University of Hawaii in the 1970s.</p>
+          <p>Imagine a shared communication channel (like a radio or satellite link) that multiple stations want to use to send data. If two stations transmit <strong>at the same time</strong>, their signals <strong>collide</strong>, and both frames get corrupted. ALOHA protocols are early solutions to this collision problem.</p>
+          <p>ALOHA was developed at the University of Hawaii in the 1970s. It has two versions: <strong>Pure ALOHA</strong> and <strong>Slotted ALOHA</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
 
           <h4>1. Pure ALOHA</h4>
-          <p><strong>Rule:</strong> transmit immediately whenever data is ready. No listening, no coordination.</p>
-          <p><strong>Problem:</strong> even a partial overlap of two frames causes a collision and corrupts both entirely.</p>
+          <p><strong>The rule is simple:</strong> whenever a station has data ready, it transmits <strong>immediately</strong> — no waiting, no coordination with other stations.</p>
+          <p><strong>The problem:</strong> since any station can transmit at any moment, two frames can collide even if their transmissions only <strong>partially overlap</strong> — even a small overlap corrupts the entire frame.</p>
+
+          <p><strong>Vulnerable period (shown in the diagram above):</strong><br>
+          If a frame's transmission time is Tt, then any other frame that starts transmitting within <strong>Tt before</strong> the current frame starts, or <strong>Tt after</strong> it starts, will collide with it.</p>
 
           <figure class="diagram-box">
             <img src="assets/aloha_vulnerable_period.jpg" alt="ALOHA Vulnerable Period — Pure ALOHA 2×Tt, Slotted ALOHA 1×Tt" loading="lazy">
             <figcaption>Vulnerable period: Pure ALOHA (dark red) = 2×Tt &nbsp;|&nbsp; Slotted ALOHA (dark green) = 1×Tt</figcaption>
           </figure>
 
-          <div class="formula-box">Vulnerable Period (Pure ALOHA) = 2 × Tt
+          <div class="formula-box">Vulnerable Period  =  2 × Tt</div>
 
-Throughput:    S = G · e^(-2G)
-  S = successful frames per frame-time
-  G = total offered load (including retransmissions)
+          <p><strong>Throughput formula (important for the exam):</strong></p>
+          <div class="formula-box">S = G · e^(-2G)
 
-Maximum throughput → dS/dG = 0 → peak at G = 0.5:
-  S_max = 1/(2e) ≈ 0.184   →   18.4%</div>
+  S  =  throughput (successfully transmitted frames)
+  G  =  offered load (total attempted transmissions, including retransmissions)</div>
+
+          <p><strong>Maximum throughput:</strong> Maximizing this formula (setting dS/dG = 0) gives a peak at G = 0.5:</p>
+          <div class="formula-box">S_max  =  1/(2e)  ≈  0.184   (18.4%)</div>
 
           <div class="callout success">
             <span class="callout-icon">💡</span>
-            <div>Only <strong>18.4%</strong> of channel capacity is ever used for successful transmission in Pure ALOHA. The rest is lost to collisions.</div>
+            <div><strong>Key takeaway:</strong> Pure ALOHA's maximum efficiency is only <strong>18.4%</strong> — meaning only 18.4% of channel capacity is ever used for successful transmission; the rest is wasted on collisions.</div>
           </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
 
           <h4>2. Slotted ALOHA</h4>
-          <p>Time is divided into fixed slots of duration Tt. A station can only <strong>start transmitting at a slot boundary</strong> — never mid-slot.</p>
-          <p><strong>Why better:</strong> partial overlaps are impossible. Collisions only happen if two stations pick the <em>same</em> slot.</p>
+          <p>This is an improvement — time is divided into <strong>fixed-size slots</strong>, where each slot equals one frame transmission time (Tt).</p>
+          <p><strong>Rule:</strong> a station can only start transmitting <strong>at the beginning of a slot</strong> — not at an arbitrary moment.</p>
+          <p><strong>Benefit:</strong> now a collision only happens if two stations choose <strong>the same slot</strong>. Partial overlaps are impossible, since every transmission starts exactly at a slot boundary.</p>
 
-          <div class="formula-box">Vulnerable Period (Slotted ALOHA) = 1 × Tt   [half of Pure ALOHA]
+          <p><strong>Vulnerable period:</strong></p>
+          <div class="formula-box">Vulnerable Period  =  1 × Tt
 
-Throughput:    S = G · e^(-G)
+(Half of Pure ALOHA's — which is why performance doubles.)</div>
 
-Maximum throughput → peak at G = 1.0:
-  S_max = 1/e ≈ 0.368   →   36.8%
+          <p><strong>Throughput formula:</strong></p>
+          <div class="formula-box">S = G · e^(-G)</div>
 
-∴ Exactly 2× the efficiency of Pure ALOHA.</div>
+          <p><strong>Maximum throughput:</strong> peaks at G = 1:</p>
+          <div class="formula-box">S_max  =  1/e  ≈  0.368   (36.8%)</div>
 
-          <div class="callout tip">
-            <span class="callout-icon">🔍</span>
-            <div><strong>Why exactly 2×?</strong> The vulnerable period halves (2Tt → Tt), so collision probability halves, and throughput exactly doubles. This follows directly from the formula — not a coincidence.</div>
-          </div>
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
 
-          <h4>Comparison Table</h4>
+          <h4>Comparison Table (exam-ready)</h4>
           <table class="note-table">
             <tr><th>Parameter</th><th>Pure ALOHA</th><th>Slotted ALOHA</th></tr>
             <tr><td>Transmission timing</td><td>Anytime</td><td>Only at slot boundaries</td></tr>
-            <tr><td>Vulnerable period</td><td>2 × Tt</td><td>1 × Tt</td></tr>
+            <tr><td>Vulnerable period</td><td>2Tt</td><td>Tt</td></tr>
             <tr><td>Throughput formula</td><td>S = G·e^(-2G)</td><td>S = G·e^(-G)</td></tr>
-            <tr><td>Max throughput</td><td>18.4% at G = 0.5</td><td>36.8% at G = 1.0</td></tr>
-            <tr><td>Clock sync required</td><td>No</td><td>Yes</td></tr>
-            <tr><td>Collision type</td><td>Full or partial overlap</td><td>Only same-slot</td></tr>
+            <tr><td>Max throughput</td><td>18.4% (at G=0.5)</td><td>36.8% (at G=1)</td></tr>
+            <tr><td>Synchronization needed</td><td>No</td><td>Yes (clock sync)</td></tr>
+            <tr><td>Complexity</td><td>Simple</td><td>Slightly higher (slot sync)</td></tr>
           </table>
 
-          <h4>MCQ Trap Points</h4>
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ Trap Points to Watch For</h4>
           <div class="callout trap">
             <span class="callout-icon">⚠️</span>
             <div>
-              <ol style="padding-left:18px;margin:0;">
-                <li><strong>Efficiency doubles</strong> — because vulnerable period halves, not by accident.</li>
-                <li><strong>Formulas use e ≈ 2.718</strong> — answers given as 1/2e or 1/e directly.</li>
-                <li><strong>G at max:</strong> Pure = 0.5, Slotted = 1.0 — very commonly asked.</li>
-                <li><strong>Clock sync:</strong> Slotted needs it, Pure does not — common True/False.</li>
-                <li><strong>Numerical trap:</strong> if G given for Pure ALOHA, use S = G·e^(-2G), NOT the Slotted formula.</li>
-                <li><strong>Both are predecessors</strong> to CSMA — historically used in satellite/radio systems.</li>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li>Efficiency <strong>doubles</strong> in Slotted ALOHA — this follows directly from the vulnerable period being halved, not a coincidence.</li>
+                <li>The formulas involve <strong>e</strong> (Euler's number ≈ 2.718) — questions often directly ask for "S_max = 1/2e" or "1/e".</li>
+                <li>The <strong>value of G</strong> at which maximum throughput occurs — G=0.5 for Pure ALOHA, G=1 for Slotted ALOHA — is a common direct MCQ.</li>
+                <li>Slotted ALOHA requires a <strong>synchronized clock</strong> across all stations — a frequent true/false statement.</li>
+                <li>Both are <strong>random access protocols</strong>, predecessors to the CSMA family; historically used in satellite communication and early Ethernet.</li>
+                <li>Numerical questions: if G is given (e.g., G=1 for Pure ALOHA), you may be asked to calculate S — just substitute into the formula.</li>
               </ol>
             </div>
           </div>
