@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f3ff">
+  <meta name="description" content="Personal notes drop zone for Computer Networks — paste rough notes, teacher examples, and exam tips in any order. Each entry gets tagged and organized.">
+  <title>My CN Notes | Practice Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f3ff;
+      --paper: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --violet: #7c3aed;
+      --violet-d: #6d28d9;
+      --violet-l: #ede9fe;
+      --violet-ll: #f5f3ff;
+      --green: #059669;
+      --green-l: #d1fae5;
+      --amber: #d97706;
+      --amber-l: #fef3c7;
+      --blue: #2563eb;
+      --blue-l: #dbeafe;
+      --red: #dc2626;
+      --red-l: #fee2e2;
+      --cyan: #0891b2;
+      --cyan-l: #cffafe;
+      --code: #1e1b4b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(124,58,237,0.07), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(14,165,233,0.05), transparent 40%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── TOPBAR ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.88);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--violet);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-mark {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: var(--violet);
+      color: #fff;
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 800;
+    }
+    .topbar-links {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+    }
+    .topbar-links a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .topbar-links a:hover {
+      color: var(--violet);
+      border-color: var(--violet);
+      background: var(--violet-ll);
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--line);
+      background: rgba(248,250,252,0.7);
+      backdrop-filter: blur(8px);
+    }
+    .breadcrumb .sep { color: #cbd5e1; font-size: 11px; }
+    .breadcrumb a { color: var(--muted); transition: color 0.15s; }
+    .breadcrumb a:hover { color: var(--violet); }
+    .breadcrumb .cur { color: var(--ink); font-weight: 600; }
+
+    /* ── MAIN LAYOUT ── */
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px minmax(0,1fr);
+      gap: 28px;
+      padding: 28px 24px 80px;
+    }
+
+    /* ── SIDEBAR ── */
+    aside {
+      position: sticky;
+      top: 72px;
+      align-self: start;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 16px;
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+    }
+    aside h3 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    aside a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      transition: all 0.15s;
+    }
+    aside a:hover { background: var(--violet-ll); color: var(--violet); }
+    aside a.active { background: var(--violet-l); color: var(--violet); font-weight: 700; }
+    aside hr { border: none; border-top: 1px solid var(--line); margin: 10px 0; }
+    .add-tip {
+      margin-top: 12px;
+      background: var(--violet-ll);
+      border: 1px dashed #c4b5fd;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--violet-d);
+      line-height: 1.5;
+    }
+    .add-tip strong { display: block; margin-bottom: 4px; font-size: 12px; }
+    .add-tip code {
+      background: rgba(124,58,237,0.1);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 11px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #6d28d9 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 36px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.12), transparent 55%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .hero p { color: rgba(255,255,255,0.85); font-size: 1rem; max-width: 700px; }
+    .hero-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 10px 16px;
+      text-align: center;
+      min-width: 80px;
+    }
+    .stat .num { font-size: 1.5rem; font-weight: 800; display: block; }
+    .stat .lbl { font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 600; text-transform: uppercase; }
+
+    /* ── NOTE CARDS ── */
+    .note-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 26px 28px;
+      margin-bottom: 20px;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+      scroll-margin-top: 84px;
+    }
+    .note-card:hover {
+      box-shadow: 0 8px 24px rgba(124,58,237,0.08);
+      transform: translateY(-2px);
+    }
+    .note-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(90deg, var(--violet), #818cf8);
+    }
+    .note-card.merged::before { background: linear-gradient(90deg, var(--green), #34d399); }
+    .note-card.pending::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+    .note-card.new-topic::before { background: linear-gradient(90deg, var(--cyan), #38bdf8); }
+
+    .note-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .note-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--violet-l);
+      display: grid; place-items: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .note-meta { flex: 1; min-width: 0; }
+    .note-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+    .note-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .badge.merged { background: var(--green-l); color: var(--green); }
+    .badge.pending { background: var(--amber-l); color: var(--amber); }
+    .badge.new-topic { background: var(--cyan-l); color: var(--cyan); }
+    .badge.section { background: var(--violet-l); color: var(--violet); }
+    .badge.exam { background: var(--red-l); color: var(--red); }
+    .badge.date { background: #f1f5f9; color: var(--muted); }
+
+    /* ── NOTE CONTENT STYLES ── */
+    .note-body { font-size: 15px; }
+    .note-body p { margin: 10px 0; }
+    .note-body h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--violet-d);
+      margin: 18px 0 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .note-body h4::before { content: '▸'; color: var(--violet); font-size: 12px; }
+    .note-body ul, .note-body ol { padding-left: 22px; margin: 10px 0; }
+    .note-body li { margin: 6px 0; }
+    .note-body strong { color: var(--ink); }
+    .note-body em { color: var(--muted); }
+
+    .formula-box {
+      background: var(--code);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: 13.5px;
+      margin: 14px 0;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    .callout {
+      border-radius: 10px;
+      padding: 13px 16px;
+      margin: 12px 0;
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+    }
+    .callout-icon { flex-shrink: 0; font-size: 16px; }
+    .callout.info { background: var(--blue-l); border-left: 4px solid var(--blue); }
+    .callout.warn { background: var(--amber-l); border-left: 4px solid var(--amber); }
+    .callout.success { background: var(--green-l); border-left: 4px solid var(--green); }
+    .callout.trap { background: var(--red-l); border-left: 4px solid var(--red); }
+    .callout.tip { background: var(--violet-ll); border-left: 4px solid var(--violet); }
+
+    table.note-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 13.5px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table.note-table th, table.note-table td {
+      border: 1px solid var(--line);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.note-table th { background: #f8fafc; font-weight: 700; }
+
+    .diagram-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 16px 0;
+      text-align: center;
+      background: #fff;
+    }
+    .diagram-box img {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    .diagram-box figcaption {
+      font-size: 12.5px;
+      color: var(--muted);
+      padding: 8px 14px 12px;
+      border-top: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    /* ── ADD NOTE TEMPLATE ── */
+    .add-note-box {
+      background: var(--paper);
+      border: 2px dashed #c4b5fd;
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .add-note-box .add-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .add-note-box h3 { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .add-note-box p { font-size: 13.5px; max-width: 500px; margin: 0 auto 16px; }
+    .add-note-box pre {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 12px;
+      text-align: left;
+      overflow-x: auto;
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; max-height: none; }
+      .hero { padding: 24px; border-radius: 14px; }
+    }
+    @media (max-width: 600px) {
+      .layout { padding: 16px 14px 60px; }
+      .note-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="topbar-inner">
+      <a class="brand" href="../../index.html">
+        <span class="brand-mark">📝</span>
+        My CN Notes
+      </a>
+      <div class="topbar-links">
+        <a href="computer_networks.html">← Dashboard</a>
+        <a href="cn_complete_teacher_notes.html">Full Notes</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="../../index.html">🏠 Practice Hub</a>
+    <span class="sep">›</span>
+    <a href="computer.html">Computer</a>
+    <span class="sep">›</span>
+    <a href="computer_networks.html">Computer Networks</a>
+    <span class="sep">›</span>
+    <span class="cur">My Notes</span>
+  </nav>
+
+  <div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside>
+      <h3>Note Index</h3>
+      <a href="#note-aloha" class="active">📡 ALOHA Protocols</a>
+      <!-- Add more links here as you add notes -->
+      <hr>
+      <div class="add-tip">
+        <strong>📋 How to add a note</strong>
+        Copy a <code>&lt;!-- NEW NOTE --&gt;</code> block from the bottom of this file and paste it before the <code>.add-note-box</code> div. Add a sidebar link above too.
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main>
+
+      <!-- HERO -->
+      <div class="hero">
+        <span class="hero-tag">📝 Personal Scratch Pad</span>
+        <h1>My CN Notes</h1>
+        <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
+        <div class="hero-stats">
+          <div class="stat"><span class="num" id="total-notes">1</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
+          <div class="stat"><span class="num" id="pending-count">0</span><span class="lbl">Pending</span></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 1: ALOHA
+           Status: merged into Section 16 of cn_complete_teacher_notes.html
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card merged" id="note-aloha">
+        <div class="note-header">
+          <div class="note-icon">📡</div>
+          <div class="note-meta">
+            <div class="note-title">ALOHA Protocols — Pure &amp; Slotted</div>
+            <div class="note-badges">
+              <span class="badge merged">✅ Merged</span>
+              <span class="badge section">Section 16 — MAC Layer</span>
+              <span class="badge exam">🎯 GATE Important</span>
+              <span class="badge date">📅 2026-07-10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>The Basic Problem</h4>
+          <p>A shared communication channel (radio/satellite) is used by multiple stations. If two transmit simultaneously, their signals <strong>collide</strong> — both frames are corrupted. ALOHA protocols are the earliest solution to this problem. Developed at the University of Hawaii in the 1970s.</p>
+
+          <h4>1. Pure ALOHA</h4>
+          <p><strong>Rule:</strong> transmit immediately whenever data is ready. No listening, no coordination.</p>
+          <p><strong>Problem:</strong> even a partial overlap of two frames causes a collision and corrupts both entirely.</p>
+
+          <figure class="diagram-box">
+            <img src="assets/aloha_vulnerable_period.jpg" alt="ALOHA Vulnerable Period — Pure ALOHA 2×Tt, Slotted ALOHA 1×Tt" loading="lazy">
+            <figcaption>Vulnerable period: Pure ALOHA (dark red) = 2×Tt &nbsp;|&nbsp; Slotted ALOHA (dark green) = 1×Tt</figcaption>
+          </figure>
+
+          <div class="formula-box">Vulnerable Period (Pure ALOHA) = 2 × Tt
+
+Throughput:    S = G · e^(-2G)
+  S = successful frames per frame-time
+  G = total offered load (including retransmissions)
+
+Maximum throughput → dS/dG = 0 → peak at G = 0.5:
+  S_max = 1/(2e) ≈ 0.184   →   18.4%</div>
+
+          <div class="callout success">
+            <span class="callout-icon">💡</span>
+            <div>Only <strong>18.4%</strong> of channel capacity is ever used for successful transmission in Pure ALOHA. The rest is lost to collisions.</div>
+          </div>
+
+          <h4>2. Slotted ALOHA</h4>
+          <p>Time is divided into fixed slots of duration Tt. A station can only <strong>start transmitting at a slot boundary</strong> — never mid-slot.</p>
+          <p><strong>Why better:</strong> partial overlaps are impossible. Collisions only happen if two stations pick the <em>same</em> slot.</p>
+
+          <div class="formula-box">Vulnerable Period (Slotted ALOHA) = 1 × Tt   [half of Pure ALOHA]
+
+Throughput:    S = G · e^(-G)
+
+Maximum throughput → peak at G = 1.0:
+  S_max = 1/e ≈ 0.368   →   36.8%
+
+∴ Exactly 2× the efficiency of Pure ALOHA.</div>
+
+          <div class="callout tip">
+            <span class="callout-icon">🔍</span>
+            <div><strong>Why exactly 2×?</strong> The vulnerable period halves (2Tt → Tt), so collision probability halves, and throughput exactly doubles. This follows directly from the formula — not a coincidence.</div>
+          </div>
+
+          <h4>Comparison Table</h4>
+          <table class="note-table">
+            <tr><th>Parameter</th><th>Pure ALOHA</th><th>Slotted ALOHA</th></tr>
+            <tr><td>Transmission timing</td><td>Anytime</td><td>Only at slot boundaries</td></tr>
+            <tr><td>Vulnerable period</td><td>2 × Tt</td><td>1 × Tt</td></tr>
+            <tr><td>Throughput formula</td><td>S = G·e^(-2G)</td><td>S = G·e^(-G)</td></tr>
+            <tr><td>Max throughput</td><td>18.4% at G = 0.5</td><td>36.8% at G = 1.0</td></tr>
+            <tr><td>Clock sync required</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Collision type</td><td>Full or partial overlap</td><td>Only same-slot</td></tr>
+          </table>
+
+          <h4>MCQ Trap Points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;">
+                <li><strong>Efficiency doubles</strong> — because vulnerable period halves, not by accident.</li>
+                <li><strong>Formulas use e ≈ 2.718</strong> — answers given as 1/2e or 1/e directly.</li>
+                <li><strong>G at max:</strong> Pure = 0.5, Slotted = 1.0 — very commonly asked.</li>
+                <li><strong>Clock sync:</strong> Slotted needs it, Pure does not — common True/False.</li>
+                <li><strong>Numerical trap:</strong> if G given for Pure ALOHA, use S = G·e^(-2G), NOT the Slotted formula.</li>
+                <li><strong>Both are predecessors</strong> to CSMA — historically used in satellite/radio systems.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ══════════════════════════════════════════════
+           ADD NEW NOTES ABOVE THIS LINE
+
+           Template — copy the block below, uncomment it,
+           fill in your content, and add a link to the sidebar:
+
+      <article class="note-card pending" id="note-your-id">
+        <div class="note-header">
+          <div class="note-icon">📌</div>
+          <div class="note-meta">
+            <div class="note-title">Your Note Title</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section XX — Topic Name</span>
+              <span class="badge date">📅 YYYY-MM-DD</span>
+            </div>
+          </div>
+        </div>
+        <div class="note-body">
+          <p>Your content here in any format...</p>
+        </div>
+      </article>
+
+      Badge options:
+        merged:    <span class="badge merged">✅ Merged</span>
+        pending:   <span class="badge pending">⏳ Pending Merge</span>
+        new-topic: <span class="badge new-topic">🆕 New Section</span>
+        exam:      <span class="badge exam">🎯 GATE Important</span>
+
+      Card type (change class on <article>):
+        merged    → green top bar
+        pending   → amber top bar
+        new-topic → cyan top bar
+      ════════════════════════════════════════════════ -->
+
+      <!-- ADD NOTE PLACEHOLDER -->
+      <div class="add-note-box">
+        <div class="add-icon">➕</div>
+        <h3>Add a New Note Here</h3>
+        <p>Copy the template block from the HTML comment above, paste your content, and it will appear as a card on this page.</p>
+        <pre>&lt;!-- Paste your next note here --&gt;</pre>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Auto-count note stats
+    const cards = document.querySelectorAll('.note-card');
+    const merged = document.querySelectorAll('.note-card.merged');
+    const pending = document.querySelectorAll('.note-card.pending');
+    document.getElementById('total-notes').textContent = cards.length;
+    document.getElementById('merged-count').textContent = merged.length;
+    document.getElementById('pending-count').textContent = pending.length;
+
+    // Active sidebar link on scroll
+    const links = document.querySelectorAll('aside a[href^="#"]');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`aside a[href="#${e.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.note-card[id]').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
