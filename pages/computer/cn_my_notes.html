@@ -454,6 +454,7 @@
     <aside>
       <h3>Note Index</h3>
       <a href="#note-aloha" class="active">📡 ALOHA Protocols</a>
+      <a href="#note-csma">📞 CSMA Protocol</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -575,6 +576,150 @@
                 <li>Slotted ALOHA requires a <strong>synchronized clock</strong> across all stations — a frequent true/false statement.</li>
                 <li>Both are <strong>random access protocols</strong>, predecessors to the CSMA family; historically used in satellite communication and early Ethernet.</li>
                 <li>Numerical questions: if G is given (e.g., G=1 for Pure ALOHA), you may be asked to calculate S — just substitute into the formula.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 2: CSMA
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-csma">
+        <div class="note-header">
+          <div class="note-icon">📞</div>
+          <div class="note-meta">
+            <div class="note-title">CSMA (Carrier Sense Multiple Access)</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 16 — MAC Layer</span>
+              <span class="badge exam">🎯 GATE Important</span>
+              <span class="badge date">📅 2026-07-10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>What is CSMA?</h4>
+          <p>Pure ALOHA and Slotted ALOHA had one big flaw — stations transmit blindly, without checking whether the channel is already busy. <strong>CSMA (Carrier Sense Multiple Access)</strong> fixes this with one simple rule:</p>
+          <p><strong>"Listen before you talk."</strong> Before transmitting, a station first <strong>senses the channel</strong>. If it's busy, it doesn't transmit; if it's idle, only then does it try to send.</p>
+          <p>This reduces collisions significantly compared to ALOHA — but here's the exam-important catch: <strong>CSMA reduces collisions, it does NOT eliminate them.</strong></p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Why collisions still happen — Vulnerable Time</h4>
+          <p>Even though a station "senses" the channel, it can still get it wrong. Here's why (matches the diagram above and your slide's example):</p>
+          <p>Suppose station <strong>A</strong> transmits a frame at time t1. This signal doesn't reach every station instantly — it takes real physical time to travel along the medium (electrical/optical signal has finite speed). This travel time is called <strong>propagation time (Tp)</strong>.</p>
+          <p>Now imagine station <strong>B</strong>, sitting somewhere in the middle, senses the channel <em>before A's signal has reached it</em>. B finds the channel idle (because A's signal simply hasn't arrived yet) and starts transmitting too. <strong>Collision.</strong></p>
+
+          <figure class="diagram-box">
+            <img src="assets/csma_vulnerable_time.png" alt="CSMA Vulnerable Time Diagram — Vulnerable time is Tp (propagation delay)" loading="lazy">
+            <figcaption>CSMA Vulnerable time comparison showing signal propagation slope and overlap collisions</figcaption>
+          </figure>
+
+          <p>So the <strong>vulnerable time in CSMA = propagation time (Tp)</strong> — much smaller than ALOHA's vulnerable time (which was based on frame transmission time Tt), which is exactly why CSMA performs far better than ALOHA.</p>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>
+              <strong>Key insight for MCQs:</strong>
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li>Vulnerable time depends on <strong>distance between stations</strong> and <strong>signal propagation speed</strong>, not on frame size.</li>
+                <li>The farther two stations are apart, the longer it takes for one's signal to reach the other, so the higher the chance of collision.</li>
+                <li>A station right next to the sender has almost no vulnerable window; a station far away has a bigger window.</li>
+              </ul>
+            </div>
+          </div>
+
+          <p><strong>Numeric example (like your slide with distances 3, 5, 2):</strong> If A sends at 7:00, and it takes 3 minutes (time units) for the signal to reach B, then B could sense idle and transmit anywhere in that 3-minute gap — collision risk. Same logic for C and D based on their distances from A. The <strong>total propagation time to the farthest station (D)</strong> defines the full vulnerable window for the whole network.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Persistence methods — what to do after sensing?</h4>
+          <p>CSMA tells you to sense before sending, but it doesn't specify <strong>what a station should do if the channel is busy</strong>, or exactly how to act once it's idle. That's what the three <strong>persistence methods</strong> solve.</p>
+
+          <h5>1. 1-Persistent method</h5>
+          <ul>
+            <li>Station continuously senses the channel.</li>
+            <li>The moment it finds the channel <strong>idle, it transmits immediately</strong> (with probability 1 — hence "1-persistent").</li>
+            <li><strong>Drawback:</strong> if multiple stations are waiting for the channel to become free, <strong>all of them jump in the instant it's idle</strong> → very high chance of collision.</li>
+            <li><strong>Used in:</strong> classic Ethernet (CSMA/CD).</li>
+          </ul>
+
+          <h5>2. Non-persistent method</h5>
+          <ul>
+            <li>Station senses the channel.</li>
+            <li>If idle → transmit immediately.</li>
+            <li>If busy → <strong>don't keep sensing continuously</strong>; instead wait a <strong>random amount of time</strong>, then sense again.</li>
+            <li><strong>Advantage:</strong> fewer collisions (since stations back off by different random times, unlikely to retry simultaneously).</li>
+            <li><strong>Drawback:</strong> channel may sit idle even though a station has data ready, because it's still in its random wait — this <strong>wastes channel time</strong>, lowering efficiency.</li>
+          </ul>
+
+          <h5>3. P-persistent method (best of both worlds)</h5>
+          <ul>
+            <li>Used in <strong>slotted channels</strong> (time divided into slots, each slot ≥ max propagation time).</li>
+            <li>When channel is found idle:
+              <ul>
+                <li>With <strong>probability p</strong> → transmit.</li>
+                <li>With <strong>probability q = 1−p</strong> → wait for the next slot and sense again.</li>
+              </ul>
+            </li>
+            <li>If it senses busy at any point → treats it like a collision and runs the <strong>backoff procedure</strong>.</li>
+            <li><strong>Advantage:</strong> balances 1-persistent's "everyone jumps in" problem and non-persistent's "wasted idle time" problem — reduces collisions <strong>and</strong> keeps efficiency high.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison table (exam-ready)</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>When channel busy</th>
+                <th>When channel idle</th>
+                <th>Collision chance</th>
+                <th>Efficiency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1-persistent</strong></td>
+                <td>Keep sensing continuously</td>
+                <td>Transmit immediately (p=1)</td>
+                <td>Highest</td>
+                <td>Can be low under load</td>
+              </tr>
+              <tr>
+                <td><strong>Non-persistent</strong></td>
+                <td>Wait random time, sense again</td>
+                <td>Transmit immediately</td>
+                <td>Lower</td>
+                <td>Reduced (channel idles unnecessarily)</td>
+              </tr>
+              <tr>
+                <td><strong>P-persistent</strong></td>
+                <td>Backoff like a collision occurred</td>
+                <td>Transmit with probability p, else wait a slot</td>
+                <td>Balanced</td>
+                <td>Best overall</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>CSMA reduces but never eliminates collisions</strong> — a very common true/false trap.</li>
+                <li>Vulnerable time in CSMA = <strong>propagation delay (Tp)</strong>, not frame transmission time. Don't confuse this with ALOHA's Tt-based vulnerable period.</li>
+                <li><strong>1-persistent</strong> has the <em>highest</em> collision probability among the three — many students wrongly assume "1" means "best."</li>
+                <li><strong>Non-persistent</strong> avoids the 1-persistent collision problem but <strong>wastes bandwidth</strong> due to unnecessary idle time.</li>
+                <li><strong>P-persistent</strong> requires the channel to be divided into <strong>time slots</strong> — this detail ("slotted channel") is often tested directly.</li>
+                <li>CSMA is the base for <strong>CSMA/CD</strong> (Collision Detection — used in wired Ethernet) and <strong>CSMA/CA</strong> (Collision Avoidance — used in wireless/WiFi) — natural next topics, and IBPS SO loves asking "CD is for wired, CA is for wireless."</li>
               </ol>
             </div>
           </div>
