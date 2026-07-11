@@ -455,6 +455,8 @@
       <h3>Note Index</h3>
       <a href="#note-aloha" class="active">📡 ALOHA Protocols</a>
       <a href="#note-csma">📞 CSMA Protocol</a>
+      <a href="#note-csmacd">💥 CSMA/CD Protocol</a>
+      <a href="#note-beb">⏳ Binary Exponential Backoff</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -472,9 +474,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">1</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">4</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">0</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">3</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -723,6 +725,636 @@
               </ol>
             </div>
           </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 3: CSMA/CD
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-csmacd">
+        <div class="note-header">
+          <div class="note-icon">💥</div>
+          <div class="note-meta">
+            <div class="note-title">CSMA/CD (Collision Detection)</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 17 — CSMA/CD</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <p>For the <strong>IBPS SO (IT Officer)</strong> exam, you <strong>do not need the deep mathematical treatment</strong> of CSMA/CD that is required for GATE. You should focus on:</p>
+          <ul>
+            <li>What it is</li>
+            <li>Why it is needed</li>
+            <li>How it works (step by step)</li>
+            <li>Ethernet association</li>
+            <li>Difference from CSMA/CA</li>
+            <li>Common MCQ points</li>
+          </ul>
+          <p>Let's learn it from scratch.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Before CSMA/CD, understand the problem</h4>
+          <p>Imagine there is <strong>only one microphone</strong> in a classroom.</p>
+          <p>There are 5 students.</p>
+          <div class="formula-box">Student A
+Student B
+Student C
+Student D
+Student E
+
+        🎤</div>
+          <p>Everyone wants to speak using the same microphone.</p>
+          <p>If only one student speaks,</p>
+          <p>No problem.</p>
+          <p>But suppose A says <blockquote>"Sir..."</blockquote> and exactly at the same time, B also says <blockquote>"Sir..."</blockquote></p>
+          <p>Both voices mix. Nobody understands anything. This is called a <strong>Collision</strong>.</p>
+          <p>The same thing happens in Ethernet.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>What is CSMA/CD?</h4>
+          <p>CSMA/CD stands for:</p>
+          <ul>
+            <li><strong>C</strong> → Carrier</li>
+            <li><strong>S</strong> → Sense</li>
+            <li><strong>M</strong> → Multiple</li>
+            <li><strong>A</strong> → Access</li>
+            <li><strong>C</strong> → Collision</li>
+            <li><strong>D</strong> → Detection</li>
+          </ul>
+          <p>Let's understand each word.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Carrier Sense (CS)</h4>
+          <p>Carrier means <blockquote>The communication channel (wire/cable).</blockquote></p>
+          <p>Sense means <blockquote>Listen before speaking.</blockquote></p>
+          <p>Think about a phone conversation. Before speaking, you check "Is the other person already speaking?"</p>
+          <p>Similarly, a computer first checks whether the network cable is busy.</p>
+          <ul>
+            <li>If busy → Wait.</li>
+            <li>If free → Transmit.</li>
+          </ul>
+          <p>This is called <strong>Carrier Sense</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Multiple Access (MA)</h4>
+          <p>Multiple Access means many computers share the same communication medium.</p>
+          <p>Example:</p>
+          <div class="formula-box">PC1
+
+PC2
+
+PC3
+
+PC4
+
+      │
+      │
+Shared Ethernet Cable</div>
+          <p>Everyone uses the same cable.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Collision Detection (CD)</h4>
+          <p>Even after listening, sometimes two computers may decide to transmit at <strong>almost exactly the same moment</strong>.</p>
+          <p>Example:</p>
+          <div class="formula-box">Time →
+
+A : Listen ✓
+        Send
+
+B : Listen ✓
+        Send</div>
+          <p>Both thought "The cable is free." Both start together. Collision occurs.</p>
+          <p>CSMA/CD detects this collision while transmitting.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Why can collision happen even after listening?</h4>
+          <p>This is the biggest doubt students have.</p>
+          <p>Imagine two people standing at opposite ends of a long hallway.</p>
+          <div class="formula-box">A ---------------------------- B</div>
+          <p>Both look. Nobody is speaking. Both start speaking together.</p>
+          <p>They couldn't know the other had just started because the sound hadn't reached them yet.</p>
+          <p>The same thing happens in Ethernet. Signals take a small amount of time to travel through the cable. So both computers may think "The line is free." This delay causes collisions.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>How CSMA/CD Works</h4>
+          <p>There are <strong>6 easy steps</strong>.</p>
+
+          <h5>Step 1: Computer has data</h5>
+          <p>Suppose Computer A wants to send data.</p>
+          <div class="formula-box">Computer A
+
+Data Ready</div>
+
+          <h5>Step 2: Listen to the channel</h5>
+          <p>It first checks "Is someone already transmitting?"</p>
+          <div class="formula-box">Cable
+
+Busy?
+
+No</div>
+          <p>If busy → Wait. If free → Go ahead.</p>
+
+          <h5>Step 3: Start transmitting</h5>
+          <p>Now A starts sending.</p>
+          <div class="formula-box">A ======= Data =======></div>
+
+          <h5>Step 4: Keep listening while transmitting</h5>
+          <p>This is very important. Unlike ALOHA, CSMA/CD does <strong>not stop listening</strong> after transmission starts. It keeps monitoring the cable.</p>
+          <p>Think of it like talking while also listening to see if someone interrupts you.</p>
+
+          <h5>Step 5: Collision detected</h5>
+          <p>Suppose Computer B also starts sending.</p>
+          <div class="formula-box">A -------->
+
+            X
+
+B --------></div>
+          <p>Signals collide. Computer A notices "What I'm receiving is different from what I'm transmitting." So it concludes <blockquote>Collision!</blockquote></p>
+
+          <h5>Step 6: Stop transmission immediately</h5>
+          <p>The computers stop sending data. Then they send a <strong>Jam Signal</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>What is a Jam Signal?</h4>
+          <p>Think of a referee blowing a whistle.</p>
+          <div class="formula-box">Whistle !!
+
+Everyone Stop !!</div>
+          <p>Similarly, a jam signal tells every computer:</p>
+          <div class="formula-box">Collision happened.
+
+Stop transmitting.</div>
+          <p>After sending the jam signal, everyone stops.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>What happens after the collision?</h4>
+          <p>Now both computers wait for a <strong>random amount of time</strong>.</p>
+          <p>Example: Computer A waits <code>2 ms</code>, Computer B waits <code>5 ms</code>.</p>
+          <p>Since they wait for different times, they are less likely to collide again.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Binary Exponential Backoff</h4>
+          <p>This is one of the favorite IBPS interview/MCQ topics.</p>
+          <p>Suppose collision happens once. Random waiting is chosen from <code>0 or 1</code>.</p>
+          <p>If another collision happens, choose from <code>0 1 2 3</code>.</p>
+          <p>Next collision: <code>0 to 7</code>.</p>
+          <p>Next: <code>0 to 15</code>.</p>
+          <p>Next: <code>0 to 31</code>.</p>
+          <p>The waiting range <strong>doubles after every collision</strong>, reducing the chance of repeated collisions. This method is called <strong>Binary Exponential Backoff</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Complete Flow</h4>
+          <div class="formula-box">Data Ready
+
+↓
+
+Listen
+
+↓
+
+Busy?
+
+↓
+
+YES ---------------------> Wait
+
+↓
+
+NO
+
+↓
+
+Transmit
+
+↓
+
+Collision?
+
+↓
+
+NO ---------------------> Success
+
+↓
+
+YES
+
+↓
+
+Send Jam Signal
+
+↓
+
+Stop Transmission
+
+↓
+
+Random Backoff
+
+↓
+
+Try Again</div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Real-Life Analogy</h4>
+          <p>Imagine two friends using walkie-talkies.</p>
+          <p>Friend A: "Hello..."<br>Friend B: "Hello..."</p>
+          <p>Both speak together. Nobody understands. Now they both hear the interference. They stop. One waits 2 seconds. The other waits 5 seconds. Then one speaks. Perfect. That's CSMA/CD.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Where is CSMA/CD used?</h4>
+          <p><strong>Used in:</strong></p>
+          <ul>
+            <li>Traditional shared Ethernet</li>
+            <li>Bus topology</li>
+            <li>Hub-based Ethernet</li>
+            <li>Half-duplex Ethernet</li>
+          </ul>
+          <p><strong>Not used in:</strong></p>
+          <ul>
+            <li>Modern switched Ethernet (full-duplex), because each device has its own dedicated link, so collisions do not occur.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Why is CSMA/CD not used in Wi-Fi?</h4>
+          <p>In wireless networks, a device cannot reliably <strong>transmit and detect a collision at the same time</strong> because its own transmitted signal overwhelms any incoming signal. So Wi-Fi tries to <strong>avoid</strong> collisions instead of detecting them. It uses <strong>CSMA/CA (Collision Avoidance)</strong> rather than <strong>CSMA/CD (Collision Detection)</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>CSMA/CD vs ALOHA</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>ALOHA</th>
+                <th>CSMA/CD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Listen before sending?</strong></td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+              </tr>
+              <tr>
+                <td><strong>Collision detection during transmission?</strong></td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+              </tr>
+              <tr>
+                <td><strong>Efficiency</strong></td>
+                <td>Lower</td>
+                <td>Higher</td>
+              </tr>
+              <tr>
+                <td><strong>Used in</strong></td>
+                <td>Early radio networks</td>
+                <td>Ethernet LANs</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>CSMA/CD vs CSMA/CA</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>CSMA/CD</th>
+                <th>CSMA/CA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Collision Detection</td>
+                <td>Collision Avoidance</td>
+              </tr>
+              <tr>
+                <td>Wired Ethernet</td>
+                <td>Wireless (Wi-Fi)</td>
+              </tr>
+              <tr>
+                <td>Detects collision after it occurs</td>
+                <td>Tries to prevent collision before it occurs</td>
+              </tr>
+              <tr>
+                <td>IEEE 802.3</td>
+                <td>IEEE 802.11</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>IBPS SO Important Points (Memorize)</h4>
+          <ul>
+            <li><strong>CSMA/CD = Carrier Sense Multiple Access with Collision Detection</strong></li>
+            <li>Operates at the <strong>MAC (Media Access Control) sublayer of the Data Link Layer</strong>.</li>
+            <li>Used in <strong>shared, half-duplex Ethernet (IEEE 802.3)</strong>.</li>
+            <li><strong>Listen before transmitting</strong> (Carrier Sense).</li>
+            <li>If the channel is busy, <strong>wait</strong>.</li>
+            <li>If a collision occurs, <strong>detect it</strong>, send a <strong>Jam Signal</strong>, stop transmission, wait using <strong>Binary Exponential Backoff</strong>, and retransmit.</li>
+            <li><strong>Modern switched full-duplex Ethernet does not use CSMA/CD</strong>, because collisions are effectively eliminated.</li>
+          </ul>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>
+              <strong>A simple memory trick:</strong><br>
+              Remember the sequence: <strong>L → T → D → J → B → R</strong>
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li><strong>L</strong> = Listen</li>
+                <li><strong>T</strong> = Transmit</li>
+                <li><strong>D</strong> = Detect Collision</li>
+                <li><strong>J</strong> = Jam Signal</li>
+                <li><strong>B</strong> = Binary Exponential Backoff</li>
+                <li><strong>R</strong> = Retransmit</li>
+              </ul>
+              If you can recall this sequence, you'll be able to answer almost every CSMA/CD question that appears in the IBPS SO exam.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 4: BINARY EXPONENTIAL BACKOFF
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-beb">
+        <div class="note-header">
+          <div class="note-icon">⏳</div>
+          <div class="note-meta">
+            <div class="note-title">Binary Exponential Backoff (BEB)</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 17 — Backoff Algorithm</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <p>Excellent! <strong>Binary Exponential Backoff (BEB)</strong> is one of the most confusing topics for beginners, but once you understand the logic behind it, it's actually very simple.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>First, why do we need Binary Exponential Backoff?</h4>
+          <p>Imagine two people, <strong>Rahul</strong> and <strong>Aman</strong>, are using walkie-talkies.</p>
+          <h5>Time = 0 seconds</h5>
+          <p>Rahul starts speaking. At the exact same time, Aman also starts speaking.</p>
+          <div class="formula-box">Rahul: Hello....
+
+Aman : Hello....
+
+      COLLISION 💥</div>
+          <p>Neither message is understood. Now both stop. The question is: <blockquote><strong>When should they try again?</strong></blockquote></p>
+
+          <h5>Problem 1: Retry immediately</h5>
+          <p>Suppose both think, "Let's try again immediately."</p>
+          <div class="formula-box">Time 0
+
+Rahul ---> Hello
+
+Aman ----> Hello
+
+COLLISION 💥</div>
+          <p>Again, collision.</p>
+
+          <h5>Problem 2: Wait exactly 2 seconds</h5>
+          <p>Now suppose both decide, "Let's wait exactly 2 seconds."</p>
+          <div class="formula-box">Time 2 sec
+
+Rahul ---> Hello
+
+Aman ----> Hello
+
+COLLISION AGAIN 💥</div>
+          <p>Still a collision.</p>
+
+          <h5>So what should we do?</h5>
+          <p>Instead of choosing the <strong>same waiting time</strong>, let each computer choose a <strong>random waiting time</strong>.</p>
+          <p>Example:</p>
+          <div class="formula-box">Rahul waits 1 second
+
+Aman waits 4 seconds</div>
+          <p>Now:</p>
+          <div class="formula-box">1 sec
+
+Rahul ---> Hello ✅
+
+4 sec
+
+Aman ---> Hello ✅</div>
+          <p>No collision. This is the basic idea behind <strong>Backoff</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>What does "Binary Exponential Backoff" mean?</h4>
+          <p>Let's understand each word.</p>
+
+          <h5>Binary</h5>
+          <p>Means powers of <strong>2</strong>.</p>
+          <div class="formula-box">2^0 = 1
+
+2^1 = 2
+
+2^2 = 4
+
+2^3 = 8
+
+2^4 = 16</div>
+
+          <h5>Exponential</h5>
+          <p>Means the range <strong>doubles after every collision</strong>.</p>
+          <p>Example:</p>
+          <div class="formula-box">1
+
+2
+
+4
+
+8
+
+16
+
+32</div>
+          <p>Notice every value doubles.</p>
+
+          <h5>Backoff</h5>
+          <p><blockquote>Wait for some time before trying again.</blockquote></p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>How does it actually work?</h4>
+          <p>Suppose Rahul and Aman collide. This is the <strong>first collision</strong>.</p>
+
+          <h5>First Collision</h5>
+          <p>The computer randomly chooses <code>0</code> or <code>1</code>. Only these two values. Think of it as:</p>
+          <div class="formula-box">Random = {0,1}</div>
+          <p>Suppose Rahul gets <code>0</code>, Aman gets <code>1</code>. Then:</p>
+          <div class="formula-box">Rahul sends immediately.
+
+Aman waits one slot.</div>
+          <p>Success.</p>
+
+          <h5>What if they collide again?</h5>
+          <p>Now collision count becomes <code>2</code>. Now the random number is chosen from <code>0, 1, 2, 3</code>.</p>
+          <p>Why? Because <code>2² = 4 values</code>. Range: <code>0 to 3</code>.</p>
+          <p>Example: Rahul chooses <code>3</code>, Aman chooses <code>1</code>. Aman sends first. Rahul waits. No collision.</p>
+
+          <h5>Third Collision</h5>
+          <p>Suppose they are very unlucky. Another collision happens. Now choose from <code>0, 1, 2, 3, 4, 5, 6, 7</code>.</p>
+          <p>Why? Because <code>2³ = 8 values</code>. Range: <code>0 to 7</code>. Now the chance that both pick the same number is much smaller.</p>
+
+          <h5>Fourth Collision</h5>
+          <p>Choose from <code>0 to 15</code>. Because <code>2⁴ = 16 values</code>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>General Formula</h4>
+          <p>If <code>n = Number of collisions</code>, then the random number is selected from:</p>
+          <div class="formula-box">0  to  (2^n − 1)</div>
+          <p>This is the most important formula for exams.</p>
+          <p>Examples:</p>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Collision Number (n)</th>
+                <th>Random Range</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>0 – 1</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>0 – 3</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>0 – 7</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>0 – 15</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>0 – 31</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>0 – 63</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Notice how the range doubles after each collision.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Why does doubling help?</h4>
+          <p>Imagine only two choices: <code>0, 1</code>. Rahul and Aman have a <strong>50% chance</strong> of choosing the same value.</p>
+          <p>Now increase the choices: <code>0, 1, 2, 3</code>. The probability of both choosing the same value becomes lower.</p>
+          <p>Now increase further: <code>0, 1, 2, 3, 4, 5, 6, 7</code>. Now it's even less likely. So increasing the waiting range reduces repeated collisions.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Real-Life Analogy</h4>
+          <p>Imagine two friends trying to enter a narrow door. Initially, they both try together. 💥 Collision.</p>
+          <p>The teacher says: <blockquote>"One of you wait randomly between 0–1 seconds."</blockquote></p>
+          <p>If they still collide, the teacher says: <blockquote>"Now wait randomly between 0–3 seconds."</blockquote></p>
+          <p>Still collide? The teacher says: <blockquote>"Now wait randomly between 0–7 seconds."</blockquote></p>
+          <p>Eventually, one goes first, then the other. This is exactly how Binary Exponential Backoff works.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Visualization</h4>
+          <div class="formula-box">Collision #1
+Choose 0 1
+
+↓
+
+Collision #2
+Choose 0 1 2 3
+
+↓
+
+Collision #3
+Choose 0 1 2 3 4 5 6 7
+
+↓
+
+Collision #4
+Choose 0 ... 15
+
+↓
+
+Collision #5
+Choose 0 ... 31</div>
+          <p>The waiting choices keep expanding.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>How does Ethernet measure the waiting time?</h4>
+          <p>The random number is <strong>not in seconds</strong>. It is in <strong>slot times</strong>.</p>
+          <p>For example, suppose the random number selected is <strong>3</strong>.</p>
+          <div class="formula-box">Wait:  3 × Slot Time    Then retransmit.</div>
+          <p>A <strong>slot time</strong> is a fixed unit of time defined by the Ethernet standard. For the IBPS SO exam, you usually don't need to memorize its exact duration—just know that computers wait for a random number of <strong>slot times</strong> before retransmitting.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>IBPS SO Exam Points</h4>
+          <ul>
+            <li>Binary Exponential Backoff is used <strong>after a collision</strong> in <strong>CSMA/CD</strong>.</li>
+            <li>After every collision, the waiting range <strong>doubles</strong>.</li>
+            <li>The random number is chosen from: <code>0 to (2^n - 1)</code> where <strong>n</strong> is the number of collisions.</li>
+            <li>The purpose is to <strong>reduce the probability of repeated collisions</strong>.</li>
+            <li>It is a key mechanism used in <strong>Ethernet (IEEE 802.3)</strong>.</li>
+          </ul>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>
+              <strong>Easy Memory Trick:</strong><br>
+              Think of a child repeatedly bumping into someone in a hallway.
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li>First time: "Wait a little." (0-1)</li>
+                <li>Second time: "Wait a bit longer." (0-3)</li>
+                <li>Third time: "Wait even longer." (0-7)</li>
+                <li>Fourth time: "Wait even longer." (0-15)</li>
+                <li>Fifth time: "Wait even longer." (0-31)</li>
+              </ul>
+              Just remember the pattern: <strong>2, 4, 8, 16, 32... (powers of 2)</strong>. That's why it's called <strong>Binary Exponential Backoff</strong>:
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li><strong>Binary</strong> → based on powers of 2.</li>
+                <li><strong>Exponential</strong> → the range doubles after each collision.</li>
+                <li><strong>Backoff</strong> → wait before trying again.</li>
+              </ul>
+            </div>
+          </div>
+
         </div>
       </article>
 
