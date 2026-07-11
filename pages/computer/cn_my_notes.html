@@ -453,10 +453,12 @@
     <!-- ── SIDEBAR ── -->
     <aside>
       <h3>Note Index</h3>
-      <a href="#note-aloha" class="active">📡 ALOHA Protocols</a>
+      <a href="#note-classification" class="active">🗂️ Protocol Classification</a>
+      <a href="#note-aloha">📡 ALOHA Protocols</a>
       <a href="#note-csma">📞 CSMA Protocol</a>
       <a href="#note-csmacd">💥 CSMA/CD Protocol</a>
       <a href="#note-beb">⏳ Binary Exponential Backoff</a>
+      <a href="#note-csmaca">📶 CSMA/CA Protocol</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -474,11 +476,163 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">4</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">6</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">3</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">5</span><span class="lbl">Pending</span></div>
         </div>
       </div>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 0: PROTOCOL CLASSIFICATION
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-classification">
+        <div class="note-header">
+          <div class="note-icon">🗂️</div>
+          <div class="note-meta">
+            <div class="note-title">Multiple Access Protocols Classification</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 16 — MAC Layer</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <p>Multiple Access Protocols (all three branches — Random-access, Controlled-access, Channelization) fall under the <strong>Data Link Layer</strong> of the OSI model — more specifically, its <strong>MAC (Medium Access Control) sublayer</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Why Data Link Layer, and not something else?</h4>
+          <p>Recall that in the OSI model, the <strong>Data Link Layer is split into two sublayers</strong>:</p>
+          <ol>
+            <li><strong>LLC (Logical Link Control) sublayer</strong> — handles flow control, error control, and framing (interacts with the Network layer above it).</li>
+            <li><strong>MAC (Medium Access Control) sublayer</strong> — handles <strong>who gets to use the shared physical medium and when</strong>. This is exactly the job of ALOHA, CSMA, CSMA/CD, CSMA/CA, Reservation, Polling, Token Passing, FDMA, TDMA, CDMA.</li>
+          </ol>
+          <p>Since these protocols exist purely to decide <strong>which station transmits over the shared channel at a given moment</strong> (avoiding or managing collisions), they naturally belong to the sublayer that manages access to the medium — the <strong>MAC sublayer</strong>, which sits within the <strong>Data Link Layer</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick memory hook</h4>
+          <ul>
+            <li><strong>Physical Layer</strong> → deals with raw bits, signals, cables (below this).</li>
+            <li><strong>Data Link Layer → MAC sublayer</strong> → decides <strong>who transmits when</strong> (this is where Multiple Access Protocols live).</li>
+            <li><strong>Data Link Layer → LLC sublayer</strong> → handles framing, flow control, error control.</li>
+            <li><strong>Network Layer</strong> → routing (above this).</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li>"CSMA/CD belongs to which layer?" → <strong>Data Link Layer (MAC sublayer)</strong> — one of the most repeated direct questions.</li>
+                <li>Don't confuse this with <strong>TDMA/FDMA/CDMA in mobile communication contexts</strong> — in cellular networks these are sometimes discussed as <strong>Physical Layer</strong> techniques (since they deal with actual frequency/time/code allocation of the radio spectrum). But in the <strong>standard computer networks syllabus</strong> (Forouzan-based, which IBPS SO follows), <strong>all multiple access protocols are taught under Data Link Layer → MAC sublayer</strong> — stick with this for your exam.</li>
+                <li>MAC address (physical/hardware address) is also handled at this same sublayer — a nice connecting fact if a question links MAC addressing with multiple access protocols.</li>
+              </ol>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <p>This is the <strong>top-level classification of Multiple Access Protocols</strong> in Computer Networks — the "family tree" that ALOHA, CSMA, CSMA/CD, and CSMA/CA (which we've already covered) belong to. For IBPS SO, this classification itself is a very common one-line MCQ ("Which of these is NOT a random-access protocol?" type questions), so let's map out all three branches clearly.</p>
+          <p>At the top: <strong>Multiple-access protocols</strong> — these decide how multiple stations share one common communication channel. They split into <strong>3 main categories</strong>:</p>
+
+          <figure class="diagram-box">
+            <img src="assets/multiple_access_classification.png" alt="Multiple-access protocols classification tree" loading="lazy">
+            <figcaption>Classification of Multiple-access Protocols: Random-access, Controlled-access, and Channelization</figcaption>
+          </figure>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>1. Random-Access Protocols</h4>
+          <p><strong>Core idea:</strong> No station has a fixed turn or priority — any station can try to transmit whenever it wants, and the protocol just manages what happens when collisions occur.</p>
+          <ul>
+            <li><strong>ALOHA</strong> — transmit whenever ready, no sensing at all (Pure ALOHA / Slotted ALOHA — we covered this).</li>
+            <li><strong>CSMA</strong> — "sense before you send" to reduce collision chances (we covered this).</li>
+            <li><strong>CSMA/CD</strong> — CSMA + <strong>Collision Detection</strong> — used in wired Ethernet; detects a collision mid-transmission and stops immediately (we covered this).</li>
+            <li><strong>CSMA/CA</strong> — CSMA + <strong>Collision Avoidance</strong> — used in WiFi; avoids collisions upfront since wireless can't detect them (we covered this).</li>
+          </ul>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div><strong>Exam memory hook:</strong> notice the natural evolution — ALOHA (no sensing) → CSMA (sensing added) → CSMA/CD (sensing + detection, wired) → CSMA/CA (sensing + avoidance, wireless). Each step fixes a limitation of the previous one.</div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>2. Controlled-Access Protocols</h4>
+          <p><strong>Core idea:</strong> Stations don't transmit freely — they need <strong>permission</strong> from either another station or a central coordinator before sending. This avoids collisions almost entirely, but adds coordination overhead.</p>
+          <ul>
+            <li><strong>Reservation:</strong> Before sending data, a station must <strong>reserve</strong> the channel in advance for a specific time slot. Time is divided into intervals; in each interval, there's a "reservation frame" where stations state their intent to send, then the actual data transmission happens in the reserved order. No collision because everyone knows their assigned slot in advance.</li>
+            <li><strong>Polling:</strong> Works only if there's one <strong>central controller (primary station)</strong> and the rest are <strong>secondary stations</strong>. The primary station asks ("polls") each secondary station in turn — "do you have data to send?" Only the station being polled can transmit at that moment. Simple and collision-free, but the whole system depends on the primary station — if it fails, communication stops (<strong>single point of failure</strong>, a common MCQ trap).</li>
+            <li><strong>Token Passing:</strong> Stations are arranged in a <strong>logical ring</strong>. A special small frame called a <strong>token</strong> circulates around the ring. Only the station currently holding the token is allowed to transmit; after finishing, it passes the token to the next station. No collisions since only the token-holder can send. Used in <strong>Token Ring</strong> and <strong>Token Bus</strong> networks — another classic exam pairing.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>3. Channelization Protocols</h4>
+          <p><strong>Core idea:</strong> Instead of letting stations compete for the whole channel, the <strong>available bandwidth is divided</strong> among stations, so each one gets its own guaranteed share — no competition, no collision at all.</p>
+          <ul>
+            <li><strong>FDMA (Frequency Division Multiple Access):</strong> The available bandwidth is divided into <strong>frequency bands</strong>, and each station gets a fixed frequency band to use for the entire duration. Like giving each station its own separate radio frequency — they can all transmit simultaneously without interfering, since they're on different frequencies.</li>
+            <li><strong>TDMA (Time Division Multiple Access):</strong> The available bandwidth (a single frequency) is divided into <strong>time slots</strong>, and each station gets a fixed time slot in a repeating cycle to transmit. Everyone shares the same frequency but takes turns based on time.</li>
+            <li><strong>CDMA (Code Division Multiple Access):</strong> All stations transmit <strong>simultaneously over the same frequency and at the same time</strong>, but each is assigned a unique <strong>code</strong>. The receiver uses this code to separate and extract the intended signal from the mixed transmission. This is the most advanced of the three and used in mobile/cellular communication.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison table (exam gold)</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Basis</th>
+                <th>Examples</th>
+                <th>Collision?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Random-access</strong></td>
+                <td>No fixed turn, contention-based</td>
+                <td>ALOHA, CSMA, CSMA/CD, CSMA/CA</td>
+                <td>Possible</td>
+              </tr>
+              <tr>
+                <td><strong>Controlled-access</strong></td>
+                <td>Needs permission/coordination</td>
+                <td>Reservation, Polling, Token Passing</td>
+                <td>None</td>
+              </tr>
+              <tr>
+                <td><strong>Channelization</strong></td>
+                <td>Bandwidth is pre-divided</td>
+                <td>FDMA, TDMA, CDMA</td>
+                <td>None</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li>"Which protocol has the <strong>highest chance of collision</strong>?" → Random-access category (especially Pure ALOHA).</li>
+                <li>"Which protocol uses a <strong>token</strong>?" → Token Passing (controlled-access) — don't confuse with time slots in TDMA.</li>
+                <li>"Which divides the channel by <strong>frequency</strong> vs <strong>time</strong> vs <strong>code</strong>?" → FDMA / TDMA / CDMA respectively — a very frequently repeated direct-match question.</li>
+                <li><strong>Polling requires a primary/central station</strong> — single point of failure; Token Passing has <strong>no central controller</strong> (fully distributed) — this distinction is a favorite trap.</li>
+                <li>CSMA family (all 4 protocols) falls under <strong>Random-access</strong>, not Controlled-access — students sometimes misplace CSMA/CD under channelization by mistake.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
 
       <!-- ═══════════════════════════════════════════════
            NOTE 1: ALOHA
@@ -1355,6 +1509,160 @@ Choose 0 ... 31</div>
             </div>
           </div>
 
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 5: CSMA/CA
+           Status: Pending merge
+      ═══════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-csmaca">
+        <div class="note-header">
+          <div class="note-icon">📶</div>
+          <div class="note-meta">
+            <div class="note-title">CSMA/CA (Collision Avoidance)</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 17 — CSMA/CA</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Why does WiFi need Collision Avoidance?</h4>
+          <p>In a wireless network, all devices in the same area share <strong>one RF channel</strong>. The core problem is interference: when multiple devices transmit at the same time, their RF signals interfere with each other, and this problem grows as more devices join the network. When two signals overlap, they cancel each other out and the receiver gets corrupted data.</p>
+          <p>This is essentially the same collision problem you saw in wired Ethernet with a hub — all devices connected to a hub share one collision domain, so every host must operate in half-duplex mode, meaning it can't send and receive at the same time.</p>
+          <p>The fix is the same idea humans use at a table — only one person talks while everyone else listens. That's exactly what <strong>CSMA/CA</strong> enforces for wireless devices.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Breaking down the name — CSMA/CA</h4>
+          <ul>
+            <li><strong>Carrier Sense (CS):</strong> a device may transmit only if the channel is free, so every device continuously monitors the RF spectrum to sense whether someone else is transmitting.</li>
+            <li><strong>Multiple Access (MA):</strong> the wireless medium is shared by all devices using the same frequency, so they must all follow a common set of access rules.</li>
+            <li><strong>Collision Avoidance (CA):</strong> devices use a backoff mechanism to reduce the chance that two of them transmit at the same time.</li>
+          </ul>
+          <p>So CSMA/CA's whole goal is: make sure only one device transmits at a time — by <em>avoiding</em> collisions upfront, not by fixing them after they happen.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The single biggest exam point: WHY CA and not CD for WiFi?</h4>
+          <p>This is the #1 conceptual question IBPS SO can ask, so lock this in:</p>
+          <ul>
+            <li>In <strong>wired</strong> networks, a device can detect a collision because it can listen for electrical signals on the cable while it's transmitting — if it hears an unexpected signal, it knows a collision happened.</li>
+            <li>In <strong>wireless</strong> networks, detecting a collision is impossible, because a device can't transmit and listen on the same frequency at the same time — its own signal is far stronger than any incoming one, drowning out anything else.</li>
+          </ul>
+          <p>That's the whole reason two different algorithms exist:</p>
+          <ul>
+            <li>CSMA/CA (wireless) tries to prevent collisions before they happen by having devices check the channel is clear before transmitting.</li>
+            <li>CSMA/CD (wired) lets collisions happen, then detects and resolves them by stopping and resending the data.</li>
+          </ul>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div><strong>One-line memory trick:</strong> <em>CD = "collision already happened, catch it." CA = "stop it from happening at all."</em></div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>How CSMA/CA actually works (matches the flowchart below)</h4>
+          <ol>
+            <li>A device wants to send data → it senses the channel.</li>
+            <li><strong>Channel free?</strong> → it transmits.</li>
+            <li><strong>Channel busy?</strong> → it waits a random amount of time called the backoff period, then checks the channel again.</li>
+            <li>Once the backoff timer hits zero and the channel is clear, it sends the data.</li>
+            <li>After receiving the transmission, the receiver sends back an acknowledgment (ACK) to confirm the delivery was successful.</li>
+          </ol>
+
+          <figure class="diagram-box">
+            <img src="assets/csma_ca_flowchart.jpg" alt="CSMA/CA (Collision Avoidance) Protocol Flowchart" loading="lazy">
+            <figcaption>Detailed flowchart of CSMA/CA protocol showing Listen, Wait backoff, Transmit, and ACK phases</figcaption>
+          </figure>
+
+          <p>There's also an <strong>optional RTS/CTS mechanism</strong> (Request to Send / Clear to Send): a device first asks the access point for permission before sending; if granted, it transmits, which ensures no other device transmits at the same time. This is a nice extra layer of avoidance for busier networks.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Two ways a device "senses" the channel</h4>
+          <ol>
+            <li><strong>Physical Carrier Sense (Clear Channel Assessment - CCA):</strong> the device listens to the channel when it's not transmitting; if it detects any signal, it assumes the channel is busy.</li>
+            <li><strong>Virtual Carrier Sense (Network Allocation Vector - NAV):</strong> every transmitted frame carries a duration value telling other devices how long the channel will stay occupied; devices that hear this store it in a NAV timer and wait until it counts down to zero before trying to transmit.</li>
+          </ol>
+          <p><strong>Why two methods?</strong> Even with NAV, if multiple devices detect the channel is free at exactly the same moment, they may all try to transmit simultaneously, causing a collision anyway. That's exactly why the <strong>random backoff timer</strong> exists as a third safety layer.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The Random Backoff Timer (very likely MCQ detail)</h4>
+          <p>When a client wants to transmit, it picks a random number of timeslots between 0 and 31 as its backoff timer, which reduces the chance that multiple clients transmit at the moment. Only once <strong>both</strong> the NAV timer and the backoff timer reach zero does the device get to compete for the channel.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Frame Acknowledgements — how does a sender know it worked?</h4>
+          <p>Since wireless can't detect collisions in real time, it needs a different way to confirm success. When a client receives a unicast frame, it must send back a unicast acknowledgment (ACK) to confirm successful delivery. The 802.11 standard requires an ACK for every frame, except in 802.11n and WMM (802.11e), where a single ACK can confirm multiple frames sent in a burst.</p>
+          <p>If no ACK arrives, the sender assumes the frame was lost (possibly due to a collision) and retransmits after another random backoff.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison: CSMA/CD vs CSMA/CA</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>CSMA/CD</th>
+                <th>CSMA/CA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Used in</strong></td>
+                <td>Wired Ethernet (old, bus topology)</td>
+                <td>Wireless (802.11 WiFi)</td>
+              </tr>
+              <tr>
+                <td><strong>Approach</strong></td>
+                <td>Detects collision after it happens</td>
+                <td>Avoids collision before it happens</td>
+              </tr>
+              <tr>
+                <td><strong>Can it detect collisions?</strong></td>
+                <td>Yes (listens while transmitting)</td>
+                <td>No (can't listen and transmit at once)</td>
+              </tr>
+              <tr>
+                <td><strong>Confirmation method</strong></td>
+                <td>No ACK — relies on absence of collision</td>
+                <td>Uses ACK for every frame</td>
+              </tr>
+              <tr>
+                <td><strong>Extra mechanism</strong></td>
+                <td>Jam signal + backoff</td>
+                <td>NAV + random backoff (+ optional RTS/CTS)</td>
+              </tr>
+              <tr>
+                <td><strong>Duplex mode</strong></td>
+                <td>Half-duplex over shared bus</td>
+                <td>Half-duplex over shared RF channel</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>CD = wired, CA = wireless</strong> — the single most repeated fact; know it cold.</li>
+                <li>The core <em>reason</em> CA exists: a wireless radio can't listen and transmit on the same frequency simultaneously — its own transmission overpowers any incoming signal.</li>
+                <li><strong>Backoff timer range in WiFi: 0 to 31 slots</strong> — a specific number that examiners like to test.</li>
+                <li>CSMA/CA uses <strong>ACK-based confirmation</strong>, unlike CSMA/CD which infers success from "no collision detected."</li>
+                <li><strong>RTS/CTS</strong> is optional, not mandatory — used to further reduce collisions, especially useful for the "hidden node problem" (a classic follow-up topic).</li>
+                <li><strong>NAV (Network Allocation Vector)</strong> is the "virtual" sensing method based on a duration field in the frame; <strong>CCA</strong> is the "physical" sensing method based on actually listening to the RF channel — these two terms are often swapped in tricky MCQs, so keep them straight.</li>
+              </ol>
+            </div>
+          </div>
         </div>
       </article>
 
