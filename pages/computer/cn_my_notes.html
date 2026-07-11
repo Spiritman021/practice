@@ -459,6 +459,7 @@
       <a href="#note-csmacd">💥 CSMA/CD Protocol</a>
       <a href="#note-beb">⏳ Binary Exponential Backoff</a>
       <a href="#note-csmaca">📶 CSMA/CA Protocol</a>
+      <a href="#note-controlled">🔒 Controlled Access</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -476,9 +477,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">6</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">7</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">5</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">6</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -1660,6 +1661,166 @@ Choose 0 ... 31</div>
                 <li>CSMA/CA uses <strong>ACK-based confirmation</strong>, unlike CSMA/CD which infers success from "no collision detected."</li>
                 <li><strong>RTS/CTS</strong> is optional, not mandatory — used to further reduce collisions, especially useful for the "hidden node problem" (a classic follow-up topic).</li>
                 <li><strong>NAV (Network Allocation Vector)</strong> is the "virtual" sensing method based on a duration field in the frame; <strong>CCA</strong> is the "physical" sensing method based on actually listening to the RF channel — these two terms are often swapped in tricky MCQs, so keep them straight.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 6: CONTROLLED ACCESS
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-controlled">
+        <div class="note-header">
+          <div class="note-icon">🔒</div>
+          <div class="note-meta">
+            <div class="note-title">Controlled-Access Protocols</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 16 — MAC Layer</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-11</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Controlled-Access Protocols — overview</h4>
+          <p>Unlike random-access (ALOHA/CSMA family) where stations transmit freely and risk collisions, in <strong>controlled access</strong>, stations must <strong>consult each other or a controller first</strong> — a station cannot send data unless it has been authorized. This trades off a bit of speed/simplicity for <strong>guaranteed collision-free</strong> transmission. There are 3 methods: <strong>Reservation, Polling, Token Passing.</strong></p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>1. Reservation</h4>
+          <p><strong>Core idea:</strong> Before actual data is sent, stations first <strong>reserve their turn</strong> in advance.</p>
+
+          <p><strong>How the timeline is structured (see diagram below):</strong></p>
+          <ul>
+            <li><strong>Reservation Interval:</strong> a fixed-length time period, divided into <strong>M slots</strong> if there are <strong>M stations</strong> — each station gets exactly one dedicated slot.</li>
+            <li><strong>Data Transmission Period:</strong> a variable-length period that follows, where actual data frames are sent.</li>
+          </ul>
+
+          <figure class="diagram-box">
+            <img src="assets/reservation_protocol_timeline.jpg" alt="Reservation Multiple Access (RMA) Protocol Timeline" loading="lazy">
+            <figcaption>Reservation Protocol timeline showing the M-slot Reservation Interval followed by the Data Transmission Period</figcaption>
+          </figure>
+
+          <p><strong>Step by step:</strong></p>
+          <ol>
+            <li>During the reservation interval, if a station has data to send, it marks its own slot with a <strong>1-bit signal</strong> (like raising a hand). If it has nothing to send, its slot stays 0.</li>
+            <li>No other station is allowed to touch someone else's slot — this keeps the reservation phase itself collision-free.</li>
+            <li>Once all M slots have been checked, every station now knows exactly <strong>which stations want to transmit</strong> and in what order.</li>
+            <li>The stations that reserved a slot then transmit their actual data frames one by one, in the agreed order — no collisions, because everyone already agreed on the sequence.</li>
+            <li>After the data transmission period ends, a <strong>fresh reservation interval begins again</strong>, and the whole cycle repeats.</li>
+          </ol>
+          <p><strong>Exam-friendly example (matches your slide):</strong> If Station 1, Station 3, and Station 4 mark their slots as 1 during the reservation interval, then only these three transmit data in that round, in slot order (1 → 3 → 4), while Stations 2 and 5 just wait for the next cycle.</p>
+          <p><strong>Key point for MCQs:</strong> Reservation is best suited when the <strong>number of stations is fixed and known</strong> in advance, since the reservation interval is divided exactly by M.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>2. Polling</h4>
+          <p><strong>Core idea:</strong> One device is the <strong>primary station (controller)</strong>, and all others are <strong>secondary stations</strong>. All communication passes through the primary — even if the actual destination is another secondary device, data goes via the primary first. The primary decides who gets to use the channel and when.</p>
+          <p>There are two functions the primary uses: <strong>Select</strong> and <strong>Poll</strong>.</p>
+
+          <h5>a) Select — when primary wants to SEND data</h5>
+          <ul>
+            <li>The primary has data to send to a secondary, but doesn't know if that secondary is ready to receive.</li>
+            <li>So the primary creates and sends a <strong>SEL (select) frame</strong>, which includes the address of the intended secondary — essentially saying "hey, are you ready?"</li>
+            <li>The secondary responds with an <strong>ACK</strong> confirming it's ready.</li>
+            <li>The primary then sends the <strong>Data</strong>, and the secondary responds with another <strong>ACK</strong> confirming receipt.</li>
+            <li>(Sequence: SEL → ACK → Data → ACK)</li>
+          </ul>
+
+          <h5>b) Poll — when primary wants to RECEIVE data</h5>
+          <ul>
+            <li>The primary asks ("polls") each secondary in turn: "do you have anything to send?"</li>
+            <li>If that secondary has nothing, it replies with a <strong>NAK</strong> (negative acknowledgment) — so the primary moves to poll the next secondary.</li>
+            <li>If that secondary does have data, it responds directly with the <strong>data frame</strong> itself (instead of just saying yes) — the primary then reads it and sends back an <strong>ACK</strong> to confirm receipt.</li>
+            <li>(Sequence: Poll → NAK → Poll (next) → Data → ACK)</li>
+          </ul>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div>
+              <strong>Key point for MCQs:</strong>
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li>Polling requires a <strong>primary/central controller</strong> — this is a <strong>single point of failure</strong>: if the primary goes down, the whole network communication stops. This is one of the most repeated trap questions.</li>
+                <li><strong>SEL is for the primary sending data; Poll is for the primary receiving data</strong> — these two are commonly swapped in exam options, so keep the direction clear: SEL = "I have something for you," Poll = "do you have something for me?"</li>
+              </ul>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>3. Token Passing</h4>
+          <p><strong>Core idea:</strong> Stations are arranged in a <strong>logical ring</strong> (physically they might be in a bus, star, or ring topology — but logically they form a ring). A special small packet called a <strong>token</strong> circulates around this ring, and <strong>only the station currently holding the token is allowed to transmit</strong>.</p>
+          <p><strong>How it works:</strong></p>
+          <ol>
+            <li>Every station has a <strong>predecessor</strong> (the station before it in the ring) and a <strong>successor</strong> (the station after it).</li>
+            <li>The token keeps moving from one station to its successor, continuously circulating around the ring.</li>
+            <li>A station that has data to send <strong>waits until it receives the token</strong> from its predecessor.</li>
+            <li>Once it has the token, it transmits its data. After finishing, it <strong>releases the token</strong> to its successor.</li>
+            <li>If a station receives the token but has <strong>nothing to send</strong>, it just immediately passes the token forward without any delay.</li>
+            <li>If a station has <em>already</em> passed the token in the current round, it must <strong>wait for the next round</strong> to get another chance — this ensures fairness (no station can hog multiple turns).</li>
+          </ol>
+
+          <p><strong>Token Management — 3 important aspects (good for MCQs):</strong></p>
+          <ul>
+            <li><strong>Time control:</strong> how long a station is allowed to hold the token must be limited, so no single station can monopolize the channel.</li>
+            <li><strong>Token monitoring:</strong> the network needs to detect if the token gets <strong>lost</strong> (e.g., the station holding it crashes) — otherwise the whole ring stalls forever.</li>
+            <li><strong>Priority assignment:</strong> the system can assign priorities so that critical/important data gets transmitted before less important data.</li>
+          </ul>
+          <p><strong>Handling failures:</strong> if the station holding the token fails, the token must be <strong>regenerated or reassigned</strong>, or the entire network communication halts — this is a key robustness concern examiners like to test ("what happens if token is lost?").</p>
+          <p><strong>Physical implementations (from your slide's diagrams):</strong> Token passing can be implemented over different physical topologies — physical ring, dual ring (for redundancy), bus (Token Bus), or even a star topology using a hub (Token Ring via hub) — even though logically it's always a ring.</p>
+          <p><strong>Real-world examples:</strong> <strong>Token Ring</strong> and <strong>Token Bus</strong> networks are the classic examples — a very common exam pairing question.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison table</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Who controls access</th>
+                <th>Collision risk</th>
+                <th>Weak point (exam favorite)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Reservation</strong></td>
+                <td>Pre-agreed slot ownership</td>
+                <td>None</td>
+                <td>Needs fixed M stations known in advance</td>
+              </tr>
+              <tr>
+                <td><strong>Polling</strong></td>
+                <td>Primary/central station</td>
+                <td>None</td>
+                <td>Primary failure = single point of failure</td>
+              </tr>
+              <tr>
+                <td><strong>Token Passing</strong></td>
+                <td>Token itself (distributed)</td>
+                <td>None</td>
+                <td>Token loss halts the network; needs monitoring</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>Polling has a single point of failure (primary); Token Passing is decentralized</strong> (no central controller) — the token itself carries the authority. This contrast is asked very often.</li>
+                <li>In Reservation, if there are <strong>M stations</strong>, the reservation interval has <strong>exactly M slots</strong> — a small but frequently tested numeric detail.</li>
+                <li><strong>SEL vs Poll</strong> in Polling — SEL is primary-initiated <em>sending</em>; Poll is primary-initiated <em>receiving</em>. Don't mix them up.</li>
+                <li>A secondary responding with <strong>NAK</strong> in polling means "I have nothing to send," not an error — this phrasing sometimes confuses students who assume NAK always means failure.</li>
+                <li>Token Ring / Token Bus are real IEEE-standard implementations of token passing — good to remember as concrete examples if asked "give an example of token passing."</li>
+                <li>All three (Reservation, Polling, Token Passing) guarantee <strong>zero collisions</strong>, unlike the random-access family — a solid one-line differentiator if a question asks to compare categories.</li>
               </ol>
             </div>
           </div>
