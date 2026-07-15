@@ -462,6 +462,7 @@
       <a href="#note-controlled">🔒 Controlled Access</a>
       <a href="#note-channelization">📡 Channelization Protocols</a>
       <a href="#note-stopwait">⏳ Stop-and-Wait ARQ</a>
+      <a href="#note-banddelay">📏 Bandwidth-Delay Product</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -479,9 +480,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">9</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">10</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">8</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">9</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -2132,6 +2133,94 @@ Choose 0 ... 31</div>
                 <li><strong>Throughput = η × Bandwidth</strong> — don't confuse throughput (actual useful data rate) with bandwidth (the link's raw capacity).</li>
                 <li>As <strong>Tp increases relative to Tt</strong> (i.e., a increases), efficiency <strong>drops</strong> — this inverse relationship is often tested as a conceptual (non-numeric) question too.</li>
                 <li>Stop-and-Wait is simple but **inefficient for high-bandwidth-delay-product links** (satellite links, long-distance fiber) — this is the setup line for why Go-Back-N/Selective Repeat exist.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 9: BANDWIDTH-DELAY PRODUCT & S&W LIMITATIONS
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-banddelay">
+        <div class="note-header">
+          <div class="note-icon">📏</div>
+          <div class="note-meta">
+            <div class="note-title">Bandwidth-Delay Product &amp; Stop-and-Wait Limitations</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Topic 23 — Bandwidth-Delay</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Efficiency Limitation of Stop-and-Wait ARQ — the Bandwidth-Delay Product problem</h4>
+          <p>This is the direct continuation of the efficiency formula we derived earlier (η = 1/(1+2a), where a = Tp/Tt) — this section explains <strong>why</strong> that formula gives such poor results on certain types of links.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The core issue</h4>
+          <p>Stop-and-Wait ARQ becomes badly inefficient specifically when the channel has <strong>large bandwidth (thick pipe) AND long round-trip delay (long pipe)</strong> — both together, not just one alone.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>What is Bandwidth-Delay Product?</h4>
+          <div class="formula-box">Bandwidth-Delay Product = Bandwidth × Delay (RTT)</div>
+          <p>This number represents <strong>how much data (in bits) could be "in transit" inside the channel at any given moment</strong> — i.e., how many bits the link is physically capable of holding while a signal travels from sender to receiver and back, before any acknowledgment can possibly arrive.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The pipe analogy (shown in the diagram below)</h4>
+          <p>Think of the communication channel as a <strong>pipe</strong>:</p>
+          <ul>
+            <li><strong>Bandwidth</strong> = how <em>thick</em> the pipe is (how much data can flow through per second).</li>
+            <li><strong>Delay (RTT)</strong> = how <em>long</em> the pipe is (how far the data has to travel before an ACK can return).</li>
+            <li><strong>Bandwidth × Delay</strong> = the total <em>volume</em> of the pipe — how much data could theoretically be flowing through it at once, filling it end to end.</li>
+          </ul>
+          <p>Now here's the catch with Stop-and-Wait: it sends <strong>just one frame</strong>, then stops and waits for that frame's ACK to travel all the way back before sending the next one.</p>
+          <ul>
+            <li>If the pipe's volume (bandwidth-delay product) is <strong>small</strong> → a single frame is enough to nearly fill the pipe → the channel is used efficiently → <strong>good performance</strong>.</li>
+            <li>If the pipe's volume is <strong>large</strong> (high bandwidth, long delay — e.g., a satellite link or a high-speed long-distance fiber link) → that same single frame is just a <strong>tiny sliver</strong> compared to the pipe's total capacity → the vast majority of the pipe's carrying capacity sits <strong>completely empty and unused</strong> while the sender waits idly for the ACK → <strong>severe inefficiency</strong>.</li>
+          </ul>
+
+          <figure class="diagram-box">
+            <img src="assets/bandwidth_delay_product_pipe.png" alt="Bandwidth-Delay Product Pipe Analogy Diagram" loading="lazy">
+            <figcaption>Pipe analogy comparing high vs low bandwidth-delay product: single frame fails to fill a thick, long pipe</figcaption>
+          </figure>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Connecting this back to the formula</h4>
+          <p>Recall: <strong>a = Tp/Tt</strong>, and <strong>η = 1/(1+2a)</strong>.</p>
+          <ul>
+            <li><strong>High bandwidth</strong> → for a fixed frame size, Tt (= L/B) becomes <strong>smaller</strong> (frame is transmitted very fast).</li>
+            <li><strong>Long delay</strong> → Tp becomes <strong>larger</strong>.</li>
+            <li>Both effects push <strong>a = Tp/Tt</strong> to a <strong>large value</strong> → which drives efficiency η <strong>toward 0</strong>.</li>
+          </ul>
+          <p>This is exactly the mathematical expression of the same pipe problem — a small Tt combined with a large Tp means the sender spends almost all its time just waiting, and almost none of its time actually transmitting.</p>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div><strong>Summary (in one line for revision):</strong> Stop-and-Wait ARQ fails to exploit the full carrying capacity of the channel whenever the bandwidth-delay product is large — the sender is stuck waiting for one ACK at a time, while the "pipe" has room for many more frames to be in flight simultaneously.</div>
+          </div>
+          <p>This exact limitation is the motivation for the next protocols in your syllabus — <strong>Go-Back-N ARQ and Selective Repeat ARQ</strong> — both use a <strong>sliding window</strong> to send multiple frames without waiting for each individual ACK, filling up that "pipe" properly and dramatically improving efficiency on high bandwidth-delay links.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>Bandwidth-Delay Product = Bandwidth × RTT</strong> — represents the number of bits that can be "in flight" in the channel at once. A very common direct-definition question.</li>
+                <li>Stop-and-Wait is inefficient specifically when <strong>both</strong> bandwidth is high AND delay is long — not just either one alone; questions sometimes test if you know it's the <em>combination</em> that matters.</li>
+                <li>Real-world examples where this problem is severe: <strong>satellite links</strong> (huge propagation delay) and <strong>high-speed fiber links</strong> (very small Tt for a given frame) — both are classic textbook examples of poor Stop-and-Wait performance.</li>
+                <li>The <strong>fix</strong> for this exact limitation is <strong>sliding window protocols (Go-Back-N, Selective Repeat)</strong> — a frequently tested "why do we need X" reasoning question.</li>
+                <li>Don't confuse <strong>bandwidth-delay product</strong> (a channel capacity concept) with <strong>throughput</strong> (η × B, the actual achieved rate) — they measure different things, and questions like to test this distinction.</li>
               </ol>
             </div>
           </div>
