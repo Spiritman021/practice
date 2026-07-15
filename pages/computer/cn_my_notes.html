@@ -460,6 +460,7 @@
       <a href="#note-beb">⏳ Binary Exponential Backoff</a>
       <a href="#note-csmaca">📶 CSMA/CA Protocol</a>
       <a href="#note-controlled">🔒 Controlled Access</a>
+      <a href="#note-channelization">📡 Channelization Protocols</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -477,9 +478,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">7</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">8</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">6</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">7</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -1821,6 +1822,123 @@ Choose 0 ... 31</div>
                 <li>A secondary responding with <strong>NAK</strong> in polling means "I have nothing to send," not an error — this phrasing sometimes confuses students who assume NAK always means failure.</li>
                 <li>Token Ring / Token Bus are real IEEE-standard implementations of token passing — good to remember as concrete examples if asked "give an example of token passing."</li>
                 <li>All three (Reservation, Polling, Token Passing) guarantee <strong>zero collisions</strong>, unlike the random-access family — a solid one-line differentiator if a question asks to compare categories.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 7: CHANNELIZATION PROTOCOLS
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-channelization">
+        <div class="note-header">
+          <div class="note-icon">📡</div>
+          <div class="note-meta">
+            <div class="note-title">Channelization Protocols</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Section 16 — MAC Layer</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Channelization Protocols — the big picture</h4>
+          <p>Unlike Random-access (compete for channel) and Controlled-access (take turns via permission), <strong>Channelization protocols divide the available bandwidth itself</strong> among stations in advance — so <strong>each station gets a guaranteed share</strong>, and there's <strong>no competition, no collision at all</strong>. There are 3 methods: <strong>FDMA, TDMA, CDMA.</strong></p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>1. FDMA (Frequency-Division Multiple Access)</h4>
+          <p><strong>Core idea:</strong> The available bandwidth is split into separate <strong>frequency bands</strong>, and each station is permanently allocated one band.</p>
+          <ul>
+            <li>Each band belongs to one station <strong>all the time</strong> — meaning that station can transmit whenever it wants, but only within its own frequency range.</li>
+            <li>Since every station uses a <strong>different frequency</strong>, they can all transmit <strong>simultaneously</strong> without interfering with each other.</li>
+          </ul>
+          <p><strong>Real-world example (from your slide):</strong> FM radio is a perfect real-life FDMA example — Radio Mirchi (98.3), Red FM (93.5), Big FM (92.7) all broadcast at the same time, but each on its own fixed frequency. Your radio tunes into one specific frequency to pick just that station's signal, ignoring all others.</p>
+          <p><strong>Key point for MCQs:</strong> In FDMA, guard bands (small unused frequency gaps) are usually kept between adjacent bands to prevent stations from interfering with each other's edges — a good add-on fact if the question probes deeper.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>2. TDMA (Time-Division Multiple Access)</h4>
+          <p><strong>Core idea:</strong> Instead of splitting frequency, TDMA gives <strong>every station the full bandwidth</strong>, but only for a <strong>fixed time slot</strong> in a repeating cycle.</p>
+          <ul>
+            <li>All stations use the <strong>same frequency</strong>, but take turns based on time.</li>
+            <li>Each station transmits during its own slot, then waits for its next turn to come around again.</li>
+          </ul>
+
+          <p><strong>How it's different from FDMA (see the diagram below):</strong> In FDMA, a station's band is exclusively theirs <em>permanently</em> — like having your own dedicated lane on a highway all day. In TDMA, everyone shares the same lane (frequency), but each gets a scheduled turn to drive through it — like a shared conference room booked in time blocks.</p>
+
+          <figure class="diagram-box">
+            <img src="assets/fdma_tdma_cdma_comparison.jpg" alt="Channelization Protocol Comparison Diagram" loading="lazy">
+            <figcaption>Visual comparison: FDMA splits by frequency band, TDMA splits by time slot, CDMA uses code separation</figcaption>
+          </figure>
+
+          <p><strong>Real-world example:</strong> Old GSM mobile networks (2G) used TDMA — multiple calls could share the same frequency channel by taking turns in tiny time slots, fast enough that it feels seamless to the user.</p>
+          <p><strong>Key point for MCQs:</strong> TDMA requires precise <strong>synchronization</strong> among stations — everyone must agree exactly on when their time slot starts and ends, otherwise slots overlap and data corrupts.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>3. CDMA (Code-Division Multiple Access)</h4>
+          <p><strong>Core idea:</strong> This is the most advanced of the three. In CDMA, <strong>all stations transmit at the same time, over the same frequency</strong> — no separation by time or frequency at all. Instead, each station is assigned a <strong>unique code</strong>, and the receiver uses that code to extract only the intended signal from the mixed jumble of all transmissions.</p>
+          <p><strong>Analogy that makes this click:</strong> Imagine a room full of people, all speaking different languages simultaneously (that's the "same time, same frequency" part). If you only understand, say, French, your brain automatically picks out the French conversation and ignores the rest — your "code" is your language. That's exactly how CDMA receivers work — they're tuned to a specific code and extract only that signal, treating everything else as background noise.</p>
+          <p><strong>How it differs from the other two (this is a very common direct exam question):</strong></p>
+          <ul>
+            <li>Differs from <strong>FDMA</strong>: in FDMA, only a <em>fraction</em> of the bandwidth belongs to one station at a time; in CDMA, <strong>one single channel occupies the entire bandwidth</strong> of the link.</li>
+            <li>Differs from <strong>TDMA</strong>: in TDMA, stations take <em>turns</em> over time; in CDMA, <strong>all stations send data simultaneously — there's no timesharing at all.</strong></li>
+          </ul>
+          <p><strong>Real-world example (from your slide):</strong> CDMA was the technology behind mobile operators like Tata DOCOMO/Tata Indicom in India (pre-4G era) — CDMA phones used unique codes assigned by the network to separate each user's call from everyone else's, even though they shared the same frequency and time.</p>
+          <p><strong>Key point for MCQs:</strong> CDMA is generally considered <strong>more spectrum-efficient and secure</strong> than FDMA/TDMA (since without knowing the exact code, it's very hard to eavesdrop or decode a specific transmission) — this is a common "advantage of CDMA" question.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison table (exam gold, ties the whole Channelization branch together)</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Protocol</th>
+                <th>What's divided</th>
+                <th>How stations are separated</th>
+                <th>Real-world example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>FDMA</strong></td>
+                <td>Frequency</td>
+                <td>Each station = own frequency band, all the time</td>
+                <td>FM Radio</td>
+              </tr>
+              <tr>
+                <td><strong>TDMA</strong></td>
+                <td>Time</td>
+                <td>Each station = full frequency, own time slot</td>
+                <td>2G GSM calls</td>
+              </tr>
+              <tr>
+                <td><strong>CDMA</strong></td>
+                <td>Neither (uses codes)</td>
+                <td>Unique code per station, same time + frequency</td>
+                <td>CDMA mobile networks (Tata DOCOMO)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>FDMA → frequency bands; TDMA → time slots; CDMA → unique codes</strong> — the most repeated direct-match question across this entire chapter.</li>
+                <li>CDMA is the <strong>only one of the three where all stations transmit truly simultaneously</strong> without any division of frequency or time — a favorite "which statement is true about CDMA" trap.</li>
+                <li>TDMA needs tight <strong>time synchronization</strong>; FDMA needs **guard bands** between frequencies — both are common "limitation of X" questions.</li>
+                <li>All three Channelization protocols are <strong>collision-free by design</strong> (same category-level property as Controlled-access, but achieved differently) — good if a question compares all 3 top-level categories together.</li>
+                <li>Don't confuse <strong>CDMA (Channelization, no timesharing)</strong> with <strong>CSMA/CA (Random-access, collision avoidance)</strong> — similar-sounding acronyms, completely different mechanisms; this exact confusion is a classic distractor in MCQs.</li>
               </ol>
             </div>
           </div>
