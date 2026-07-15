@@ -461,6 +461,7 @@
       <a href="#note-csmaca">📶 CSMA/CA Protocol</a>
       <a href="#note-controlled">🔒 Controlled Access</a>
       <a href="#note-channelization">📡 Channelization Protocols</a>
+      <a href="#note-stopwait">⏳ Stop-and-Wait ARQ</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -478,9 +479,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">8</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">9</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">7</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">8</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -1939,6 +1940,198 @@ Choose 0 ... 31</div>
                 <li>TDMA needs tight <strong>time synchronization</strong>; FDMA needs **guard bands** between frequencies — both are common "limitation of X" questions.</li>
                 <li>All three Channelization protocols are <strong>collision-free by design</strong> (same category-level property as Controlled-access, but achieved differently) — good if a question compares all 3 top-level categories together.</li>
                 <li>Don't confuse <strong>CDMA (Channelization, no timesharing)</strong> with <strong>CSMA/CA (Random-access, collision avoidance)</strong> — similar-sounding acronyms, completely different mechanisms; this exact confusion is a classic distractor in MCQs.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 8: FLOW/ERROR CONTROL & STOP-AND-WAIT ARQ
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-stopwait">
+        <div class="note-header">
+          <div class="note-icon">⏳</div>
+          <div class="note-meta">
+            <div class="note-title">Flow Control, Error Control &amp; Stop-and-Wait ARQ</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Topic 23 — Stop &amp; Wait</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Flow Control vs Error Control — the big picture</h4>
+          <p>Both are Data Link Layer (and Transport Layer too) responsibilities, but they solve <strong>different problems</strong>:</p>
+
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Flow Control</th>
+                <th>Error Control</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Problem it solves</strong></td>
+                <td>Receiver getting overwhelmed</td>
+                <td>Data getting corrupted/lost</td>
+              </tr>
+              <tr>
+                <td><strong>Mechanism</strong></td>
+                <td>Buffer + feedback to sender to slow down</td>
+                <td>Sequence numbers + ACK + retransmission (ARQ)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h5>Flow Control</h5>
+          <ul>
+            <li><strong>Purpose:</strong> the receiver has limited processing speed and memory — if the sender floods it with data faster than it can process, data gets dropped.</li>
+            <li><strong>Buffer mechanism:</strong> the receiver stores incoming data temporarily in a buffer until it processes it.</li>
+            <li><strong>Handling overflow:</strong> when the buffer is nearing capacity, the receiver signals the sender to <strong>pause or slow down</strong> — this is exactly the kind of feedback loop you see in TCP's sliding window.</li>
+          </ul>
+
+          <h5>Error Control</h5>
+          <ul>
+            <li><strong>Purpose:</strong> to detect and correct errors introduced during transmission (noise, interference, etc.)</li>
+            <li><strong>Error detection:</strong> identifies frames that are <strong>lost, out-of-order, or corrupted</strong>.</li>
+            <li><strong>Retransmission (ARQ):</strong> if an error is found, the receiver essentially triggers the sender to resend the affected frame — this whole family of techniques is called <strong>Automatic Repeat Request (ARQ)</strong>.</li>
+          </ul>
+
+          <p><strong>For noisy channels, there are 3 ARQ protocols</strong> (increasing order of complexity/efficiency):</p>
+          <ol>
+            <li>Stop-and-Wait ARQ</li>
+            <li>Go-Back-N ARQ</li>
+            <li>Selective Repeat ARQ</li>
+          </ol>
+          <p>We'll cover Stop-and-Wait in full detail here (most fundamental, and the one your slides focus on), since Go-Back-N and Selective Repeat build directly on it.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Stop-and-Wait ARQ — how it works</h4>
+          <p><strong>Core idea:</strong> the sender sends <strong>one frame</strong>, then <strong>stops and waits</strong> for an acknowledgment (ACK) before sending the next one. Simple, but not very efficient (we'll see why via the math below).</p>
+
+          <h5>Error handling</h5>
+          <ul>
+            <li><strong>Corrupted frames:</strong> the receiver detects corruption (via checksum/CRC) and simply <strong>discards the frame silently</strong> — it doesn't send any ACK or NAK, it just stays quiet.</li>
+            <li><strong>Lost frames:</strong> since the receiver stays silent for both a lost frame AND a corrupted frame, the sender can't tell the difference just from silence — so it needs another mechanism: a <strong>timer</strong>.</li>
+          </ul>
+
+          <h5>Sequence numbers — why only 0 and 1?</h5>
+          <ul>
+            <li>Every frame is given a sequence number so the receiver can uniquely identify it.</li>
+            <li>In Stop-and-Wait, since only <strong>one frame is ever "in flight" at a time</strong>, you only need <strong>2 sequence numbers (0 and 1)</strong>, cycling back and forth — this is a very commonly tested fact ("minimum sequence numbers needed for stop-and-wait = 2").</li>
+            <li>These numbers let the receiver detect <strong>duplicates</strong> — e.g., if an ACK gets lost and the sender resends the same frame, the receiver can recognize "I've already received sequence number 0" and discard the duplicate instead of processing it twice.</li>
+          </ul>
+
+          <h5>Acknowledgment + Timer mechanism (walking through the diagram below)</h5>
+          <ol>
+            <li>Sender sends <strong>Frame 0</strong>, keeps a copy, and starts a <strong>timer</strong>.</li>
+            <li>If <strong>ACK 1</strong> arrives in time (ACK numbering indicates "I'm ready for the next frame," i.e., 1 comes after 0) → sender stops the timer and sends the next frame (<strong>Frame 1</strong>).</li>
+            <li><strong>If Frame 1 gets lost</strong> in transit → receiver never gets it, so it stays silent → sender's timer <strong>expires (time-out)</strong> → sender automatically <strong>resends Frame 1</strong>.</li>
+            <li>This time it arrives fine → receiver sends <strong>ACK 0</strong> (meaning "I got frame 1, now expecting frame 0 next") → sender proceeds to send <strong>Frame 0</strong> again (next in the 0/1 cycle).</li>
+            <li><strong>If the ACK itself gets lost</strong> (not the frame) → the sender's timer still expires (since it heard nothing back) → it resends the <em>same</em> frame → the receiver, using sequence numbers, recognizes this as a <strong>duplicate</strong> and discards it, but still re-sends the ACK so the sender can move on.</li>
+          </ol>
+
+          <figure class="diagram-box">
+            <img src="assets/stop_and_wait_arq.png" alt="Stop-and-Wait Automatic Repeat Request Flow Diagram" loading="lazy">
+            <figcaption>Operational timeline of Stop-and-Wait ARQ showing lost frame timeout and lost ACK duplicate discard behaviors</figcaption>
+          </figure>
+
+          <p><strong>This is exactly the beauty of combining sequence numbers + timeout + ACK — it handles lost frames, lost ACKs, AND corrupted frames, all with just 2 sequence numbers.</strong></p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The Delay Components (crucial for numerical questions)</h4>
+          <p>To calculate how efficient Stop-and-Wait actually is, you need to understand these delay types:</p>
+
+          <h5>1. Transmission Delay (Tt)</h5>
+          <p>Time to push all the bits of a packet onto the transmission line, one by one.</p>
+          <div class="formula-box">Tt = Packet Length (L) / Bandwidth (B)</div>
+
+          <h5>2. Propagation Delay (Tp)</h5>
+          <p>Time for a single bit to physically travel from sender to receiver over the medium (depends on distance and signal speed, not on data size).</p>
+          <div class="formula-box">Tp = Distance / Propagation Speed</div>
+
+          <h5>3. Processing Delay</h5>
+          <p>Time the destination host takes to receive a packet, strip the header, run error detection, and hand it off — usually treated as <strong>negligible/zero</strong> in standard numericals unless explicitly given.</p>
+
+          <h5>4. Queuing Delay</h5>
+          <p>Time a packet waits in a router's input/output queue before being processed — also usually treated as <strong>zero</strong> in standard Stop-and-Wait numericals.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Measuring Total Performance — building the formula step by step</h4>
+          <p><strong>Full formula (theoretical):</strong></p>
+          <div class="formula-box">Total Time = Tt(data) + Tp(data) + Delay_que + Delay_pro + Tt(ack) + Tp(ack)</div>
+
+          <p><strong>Simplifications typically made in exam problems:</strong></p>
+          <p><strong>Step 1 — drop queuing and processing delay (usually assumed 0):</strong></p>
+          <div class="formula-box">Total Time = Tt(data) + Tp(data) + Tt(ack) + Tp(ack)</div>
+
+          <p><strong>Step 2 — ACK size is tiny compared to data, so its transmission time is negligible:</strong></p>
+          <div class="formula-box">Total Time = Tt(data) + Tp(data) + Tp(ack)</div>
+
+          <p><strong>Step 3 — propagation delay for data and ACK is essentially the same (same physical link, same distance):</strong></p>
+          <div class="formula-box">Total Time = Tt(data) + 2 × Tp</div>
+
+          <p><strong>This final formula — Total Time = Tt + 2Tp — is THE most important formula for Stop-and-Wait numericals.</strong></p>
+          <p><strong>Important terminology:</strong> the term <strong>2 × Tp</strong> (the round trip for the frame to reach the receiver and the ACK to come back) is also commonly called the <strong>Round Trip Time (RTT)</strong>.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Efficiency (η) — the key exam formula</h4>
+          <p>Look at the diagram above: out of the entire cycle time (Tt + 2Tp), only <strong>Tt</strong> was actual "useful" time spent sending data. The rest (2Tp) was just waiting — time during which the sender <em>could</em> have sent more frames but didn't (because Stop-and-Wait insists on waiting for ACK first).</p>
+
+          <div class="formula-box">Efficiency (η) = Useful Time / Total Cycle Time = Tt / (Tt + 2Tp)</div>
+
+          <p><strong>Simplified form</strong> (divide numerator and denominator by Tt, and let <strong>a = Tp/Tt</strong>):</p>
+          <div class="formula-box">η = 1 / (1 + 2a)</div>
+
+          <p><strong>Throughput / Effective Bandwidth:</strong></p>
+          <div class="formula-box">Throughput = η × B
+
+(where B is the actual bandwidth/transmission rate of the link)</div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Worked numerical example (typical IBPS SO style)</h4>
+          <div class="callout tip">
+            <span class="callout-icon">📝</span>
+            <div>
+              <strong>Question:</strong> A sender sends 1000-bit frames over a 1 Mbps link, with propagation delay 20 ms one-way. Find efficiency and throughput.<br><br>
+              <strong>Solution:</strong>
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li>Tt = L/B = 1000 / (1×10⁶) = 1 ms</li>
+                <li>Tp = 20 ms</li>
+                <li>a = Tp/Tt = 20/1 = 20</li>
+                <li>η = 1/(1 + 2×20) = 1/41 ≈ <strong>2.44%</strong></li>
+                <li>Throughput = η × B = 0.0244 × 1 Mbps ≈ <strong>24.4 kbps</strong></li>
+              </ul>
+            </div>
+          </div>
+          <p><strong>Notice how badly Stop-and-Wait performs when propagation delay is large relative to transmission time</strong> — this is exactly <em>why</em> Go-Back-N and Selective Repeat ARQ exist (they let the sender keep transmitting multiple frames without waiting for each individual ACK, dramatically improving efficiency in high-latency links). That's the natural next topic.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>Minimum sequence numbers needed for Stop-and-Wait ARQ = 2</strong> (just 0 and 1) — extremely common one-liner.</li>
+                <li>Corrupted frames are handled by <strong>silence + timeout</strong>, NOT by sending a NAK — Stop-and-Wait doesn't use NAKs in the standard version.</li>
+                <li><strong>Total cycle time = Tt + 2Tp</strong>, and <strong>2Tp = RTT</strong> — both the formula and the terminology are frequently tested together.</li>
+                <li><strong>η = 1/(1+2a)</strong> where <strong>a = Tp/Tt</strong> — a classic "calculate efficiency given these values" numerical.</li>
+                <li><strong>Throughput = η × Bandwidth</strong> — don't confuse throughput (actual useful data rate) with bandwidth (the link's raw capacity).</li>
+                <li>As <strong>Tp increases relative to Tt</strong> (i.e., a increases), efficiency <strong>drops</strong> — this inverse relationship is often tested as a conceptual (non-numeric) question too.</li>
+                <li>Stop-and-Wait is simple but **inefficient for high-bandwidth-delay-product links** (satellite links, long-distance fiber) — this is the setup line for why Go-Back-N/Selective Repeat exist.</li>
               </ol>
             </div>
           </div>
