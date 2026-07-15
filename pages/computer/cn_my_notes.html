@@ -463,6 +463,7 @@
       <a href="#note-channelization">📡 Channelization Protocols</a>
       <a href="#note-stopwait">⏳ Stop-and-Wait ARQ</a>
       <a href="#note-banddelay">📏 Bandwidth-Delay Product</a>
+      <a href="#note-gobackn">🔄 Go-Back-N ARQ</a>
       <!-- Add more links here as you add notes -->
       <hr>
       <div class="add-tip">
@@ -480,9 +481,9 @@
         <h1>My CN Notes</h1>
         <p>Paste your rough notes, teacher explanations, or exam tips in any order here. Each entry gets tagged with its section and status — then gets merged into the master notes over time.</p>
         <div class="hero-stats">
-          <div class="stat"><span class="num" id="total-notes">10</span><span class="lbl">Notes</span></div>
+          <div class="stat"><span class="num" id="total-notes">11</span><span class="lbl">Notes</span></div>
           <div class="stat"><span class="num" id="merged-count">1</span><span class="lbl">Merged</span></div>
-          <div class="stat"><span class="num" id="pending-count">9</span><span class="lbl">Pending</span></div>
+          <div class="stat"><span class="num" id="pending-count">10</span><span class="lbl">Pending</span></div>
         </div>
       </div>
 
@@ -2239,6 +2240,189 @@ Choose 0 ... 31</div>
                 <li>Real-world examples where this problem is severe: <strong>satellite links</strong> (huge propagation delay) and <strong>high-speed fiber links</strong> (very small Tt for a given frame) — both are classic textbook examples of poor Stop-and-Wait performance.</li>
                 <li>The <strong>fix</strong> for this exact limitation is <strong>sliding window protocols (Go-Back-N, Selective Repeat)</strong> — a frequently tested "why do we need X" reasoning question.</li>
                 <li>Don't confuse <strong>bandwidth-delay product</strong> (a channel capacity concept) with <strong>throughput</strong> (η × B, the actual achieved rate) — they measure different things, and questions like to test this distinction.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ═══════════════════════════════════════════════
+           NOTE 10: GO-BACK-N ARQ
+           Status: Pending merge
+      ════════════════════════════════════════════════════ -->
+      <article class="note-card pending" id="note-gobackn">
+        <div class="note-header">
+          <div class="note-icon">🔄</div>
+          <div class="note-meta">
+            <div class="note-title">Go-Back-N ARQ</div>
+            <div class="note-badges">
+              <span class="badge pending">⏳ Pending Merge</span>
+              <span class="badge section">Topic 24 — Go-Back-N</span>
+              <span class="badge exam">🎯 IBPS SO Focus</span>
+              <span class="badge date">📅 2026-07-15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-body">
+          <h4>Go-Back-N ARQ — solving Stop-and-Wait's problem</h4>
+          <p>Recall the limitation we just covered: Stop-and-Wait wastes the "pipe" (bandwidth-delay product) because it sends only <strong>one</strong> frame at a time. <strong>Go-Back-N ARQ fixes exactly this</strong> — it lets the sender push <strong>multiple frames into the pipe</strong> before getting any acknowledgment back, so the channel capacity is actually used instead of sitting idle.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Core idea</h4>
+          <p>Several frames can be <strong>in transit simultaneously</strong>, without the sender waiting for each one's individual ACK. The sender simply <strong>keeps a copy of every sent frame</strong> until it's confirmed, so it can resend if needed.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>The Window Concept (matches the diagram below)</h4>
+          <p>Since multiple frames can be outstanding at once, we need a way to track <strong>which frames are acknowledged, which are sent-but-pending, and which haven't been sent yet.</strong> This is the <strong>Send Window</strong> — divided into <strong>4 regions</strong>:</p>
+          <ol>
+            <li><strong>Acknowledged frames</strong> — sequence numbers already confirmed by the receiver.</li>
+            <li><strong>Outstanding frames</strong> — sent, but ACK not yet received (these are the frames "in flight," filling up the pipe).</li>
+            <li><strong>Frames ready to send</strong> — data is ready at the sender but hasn't been transmitted yet (within window limits).</li>
+            <li><strong>Future frames</strong> — sequence numbers that literally cannot be used yet, until the window "slides" forward as ACKs arrive.</li>
+          </ol>
+
+          <p><strong>Two key pointer variables:</strong></p>
+          <ul>
+            <li><strong>Sf (first outstanding frame):</strong> the sequence number of the oldest frame still awaiting acknowledgment.</li>
+            <li><strong>Sn (next frame to send):</strong> the sequence number that will be assigned to the very next new frame.</li>
+            <li><strong>Ssize:</strong> the fixed size of the send window — how many frames can be outstanding at once.</li>
+          </ul>
+
+          <p><strong>Important formula:</strong></p>
+          <div class="formula-box">Ssize = 2^m - 1</div>
+          <p>where <strong>m</strong> is the number of bits used for the sequence number. (This "−1" is a classic exam trap — it's NOT simply 2^m; we'll see exactly why below.)</p>
+
+          <p><strong>Receive Window — always size 1:</strong> the receiver only accepts the <strong>exact frame it's expecting next</strong>, in strict order. If a frame arrives out of order (because an earlier one was lost), the receiver <strong>discards it silently</strong> — even if it arrived correctly — and keeps discarding all subsequent frames until the one it's actually waiting for finally shows up.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Timer Management</h4>
+          <p>Unlike Stop-and-Wait (one timer per frame), Go-Back-N uses <strong>just ONE single timer</strong>, tied to the <strong>first outstanding frame (Sf)</strong>.</p>
+          <p>This timer <strong>always expires first</strong> among all outstanding frames (since Sf is the oldest one). When it expires, the sender knows something went wrong starting from that frame, and it <strong>resends every outstanding frame starting from Sf onward</strong> — this is exactly where the protocol's name "Go-Back-N" comes from: the sender literally goes back N frames and resends the whole batch.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Acknowledgment Strategy — 3 key behaviors</h4>
+          <ul>
+            <li><strong>Positive Acknowledgment:</strong> sent only if a frame arrives correctly <strong>and in the expected order</strong>.</li>
+            <li><strong>Receiver Silence:</strong> if a frame arrives out of order or damaged, the receiver <strong>stays silent</strong> and discards that frame (and every subsequent frame) until the correct expected frame finally arrives.</li>
+            <li><strong>Cumulative Acknowledgment:</strong> instead of acknowledging every single frame individually, one ACK can confirm <strong>multiple frames at once</strong> — e.g., "ACK 5" means "I've correctly received everything up through frame 4, and I'm now expecting frame 5." This reduces overhead significantly compared to Stop-and-Wait.</li>
+          </ul>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Resending Frames — worked example (matches the diagram below)</h4>
+          <p>Say the sender has sent <strong>frames 3, 4, 5, and 6</strong>. Suppose <strong>frame 4 gets lost</strong>.</p>
+          <ul>
+            <li>The receiver gets frame 3 fine → sends ACK.</li>
+            <li>Frame 4 never arrives → but frames 5 and 6 DO physically arrive at the receiver. However, since the receiver is strictly expecting frame 4 next, it <strong>discards frames 5 and 6</strong> too (even though they're not corrupted) — because Go-Back-N's receiver window is always size 1, it can't hold out-of-order frames waiting for the gap to be filled.</li>
+            <li>The timer tied to frame 4 (the first outstanding frame) eventually <strong>expires</strong>.</li>
+            <li>The sender then <strong>resends everything from frame 4 onward: 4, 5, and 6</strong> — even though 5 and 6 were technically sent successfully the first time! This retransmission of already-successfully-transmitted frames is Go-Back-N's main inefficiency, and a very common exam discussion point ("what's the drawback of Go-Back-N?").</li>
+          </ul>
+
+          <figure class="diagram-box">
+            <img src="assets/go_back_n_window_retransmission.jpg" alt="Go-Back-N Send Window and Retransmission Example" loading="lazy">
+            <figcaption>Go-Back-N operational details: Send Window structure (regions &amp; pointers) and frame loss batch retransmission sequence</figcaption>
+          </figure>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Sequence and Acknowledgment Numbers — the efficiency-driven formula</h4>
+          <p>Recall from our Stop-and-Wait discussion: <strong>a = Tp/Tt</strong>, and efficiency depends on how well we "fill the pipe."</p>
+          <p><strong>Key insight:</strong> to actually fill the pipe (maximize efficiency), the sender needs enough frames "in flight" that by the time it finishes sending the last one, the ACK for the very first one has already come back — so it never has to stop and wait idly.</p>
+
+          <p><strong>To maximize efficiency, the window size must be:</strong></p>
+          <div class="formula-box">Ws = 1 + 2a</div>
+          <p>This makes sense: <code>1</code> for the current frame being transmitted, plus <code>2a</code> to cover the full round-trip delay period (in units of Tt) during which more frames should keep flowing to keep the pipe full — this directly mirrors the Stop-and-Wait cycle time (Tt + 2Tp) we derived earlier, just expressed in terms of "how many frames" instead of "how much time."</p>
+
+          <p><strong>Number of bits needed for sequence numbers:</strong></p>
+          <div class="formula-box">m = ⌈ log2(1 + 2a) ⌉</div>
+          <p>(<strong>ceil</strong> = round UP to the nearest whole number, since you can't have a fractional number of bits.)</p>
+
+          <p><strong>Why Ssize = 2^m − 1, not 2^m?</strong> This connects to something you might not expect but is heavily tested: if the window size were allowed to equal 2^m (using the full range of sequence numbers), there's a risk of the receiver <strong>confusing a new frame with a very old duplicate</strong> that's cycled all the way back around to the same sequence number. Keeping the window one less than the full range (2^m − 1) avoids this ambiguity — a classic "why not 2^m" conceptual trap.</p>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Worked numerical example (typical exam style)</h4>
+          <div class="callout tip">
+            <span class="callout-icon">📝</span>
+            <div>
+              <strong>Question:</strong> Given a = Tp/Tt = 5, find the minimum window size and minimum bits needed for sequence numbers.<br><br>
+              <strong>Solution:</strong>
+              <ul style="padding-left:18px;margin:5px 0 0 0;">
+                <li>Ws = 1 + 2a = 1 + 2(5) = <strong>11</strong></li>
+                <li>m = ceil(log₂(11)) = ceil(3.459) = <strong>4 bits</strong></li>
+                <li>Check: with m=4, max window size = 2⁴ − 1 = 15, which comfortably covers the required Ws=11. ✔️</li>
+              </ul>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>Quick comparison: Stop-and-Wait vs Go-Back-N</h4>
+          <table class="note-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Stop-and-Wait</th>
+                <th>Go-Back-N</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Frames in transit</strong></td>
+                <td>Only 1</td>
+                <td>Multiple (window-based)</td>
+              </tr>
+              <tr>
+                <td><strong>Timers</strong></td>
+                <td>1 per frame</td>
+                <td>1 single timer (for Sf)</td>
+              </tr>
+              <tr>
+                <td><strong>ACK type</strong></td>
+                <td>Individual</td>
+                <td>Cumulative</td>
+              </tr>
+              <tr>
+                <td><strong>Out-of-order frames</strong></td>
+                <td>N/A (only 1 at a time)</td>
+                <td>Discarded, even if correct</td>
+              </tr>
+              <tr>
+                <td><strong>Retransmission on error</strong></td>
+                <td>Just that 1 frame</td>
+                <td>ALL frames from the lost one onward (wasteful)</td>
+              </tr>
+              <tr>
+                <td><strong>Receive window size</strong></td>
+                <td>1</td>
+                <td>Always 1</td>
+              </tr>
+              <tr>
+                <td><strong>Send window size</strong></td>
+                <td>1</td>
+                <td>2^m − 1</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:20px 0;">
+
+          <h4>MCQ trap points</h4>
+          <div class="callout trap">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <ol style="padding-left:18px;margin:0;line-height:1.9;">
+                <li><strong>Send window size = 2^m − 1</strong> (NOT 2^m) — one of the most repeated formula-based traps.</li>
+                <li><strong>Receive window size is always 1</strong> in Go-Back-N — a very common true/false question, and the key difference from Selective Repeat (where the receive window is larger — good preview for next topic).</li>
+                <li>Go-Back-N uses <strong>cumulative ACK</strong>, unlike Stop-and-Wait's individual ACK per frame.</li>
+                <li>Only <strong>ONE timer</strong> is used (for the first outstanding frame Sf) — not one timer per frame; this single-timer design is frequently tested.</li>
+                <li><strong>Major drawback of Go-Back-N:</strong> even correctly-received out-of-order frames get discarded and must be resent — wasteful of bandwidth when errors occur, especially on high-error-rate or high-delay links. This exact drawback is what motivates <strong>Selective Repeat ARQ</strong> (which lets the receiver keep out-of-order frames instead of discarding them).</li>
+                <li><strong>Ws = 1 + 2a</strong> (for maximum efficiency) and <strong>m = ceil(log₂(1+2a))</strong> — both are calculation-based numericals commonly seen in exams.</li>
               </ol>
             </div>
           </div>
