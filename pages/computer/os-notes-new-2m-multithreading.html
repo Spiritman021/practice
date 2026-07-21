@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Multithreading for IBPS SO IT Officer — single versus multithreaded processes and Many-to-One, One-to-One and Many-to-Many models.">
+  <title>2.M Multithreading | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.M</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.M</span><h1>Multithreading</h1><p>Single versus Multithreaded processes and Many-to-One, One-to-One, and Many-to-Many mapping models.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/multithreading-models.png" alt="Many-to-One, One-to-One, and Many-to-Many multithreading models" width="1693" height="929"><figcaption>Generated comparison of user-thread to kernel-thread mappings, parallelism, blocking behavior, and overhead.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – Multithreading (IBPS SO IT)
+
+This chapter is actually a **combination of all previous thread topics**.
+
+It mainly explains:
+
+* What is Multithreading?
+* Single Thread vs Multithread
+* Multithreading Models ⭐⭐⭐⭐⭐
+* Many-to-One
+* One-to-One
+* Many-to-Many
+
+👉 **For IBPS SO IT, the most important topic in this chapter is the Threading Models.**
+
+---
+
+# First Revise Thread
+
+We already learned
+
+A **Thread** is
+
+> The **smallest unit of execution** inside a process.
+
+Example
+
+Chrome Browser
+
+```text
+Chrome Process
+
+│
+├── Tab 1
+├── Tab 2
+├── Download
+└── Music
+```
+
+Each tab can execute independently.
+
+---
+
+# What is Multithreading?
+
+## Definition
+
+Multithreading means
+
+> **Executing multiple threads within the same process simultaneously (or concurrently).**
+
+Easy Definition
+
+> **One Process → Multiple Threads**
+
+---
+
+# Example
+
+Suppose you open Chrome.
+
+At the same time
+
+* Watching YouTube
+* Downloading PDF
+* Opening Gmail
+* Playing Music
+
+Diagram
+
+```text
+              Chrome Process
+
+        ┌────────┬────────┬────────┐
+        ▼        ▼        ▼        ▼
+     Thread1  Thread2  Thread3  Thread4
+
+     Video    Download Gmail    Music
+```
+
+One process.
+
+Multiple threads.
+
+This is **Multithreading**.
+
+---
+
+# Why Do We Need Multithreading?
+
+Suppose Chrome has only one thread.
+
+Diagram
+
+```text
+Chrome
+
+↓
+
+Download File
+
+↓
+
+Only After Download Ends
+
+↓
+
+Open Gmail
+```
+
+Very slow.
+
+Now with multiple threads.
+
+```text
+Chrome
+
+│
+├── Download
+├── Gmail
+├── Music
+└── Video
+```
+
+Everything happens together.
+
+---
+
+# Single Thread vs Multithread
+
+## Single Thread
+
+Only one task.
+
+Diagram
+
+```text
+Process
+
+↓
+
+Thread
+
+↓
+
+Task
+```
+
+Example
+
+Calculator.
+
+Usually
+
+One task at a time.
+
+---
+
+## Multithread
+
+Many tasks.
+
+Diagram
+
+```text
+Process
+
+│
+├── Thread1
+├── Thread2
+├── Thread3
+└── Thread4
+```
+
+Example
+
+Chrome.
+
+---
+
+# Visual Difference
+
+## Single Thread
+
+```text
+Process
+
+↓
+
+Thread
+
+↓
+
+Execution
+```
+
+---
+
+## Multithread
+
+```text
+Process
+
+──────────────
+
+Thread1
+
+Thread2
+
+Thread3
+
+Thread4
+```
+
+Much faster.
+
+---
+
+# Process vs Thread (Quick Revision)
+
+The tutorial repeats this, so let's revise.
+
+| Process                      | Thread                                  |
+| ---------------------------- | --------------------------------------- |
+| Heavyweight                  | Lightweight                             |
+| Separate memory              | Shared memory                           |
+| Slower switching             | Faster switching                        |
+| More resources               | Fewer resources                         |
+| IPC needed for communication | Shared memory allows easy communication |
+| Independent                  | Belongs to a process                    |
+
+Remember:
+
+> **Process = Heavyweight**
+> **Thread = Lightweight**
+
+---
+
+# Advantages of Multithreading
+
+The tutorial lists several.
+
+---
+
+## 1. Faster Context Switching
+
+Switching
+
+Thread1
+
+↓
+
+Thread2
+
+is faster than
+
+Process1
+
+↓
+
+Process2.
+
+---
+
+## 2. Concurrency
+
+Many tasks appear to execute together.
+
+Example
+
+```text
+Music
+
+↓
+
+Download
+
+↓
+
+Typing
+
+↓
+
+Printing
+```
+
+---
+
+## 3. Efficient Communication
+
+Threads share
+
+* Code
+* Data
+* Files
+
+No IPC needed.
+
+---
+
+## 4. Economical
+
+Creating threads
+
+↓
+
+Cheap.
+
+Creating processes
+
+↓
+
+Expensive.
+
+---
+
+## 5. Better CPU Utilization
+
+Suppose
+
+Thread1
+
+waiting.
+
+CPU executes
+
+Thread2.
+
+CPU remains busy.
+
+---
+
+# Types of Threads
+
+The tutorial again discusses
+
+* User-Level Thread
+* Kernel-Level Thread
+
+We already covered these.
+
+Quick revision.
+
+---
+
+## User-Level Thread
+
+Managed by
+
+Thread Library.
+
+Kernel
+
+doesn't know.
+
+Fast.
+
+---
+
+## Kernel-Level Thread
+
+Managed by
+
+Operating System.
+
+Kernel
+
+knows every thread.
+
+Supports multiprocessing.
+
+---
+
+# Multithreading Models ⭐⭐⭐⭐⭐
+
+This is the **new and most important topic**.
+
+Operating Systems use
+
+three mapping models.
+
+```text
+           User Threads
+
+                │
+
+        Mapping Model
+
+                │
+
+        Kernel Threads
+```
+
+Question:
+
+How are
+
+User Threads
+
+connected
+
+to
+
+Kernel Threads?
+
+Three answers.
+
+---
+
+# 1. Many-to-One Model ⭐⭐⭐⭐⭐
+
+Very Important.
+
+Definition
+
+Many User Threads
+
+map
+
+to
+
+One Kernel Thread.
+
+Diagram
+
+```text
+User Threads
+
+T1
+
+T2
+
+T3
+
+T4
+
+ │
+ │
+ ▼
+
+One Kernel Thread
+```
+
+Notice
+
+Many
+
+↓
+
+One.
+
+---
+
+# Example
+
+Suppose
+
+Chrome has
+
+4 User Threads.
+
+Kernel
+
+sees
+
+only
+
+one thread.
+
+Diagram
+
+```text
+T1
+
+T2
+
+T3
+
+T4
+
+↓
+
+Kernel Thread
+```
+
+---
+
+# Advantage
+
+Fast.
+
+Managed in user space.
+
+---
+
+# Biggest Disadvantage ⭐⭐⭐⭐⭐
+
+Suppose
+
+Thread1
+
+needs disk.
+
+Diagram
+
+```text
+Thread1
+
+Blocked
+
+↓
+
+Kernel Thread
+
+Blocked
+
+↓
+
+Entire Process Stops
+```
+
+Because
+
+only
+
+one Kernel Thread exists.
+
+---
+
+Another Problem
+
+Cannot utilize
+
+multiple CPU cores.
+
+---
+
+# Memory Trick
+
+Many-to-One
+
+↓
+
+Many Users
+
+↓
+
+One Kernel
+
+↓
+
+Blocking Problem
+
+---
+
+# 2. One-to-One Model ⭐⭐⭐⭐⭐
+
+Definition
+
+Each User Thread
+
+gets
+
+its own
+
+Kernel Thread.
+
+Diagram
+
+```text
+User Thread1
+
+↓
+
+Kernel Thread1
+
+
+User Thread2
+
+↓
+
+Kernel Thread2
+
+
+User Thread3
+
+↓
+
+Kernel Thread3
+```
+
+One
+
+↓
+
+One.
+
+---
+
+# Example
+
+Chrome
+
+```text
+Tab1
+
+↓
+
+Kernel Thread1
+
+Tab2
+
+↓
+
+Kernel Thread2
+
+Download
+
+↓
+
+Kernel Thread3
+```
+
+Every thread
+
+independent.
+
+---
+
+# Advantages
+
+Suppose
+
+Thread1
+
+blocked.
+
+Diagram
+
+```text
+Thread1
+
+Blocked
+
+↓
+
+Thread2
+
+Still Runs
+```
+
+No problem.
+
+---
+
+Supports
+
+Multiprocessing.
+
+Multiple CPU cores.
+
+---
+
+# Disadvantage
+
+Every User Thread
+
+requires
+
+Kernel Thread.
+
+Creating
+
+Kernel Threads
+
+is expensive.
+
+---
+
+# Memory Trick
+
+One-to-One
+
+↓
+
+One User
+
+↓
+
+One Kernel
+
+↓
+
+Best Balance
+
+---
+
+# 3. Many-to-Many Model ⭐⭐⭐⭐⭐
+
+Definition
+
+Many User Threads
+
+mapped
+
+to
+
+Many Kernel Threads.
+
+Diagram
+
+```text
+User Threads
+
+T1
+
+T2
+
+T3
+
+T4
+
+T5
+
+T6
+
+ │
+ ├─────────────┐
+ │             │
+ ▼             ▼
+Kernel1     Kernel2
+
+     ▼
+Kernel3
+```
+
+Many
+
+↓
+
+Many.
+
+---
+
+The tutorial shows
+
+6 User Threads
+
+↓
+
+6 Kernel Threads.
+
+But
+
+could also be
+
+6 User Threads
+
+↓
+
+4 Kernel Threads.
+
+---
+
+# Why is it Best?
+
+Suppose
+
+Thread1
+
+blocked.
+
+Diagram
+
+```text
+Thread1
+
+Blocked
+
+↓
+
+Kernel schedules
+
+Thread2
+
+Thread3
+```
+
+No issue.
+
+Supports
+
+multiprocessing.
+
+Flexible.
+
+---
+
+# Advantages
+
+* High Concurrency
+* Parallel Execution
+* Better CPU utilization
+* Blocking one thread doesn't stop all threads
+
+---
+
+# Disadvantage
+
+Implementation
+
+is complex.
+
+---
+
+# Comparison of Models
+
+## Many-to-One
+
+```text
+User
+
+T1
+
+T2
+
+T3
+
+↓
+
+One Kernel Thread
+```
+
+---
+
+## One-to-One
+
+```text
+T1
+
+↓
+
+K1
+
+T2
+
+↓
+
+K2
+
+T3
+
+↓
+
+K3
+```
+
+---
+
+## Many-to-Many
+
+```text
+User Threads
+
+↓
+
+Multiple Kernel Threads
+
+↓
+
+CPU
+```
+
+---
+
+# Complete Comparison
+
+| Model        | Mapping             | Multiprocessing | Blocking               |
+| ------------ | ------------------- | --------------- | ---------------------- |
+| Many-to-One  | Many ULT → One KLT  | ❌ No            | Whole process blocks   |
+| One-to-One   | One ULT → One KLT   | ✅ Yes           | Other threads continue |
+| Many-to-Many | Many ULT → Many KLT | ✅ Yes           | Other threads continue |
+
+This table is very important.
+
+---
+
+# Real-Life Example
+
+Imagine
+
+Employees
+
+(User Threads)
+
+Managers
+
+(Kernel Threads)
+
+---
+
+## Many-to-One
+
+```text
+6 Employees
+
+↓
+
+1 Manager
+```
+
+If manager busy,
+
+everyone waits.
+
+---
+
+## One-to-One
+
+```text
+Employee1
+
+↓
+
+Manager1
+
+Employee2
+
+↓
+
+Manager2
+```
+
+Independent.
+
+---
+
+## Many-to-Many
+
+```text
+Many Employees
+
+↓
+
+Several Managers
+```
+
+Best utilization.
+
+---
+
+# Memory Trick
+
+### Many-to-One
+
+Many
+
+↓
+
+One
+
+↓
+
+Blocking
+
+---
+
+### One-to-One
+
+One
+
+↓
+
+One
+
+↓
+
+Parallel
+
+---
+
+### Many-to-Many
+
+Many
+
+↓
+
+Many
+
+↓
+
+Best Performance
+
+---
+
+# Which Model is Best?
+
+For modern Operating Systems
+
+Generally
+
+> **Many-to-Many** provides the greatest flexibility.
+
+However,
+
+many modern systems (like **Windows** and **Linux**) effectively use a **One-to-One** threading model internally because it is simpler to implement while still supporting true parallelism.
+
+For **IBPS SO IT**, remember the conceptual advantages:
+
+* **Many-to-One** → Simple but poor for blocking and multiprocessing.
+* **One-to-One** → Good concurrency, but higher overhead.
+* **Many-to-Many** → Flexible and scalable.
+
+---
+
+# Complete Mind Map
+
+```text
+                 Multithreading
+
+                      │
+
+      ┌───────────────┼───────────────┐
+
+      ▼               ▼               ▼
+
+Many-to-One      One-to-One      Many-to-Many
+
+Many ULT         One ULT         Many ULT
+
+↓
+
+One KLT          ↓               ↓
+
+                 One KLT         Many KLT
+
+↓
+
+No Multiprocessing   Parallel      Parallel
+
+Whole Process Blocks Other Threads Continue
+```
+
+---
+
+# Quick Revision
+
+| Feature         | Many-to-One          | One-to-One             | Many-to-Many           |
+| --------------- | -------------------- | ---------------------- | ---------------------- |
+| User Threads    | Many                 | One                    | Many                   |
+| Kernel Threads  | One                  | One                    | Many                   |
+| Multiprocessing | ❌                    | ✅                      | ✅                      |
+| Blocking        | Whole process blocks | Other threads continue | Other threads continue |
+| Complexity      | Low                  | Medium                 | High                   |
+
+---
+
+# IBPS SO IT Important Points
+
+### Multithreading
+
+* **Multithreading = Multiple threads executing within the same process.**
+* Threads share:
+
+  * Code
+  * Data
+  * Open Files
+* Each thread has its own:
+
+  * Program Counter
+  * Registers
+  * Stack
+
+### Threading Models
+
+#### Many-to-One
+
+* Many User-Level Threads → One Kernel-Level Thread.
+* Does **not** support true multiprocessing.
+* If one thread blocks, the **entire process blocks**.
+
+#### One-to-One
+
+* One User-Level Thread → One Kernel-Level Thread.
+* Supports multiprocessing.
+* Blocking one thread does not stop other threads.
+* Higher overhead because each user thread needs a kernel thread.
+
+#### Many-to-Many
+
+* Many User-Level Threads → Many Kernel-Level Threads.
+* High concurrency and flexibility.
+* Supports parallel execution on multiprocessor systems.
+
+---
+
+# Final One-Line Revision (Most Important)
+
+```text
+Multithreading = One Process → Multiple Threads
+
+Many-to-One → Many ULT → One KLT → Whole Process Blocks
+
+One-to-One → One ULT → One KLT → Parallel Execution
+
+Many-to-Many → Many ULT → Many KLT → Best Concurrency and Flexibility
+```
+
+---
+
+# IBPS SO IT Exam Tips (Highest Probability Questions)
+
+1. **What is Multithreading?**
+
+   * Executing multiple threads within a single process.
+
+2. **Which threading model maps many user threads to one kernel thread?**
+
+   * **Many-to-One Model.**
+
+3. **Which model supports multiprocessing and maps one user thread to one kernel thread?**
+
+   * **One-to-One Model.**
+
+4. **Which threading model provides the highest flexibility?**
+
+   * **Many-to-Many Model.**
+
+5. **In which threading model does blocking one user thread block the entire process?**
+
+   * **Many-to-One Model.**
+
+6. **Which threading model has the highest overhead?**
+
+   * **One-to-One**, because every user thread requires a corresponding kernel thread.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

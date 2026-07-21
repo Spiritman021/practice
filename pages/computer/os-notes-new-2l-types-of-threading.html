@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Types of Threading for IBPS SO IT Officer — User-Level Threads, Kernel-Level Threads, user and kernel space, advantages and differences.">
+  <title>2.L Types of Threading | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.L</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.L</span><h1>Types of Threading</h1><p>User-Level Threads, Kernel-Level Threads, management, blocking behavior, parallelism, and comparisons.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/types-of-threading.png" alt="User-Level Threads versus Kernel-Level Threads" width="1693" height="929"><figcaption>Generated comparison showing who manages ULT and KLT, what the kernel sees, blocking behavior, and parallelism.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – Types of Threading (IBPS SO IT)
+
+This chapter is an extension of the previous topic on **Threads**.
+
+The **most important part** for IBPS SO IT is:
+
+* User Level Thread (ULT)
+* Kernel Level Thread (KLT)
+* Difference between ULT and KLT ⭐⭐⭐⭐⭐
+
+Many exams ask direct comparison questions from this topic.
+
+---
+
+# Quick Revision
+
+Before starting,
+
+remember:
+
+A **Thread** is the **smallest unit of execution** inside a process.
+
+Example
+
+```text
+Chrome Process
+
+│
+├── Tab 1
+├── Tab 2
+├── Download
+└── Music
+```
+
+Each tab can be a separate thread.
+
+---
+
+# Types of Threads
+
+There are only **2 types**.
+
+```text
+                Threads
+                   │
+         ┌─────────┴─────────┐
+         │                   │
+         ▼                   ▼
+ User-Level Thread      Kernel-Level Thread
+       (ULT)                  (KLT)
+```
+
+Everything in this chapter revolves around these two.
+
+---
+
+# First Understand User Space and Kernel Space
+
+Before understanding ULT and KLT, understand these two terms.
+
+## User Space
+
+This is where
+
+* Chrome
+* MS Word
+* VLC
+* Notepad
+
+run.
+
+Applications execute here.
+
+---
+
+## Kernel Space
+
+This is where the **Operating System** runs.
+
+The kernel manages:
+
+* CPU
+* Memory
+* Files
+* Devices
+* Threads
+* Processes
+
+Diagram
+
+```text
++---------------------------+
+|       User Space          |
+| Chrome                    |
+| Word                      |
+| VLC                       |
++---------------------------+
+|      Kernel Space         |
+| Operating System Kernel   |
++---------------------------+
+```
+
+Remember:
+
+* **User programs → User Space**
+* **Operating System → Kernel Space**
+
+---
+
+# User-Level Thread (ULT)
+
+## Definition
+
+A **User-Level Thread (ULT)** is a thread that is **created and managed in User Space**.
+
+The **Operating System kernel does not know** about these threads.
+
+### Easy Definition
+
+> **ULT = Managed by Thread Library, Kernel is unaware.**
+
+---
+
+# Diagram
+
+```text
+          User Space
+
+        Application
+             │
+      Thread Library
+      ┌─────┼─────┐
+      ▼     ▼     ▼
+    ULT1  ULT2  ULT3
+
+             │
+             ▼
+
+         Kernel
+
+   Thinks there is
+   only ONE process
+```
+
+Notice
+
+Kernel **cannot see**
+
+ULT1
+
+ULT2
+
+ULT3.
+
+It only sees
+
+```text
+One Process
+```
+
+---
+
+# Who Manages ULT?
+
+Not the OS.
+
+A **Thread Library** manages it.
+
+Examples
+
+* POSIX Pthreads
+* Java Green Threads
+* GNU Pth
+
+No need to memorize all examples for IBPS.
+
+Just know:
+
+> **Thread Library manages ULT.**
+
+---
+
+# Why is ULT Faster?
+
+Suppose
+
+Thread 1
+
+↓
+
+Thread 2
+
+Switch.
+
+No need
+
+to ask the Operating System.
+
+Thread Library
+
+does it directly.
+
+Diagram
+
+```text
+Thread 1
+
+↓
+
+Thread Library
+
+↓
+
+Thread 2
+```
+
+No Kernel.
+
+So
+
+Very Fast.
+
+---
+
+# Characteristics of ULT
+
+* Managed in User Space.
+* Kernel unaware.
+* Fast creation.
+* Fast switching.
+* Uses Thread Library.
+
+---
+
+# Advantages of ULT
+
+Tutorial gives four.
+
+Let's understand.
+
+---
+
+## 1. Easy to Create
+
+No Operating System call.
+
+Just Thread Library.
+
+Fast.
+
+---
+
+## 2. Fast Switching ⭐⭐⭐
+
+No Kernel involvement.
+
+Switching
+
+↓
+
+Very Fast.
+
+---
+
+## 3. Portable
+
+Runs
+
+on almost every OS.
+
+Because
+
+Kernel doesn't matter.
+
+---
+
+## 4. Application-Specific Scheduling
+
+Application decides
+
+which thread runs.
+
+OS
+
+doesn't interfere.
+
+---
+
+# Disadvantages of ULT
+
+Very Important.
+
+---
+
+## 1. No Multiprocessing
+
+Suppose
+
+Computer
+
+has
+
+4 CPU Cores.
+
+Kernel sees
+
+only
+
+one process.
+
+It cannot run
+
+multiple ULTs
+
+on different cores.
+
+Diagram
+
+```text
+4 CPU Cores
+
+↓
+
+Kernel sees
+
+Only One Process
+```
+
+So
+
+No real parallelism.
+
+---
+
+## 2. Blocking Problem ⭐⭐⭐⭐⭐
+
+This is the biggest disadvantage.
+
+Suppose
+
+Thread 1
+
+needs Disk.
+
+Diagram
+
+```text
+Thread1
+
+↓
+
+Disk Waiting
+```
+
+Kernel thinks
+
+Whole Process
+
+is waiting.
+
+Result
+
+```text
+Thread2
+
+Blocked
+
+Thread3
+
+Blocked
+```
+
+Everything stops.
+
+---
+
+Diagram
+
+```text
+Process
+
+├── Thread1 (Blocked)
+├── Thread2 (Ready)
+└── Thread3 (Ready)
+
+Kernel
+
+↓
+
+Blocks Whole Process
+```
+
+Remember this.
+
+---
+
+# Kernel-Level Thread (KLT)
+
+## Definition
+
+Kernel-Level Threads are
+
+**managed directly by the Operating System Kernel.**
+
+Easy Definition
+
+> **KLT = Kernel manages every thread individually.**
+
+---
+
+# Diagram
+
+```text
+        User Process
+
+     ┌─────┼─────┐
+     ▼     ▼     ▼
+   KLT1  KLT2  KLT3
+
+          │
+          ▼
+
+      Operating System
+         Kernel
+
+Knows every thread.
+```
+
+Unlike ULT,
+
+Kernel knows
+
+everything.
+
+---
+
+# Characteristics
+
+* Kernel aware.
+* Kernel manages scheduling.
+* Kernel creates threads.
+* Kernel switches threads.
+
+---
+
+# Advantages of KLT
+
+Tutorial mentions three.
+
+---
+
+## 1. Multiprocessing ⭐⭐⭐⭐⭐
+
+Suppose
+
+CPU
+
+has
+
+4 cores.
+
+Kernel sees
+
+all threads.
+
+Diagram
+
+```text
+Core1
+
+Thread1
+
+Core2
+
+Thread2
+
+Core3
+
+Thread3
+
+Core4
+
+Thread4
+```
+
+Real Parallelism.
+
+---
+
+## 2. Blocking Problem Solved ⭐⭐⭐⭐⭐
+
+Suppose
+
+Thread1
+
+waiting.
+
+Diagram
+
+```text
+Thread1
+
+Blocked
+
+↓
+
+Kernel
+
+↓
+
+Runs Thread2
+```
+
+Other threads continue.
+
+Huge advantage.
+
+---
+
+## 3. Kernel Can Use Threads
+
+Even
+
+Operating System
+
+can create
+
+its own threads.
+
+---
+
+# Disadvantages of KLT
+
+---
+
+## 1. Slower
+
+Kernel involved
+
+every time.
+
+Diagram
+
+```text
+Thread
+
+↓
+
+Kernel
+
+↓
+
+Thread
+```
+
+Extra work.
+
+---
+
+## 2. Mode Switching
+
+Every thread switch
+
+requires
+
+Kernel Mode.
+
+This adds overhead.
+
+---
+
+# ULT vs KLT ⭐⭐⭐⭐⭐
+
+This table is **extremely important**.
+
+| User-Level Thread (ULT)                        | Kernel-Level Thread (KLT)                 |
+| ---------------------------------------------- | ----------------------------------------- |
+| Managed by Thread Library                      | Managed by OS Kernel                      |
+| Kernel unaware                                 | Kernel aware                              |
+| Fast                                           | Slower                                    |
+| Lightweight                                    | Heavyweight                               |
+| No system calls required                       | System calls required                     |
+| Cannot utilize multiple processors efficiently | Supports multiprocessing                  |
+| If one thread blocks, entire process blocks    | Other threads continue even if one blocks |
+| Low overhead                                   | High overhead                             |
+| Scheduling by Thread Library                   | Scheduling by Kernel                      |
+
+Memorize this comparison.
+
+---
+
+# Easy Diagram
+
+## ULT
+
+```text
+User Space
+
+Thread1
+
+Thread2
+
+Thread3
+
+↓
+
+Thread Library
+
+↓
+
+Kernel
+
+Only sees one process.
+```
+
+---
+
+## KLT
+
+```text
+Kernel
+
+↓
+
+Thread1
+
+Thread2
+
+Thread3
+
+Kernel schedules
+each thread.
+```
+
+---
+
+# Real-Life Example
+
+## User-Level Thread
+
+Imagine
+
+Company
+
+has
+
+three employees.
+
+Manager
+
+doesn't know
+
+what each employee is doing.
+
+Only
+
+Team Leader
+
+manages them.
+
+Manager
+
+↓
+
+One Team
+
+---
+
+## Kernel-Level Thread
+
+Manager
+
+knows
+
+every employee.
+
+Can assign work
+
+to each individually.
+
+---
+
+# Blocking Example
+
+### ULT
+
+```text
+Thread1
+
+Waiting
+
+↓
+
+Entire Process Stops
+```
+
+---
+
+### KLT
+
+```text
+Thread1
+
+Waiting
+
+↓
+
+Thread2 Runs
+
+↓
+
+Thread3 Runs
+```
+
+Huge difference.
+
+---
+
+# Multiprocessing Example
+
+Suppose
+
+4-Core CPU.
+
+### ULT
+
+Kernel sees
+
+one process.
+
+Only one core
+
+may effectively execute it.
+
+---
+
+### KLT
+
+Kernel sees
+
+all threads.
+
+Diagram
+
+```text
+CPU
+
+Core1 → T1
+
+Core2 → T2
+
+Core3 → T3
+
+Core4 → T4
+```
+
+Maximum performance.
+
+---
+
+# Memory Trick
+
+## ULT
+
+Remember
+
+**U**
+
+↓
+
+**User**
+
+↓
+
+Thread Library
+
+↓
+
+Kernel Unaware
+
+---
+
+## KLT
+
+Remember
+
+**K**
+
+↓
+
+**Kernel**
+
+↓
+
+Kernel Aware
+
+---
+
+# Complete Mind Map
+
+```text
+                Threads
+                    │
+      ┌─────────────┴─────────────┐
+      │                           │
+      ▼                           ▼
+ User-Level Thread          Kernel-Level Thread
+      │                           │
+      ▼                           ▼
+ Thread Library             Kernel
+      │                           │
+      ▼                           ▼
+ Fast                     Slower
+ Kernel Unaware           Kernel Aware
+ No Multiprocessing       Supports Multiprocessing
+ Whole Process Blocks     Other Threads Continue
+```
+
+---
+
+# Quick Comparison
+
+| Feature          | ULT                  | KLT                       |
+| ---------------- | -------------------- | ------------------------- |
+| Managed By       | Thread Library       | Kernel                    |
+| Kernel Awareness | No                   | Yes                       |
+| Speed            | Faster               | Slower                    |
+| Thread Switching | Faster               | Slower                    |
+| Multiprocessing  | No                   | Yes                       |
+| Blocking         | Whole process blocks | Only blocked thread waits |
+| System Calls     | No                   | Yes                       |
+
+---
+
+# IBPS SO IT Important Points
+
+### User-Level Thread (ULT)
+
+* Managed in **User Space**.
+* Managed by **Thread Library**.
+* Kernel is **not aware** of threads.
+* Faster creation and switching.
+* No system calls required.
+* Cannot effectively utilize multiple processors.
+* If one thread blocks, the **entire process blocks**.
+
+### Kernel-Level Thread (KLT)
+
+* Managed in **Kernel Space**.
+* Managed directly by the **Operating System Kernel**.
+* Kernel is fully aware of all threads.
+* Supports true multiprocessing.
+* If one thread blocks, **other threads of the same process can continue**.
+* Thread operations require **system calls**, making them slower.
+
+---
+
+# Final One-Line Revision (Most Important)
+
+```text
+ULT → User Space → Thread Library → Kernel Unaware → Faster → Whole Process Blocks
+
+KLT → Kernel Space → Kernel Managed → Kernel Aware → Supports Multiprocessing → Other Threads Continue
+```
+
+---
+
+# IBPS SO IT Exam Tips (Most Important Questions)
+
+1. **Who manages User-Level Threads?**
+
+   * **Thread Library (User Space).**
+
+2. **Who manages Kernel-Level Threads?**
+
+   * **Operating System Kernel.**
+
+3. **If one User-Level Thread blocks, what happens?**
+
+   * The **entire process blocks** because the kernel is unaware of individual threads.
+
+4. **If one Kernel-Level Thread blocks, what happens?**
+
+   * Only that thread blocks; **other threads continue executing**.
+
+5. **Which thread type supports multiprocessing better?**
+
+   * **Kernel-Level Threads (KLT)** because the kernel can schedule different threads on different CPU cores.
+
+6. **Which is faster to create and switch?**
+
+   * **User-Level Threads (ULT)** because no kernel involvement or system calls are required.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

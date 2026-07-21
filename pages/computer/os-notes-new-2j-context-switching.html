@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Context Switching for IBPS SO IT Officer — process context, PCB save and restore, triggers, overhead and switching latency.">
+  <title>2.J Context Switching | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.J</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.J</span><h1>Context Switching</h1><p>Process context, PCB save and restore, scheduler selection, triggers, overhead, and latency.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/context-switching.png" alt="Context Switching timeline from Process P1 to Process P2" width="1693" height="929"><figcaption>Generated context-switch timeline showing interrupt, PCB save, scheduling, PCB restore, and CPU handoff.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – Context Switching (IBPS SO IT)
+
+**Context Switching** is one of the **most important topics** in Operating Systems and is **frequently asked in IBPS SO IT**.
+
+Questions are commonly asked on:
+
+* What is Context Switching?
+* Why is Context Switching needed?
+* Steps of Context Switching
+* Context Switching vs Process Switching
+* Triggers of Context Switching
+* Context Switch Cost
+* Process Switching Latency
+
+Let's understand everything from scratch.
+
+---
+
+# First Understand the Problem
+
+Suppose your computer has opened:
+
+* Chrome
+* MS Word
+* Spotify
+* VS Code
+
+Can the CPU execute all of them simultaneously?
+
+**No** (assuming a single CPU core).
+
+CPU executes
+
+```text
+One Process
+
+↓
+
+Another Process
+
+↓
+
+Another Process
+
+↓
+
+Again First Process
+```
+
+Question:
+
+When CPU leaves one process and starts another,
+
+how does the first process remember where it stopped?
+
+Answer:
+
+**Context Switching**
+
+---
+
+# What is Context?
+
+Before understanding Context Switching,
+
+you must know
+
+**Context**.
+
+---
+
+## Definition
+
+Context means
+
+> **The complete current state (information) of a process.**
+
+Think of it as
+
+the "current progress" of a process.
+
+---
+
+# Example
+
+Suppose Chrome is downloading a file.
+
+Current status
+
+```text
+Download = 55%
+
+Instruction = 500
+
+Registers
+
+Memory
+
+Stack
+```
+
+All this information together is called
+
+```text
+Context
+```
+
+---
+
+# What does Context contain?
+
+The tutorial mentions
+
+Context includes:
+
+* Process Stack
+* Memory Address Space
+* Virtual Memory Address Space
+* CPU Registers
+* Stack Pointer (SP)
+
+Let's understand each.
+
+---
+
+## 1. Process Stack
+
+Stores
+
+* Local Variables
+* Function Calls
+* Return Addresses
+
+---
+
+## 2. Memory Address Space
+
+Memory assigned to process.
+
+Example
+
+```text
+Chrome
+
+↓
+
+RAM Area
+```
+
+---
+
+## 3. Virtual Memory Address Space
+
+Logical memory addresses
+
+used by process.
+
+(No need to study deeply for IBPS.)
+
+---
+
+## 4. CPU Registers
+
+Current values inside CPU.
+
+Example
+
+```text
+A = 5
+
+B = 10
+```
+
+---
+
+## 5. Stack Pointer (SP)
+
+Points to
+
+top of the stack.
+
+Think
+
+Bookmark
+
+of Stack.
+
+---
+
+# Easy Definition
+
+Context
+
+=
+
+Everything needed
+
+to restart the process
+
+exactly where it stopped.
+
+---
+
+# What is Context Switching?
+
+## Definition
+
+Context Switching is the process of
+
+> **Saving the current process state and loading another process state so that CPU can execute another process.**
+
+Easy definition
+
+```text
+Save Current Process
+
+↓
+
+Load New Process
+
+↓
+
+Continue Execution
+```
+
+---
+
+# Why is Context Switching Needed?
+
+Suppose
+
+CPU running
+
+Chrome.
+
+Suddenly
+
+Word gets CPU.
+
+Later
+
+Chrome returns.
+
+Question
+
+How will Chrome continue
+
+from exactly the same place?
+
+Because
+
+its Context was saved.
+
+---
+
+# Real-Life Example
+
+Suppose
+
+You are writing
+
+Math Homework.
+
+Suddenly
+
+Mother says
+
+"Answer the phone."
+
+You stop.
+
+You place a bookmark.
+
+Talk.
+
+Come back.
+
+Continue
+
+from same page.
+
+That bookmark
+
+is exactly
+
+Context Switching.
+
+---
+
+# Complete Context Switching Diagram
+
+```text
+CPU
+
+Running P1
+
+↓
+
+Save P1 Context
+
+↓
+
+Load P2 Context
+
+↓
+
+Running P2
+```
+
+---
+
+# Multitasking Example
+
+Imagine
+
+CPU has
+
+```text
+P1
+
+P2
+
+P3
+```
+
+Timeline
+
+```text
+Time →
+
+P1
+
+↓
+
+P2
+
+↓
+
+P3
+
+↓
+
+P1 Again
+
+↓
+
+P2 Again
+```
+
+Every switch
+
+requires
+
+Context Switching.
+
+---
+
+# What Happens During Context Switching?
+
+Suppose
+
+Chrome running.
+
+```text
+Chrome
+
+↓
+
+Instruction 200
+```
+
+CPU switches.
+
+OS saves
+
+```text
+Instruction 200
+
+Registers
+
+Stack
+
+Memory
+
+PCB
+```
+
+Later
+
+Chrome resumes
+
+from
+
+Instruction 201.
+
+---
+
+# Context Switching Triggers
+
+Tutorial mentions
+
+3 triggers.
+
+Let's understand.
+
+---
+
+# 1. Multitasking ⭐⭐⭐
+
+Most common.
+
+Suppose
+
+Chrome
+
+Word
+
+Spotify
+
+are running.
+
+CPU gives
+
+time
+
+to everyone.
+
+Diagram
+
+```text
+Chrome
+
+↓
+
+Word
+
+↓
+
+Spotify
+
+↓
+
+Chrome
+```
+
+Every switch
+
+↓
+
+Context Switch.
+
+---
+
+# 2. Interrupt Handling ⭐⭐⭐
+
+Suppose
+
+CPU executing
+
+Chrome.
+
+Suddenly
+
+Keyboard pressed.
+
+Diagram
+
+```text
+Chrome
+
+↓
+
+Keyboard Interrupt
+
+↓
+
+OS Handles Interrupt
+
+↓
+
+Resume Chrome
+```
+
+Context Switching happens.
+
+---
+
+# 3. User Mode ↔ Kernel Mode
+
+Remember
+
+Operating System has
+
+```text
+User Mode
+
+Kernel Mode
+```
+
+Suppose
+
+Application wants
+
+to read file.
+
+It cannot directly access disk.
+
+Diagram
+
+```text
+Application
+
+↓
+
+Kernel
+
+↓
+
+Disk
+```
+
+Sometimes
+
+switching modes
+
+also requires
+
+saving/restoring context.
+
+---
+
+# Steps of Context Switching
+
+Very Important.
+
+Let's understand one by one.
+
+---
+
+# Step 1
+
+Save Current Process
+
+Diagram
+
+```text
+CPU
+
+↓
+
+P1 Running
+
+↓
+
+Save Registers
+
+↓
+
+Save PCB
+```
+
+Everything stored.
+
+---
+
+# Step 2
+
+Move PCB
+
+Suppose
+
+P1 waiting.
+
+PCB moves
+
+to
+
+```text
+Ready Queue
+
+or
+
+Waiting Queue
+```
+
+Diagram
+
+```text
+Running
+
+↓
+
+Ready Queue
+```
+
+---
+
+# Step 3
+
+Scheduler Selects New Process
+
+Suppose
+
+Ready Queue
+
+contains
+
+```text
+P2
+
+P3
+
+P4
+```
+
+Scheduler chooses
+
+```text
+P3
+```
+
+---
+
+# Step 4
+
+Update PCB
+
+P3 state
+
+changes
+
+```text
+Ready
+
+↓
+
+Running
+```
+
+PCB updated.
+
+---
+
+# Step 5
+
+Update Memory
+
+Memory structures
+
+Page Tables
+
+etc.
+
+prepared.
+
+(No need deep study.)
+
+---
+
+# Step 6
+
+Restore Context
+
+CPU loads
+
+P3
+
+Registers
+
+Stack
+
+Program Counter
+
+Diagram
+
+```text
+PCB
+
+↓
+
+Registers Loaded
+
+↓
+
+CPU
+
+↓
+
+P3 Running
+```
+
+Done.
+
+---
+
+# Complete Context Switching Flow
+
+```text
+Running P1
+
+↓
+
+Save Context
+
+↓
+
+Save PCB
+
+↓
+
+Scheduler Picks P2
+
+↓
+
+Load PCB
+
+↓
+
+Restore Context
+
+↓
+
+Running P2
+```
+
+Remember this.
+
+---
+
+# Example of Context Switching
+
+Tutorial gives
+
+P0
+
+↓
+
+P1
+
+Let's understand.
+
+Initially
+
+```text
+CPU
+
+↓
+
+P0 Running
+```
+
+Now
+
+Interrupt occurs.
+
+Diagram
+
+```text
+P0 Running
+
+↓
+
+Interrupt
+
+↓
+
+Save P0 PCB
+
+↓
+
+Load P1 PCB
+
+↓
+
+P1 Running
+```
+
+Later
+
+P1 finishes.
+
+Diagram
+
+```text
+P1 Running
+
+↓
+
+Save P1 PCB
+
+↓
+
+Load P0 PCB
+
+↓
+
+P0 Continues
+```
+
+Notice
+
+P0
+
+continues
+
+from exactly
+
+where it stopped.
+
+---
+
+# Diagram
+
+```text
+          CPU
+
+P0 Running
+
+      │
+      ▼
+ Save PCB0
+
+      │
+      ▼
+ Load PCB1
+
+      │
+      ▼
+ P1 Running
+
+      │
+      ▼
+ Save PCB1
+
+      │
+      ▼
+ Load PCB0
+
+      │
+      ▼
+ P0 Running Again
+```
+
+---
+
+# Context Switching Cost
+
+Very Important.
+
+Context Switching
+
+takes time.
+
+Question
+
+Why?
+
+Because OS must
+
+* Save Registers
+* Save PCB
+* Load PCB
+* Restore Registers
+* Update Memory
+
+All consume CPU cycles.
+
+---
+
+# Simple Example
+
+Suppose
+
+Switch takes
+
+2 ms.
+
+During
+
+those 2 ms
+
+CPU
+
+is NOT executing
+
+useful program instructions.
+
+Diagram
+
+```text
+Execution
+
+████████
+
+Context Switch
+
+░░
+
+Execution
+
+████████
+```
+
+Shaded part
+
+is overhead.
+
+---
+
+# What is Process Switching Latency?
+
+Tutorial says
+
+Time required
+
+to switch
+
+between
+
+two processes.
+
+Definition
+
+> **Process Switching Latency = Time taken to perform Context Switching.**
+
+Easy Trick
+
+Latency
+
+=
+
+Delay.
+
+---
+
+# Why Too Many Context Switches are Bad?
+
+Suppose
+
+Every
+
+1 ms
+
+CPU switches.
+
+Diagram
+
+```text
+Run
+
+Switch
+
+Run
+
+Switch
+
+Run
+
+Switch
+```
+
+Most time
+
+is wasted
+
+in switching.
+
+Performance
+
+decreases.
+
+---
+
+# Good Scheduler
+
+A good scheduler
+
+reduces
+
+unnecessary
+
+Context Switches.
+
+Diagram
+
+```text
+Run Long
+
+↓
+
+Less Switching
+
+↓
+
+Higher Performance
+```
+
+---
+
+# Single Address Space vs Private Address Space
+
+Tutorial says
+
+Single Address Space
+
+↓
+
+Faster Context Switching.
+
+Why?
+
+Because
+
+less memory information
+
+needs updating.
+
+Private Address Space
+
+↓
+
+More work.
+
+↓
+
+Slower.
+
+For IBPS,
+
+remember only
+
+the conclusion.
+
+---
+
+# Context Switching vs Process Switching
+
+Students confuse these.
+
+---
+
+## Process Switching
+
+Means
+
+CPU changes
+
+from one process
+
+to another.
+
+---
+
+## Context Switching
+
+Means
+
+Saving current process state
+
+and
+
+Loading new process state.
+
+Context Switching
+
+is actually
+
+the mechanism
+
+used during
+
+Process Switching.
+
+---
+
+Diagram
+
+```text
+Process Switching
+
+P1
+
+↓
+
+P2
+
+Needs
+
+↓
+
+Context Switching
+```
+
+---
+
+# Context Switching vs Mode Switching
+
+Sometimes asked.
+
+| Context Switching  | Mode Switching            |
+| ------------------ | ------------------------- |
+| Process changes    | Process remains same      |
+| PCB saved/restored | Usually no process change |
+| Higher overhead    | Lower overhead            |
+
+---
+
+# Real-Life Example
+
+Teacher teaching
+
+Math.
+
+Suddenly
+
+Principal calls.
+
+Teacher notes
+
+where lecture stopped.
+
+Goes.
+
+Returns.
+
+Continues.
+
+Diagram
+
+```text
+Math Lecture
+
+↓
+
+Bookmark
+
+↓
+
+Principal
+
+↓
+
+Return
+
+↓
+
+Continue Lecture
+```
+
+Bookmark
+
+=
+
+Context.
+
+---
+
+# Complete Working Diagram
+
+```text
+Running Process
+
+↓
+
+Interrupt/System Call
+
+↓
+
+Save Context
+
+↓
+
+PCB Updated
+
+↓
+
+Scheduler Chooses New Process
+
+↓
+
+Load New PCB
+
+↓
+
+Restore Context
+
+↓
+
+New Process Running
+```
+
+---
+
+# Memory Trick
+
+Think
+
+Movie.
+
+You pause movie.
+
+TV remembers
+
+```text
+1 Hour
+
+25 Minutes
+```
+
+Later
+
+Resume
+
+from same point.
+
+Exactly
+
+Context Switching.
+
+---
+
+# Complete Mind Map
+
+```text
+                Context Switching
+                        │
+        ┌───────────────┼────────────────┐
+        │               │                │
+        ▼               ▼                ▼
+ Save Context     Load Context      PCB Updated
+        │               │
+        ▼               ▼
+ Current Process   Next Process
+```
+
+---
+
+# IBPS SO IT Important Points
+
+### Context
+
+* **Context = Complete state of a process.**
+* Includes:
+
+  * CPU Registers
+  * Stack
+  * Stack Pointer (SP)
+  * Memory Address Space
+  * Virtual Memory Address Space
+
+### Context Switching
+
+* Saves the current process state.
+* Loads the next process state.
+* Allows multitasking on a single CPU.
+
+### Triggers
+
+* **Multitasking**
+* **Interrupt Handling**
+* **User Mode ↔ Kernel Mode switching**
+* (In practice, context switches also occur due to scheduler decisions like time quantum expiry.)
+
+### Steps
+
+1. Save current context.
+2. Update PCB.
+3. Move PCB to the appropriate queue.
+4. Scheduler selects next process.
+5. Update the selected PCB.
+6. Update memory structures.
+7. Restore the new process context.
+
+### Performance
+
+* Every context switch consumes CPU cycles.
+* Too many context switches reduce system performance.
+* **Process Switching Latency** = Time taken to complete a context switch.
+
+---
+
+# Final One-Line Revision (Most Important)
+
+```text
+Context = Current state of a process.
+
+Context Switching = Save current process state → Load next process state.
+
+PCB stores the saved context.
+
+More Context Switches = More Overhead = Lower Performance.
+```
+
+---
+
+# IBPS SO IT Exam Tips
+
+These are the **highest-probability questions** from this topic:
+
+1. **What is Context Switching?**
+
+   * Saving the current process context and restoring another process's context so the CPU can switch execution.
+
+2. **Where is the process context stored?**
+
+   * **Process Control Block (PCB).**
+
+3. **Why is Context Switching needed?**
+
+   * To enable **multitasking** by allowing multiple processes to share the CPU.
+
+4. **What is Context Switch (Process Switching) Latency?**
+
+   * The **time required to switch** the CPU from one process to another.
+
+5. **What is the effect of excessive Context Switching?**
+
+   * **Performance decreases** because CPU spends more time saving/restoring contexts than executing useful instructions.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

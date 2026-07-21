@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Operating System processes for IBPS SO IT Officer — program versus process, process states, PCB and process memory layout.">
+  <title>2.A Operating System Processes | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.A</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.A</span><h1>Operating System Processes</h1><p>Program versus process, process states, PCB, and process memory layout.</p></section><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – Processes (IBPS SO IT Exam Explanation)
+
+This is one of the **most important Operating System topics** for **IBPS SO IT Officer**. Questions are frequently asked from:
+
+* Process vs Program
+* Process States
+* Process Control Block (PCB)
+* Process Memory Layout (Stack, Heap, Data, Text)
+
+Let's understand everything in a very simple way.
+
+---
+
+# What is a Process?
+
+### Definition
+
+A **Process** is **a program that is currently being executed**.
+
+### Remember this one-line definition for IBPS:
+
+> **Program + Execution = Process**
+
+---
+
+## Simple Real-Life Example
+
+Imagine you have a recipe book.
+
+* Recipe written in the book = **Program**
+* Cooking the recipe = **Process**
+
+The recipe itself does nothing.
+
+Only when someone starts cooking does it become an active task.
+
+Similarly,
+
+```
+Calculator.exe (stored in disk)
+        ↓
+Double Click
+        ↓
+Calculator starts running
+        ↓
+It becomes a Process
+```
+
+---
+
+## Another Example
+
+Suppose you have written this program.
+
+```c
+#include<stdio.h>
+
+int main()
+{
+    printf("Hello World");
+}
+```
+
+When this code is stored inside your computer, it is only a **Program**.
+
+When you execute it,
+
+```
+Hello World
+```
+
+is printed.
+
+Now the operating system creates a **Process**.
+
+So,
+
+```
+Stored Code
+=
+Program
+
+Running Code
+=
+Process
+```
+
+---
+
+# Important Definition
+
+Tutorial says:
+
+> A process is an entity which represents the basic unit of work in the system.
+
+Easy meaning:
+
+The Operating System does **all work through processes**.
+
+Examples:
+
+* Chrome running
+* MS Word running
+* VLC playing video
+* Spotify playing music
+
+All are processes.
+
+---
+
+# Sequential Execution
+
+The tutorial says:
+
+> The execution of a process progresses in sequential fashion.
+
+Meaning:
+
+Instructions execute **one after another**.
+
+Example:
+
+```
+Step 1
+↓
+
+Step 2
+↓
+
+Step 3
+↓
+
+Step 4
+```
+
+CPU executes them in order.
+
+---
+
+# Program vs Process
+
+This is a favorite exam question.
+
+| Program             | Process                     |
+| ------------------- | --------------------------- |
+| Passive             | Active                      |
+| Stored on disk      | Running in memory           |
+| Static              | Dynamic                     |
+| Doesn't consume CPU | Consumes CPU                |
+| Just instructions   | Instructions being executed |
+
+### Easy Trick
+
+```
+Program
+=
+Recipe
+
+Process
+=
+Cooking
+```
+
+OR
+
+```
+Program
+=
+Movie File
+
+Process
+=
+Movie Playing
+```
+
+---
+
+# What Happens When Program Starts?
+
+When you run a program,
+
+```
+Program stored on Hard Disk
+           ↓
+Operating System loads it into RAM
+           ↓
+Allocates memory
+           ↓
+Assigns CPU
+           ↓
+Creates Process
+```
+
+---
+
+# Memory Layout of a Process
+
+When the OS loads a program into RAM, memory is divided into **four sections**.
+
+```
+--------------------------
+|        Stack           |
+--------------------------
+|        Heap            |
+--------------------------
+|        Text            |
+--------------------------
+|        Data            |
+--------------------------
+```
+
+Let's understand each.
+
+---
+
+# 1. Stack
+
+Stack stores **temporary data**.
+
+It contains:
+
+* Function parameters
+* Local variables
+* Return addresses
+
+Example
+
+```c
+void add()
+{
+    int x = 5;
+}
+```
+
+Here
+
+```
+x
+```
+
+is a local variable.
+
+It is stored in the **Stack**.
+
+---
+
+### Stack Characteristics
+
+* Temporary memory
+* Fast
+* Automatically managed
+* Stores function calls
+
+### Easy Trick
+
+Think
+
+```
+Stack
+=
+Temporary Notebook
+```
+
+As soon as the function finishes,
+
+everything is erased.
+
+---
+
+# 2. Heap
+
+Heap stores **memory allocated during runtime**.
+
+Example
+
+```c
+malloc()
+new
+calloc()
+```
+
+All allocate memory in Heap.
+
+Suppose user enters
+
+```
+How many students?
+
+500
+```
+
+Program cannot know beforehand.
+
+So memory is allocated while running.
+
+That memory comes from **Heap**.
+
+---
+
+### Heap Characteristics
+
+* Dynamic memory
+* Allocated during execution
+* Programmer controls allocation/deallocation
+
+---
+
+### Easy Trick
+
+```
+Heap
+=
+Expandable Storage Room
+```
+
+Need more memory?
+
+Take more from Heap.
+
+---
+
+# 3. Text Section
+
+This is also called the **Code Segment**.
+
+It contains:
+
+* Program instructions
+* Program Counter (PC)
+* CPU registers related to execution (as simplified in the tutorial)
+
+The tutorial mentions:
+
+> Current activity represented by Program Counter and processor registers.
+
+### Program Counter (PC)
+
+Program Counter stores:
+
+> Address of the next instruction to execute.
+
+Example
+
+```
+Instruction 1
+
+Instruction 2
+
+Instruction 3
+
+Instruction 4
+```
+
+If CPU is executing instruction 2,
+
+Program Counter points to
+
+```
+Instruction 3
+```
+
+because that is next.
+
+---
+
+### Easy Trick
+
+```
+Program Counter
+=
+Bookmark in a book
+```
+
+It tells CPU
+
+"Read from here next."
+
+---
+
+# 4. Data Section
+
+Stores
+
+* Global variables
+* Static variables
+
+Example
+
+```c
+int count = 10;
+```
+
+Global variable.
+
+Stored in
+
+```
+Data Segment
+```
+
+Example
+
+```c
+static int x;
+```
+
+Also stored here.
+
+---
+
+## Easy Trick
+
+```
+Data Section
+=
+Permanent Variables
+```
+
+---
+
+# Complete Memory Layout
+
+```
+-------------------------
+Stack
+(Local Variables)
+
+↓
+
+Heap
+(Dynamic Memory)
+
+↓
+
+Text
+(Program Instructions)
+
+↓
+
+Data
+(Global + Static Variables)
+-------------------------
+```
+
+---
+
+# What is a Program?
+
+A Program is simply
+
+> Collection of instructions.
+
+Example
+
+```c
+printf("Hello");
+```
+
+This is a program.
+
+It does nothing until executed.
+
+---
+
+# Software
+
+Tutorial says
+
+Software consists of
+
+* Programs
+* Libraries
+* Related Data
+
+Example
+
+Microsoft Office
+
+contains
+
+* Word
+* Excel
+* PowerPoint
+* Libraries
+
+Together they form software.
+
+---
+
+# Algorithm
+
+Algorithm
+
+=
+
+Step-by-step method to solve a problem.
+
+Example
+
+Find largest number
+
+```
+Step 1
+
+Read numbers
+
+↓
+
+Compare
+
+↓
+
+Print largest
+```
+
+That sequence is an algorithm.
+
+---
+
+# Process Life Cycle
+
+Every process moves through different states.
+
+There are **5 states**.
+
+```
+Start
+   ↓
+Ready
+   ↓
+Running
+   ↓
+Waiting
+   ↓
+Running
+   ↓
+Exit
+```
+
+Let's understand one by one.
+
+---
+
+# 1. Start (New)
+
+This is the first state.
+
+Example
+
+You double-click Chrome.
+
+OS creates process.
+
+State
+
+```
+Start
+```
+
+---
+
+# 2. Ready State
+
+Process is **ready to run**.
+
+But CPU is busy.
+
+So process waits.
+
+Example
+
+You open
+
+* Chrome
+* Word
+* VLC
+
+Only one gets CPU immediately.
+
+Others wait.
+
+That waiting queue is
+
+```
+Ready Queue
+```
+
+State:
+
+```
+Ready
+```
+
+---
+
+### Important Point
+
+Ready means
+
+**Waiting for CPU**
+
+NOT waiting for user.
+
+This is an exam favorite.
+
+---
+
+# 3. Running State
+
+CPU has selected the process.
+
+Now it executes.
+
+```
+CPU
+↓
+
+Chrome Running
+```
+
+State
+
+```
+Running
+```
+
+---
+
+# Scheduler
+
+Tutorial mentions
+
+Scheduler interrupts running process.
+
+Suppose
+
+Chrome is running.
+
+Suddenly,
+
+Word has higher priority.
+
+CPU switches.
+
+```
+Chrome
+
+↓
+
+Ready
+
+↓
+
+Word Running
+```
+
+This switching is done by
+
+**CPU Scheduler**.
+
+---
+
+# 4. Waiting State
+
+Waiting means
+
+Process needs something.
+
+Examples
+
+Waiting for
+
+* Keyboard input
+* Mouse click
+* Printer
+* Disk
+* File
+* Network response
+
+CPU cannot help.
+
+So process waits.
+
+---
+
+Example
+
+Program asks
+
+```
+Enter your Name:
+```
+
+Until you type,
+
+Process stays
+
+```
+Waiting
+```
+
+---
+
+### Important Difference
+
+Ready
+
+↓
+
+Waiting for CPU
+
+Waiting
+
+↓
+
+Waiting for Resource
+
+This is asked frequently.
+
+---
+
+# 5. Terminated (Exit)
+
+Program finishes.
+
+Example
+
+```
+Hello World
+```
+
+Printed.
+
+Done.
+
+State
+
+```
+Terminated
+```
+
+OS removes it from memory.
+
+---
+
+# Complete Process State Diagram
+
+```
+          +--------+
+          | Start  |
+          +--------+
+               |
+               v
+          +--------+
+          | Ready  |
+          +--------+
+               |
+        CPU Assigned
+               |
+               v
+         +---------+
+         | Running |
+         +---------+
+          /       \
+Needs I/O         Finishes
+   |                 |
+   v                 v
++---------+     +-----------+
+| Waiting |     | Terminated|
++---------+     +-----------+
+     |
+Resource Available
+     |
+     v
+  Ready
+```
+
+---
+
+# Process Control Block (PCB)
+
+This is another **very important IBPS topic**.
+
+---
+
+## Definition
+
+PCB is a **data structure maintained by the Operating System for every process**.
+
+Think of it as the **identity card (or file) of a process** that stores all information the OS needs to manage it.
+
+---
+
+## What is PID?
+
+Every process gets a unique number.
+
+Called
+
+```
+PID
+=
+Process ID
+```
+
+Example
+
+Chrome
+
+```
+PID = 1024
+```
+
+Word
+
+```
+PID = 2056
+```
+
+No two processes have the same PID at the same time.
+
+---
+
+# Information Stored in PCB
+
+## 1. Process State
+
+Stores current state.
+
+Example
+
+```
+Ready
+
+Running
+
+Waiting
+
+Exit
+```
+
+---
+
+## 2. Process Privileges
+
+Defines permissions.
+
+Can process
+
+* Read file?
+* Write file?
+* Access printer?
+* Use network?
+
+---
+
+## 3. Process ID (PID)
+
+Unique identification number.
+
+Example
+
+```
+PID = 1100
+```
+
+---
+
+## 4. Pointer
+
+Stores the address/reference of the **parent process** (the process that created this one).
+
+---
+
+## 5. Program Counter
+
+Stores
+
+```
+Next instruction address
+```
+
+Very important.
+
+---
+
+## 6. CPU Registers
+
+CPU registers contain the process's working data while it runs (like instruction pointer, stack pointer, general-purpose registers, etc.). When the CPU switches to another process, these register values are saved in the PCB so execution can later continue from the same point.
+
+---
+
+## 7. CPU Scheduling Information
+
+Stores
+
+* Priority
+* Scheduling information
+* Queue information
+
+Needed by scheduler.
+
+---
+
+## 8. Memory Management Information
+
+Stores information related to memory, such as:
+
+* Page Table
+* Segment Table
+* Memory limits
+
+---
+
+## 9. Accounting Information
+
+Stores usage details.
+
+Example
+
+* CPU time used
+* Time limits
+* Execution ID
+
+Useful for billing, monitoring, or statistics.
+
+---
+
+## 10. I/O Status Information
+
+Stores
+
+* Files opened
+* Printer allocated
+* Disk allocated
+* Other I/O devices assigned to the process
+
+---
+
+# Why is PCB Needed?
+
+Imagine there are many processes:
+
+```
+Chrome
+
+Word
+
+Excel
+
+Spotify
+
+VS Code
+```
+
+The OS needs to know for each process:
+
+* Which state is it in?
+* Where should it continue executing?
+* Which resources does it own?
+* How much CPU has it used?
+
+All of this information is stored in its PCB.
+
+Without PCB, the OS cannot efficiently manage or switch between processes.
+
+---
+
+# Process Switching (Context Switching)
+
+When the CPU changes from one process to another:
+
+```
+Chrome Running
+      ↓
+Save Chrome's information in PCB
+      ↓
+Load Word's information from PCB
+      ↓
+Word Starts Running
+```
+
+This save-and-restore mechanism is called **Context Switching**, and the PCB is essential for it.
+
+---
+
+# Important Exam Points (IBPS SO IT)
+
+### Must Remember
+
+* **Program = Passive (stored code)**
+* **Process = Active (running program)**
+* **Program + Execution = Process**
+* **Process has four memory sections:** Stack, Heap, Text, Data
+* **Stack = Local variables, function parameters, return address**
+* **Heap = Dynamic memory allocation**
+* **Text = Program instructions + current execution context (including Program Counter as described in the tutorial)**
+* **Data = Global and static variables**
+* **Five process states = Start → Ready → Running → Waiting → Terminated**
+* **Ready = Waiting for CPU**
+* **Waiting = Waiting for I/O or another resource**
+* **PCB = Data structure containing all information about a process**
+* **PID = Unique Process ID**
+* **Program Counter = Address of the next instruction to execute**
+* **PCB is created when a process is created and deleted after the process terminates**
+
+---
+
+# IBPS SO IT Memory Tricks
+
+### Process vs Program
+
+**"Stored = Program, Running = Process."**
+
+### Process Memory
+
+**SHTD** → **Stack, Heap, Text, Data**
+
+### Process States
+
+**SRRWT**
+
+**Start → Ready → Running → Waiting → Terminated**
+
+### Ready vs Waiting
+
+* **Ready = Waiting for CPU**
+* **Waiting = Waiting for Resource (I/O, keyboard, file, printer, etc.)**
+
+### PCB
+
+**"PCB is the report card/identity card of a process."** It stores everything the OS needs to know about that process.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+

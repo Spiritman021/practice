@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="System Calls for IBPS SO IT Officer — user and kernel modes, trap flow, call categories and common calls including fork, exec, read and write.">
+  <title>2.N System Calls | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.N</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.N</span><h1>System Calls</h1><p>User Mode, Kernel Mode, TRAP flow, system-call categories, and common process and file calls.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/system-calls.png" alt="User Mode to Kernel Mode System Call workflow" width="1693" height="929"><figcaption>Generated system-call workflow showing the API, TRAP, mode switch, kernel service, driver, hardware, and return path.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – System Calls (IBPS SO IT)
+
+*Based on your uploaded notes.* 
+
+This is one of the **most important Operating System topics** for **IBPS SO IT**.
+
+Questions are commonly asked on:
+
+* What is a System Call?
+* User Mode vs Kernel Mode ⭐⭐⭐⭐⭐
+* How a System Call Works ⭐⭐⭐⭐⭐
+* Types of System Calls ⭐⭐⭐⭐⭐
+* Common System Calls (fork(), exec(), read(), write(), wait(), exit()) ⭐⭐⭐⭐⭐
+
+Let's understand everything from scratch.
+
+---
+
+# First Understand the Problem
+
+Suppose you write a program:
+
+```c
+printf("Hello");
+```
+
+or
+
+```c
+read(file);
+```
+
+Question:
+
+Can your program directly read the hard disk?
+
+**No.**
+
+Can it directly use RAM?
+
+**No.**
+
+Can it directly access the printer?
+
+**No.**
+
+Why?
+
+Because that would be dangerous.
+
+Every application would be able to damage the operating system.
+
+So who accesses hardware?
+
+👉 **Operating System (Kernel).**
+
+---
+
+# What is a System Call?
+
+## Definition
+
+A **System Call** is a mechanism through which a user program requests a service from the Operating System (Kernel).
+
+Easy Definition
+
+> **System Call = Interface between User Program and Operating System.**
+
+Remember this definition.
+
+---
+
+# Real-Life Example
+
+Imagine
+
+You want money from the bank.
+
+Can you directly enter the locker room?
+
+❌ No.
+
+You tell the cashier.
+
+Cashier talks to the bank system.
+
+Gets your money.
+
+Diagram
+
+```text
+You
+
+↓
+
+Cashier
+
+↓
+
+Bank Locker
+
+↓
+
+Money
+```
+
+Here,
+
+Cashier
+
+=
+
+System Call.
+
+---
+
+# Another Computer Example
+
+Suppose
+
+Program wants to
+
+Read File.
+
+Diagram
+
+```text
+Program
+
+↓
+
+System Call
+
+↓
+
+Operating System
+
+↓
+
+Hard Disk
+
+↓
+
+Data Returned
+```
+
+Program never touches hardware directly.
+
+---
+
+# Why Can't User Programs Access Hardware Directly?
+
+Suppose a virus executes
+
+```c
+formatDisk();
+```
+
+If direct hardware access were allowed,
+
+the entire disk could be erased.
+
+Therefore,
+
+Operating Systems protect hardware.
+
+---
+
+# User Mode and Kernel Mode ⭐⭐⭐⭐⭐
+
+This is the most important concept.
+
+A computer works in **two modes**.
+
+```text
+CPU
+
+│
+├── User Mode
+└── Kernel Mode
+```
+
+---
+
+# User Mode
+
+This is where normal applications execute.
+
+Examples
+
+* Chrome
+* MS Word
+* VLC
+* Calculator
+
+Characteristics
+
+* Limited privileges
+* Cannot access hardware directly
+* Cannot modify OS memory
+
+Diagram
+
+```text
+User Mode
+
+Chrome
+
+Word
+
+Calculator
+```
+
+---
+
+# Kernel Mode
+
+This is where
+
+Operating System runs.
+
+Kernel has
+
+✔ Full hardware access
+
+✔ Full memory access
+
+✔ Device control
+
+Diagram
+
+```text
+Kernel Mode
+
+Operating System
+
+↓
+
+CPU
+
+↓
+
+RAM
+
+↓
+
+Disk
+
+↓
+
+Printer
+```
+
+---
+
+# User Mode vs Kernel Mode
+
+| User Mode              | Kernel Mode           |
+| ---------------------- | --------------------- |
+| Applications run       | Operating System runs |
+| Limited privileges     | Full privileges       |
+| Cannot access hardware | Can access hardware   |
+| Safe                   | Powerful              |
+
+---
+
+# Memory Trick
+
+Think
+
+User Mode
+
+=
+
+Guest
+
+Kernel Mode
+
+=
+
+Owner
+
+Guest
+
+cannot enter
+
+every room.
+
+Owner
+
+can.
+
+---
+
+# How Does System Call Work? ⭐⭐⭐⭐⭐
+
+This is the most important topic.
+
+Let's understand step-by-step.
+
+---
+
+# Complete Diagram
+
+```text
+User Program
+
+↓
+
+System Call
+
+↓
+
+Kernel
+
+↓
+
+Hardware
+
+↓
+
+Result
+
+↓
+
+User Program
+```
+
+---
+
+## Step 1 – Preparation
+
+Program prepares
+
+arguments.
+
+Example
+
+```c
+read(fd, buffer, 100);
+```
+
+Arguments
+
+```text
+File Descriptor
+
+Buffer
+
+100 Bytes
+```
+
+---
+
+## Step 2 – Trap Instruction ⭐⭐⭐
+
+Very Important.
+
+Program executes
+
+TRAP.
+
+Question
+
+What is Trap?
+
+Trap is
+
+an instruction
+
+that tells CPU
+
+> "Please switch to Kernel Mode."
+
+---
+
+Diagram
+
+```text
+User Mode
+
+↓
+
+TRAP
+
+↓
+
+Kernel Mode
+```
+
+---
+
+## Step 3 – Mode Switch ⭐⭐⭐⭐⭐
+
+CPU changes
+
+```text
+User Mode
+
+↓
+
+Kernel Mode
+```
+
+CPU also saves
+
+* Registers
+* Program Counter
+
+so it can return later.
+
+---
+
+## Step 4 – System Call Dispatch
+
+Kernel checks
+
+System Call Number.
+
+Suppose
+
+```text
+System Call = read()
+```
+
+Kernel searches
+
+System Call Table.
+
+Diagram
+
+```text
+Call Number
+
+↓
+
+System Call Table
+
+↓
+
+read()
+```
+
+Think of it like a menu in a restaurant. The waiter (kernel) looks up the order number and calls the correct kitchen function.
+
+---
+
+## Step 5 – Execution
+
+Kernel performs
+
+requested task.
+
+Example
+
+Read File.
+
+Diagram
+
+```text
+Kernel
+
+↓
+
+Disk
+
+↓
+
+Reads File
+```
+
+---
+
+## Step 6 – Return
+
+Kernel finishes.
+
+CPU changes
+
+```text
+Kernel Mode
+
+↓
+
+User Mode
+```
+
+Program continues.
+
+---
+
+# Complete Flow
+
+```text
+Program
+
+↓
+
+Prepare Arguments
+
+↓
+
+TRAP
+
+↓
+
+Kernel Mode
+
+↓
+
+System Call Table
+
+↓
+
+Kernel Function
+
+↓
+
+Hardware
+
+↓
+
+Return Value
+
+↓
+
+User Mode
+```
+
+Remember this flow.
+
+---
+
+# Example – read() System Call
+
+Suppose program executes
+
+```c
+count = read(fd, buffer, nbytes);
+```
+
+Let's understand.
+
+---
+
+Step 1
+
+Program wants
+
+to read file.
+
+---
+
+Step 2
+
+Arguments prepared.
+
+```text
+fd
+
+buffer
+
+nbytes
+```
+
+---
+
+Step 3
+
+Library function
+
+```c
+read()
+```
+
+called.
+
+---
+
+Step 4
+
+System Call Number
+
+stored
+
+in register.
+
+---
+
+Step 5
+
+TRAP instruction
+
+executes.
+
+CPU enters
+
+Kernel Mode.
+
+---
+
+Step 6
+
+Kernel reads file.
+
+---
+
+Step 7
+
+Result returned.
+
+Program continues.
+
+---
+
+# Visual Diagram
+
+```text
+Program
+
+↓
+
+read()
+
+↓
+
+TRAP
+
+↓
+
+Kernel
+
+↓
+
+Read File
+
+↓
+
+Return Data
+
+↓
+
+Program
+```
+
+---
+
+# Types of System Calls ⭐⭐⭐⭐⭐
+
+The tutorial gives **6 types**.
+
+Remember this diagram.
+
+```text
+System Calls
+
+│
+
+├── Process Control
+
+├── File Management
+
+├── Device Management
+
+├── Information Management
+
+├── Communication
+
+└── Protection
+```
+
+Let's understand each.
+
+---
+
+# 1. Process Control System Calls ⭐⭐⭐
+
+Manage
+
+Processes.
+
+Operations
+
+* Create Process
+* End Process
+* Execute Program
+* Wait
+* Allocate Memory
+
+Examples
+
+```c
+fork()
+
+exec()
+
+exit()
+
+wait()
+```
+
+Example
+
+Terminal
+
+↓
+
+fork()
+
+↓
+
+Creates Child Process.
+
+---
+
+# 2. File Management System Calls ⭐⭐⭐
+
+Manage files.
+
+Operations
+
+* Open
+* Read
+* Write
+* Close
+* Delete
+
+Examples
+
+```c
+open()
+
+read()
+
+write()
+
+close()
+```
+
+Example
+
+Notepad
+
+↓
+
+Open File
+
+↓
+
+Read
+
+↓
+
+Write
+
+↓
+
+Close
+
+---
+
+# 3. Device Management System Calls
+
+Manage devices.
+
+Example
+
+* Printer
+* Keyboard
+* Mouse
+* Scanner
+
+Operations
+
+* Read Device
+* Write Device
+* Configure Device
+
+Example
+
+```text
+Program
+
+↓
+
+Printer
+
+↓
+
+Print
+```
+
+---
+
+# 4. Information Management System Calls
+
+Retrieve
+
+system information.
+
+Examples
+
+```c
+time()
+
+getpid()
+
+uname()
+```
+
+Example
+
+Task Manager
+
+shows
+
+CPU Usage.
+
+Uses Information Calls.
+
+---
+
+# 5. Communication System Calls ⭐⭐⭐
+
+Used for IPC.
+
+Operations
+
+* Pipe
+* Socket
+* Shared Memory
+* Send Message
+
+Example
+
+Browser
+
+↓
+
+Socket
+
+↓
+
+Web Server
+
+---
+
+# 6. Protection System Calls
+
+Manage permissions.
+
+Examples
+
+```c
+chmod()
+
+chown()
+
+umask()
+```
+
+Example
+
+Only Admin
+
+can open file.
+
+---
+
+# Common System Calls ⭐⭐⭐⭐⭐
+
+Very Important.
+
+---
+
+# open()
+
+Opens file.
+
+Diagram
+
+```text
+Program
+
+↓
+
+open()
+
+↓
+
+File Open
+```
+
+Returns
+
+File Descriptor.
+
+---
+
+# read()
+
+Reads data.
+
+Diagram
+
+```text
+File
+
+↓
+
+read()
+
+↓
+
+Program
+```
+
+---
+
+# write()
+
+Writes data.
+
+Diagram
+
+```text
+Program
+
+↓
+
+write()
+
+↓
+
+File
+```
+
+---
+
+# close()
+
+Closes file.
+
+Diagram
+
+```text
+File Open
+
+↓
+
+close()
+
+↓
+
+Resources Released
+```
+
+---
+
+# wait()
+
+Parent waits
+
+for Child.
+
+Diagram
+
+```text
+Parent
+
+↓
+
+wait()
+
+↓
+
+Child Finishes
+
+↓
+
+Parent Continues
+```
+
+---
+
+# fork() ⭐⭐⭐⭐⭐
+
+Creates
+
+Child Process.
+
+Diagram
+
+```text
+Parent
+
+↓
+
+fork()
+
+↓
+
+Parent
+
++
+
+Child
+```
+
+Very important.
+
+---
+
+# exec()
+
+Loads
+
+new program
+
+into process.
+
+Usually
+
+comes after
+
+fork().
+
+Diagram
+
+```text
+fork()
+
+↓
+
+Child
+
+↓
+
+exec()
+
+↓
+
+Runs New Program
+```
+
+---
+
+# exit()
+
+Terminates process.
+
+Diagram
+
+```text
+Running
+
+↓
+
+exit()
+
+↓
+
+Terminated
+```
+
+---
+
+# kill()
+
+Sends signal
+
+to terminate process.
+
+Diagram
+
+```text
+kill()
+
+↓
+
+Target Process
+
+↓
+
+Stopped
+```
+
+---
+
+# Windows vs UNIX Examples
+
+You don't need to memorize the whole table, but know these common mappings:
+
+| Windows         | UNIX/Linux      |
+| --------------- | --------------- |
+| CreateProcess() | fork() + exec() |
+| ExitProcess()   | exit()          |
+| ReadFile()      | read()          |
+| WriteFile()     | write()         |
+| CreatePipe()    | pipe()          |
+
+---
+
+# Complete Architecture
+
+```text
+Application
+
+↓
+
+System Call
+
+↓
+
+Kernel
+
+↓
+
+CPU
+
+RAM
+
+Disk
+
+Printer
+
+↓
+
+Result
+
+↓
+
+Application
+```
+
+---
+
+# Memory Tricks
+
+## System Call
+
+Think
+
+Reception Desk.
+
+You
+
+↓
+
+Reception
+
+↓
+
+Manager
+
+---
+
+## TRAP
+
+Think
+
+Door
+
+from
+
+User Mode
+
+to
+
+Kernel Mode.
+
+---
+
+## User Mode
+
+Guest.
+
+---
+
+## Kernel Mode
+
+Owner.
+
+---
+
+# Complete Mind Map
+
+```text
+             System Call
+
+                  │
+
+      ┌───────────┼───────────┐
+
+      ▼           ▼           ▼
+
+ User Mode   Kernel Mode   Hardware
+
+                  │
+
+                  ▼
+
+      Process
+
+      File
+
+      Device
+
+      Communication
+
+      Protection
+```
+
+---
+
+# IBPS SO IT Important Points
+
+### System Call
+
+* Interface between **User Program** and **Operating System Kernel**.
+* Used whenever a program needs OS services such as file access, process creation, or device I/O.
+
+### User Mode vs Kernel Mode
+
+* **User Mode** → Limited privileges, no direct hardware access.
+* **Kernel Mode** → Full access to hardware and system resources.
+
+### Working of a System Call
+
+1. Prepare arguments.
+2. Execute **TRAP** instruction.
+3. CPU switches from User Mode to Kernel Mode.
+4. Kernel identifies the required service using the **System Call Table**.
+5. Kernel performs the requested operation.
+6. CPU switches back to User Mode and returns the result.
+
+### Types of System Calls
+
+* Process Control
+* File Management
+* Device Management
+* Information Management
+* Communication
+* Protection
+
+### Important System Calls
+
+| System Call | Purpose                                      |
+| ----------- | -------------------------------------------- |
+| **fork()**  | Create a child process                       |
+| **exec()**  | Load and execute a new program               |
+| **wait()**  | Parent waits for child process               |
+| **exit()**  | Terminate a process                          |
+| **open()**  | Open a file                                  |
+| **read()**  | Read data from a file                        |
+| **write()** | Write data to a file                         |
+| **close()** | Close a file                                 |
+| **kill()**  | Send a signal to terminate/control a process |
+
+---
+
+# Final One-Line Revision (Most Important)
+
+```text
+System Call = Interface between User Program and Operating System.
+
+User Mode → TRAP → Kernel Mode → OS performs work → Return to User Mode.
+
+Most important system calls:
+fork(), exec(), wait(), exit(), open(), read(), write(), close(), kill().
+```
+
+---
+
+# IBPS SO IT Exam Tips (Highest Probability Questions)
+
+1. **What is a System Call?**
+
+   * A programmatic interface through which a user program requests services from the OS kernel.
+
+2. **Why are System Calls required?**
+
+   * Because user programs **cannot directly access hardware or protected kernel resources**.
+
+3. **What is the difference between User Mode and Kernel Mode?**
+
+   * User Mode has restricted privileges; Kernel Mode has full access to hardware and system resources.
+
+4. **What is the purpose of the TRAP instruction?**
+
+   * To transfer control from **User Mode to Kernel Mode** so the operating system can execute the requested service.
+
+5. **Which system call creates a new process?**
+
+   * **fork()**
+
+6. **Which system call makes the parent process wait for the child?**
+
+   * **wait()**
+
+7. **Which system call loads a new program into a process?**
+
+   * **exec()**
+
+8. **Which system call terminates a process?**
+
+   * **exit()**
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

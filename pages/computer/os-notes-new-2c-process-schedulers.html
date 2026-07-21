@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Process Schedulers for IBPS SO IT Officer — Long-Term, Short-Term and Medium-Term schedulers, dispatcher, swapping and dispatch latency.">
+  <title>2.C Process Schedulers | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 2.C</nav><section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.C</span><h1>Process Schedulers</h1><p>Long-Term, Short-Term, and Medium-Term schedulers, dispatcher, swapping, and dispatch latency.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/process-schedulers-flow.png" alt="Flow of Long-Term, Short-Term, and Medium-Term process schedulers" width="1693" height="929"><figcaption>Generated overview of how all three process schedulers connect the job pool, RAM, swap area, dispatcher, and CPU.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System – Process Schedulers (IBPS SO IT)
+
+This is one of the **most important topics** for **IBPS SO IT**. Questions are frequently asked on:
+
+* Types of Schedulers
+* Long-Term Scheduler
+* Short-Term Scheduler
+* Medium-Term Scheduler
+* Dispatcher
+* Dispatch Latency
+* Swapping
+* Degree of Multiprogramming
+
+Let's understand it from scratch.
+
+---
+
+# First, Why Do We Need a Scheduler?
+
+When many applications are open, the CPU cannot execute all of them at exactly the same instant. The Operating System must decide:
+
+* Which process should enter RAM?
+* Which process should get the CPU?
+* Which process should be temporarily removed from RAM?
+
+The component that makes these decisions is called a **Scheduler**.
+
+---
+
+# What is Process Scheduling?
+
+**Process Scheduling** is the method used by the Operating System to decide **which process gets CPU time**.
+
+## Main Goals
+
+### 1. Fairness
+
+Every process should eventually get CPU time. No process should wait forever; indefinite waiting is called **starvation**.
+
+### 2. Maximum CPU Utilization
+
+The CPU should remain busy as much as possible.
+
+---
+
+# Three Types of Process Schedulers
+
+| Scheduler | Main Work |
+| --- | --- |
+| Long Term | Brings processes into RAM |
+| Short Term | Gives CPU to a process |
+| Medium Term | Removes processes from RAM temporarily |
+
+---
+
+# 1. Long-Term Scheduler (Job Scheduler)
+
+The **Long-Term Scheduler**, also called the **Job Scheduler**, selects processes from the Job Pool on disk and loads them into RAM.
+
+```text
+Hard Disk
+    ↓
+Long-Term Scheduler
+    ↓
+RAM (Ready State)
+```
+
+It does **not** give the CPU to a process. It only admits processes into memory.
+
+## Degree of Multiprogramming
+
+> **Degree of Multiprogramming = Number of processes present in memory (RAM).**
+
+The Long-Term Scheduler controls the degree of multiprogramming because it decides how many processes enter RAM.
+
+It is the **slowest scheduler**, runs infrequently, and may execute every few seconds or minutes.
+
+### Easy Trick
+
+> **Long journey: Disk → RAM**
+
+---
+
+# 2. Short-Term Scheduler (CPU Scheduler)
+
+The **Short-Term Scheduler**, also called the **CPU Scheduler**, selects one process from the Ready Queue and gives it the CPU.
+
+```text
+Ready Queue
+    ↓
+Short-Term Scheduler
+    ↓
+Dispatcher
+    ↓
+CPU
+```
+
+The Ready Queue contains processes that are:
+
+* in RAM
+* ready to run
+* waiting only for the CPU
+
+Scheduling algorithms such as **FCFS**, **SJF**, and **Round Robin** help it decide which process should run next.
+
+It runs every few milliseconds, so it must be extremely fast. It is the **fastest scheduler**.
+
+---
+
+# Scheduler vs Dispatcher
+
+## Scheduler
+
+Decides:
+
+> **Who should run?**
+
+## Dispatcher
+
+Actually gives the CPU to the selected process.
+
+```text
+Ready Queue
+    ↓
+Short-Term Scheduler chooses P2
+    ↓
+Dispatcher
+    ↓
+CPU executes P2
+```
+
+---
+
+# Context Switching
+
+When the CPU changes from P1 to P2, the OS must:
+
+1. Save P1 information in its PCB.
+2. Load P2 information from its PCB.
+3. Start running P2.
+
+This is called **Context Switching**.
+
+# Dispatch Latency
+
+> **Dispatch Latency = Time taken by the Dispatcher to perform Context Switching.**
+
+It is the time required to switch the CPU from one process to another.
+
+---
+
+# 3. Medium-Term Scheduler
+
+The **Medium-Term Scheduler**, also called the **Swapper**, temporarily removes processes from RAM and later brings them back.
+
+This operation is called **Swapping**.
+
+```text
+RAM ⇄ Secondary Storage (Swap Area)
+```
+
+It is needed when:
+
+* RAM is low
+* too many processes are in memory
+* the system is under heavy load
+
+Its speed and frequency are between the Short-Term and Long-Term schedulers.
+
+---
+
+# Speed Order
+
+```text
+Short-Term Scheduler
+        ↓
+Medium-Term Scheduler
+        ↓
+Long-Term Scheduler
+```
+
+**Fastest → Slowest**
+
+---
+
+# Comparison Table
+
+| Feature | Long-Term Scheduler | Short-Term Scheduler | Medium-Term Scheduler |
+| --- | --- | --- | --- |
+| Also Called | Job Scheduler | CPU Scheduler | Swapper |
+| Main Work | Loads processes from Disk → RAM | Selects from Ready Queue and allocates CPU | Swaps between RAM and secondary storage |
+| Works Between | Disk and RAM | Ready Queue and CPU | RAM and Disk |
+| Frequency | Every few seconds/minutes | Every few milliseconds | Occasionally |
+| Speed | Slowest | Fastest | Moderate |
+| Controls | Degree of Multiprogramming | CPU allocation | Frees memory and reduces multiprogramming |
+| Performs Swapping? | ❌ No | ❌ No | ✅ Yes |
+
+---
+
+# Easy Memory Tricks
+
+### Long-Term Scheduler
+
+> **Long journey: Disk → RAM.**
+
+* Job Scheduler
+* Loads processes into memory
+* Controls degree of multiprogramming
+* Slowest
+
+### Short-Term Scheduler
+
+> **Short decision: Ready Queue → CPU.**
+
+* CPU Scheduler
+* Chooses the next process
+* Uses the Dispatcher
+* Fastest
+
+### Medium-Term Scheduler
+
+> **Middle manager: RAM ⇄ Disk.**
+
+* Swapper
+* Performs Swapping
+* Frees memory
+* Moderate speed
+
+---
+
+# Most Important Exam Points
+
+* **Long-Term Scheduler = Job Scheduler**
+* **Short-Term Scheduler = CPU Scheduler**
+* **Medium-Term Scheduler = Swapper**
+* Long-Term Scheduler loads processes from Disk to RAM.
+* Short-Term Scheduler selects from the Ready Queue and allocates the CPU.
+* Medium-Term Scheduler performs Swapping.
+* Dispatcher performs Context Switching.
+* Dispatch Latency is the time taken to switch the CPU between processes.
+* Degree of Multiprogramming is the number of processes in RAM.
+* Long-Term Scheduler controls the Degree of Multiprogramming.
+* Speed order: **Short-Term → Medium-Term → Long-Term**
+
+> **IBPS SO IT Tip:** Memorize who controls the degree of multiprogramming, who performs swapping, who allocates the CPU, and which scheduler is fastest.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
