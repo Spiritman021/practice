@@ -1,4 +1,4 @@
-const CACHE_NAME = 'practice-hub-v68';
+const CACHE_NAME = 'practice-hub-v72';
 const urlsToCache = [
   './',
   './index.html',
@@ -75,6 +75,8 @@ const urlsToCache = [
   './pages/articles/article-time-work-distance-guide.html',
   './power-practice.css',
   './power-practice.js',
+  './ask-ai.css',
+  './ask-ai.js',
   './mobile-overrides.css',
   './manifest.json',
   './icon-192.png',
@@ -90,33 +92,32 @@ self.addEventListener('install', event => {
   );
 });
 
+async function withAskAI(response) {
+  if (!response || !response.ok || !response.headers.get('content-type')?.includes('text/html')) return response;
+  const html = await response.clone().text();
+  if (html.includes('ask-ai.js') || !/<\/body>/i.test(html)) return response;
+  const scriptUrl = new URL('ask-ai.js', self.registration.scope).href;
+  const bodyIndex = html.toLowerCase().lastIndexOf('</body>');
+  const enhanced = `${html.slice(0, bodyIndex)}<script src="${scriptUrl}" defer></script>\n${html.slice(bodyIndex)}`;
+  return new Response(enhanced, { status: response.status, statusText: response.statusText, headers: response.headers });
+}
+
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then(
-          function(response) {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            var responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        ).catch(() => {
-            // Offline fallback logic here if needed
-        });
-      })
-  );
+  if (event.request.method !== 'GET') return;
+  event.respondWith((async () => {
+    const cached = await caches.match(event.request);
+    if (cached) return withAskAI(cached);
+    try {
+      const response = await fetch(event.request);
+      if (response?.ok && response.type === 'basic') {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(event.request, response.clone());
+      }
+      return withAskAI(response);
+    } catch (_) {
+      return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+    }
+  })());
 });
 
 self.addEventListener('activate', event => {

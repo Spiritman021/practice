@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="Personal Operating System notes, built topic by topic.">
+  <title>My Operating System Notes | Practice Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0fdfa;
+      --paper: #fff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #dbe7e5;
+      --accent: #0f766e;
+      --accent-dark: #115e59;
+      --accent-soft: #ccfbf1;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Outfit", sans-serif;
+      color: var(--ink);
+      line-height: 1.65;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(13, 148, 136, .12), transparent 32rem),
+        var(--bg);
+    }
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(12px);
+    }
+    .topbar {
+      max-width: 1080px;
+      margin: auto;
+      padding: 13px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; color: var(--accent); }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: white;
+      background: var(--accent);
+      font-size: 12px;
+    }
+    .topbar nav { margin-left: auto; display: flex; gap: 8px; }
+    .topbar nav a {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      background: white;
+    }
+    .topbar nav a:hover { color: var(--accent); border-color: var(--accent); }
+    .view-toggle { margin-left: auto; display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: var(--accent-soft); }
+    .toggle-btn { padding: 7px 13px; border: 0; border-radius: 7px; background: transparent; color: var(--accent-dark); font: 600 13px "Outfit", sans-serif; cursor: pointer; transition: .2s ease; }
+    .toggle-btn:hover { background: rgba(255,255,255,.65); }
+    .toggle-btn.active { color: white; background: var(--accent); box-shadow: 0 3px 10px rgba(15,118,110,.22); }
+    .view { display: none; animation: fade-up .3s ease; }
+    .view.active { display: block; }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    main { max-width: 900px; margin: auto; padding: 30px 22px 80px; }
+    .breadcrumb { margin-bottom: 18px; color: var(--muted); font-size: 13px; }
+    .breadcrumb a:hover { color: var(--accent); }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 6vw, 50px);
+      border-radius: 22px;
+      color: white;
+      background: linear-gradient(135deg, #134e4a, #0f766e 58%, #14b8a6);
+      box-shadow: 0 18px 45px rgba(15, 118, 110, .2);
+    }
+    .hero::after {
+      content: "OS";
+      position: absolute;
+      right: 24px;
+      bottom: -46px;
+      color: rgba(255, 255, 255, .09);
+      font-size: 150px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 5px 12px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 { position: relative; margin: 0 0 10px; font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.05; }
+    .hero p { position: relative; max-width: 590px; margin: 0; color: rgba(255,255,255,.86); }
+
+    .notes-heading { margin: 36px 0 14px; display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+    .notes-heading h2 { margin: 0; font-size: 1.35rem; }
+    .count { color: var(--accent); font-size: 13px; font-weight: 700; }
+
+    .empty-note {
+      padding: 34px;
+      border: 2px dashed #99d8d2;
+      border-radius: 18px;
+      text-align: center;
+      background: rgba(255,255,255,.7);
+    }
+    .empty-note .icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 14px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 24px;
+    }
+    .empty-note h3 { margin: 0 0 7px; font-size: 1.15rem; }
+    .empty-note p { max-width: 520px; margin: auto; color: var(--muted); }
+    .example {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: white;
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(15, 118, 110, .08);
+    }
+
+    .note-card { margin-bottom: 22px; padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 8px 28px rgba(15, 118, 110, .07); scroll-margin-top: 82px; }
+    .note-card h2 { margin: 0 0 16px; color: var(--accent-dark); font-size: 1.45rem; }
+    .note-card h3 { margin: 22px 0 8px; font-size: 1.05rem; }
+    .note-card p { margin: 8px 0; }
+    .note-card ul, .note-card ol { margin: 8px 0; padding-left: 22px; }
+    .note-card li { margin: 7px 0; }
+    .definition { margin: 14px 0; padding: 18px 20px; border-left: 5px solid var(--accent); border-radius: 0 12px 12px 0; background: var(--accent-soft); font-size: 1.05rem; font-weight: 600; }
+    .key-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .key-box { padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: #f8fffe; }
+    .key-box b { display: block; margin-bottom: 5px; color: var(--accent-dark); }
+    .flow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 18px 0; }
+    .flow span { padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-dark); font-weight: 700; }
+    .flow i { color: var(--accent); font-style: normal; font-weight: 800; }
+    .table-wrap { overflow-x: auto; margin-top: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+    th, td { padding: 11px 13px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--accent-soft); color: var(--accent-dark); }
+    .exam-tip { margin-top: 16px; padding: 15px 17px; border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a; color: #78350f; }
+    .analogy { margin: 15px 0; padding: 16px 18px; border: 1px dashed #5eead4; border-radius: 12px; background: #f0fdfa; }
+    .muted-note { color: var(--muted); font-size: .9rem; }
+    .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 24px; }
+    .toc a { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--accent-dark); font-size: 13px; font-weight: 600; }
+    .toc a:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .diagram-panel { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: #fbfffe; }
+    .diagram-panel svg { display: block; width: 100%; height: auto; }
+    .diagram-caption { margin-top: 10px; color: var(--muted); text-align: center; font-size: .86rem; }
+
+    footer { padding-top: 34px; text-align: center; color: var(--muted); font-size: 12px; }
+    @media (max-width: 560px) {
+      .topbar { padding-inline: 12px; }
+      .brand { font-size: 0; }
+      .brand-mark { font-size: 12px; }
+      .view-toggle { margin-left: 0; }
+      .toggle-btn { padding: 7px 9px; font-size: 11.5px; }
+      .topbar nav { margin-left: auto; }
+      .topbar nav a { padding: 6px 8px; font-size: 0; }
+      .topbar nav a::after { content: "⌂"; font-size: 17px; }
+      .topbar nav a:first-child { display: none; }
+      .hero::after { font-size: 105px; }
+      .empty-note { padding: 26px 18px; }
+      .note-card { padding: 22px 18px; }
+      .key-grid { grid-template-columns: 1fr; }
+      .flow { flex-direction: column; }
+      .flow i { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <a class="brand" href="../../index.html"><span class="brand-mark">OS</span> Practice Hub</a>
+      <div class="view-toggle" aria-label="Notes view">
+        <button class="toggle-btn active" type="button" onclick="switchView('descriptive', this)">📖 Descriptive</button>
+        <button class="toggle-btn" type="button" onclick="switchView('revision', this)">⚡ Revision Notes</button>
+      </div>
+      <nav aria-label="Main navigation">
+        <a href="computer.html">Computer Notes</a>
+        <a href="../../index.html">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="breadcrumb"><a href="../../index.html">Home</a> &nbsp;/&nbsp; <a href="computer.html">Computer</a> &nbsp;/&nbsp; My OS Notes</div>
+
+    <section class="hero">
+      <span class="eyebrow">Personal Study Notes</span>
+      <h1>My Operating System Notes</h1>
+      <p>A growing collection of concepts, definitions, examples, shortcuts, and exam points—added one topic at a time.</p>
+    </section>
+
+    <div class="notes-heading">
+      <h2>Notes Library</h2>
+      <span class="count">5 chapters added</span>
+    </div>
+
+    <div id="view-descriptive" class="view active">
+    <nav class="toc" aria-label="Chapter contents">
+      <a href="#definition">Definition</a><a href="#roles">Three roles</a><a href="#need">Why OS?</a><a href="#layers">System layers</a><a href="#examples">Examples</a><a href="#goals">Goals</a><a href="#functions">Functions</a><a href="#multiprogramming">Multiprogramming</a><a href="#time-sharing">Time sharing</a><a href="#multiprocessing">Multiprocessing</a><a href="#rtos">Real-time OS</a><a href="#user-interface">User interface</a><a href="#system-calls">System calls</a><a href="#preemptive">CPU scheduling</a>
+    </nav>
+
+    <!-- New Operating System note cards will be added below this line. -->
+    <article class="note-card" id="definition">
+      <h2>1. Introduction: What is an Operating System?</h2>
+      <div class="definition">An Operating System (OS) is system software that acts as an intermediary between the user/applications and computer hardware. It manages resources and provides an environment in which programs can run.</div>
+      <p>There is no single universally precise definition because the emphasis changes with context. For exams, remember that an OS is a <strong>program/system software</strong> with three fundamental roles.</p>
+      <div class="analogy"><strong>Interface analogy:</strong> A fan regulator, car steering wheel, or microwave buttons let an ordinary user control a complex machine conveniently. Similarly, an OS hides low-level hardware complexity and offers an easy way to use a computer.</div>
+      <p>Without an OS, directly controlling hardware may be technically possible in limited cases, but it would require detailed knowledge of circuits, device operations, memory, and processor instructions.</p>
+    </article>
+
+    <article class="note-card" id="roles">
+      <h2>2. Three Fundamental Roles of an OS</h2>
+      <div class="key-grid">
+        <div class="key-box"><b>1. Intermediary</b>Receives requests from users/applications, gets work done by hardware, and returns the result.</div>
+        <div class="key-box"><b>2. Resource Manager</b>Controls and allocates hardware and software resources among competing programs.</div>
+        <div class="key-box"><b>3. Platform</b>Provides the installation and execution environment for application programs.</div>
+      </div>
+      <h3>OS as Resource Manager / Allocator</h3>
+      <p>The OS controls and coordinates resource usage among different application programs in a fair, controlled, and efficient manner.</p>
+      <ul>
+        <li><strong>Hardware resources:</strong> CPU time, main memory, secondary storage, registers, input/output devices, and system buses (data, address, and control buses).</li>
+        <li><strong>Software/logical resources:</strong> files, access permissions, authorization mechanisms, synchronization tools such as semaphores, and shared services.</li>
+        <li><strong>Example:</strong> After a user opens a movie, the OS loads the program, assigns CPU and memory, reads data from storage, controls the display and speakers, and coordinates all these activities during execution.</li>
+      </ul>
+      <div class="exam-tip"><strong>Best exam definition:</strong> “An OS is system software that acts as an intermediary between user and hardware, manages and allocates system resources, and provides a platform and execution environment for application programs.”</div>
+    </article>
+
+    <article class="note-card" id="need">
+      <h2>3. Why Do We Need an Operating System?</h2>
+      <p>The central purpose is to enable everyone to use hardware in a <strong>convenient and efficient</strong> manner.</p>
+      <ul>
+        <li>It hides complicated hardware details from ordinary users.</li>
+        <li>It translates user/application requests into operations understood by hardware.</li>
+        <li>It coordinates multiple programs so they do not interfere with one another.</li>
+        <li>It shares limited resources according to defined policies and algorithms.</li>
+        <li>It offers common services so every application does not need to control hardware from scratch.</li>
+      </ul>
+      <div class="analogy"><strong>Government of India analogy:</strong> India has shared resources such as land, water, rivers, minerals, and people. The government regulates who may use them, how much may be used, and under what rules. In the same way, hardware belongs to the whole computer system, while the OS authorizes, allocates, and coordinates its use among programs. The analogy explains management—not that a government is literally an OS.</div>
+    </article>
+
+    <article class="note-card" id="layers">
+      <h2>4. Abstract View of a Computer System</h2>
+      <div class="flow"><span>User</span><i>→</i><span>System &amp; Application Programs</span><i>→</i><span>Operating System</span><i>→</i><span>Computer Hardware</span></div>
+      <ol>
+        <li><strong>Computer hardware (Level 0):</strong> CPU, memory, registers, I/O devices, storage, and system buses provide basic computing resources.</li>
+        <li><strong>Operating System (Level 1):</strong> Controls and coordinates hardware use among programs.</li>
+        <li><strong>System and application programs (Level 2):</strong> Compilers, assemblers, text editors, database systems, browsers, games, etc. define how resources solve user problems.</li>
+        <li><strong>Users (Level 3):</strong> People or other systems that use applications to request work.</li>
+      </ol>
+      <p><strong>Typical request path:</strong> User asks an application to perform a task → application requests OS services → OS controls the hardware → result returns through the OS and application to the user.</p>
+    </article>
+
+    <article class="note-card" id="examples">
+      <h2>5. Common Operating-System Families</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Family / Type</th><th>Examples</th><th>Typical use</th></tr></thead>
+          <tbody>
+            <tr><td>Microsoft Windows</td><td>Windows 10, Windows 11</td><td>Personal computers, laptops, and business desktops</td></tr>
+            <tr><td>macOS</td><td>Big Sur, Monterey and later releases</td><td>Apple Mac computers</td></tr>
+            <tr><td>Linux distributions</td><td>Ubuntu, Fedora, Debian</td><td>Desktops, servers, development, and technical systems</td></tr>
+            <tr><td>UNIX</td><td>IBM AIX, HP-UX</td><td>Enterprise and specialized systems</td></tr>
+            <tr><td>Mobile OS</td><td>Android, iOS</td><td>Smartphones and tablets</td></tr>
+            <tr><td>Real-Time OS (RTOS)</td><td>VxWorks, RTEMS</td><td>Embedded and time-critical systems</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted-note"><strong>Version caution:</strong> “Latest version” labels on old slides become outdated. Remember the families and use cases rather than treating Big Sur, Monterey, or Windows 11 as permanently latest.</p>
+      <h3>Usage depends on the requirement</h3>
+      <p>No OS is universally “best.” The suitable choice depends on convenience, compatibility, control, performance, real-time needs, and the kind of system being used.</p>
+      <ul>
+        <li>The slide’s 2024 snapshot shows Windows dominating desktops/laptops, while macOS has a smaller but significant share.</li>
+        <li>Android dominates mobile devices in that snapshot, followed by iOS.</li>
+        <li>UNIX/UNIX-like systems dominate public internet servers in the slide because technical teams often value control, stability, and configurability.</li>
+        <li>Linux is especially important in supercomputing and other highly technical environments.</li>
+      </ul>
+      <p class="muted-note">Market-share percentages change over time and are contextual; the usage pattern is more important than memorizing exact values.</p>
+    </article>
+
+    <article class="note-card" id="goals">
+      <h2>6. Goals of an Operating System</h2>
+      <p>A <strong>goal</strong> is the desired destination; <strong>functions</strong> are the activities performed to achieve it.</p>
+      <div class="key-grid">
+        <div class="key-box"><b>Primary Goal</b>Convenience and user-friendliness: make the computer easy to use.</div>
+        <div class="key-box"><b>Secondary Goal</b>Efficiency: use CPU, memory, storage, and devices effectively.</div>
+        <div class="key-box"><b>Other Secondary Goals</b>Reliability, security, and maintainability/ease of evolution.</div>
+      </div>
+      <div class="analogy"><strong>DSLR vs smartphone:</strong> A professional camera may offer better control and image quality, but many users prefer a phone because it is easier and faster to use. This illustrates why convenience is treated as the primary goal; efficiency or power alone is not enough if a system is impractical for its intended users.</div>
+    </article>
+
+    <article class="note-card" id="functions">
+      <h2>7. Major Functions / Management Areas</h2>
+      <p>Like ministries that carry out a government’s goals, the OS uses multiple management components to achieve convenience, efficiency, and reliability:</p>
+      <ul>
+        <li><strong>Process management:</strong> Creates, schedules, synchronizes, and terminates processes; allocates CPU time. This is a major part of OS study.</li>
+        <li><strong>Memory management:</strong> Tracks memory usage and allocates/deallocates main memory.</li>
+        <li><strong>File management:</strong> Organizes files and directories and controls their operations and permissions.</li>
+        <li><strong>I/O and device management:</strong> Coordinates devices through drivers, buffering, caching, and related mechanisms.</li>
+        <li><strong>Storage management:</strong> Manages primary and secondary storage, free space, and disk access.</li>
+        <li><strong>Security and protection:</strong> Authentication, authorization, isolation, and controlled resource access.</li>
+        <li><strong>Networking and communication:</strong> Supports communication between processes and connected systems.</li>
+        <li><strong>Error detection and accounting:</strong> Detects failures, records resource usage, and helps monitor performance.</li>
+      </ul>
+    </article>
+
+    <article class="note-card" id="multiprogramming">
+      <h2>9. Multiprogramming Operating System</h2>
+      <div class="definition">Multiprogramming means keeping more than one program/job in main memory at the same time so that, when the running job must wait, the OS can give the CPU to another ready job.</div>
+      <p>The central objective is <strong>high CPU utilization</strong>: the processor should not remain idle merely because one program is waiting for an I/O operation or another event. In the teacher’s words, <strong>“the show must go on”</strong> and <strong>“the processor waits for no one.”</strong></p>
+
+      <h3>Memory and execution model</h3>
+      <ul>
+        <li>Jobs first reside on secondary storage in a <strong>job pool</strong>, waiting to be admitted to main memory.</li>
+        <li>The CPU normally executes instructions of programs that have been loaded into <strong>main memory</strong>; it does not directly execute a job from slow secondary storage.</li>
+        <li>The OS and several jobs—such as A, B, and C—are kept in main memory simultaneously.</li>
+        <li>At any instant on a <strong>single CPU</strong>, only one job is actually executing. The other loaded jobs may be ready or waiting.</li>
+      </ul>
+
+      <div class="flow"><span>Jobs on disk</span><i>→</i><span>Job pool</span><i>→</i><span>Several jobs in RAM</span><i>→</i><span>One job on CPU</span></div>
+
+      <h3>How it works</h3>
+      <ol>
+        <li>The OS selects a ready job in main memory and gives it the CPU.</li>
+        <li>The job runs until it finishes or has to wait—for example, for keyboard input, disk access, output, a child process, or another event.</li>
+        <li>In a non-multiprogrammed system, the CPU could sit idle during this wait.</li>
+        <li>In a multiprogrammed system, the OS switches the CPU to another ready job.</li>
+        <li>When the first job’s wait finishes, it becomes ready again and can later regain the CPU.</li>
+        <li>This continues as long as at least one job is ready to execute.</li>
+      </ol>
+
+      <div class="exam-tip"><strong>Critical misconception:</strong> Multiprogramming does <em>not</em> mean multiple programs execute at exactly the same instant on one CPU. It means multiple programs are available in memory, giving the CPU alternatives. True simultaneous execution requires multiple processing units/cores and is associated with multiprocessing.</div>
+
+      <h3>Advantages</h3>
+      <ul>
+        <li>Higher and more efficient CPU utilization by overlapping one job’s I/O wait with another job’s CPU work.</li>
+        <li>Improved throughput because more work can be completed over a period of time.</li>
+        <li>Several processes share CPU time, making systems with multiple concurrent tasks practical.</li>
+        <li>The slide lists reduced response, waiting, and turnaround time as benefits; practically these may improve on average, but are <strong>not guaranteed for every individual job</strong> because jobs compete for resources.</li>
+      </ul>
+
+      <h3>Disadvantages / requirements</h3>
+      <ul>
+        <li>CPU scheduling is more complicated because the OS must select among ready jobs.</li>
+        <li>Memory management and protection become more complex because several jobs coexist in RAM.</li>
+        <li>The system needs job scheduling, process state tracking, context switching, resource protection, and mechanisms to prevent one job from corrupting another.</li>
+      </ul>
+
+      <h3>GATE 2002 / NET Dec 2012 question</h3>
+      <p><strong>Which features characterize a multiprogrammed OS?</strong></p>
+      <ol type="a">
+        <li>More than one program may be loaded into main memory at the same time.</li>
+        <li>If a program waits for an event, another program is immediately scheduled.</li>
+        <li>If a program terminates, another program is immediately scheduled.</li>
+      </ol>
+      <div class="analogy"><strong>Reasoning:</strong> (a) is the defining memory condition, and (b) captures the defining CPU-utilization behavior. Statement (c) can also occur in a uniprogrammed/batch system, so it does not uniquely identify multiprogramming. Conceptually, <strong>(a) and (b) are the distinguishing features (Option B)</strong>. The teacher notes that many older published solutions accept all three (<strong>Option D</strong>) by treating (c) as a valid general behavior of such a system; hence the old question is ambiguous.</div>
+    </article>
+
+    <article class="note-card" id="time-sharing">
+      <h2>10. Multitasking and Time-Sharing</h2>
+      <div class="definition">Time-sharing (or multitasking) is a logical extension of multiprogramming in which the CPU switches rapidly among ready tasks/users, giving each a small share of CPU time and creating the illusion of simultaneous execution.</div>
+      <p>Modern systems appear to play music, edit a document, and browse the web at the same time. On a single CPU/core, this apparent parallelism is achieved by rapid <strong>context switching</strong>.</p>
+      <h3>Two requirements</h3>
+      <ol>
+        <li><strong>Multiprogramming:</strong> multiple programs must be present and ready for execution.</li>
+        <li><strong>Time-sharing policy:</strong> the CPU is divided into small time slices and shared fairly, commonly through preemptive scheduling such as Round Robin.</li>
+      </ol>
+      <div class="analogy"><strong>Street-food vendor analogy:</strong> A vendor has several customers. Instead of completing one customer’s entire order before touching the next, the vendor gives each order attention in turns. Every customer sees progress and nobody waits for one long order to finish. The CPU similarly rotates among ready tasks.</div>
+
+      <h3>Multiprogramming vs multitasking/time-sharing</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Point</th><th>Multiprogramming</th><th>Multitasking / Time-sharing</th></tr></thead>
+          <tbody>
+            <tr><td>Main aim</td><td>Keep the CPU busy; maximize utilization</td><td>Provide quick, fair, interactive response</td></tr>
+            <tr><td>When CPU switches</td><td>Classically, when a job blocks/waits or finishes</td><td>Frequently, including when its time quantum expires</td></tr>
+            <tr><td>Users</td><td>Multiple jobs are present; ownership is not the defining issue</td><td>May support tasks from one or many interactive users</td></tr>
+            <tr><td>User experience</td><td>Efficient batch-style execution</td><td>Each user/task appears to have a responsive machine</td></tr>
+            <tr><td>Relationship</td><td>Foundation</td><td>Logical extension of multiprogramming</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Precision note:</strong> Do not memorize “multiprogramming = one user” as an absolute definition. Its defining feature is multiple resident jobs and switching when the running job cannot proceed. Time-sharing adds frequent/preemptive sharing and interactive responsiveness, often across many users.</div>
+    </article>
+
+    <article class="note-card" id="multiprocessing">
+      <h2>11. Multiprocessing OS / Tightly Coupled System</h2>
+      <div class="definition">A multiprocessing system contains two or more processors/cores within one computer system, allowing multiple processes or threads to execute truly in parallel.</div>
+      <p>Unlike multiprogramming on a single CPU—where only one process executes at an instant—multiprocessing provides multiple execution units. The OS distributes runnable work among them to increase processing capacity and reliability.</p>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 820 390" role="img" aria-labelledby="mp-title mp-desc">
+          <title id="mp-title">Tightly coupled multiprocessing architecture</title>
+          <desc id="mp-desc">Four processors with private caches connect through a shared bus to common memory and input output devices.</desc>
+          <defs><linearGradient id="cpuGrad" x1="0" x2="1"><stop stop-color="#0f766e"/><stop offset="1" stop-color="#14b8a6"/></linearGradient></defs>
+          <g font-family="Outfit, sans-serif" text-anchor="middle">
+            <g fill="url(#cpuGrad)" stroke="#115e59" stroke-width="2">
+              <rect x="35" y="25" width="150" height="55" rx="10"/><rect x="235" y="25" width="150" height="55" rx="10"/><rect x="435" y="25" width="150" height="55" rx="10"/><rect x="635" y="25" width="150" height="55" rx="10"/>
+            </g>
+            <g fill="#fff" font-size="18" font-weight="700"><text x="110" y="60">Processor 1</text><text x="310" y="60">Processor 2</text><text x="510" y="60">Processor 3</text><text x="710" y="60">Processor 4</text></g>
+            <g stroke="#475569" stroke-width="4"><path d="M110 80V115M310 80V115M510 80V115M710 80V115"/></g>
+            <g fill="#f59e0b" stroke="#b45309" stroke-width="2"><rect x="53" y="115" width="114" height="50" rx="8"/><rect x="253" y="115" width="114" height="50" rx="8"/><rect x="453" y="115" width="114" height="50" rx="8"/><rect x="653" y="115" width="114" height="50" rx="8"/></g>
+            <g fill="#fff" font-size="16" font-weight="700"><text x="110" y="146">Cache</text><text x="310" y="146">Cache</text><text x="510" y="146">Cache</text><text x="710" y="146">Cache</text></g>
+            <g stroke="#475569" stroke-width="4"><path d="M110 165V205M310 165V205M510 165V205M710 165V205"/></g>
+            <rect x="35" y="205" width="750" height="62" rx="10" fill="#4338ca"/>
+            <text x="410" y="243" fill="#fff" font-size="20" font-weight="700">Shared Bus or Crossbar Switch</text>
+            <g stroke="#475569" stroke-width="4"><path d="M275 267V315M545 267V315"/></g>
+            <rect x="180" y="315" width="190" height="58" rx="10" fill="#84cc16" stroke="#4d7c0f" stroke-width="2"/>
+            <rect x="450" y="315" width="190" height="58" rx="29" fill="#fde047" stroke="#a16207" stroke-width="2"/>
+            <g fill="#17324d" font-size="19" font-weight="700"><text x="275" y="351">Shared Memory</text><text x="545" y="351">Shared I/O</text></g>
+          </g>
+        </svg>
+        <p class="diagram-caption">Tightly coupled architecture: processors have private caches but share main memory and I/O through a common interconnect.</p>
+      </div>
+
+      <h3>Why use multiprocessing?</h3>
+      <ul>
+        <li><strong>True parallelism:</strong> Different processors can execute different processes/threads at the same instant.</li>
+        <li><strong>Increased throughput:</strong> More work can be completed in less time.</li>
+        <li><strong>Economy of scale:</strong> Processors share memory, storage, I/O, and other system facilities instead of requiring separate computers.</li>
+        <li><strong>Improved reliability:</strong> In a properly designed system, failure of one processor may allow degraded service to continue on the remaining processors (<em>graceful degradation</em>).</li>
+        <li><strong>Better energy use:</strong> Modern devices can activate more cores under heavy loads such as gaming or 4K video and idle/disable cores under light loads.</li>
+      </ul>
+      <div class="exam-tip"><strong>Do not confuse:</strong> Multiprogramming = many programs in memory with one CPU switching among them. Multiprocessing = multiple processors/cores, so actual parallel execution is possible.</div>
+    </article>
+
+    <article class="note-card" id="rtos">
+      <h2>12. Real-Time Operating System (RTOS)</h2>
+      <div class="definition">An RTOS is designed to process events and complete tasks within specified timing constraints, producing predictable and deterministic responses.</div>
+      <p>In an ordinary system, completing a task correctly is important. In a real-time system, the result must be both <strong>logically correct and delivered on time</strong>. A correct result produced after its deadline may have little value—or may cause failure.</p>
+
+      <h3>Mechanism and characteristics</h3>
+      <ul>
+        <li>Uses real-time scheduling to prioritize tasks according to urgency, importance, and deadlines.</li>
+        <li>May preempt a lower-priority task when a more urgent task becomes ready.</li>
+        <li>Seeks bounded and predictable response/interrupt latency, not merely a high average speed.</li>
+        <li>Emphasizes predictability, reliability, controlled resource use, and minimal latency.</li>
+      </ul>
+      <p><strong>Applications:</strong> aircraft and weapon control, air-traffic control, intensive-care equipment, industrial control, automotive airbags and anti-lock brakes, engine controllers, embedded devices, multimedia, and online processing.</p>
+
+      <h3>Hard vs Soft Real-Time Systems</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>Hard real-time</th><th>Soft real-time</th></tr></thead>
+          <tbody>
+            <tr><td>Deadline</td><td>Strict; must be met</td><td>Important, but occasional small misses are tolerable</td></tr>
+            <tr><td>After deadline</td><td>Result becomes useless or harmful; failure may be catastrophic</td><td>Value decreases gradually as delay increases</td></tr>
+            <tr><td>Timing guarantee</td><td>Deterministic upper bounds are essential</td><td>Best effort to keep delay and deadline misses small</td></tr>
+            <tr><td>Examples</td><td>Airbag, anti-lock braking, flight/weapon control, critical medical control</td><td>Gaming, video calls, multimedia, digital cameras, noncritical online processing</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 920 400" role="img" aria-labelledby="rt-title rt-desc">
+          <title id="rt-title">Hard and soft real-time usefulness versus time</title>
+          <desc id="rt-desc">Hard real-time usefulness drops abruptly at the deadline while soft real-time usefulness decreases gradually after the deadline.</desc>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#334155"/></marker></defs>
+          <g font-family="Outfit, sans-serif">
+            <g transform="translate(55,30)">
+              <text x="180" y="20" text-anchor="middle" font-size="24" font-weight="700" fill="#991b1b">Hard real-time</text>
+              <path d="M45 300V55M45 300H390" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+              <text x="10" y="155" text-anchor="middle" font-size="16" fill="#475569" transform="rotate(-90 10 155)">Value / usefulness</text>
+              <text x="370" y="335" font-size="16" fill="#475569">Time</text>
+              <path d="M45 105H260V300" fill="none" stroke="#dc2626" stroke-width="7" stroke-linejoin="round"/>
+              <path d="M260 300V345" stroke="#dc2626" stroke-width="7"/>
+              <path d="M260 300V80" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 6"/>
+              <text x="260" y="325" text-anchor="middle" font-size="15" font-weight="700" fill="#991b1b">deadline</text>
+              <text x="165" y="88" text-anchor="middle" font-size="14" fill="#64748b">full value</text>
+              <text x="310" y="280" text-anchor="middle" font-size="14" fill="#991b1b">zero / negative value</text>
+            </g>
+            <g transform="translate(490,30)">
+              <text x="180" y="20" text-anchor="middle" font-size="24" font-weight="700" fill="#3f6212">Soft real-time</text>
+              <path d="M45 300V55M45 300H390" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+              <text x="10" y="155" text-anchor="middle" font-size="16" fill="#475569" transform="rotate(-90 10 155)">Value / usefulness</text>
+              <text x="370" y="335" font-size="16" fill="#475569">Time</text>
+              <path d="M45 105H235L360 300" fill="none" stroke="#65a30d" stroke-width="7" stroke-linejoin="round"/>
+              <path d="M235 300V80" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 6"/>
+              <text x="235" y="325" text-anchor="middle" font-size="15" font-weight="700" fill="#3f6212">deadline</text>
+              <text x="150" y="88" text-anchor="middle" font-size="14" fill="#64748b">full value</text>
+              <text x="310" y="210" text-anchor="middle" font-size="14" fill="#3f6212">gradual value loss</text>
+            </g>
+          </g>
+        </svg>
+        <p class="diagram-caption">Usefulness over time: a hard real-time result loses its value abruptly at the deadline; a soft real-time result remains useful for a while but its value gradually declines.</p>
+      </div>
+
+      <div class="analogy"><strong>Hard real-time example:</strong> If a defensive action is required before an aircraft crosses a boundary, executing it five seconds late may be useless or even harmful. <strong>Soft real-time example:</strong> A small delay or dropped frame during gaming or a video call reduces quality, but the application remains useful.</div>
+      <div class="exam-tip"><strong>Important correction:</strong> “Real-time” does not mean “instantaneous” or necessarily fast. It means the system provides a response within a known, required time bound.</div>
+    </article>
+
+    <article class="note-card" id="user-interface">
+      <h2>13. User and Operating-System Interface</h2>
+      <div class="definition">A user interface is the mechanism through which a person gives instructions to the operating system and receives results. Common forms are CLI, GUI, and touchscreen interfaces.</div>
+      <p>The OS stands between users/applications and hardware, but the user still needs a convenient language for expressing requests. A command, mouse click, icon tap, or gesture ultimately represents an operation that software translates into lower-level requests.</p>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 850 250" role="img" aria-labelledby="ui-title ui-desc">
+          <title id="ui-title">User to operating system interface paths</title>
+          <desc id="ui-desc">A user can communicate through command line, graphical, or touchscreen interfaces, which pass requests to the operating system and hardware.</desc>
+          <defs><marker id="uiArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs>
+          <g font-family="Outfit, sans-serif" text-anchor="middle">
+            <rect x="20" y="85" width="120" height="70" rx="35" fill="#ccfbf1" stroke="#0f766e" stroke-width="3"/><text x="80" y="127" font-size="20" font-weight="700" fill="#115e59">User</text>
+            <path d="M140 120H205" stroke="#0f766e" stroke-width="3" marker-end="url(#uiArrow)"/>
+            <rect x="215" y="20" width="155" height="50" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="292" y="51" font-size="17" font-weight="700" fill="#075985">CLI / Commands</text>
+            <rect x="215" y="95" width="155" height="50" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="292" y="126" font-size="17" font-weight="700" fill="#5b21b6">GUI / Clicks</text>
+            <rect x="215" y="170" width="155" height="50" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><text x="292" y="201" font-size="17" font-weight="700" fill="#92400e">Touch / Gestures</text>
+            <path d="M370 45C420 45 420 120 470 120M370 120H470M370 195C420 195 420 120 470 120" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#uiArrow)"/>
+            <rect x="480" y="80" width="165" height="80" rx="12" fill="#0f766e"/><text x="562" y="114" font-size="18" font-weight="700" fill="#fff">Operating</text><text x="562" y="138" font-size="18" font-weight="700" fill="#fff">System</text>
+            <path d="M645 120H705" stroke="#0f766e" stroke-width="3" marker-end="url(#uiArrow)"/>
+            <rect x="715" y="85" width="115" height="70" rx="12" fill="#334155"/><text x="772" y="127" font-size="18" font-weight="700" fill="#fff">Hardware</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">Different front-end interfaces express requests differently, but all ultimately rely on operating-system services.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>Command-Line Interface (CLI)</th><th>Graphical User Interface (GUI)</th><th>Touchscreen Interface</th></tr></thead>
+          <tbody>
+            <tr><td>Method</td><td>Command interpreter / shell</td><td>Windows, icons, menus, pointer</td><td>Direct touch and gestures</td></tr>
+            <tr><td>Interaction</td><td>User types text commands</td><td>User clicks or selects visual objects</td><td>User taps, swipes, pinches, etc.</td></tr>
+            <tr><td>Typical users</td><td>Administrators, developers, power users</td><td>General users and beginners</td><td>Phone, tablet, kiosk, and touch-device users</td></tr>
+            <tr><td>Advantages</td><td>Precise, scriptable, fast for experts, low overhead, powerful automation</td><td>Discoverable, visual, user-friendly</td><td>Direct and intuitive; good for mobile use and gestures</td></tr>
+            <tr><td>Disadvantages</td><td>Commands and syntax must be learned; errors are easy</td><td>Can be slower for repetitive/advanced tasks and uses more resources</td><td>Lower precision, screen occlusion, and requires touch-compatible hardware</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Key point:</strong> GUI and touch interfaces do not replace the OS’s underlying operations. They provide more convenient ways to trigger them. A GUI may invoke programs, libraries, and OS services without the user typing the corresponding commands.</div>
+    </article>
+
+    <article class="note-card" id="system-calls">
+      <h2>14. System Calls</h2>
+      <div class="definition">A system call is the controlled mechanism by which a user program requests a service from the operating-system kernel—especially an operation the program cannot safely or directly perform itself.</div>
+      <p>Applications normally execute in <strong>user mode</strong>, with restricted privileges. The kernel executes in <strong>kernel mode</strong>, where it may control memory, devices, processes, files, and protected CPU operations. A system call crosses this protection boundary in a defined and validated way.</p>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 820 430" role="img" aria-labelledby="sc-title sc-desc">
+          <title id="sc-title">System call path from user program to hardware</title>
+          <desc id="sc-desc">A user program invokes an API or library wrapper, which enters the system call interface and kernel; the kernel performs the protected hardware operation and returns a result.</desc>
+          <defs><marker id="scArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs>
+          <g font-family="Outfit, sans-serif" text-anchor="middle">
+            <rect x="220" y="20" width="380" height="65" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="410" y="59" font-size="21" font-weight="700" fill="#1e3a8a">User Program (user mode)</text>
+            <path d="M410 85V120" stroke="#0f766e" stroke-width="3" marker-end="url(#scArrow)"/>
+            <rect x="220" y="130" width="380" height="60" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="410" y="166" font-size="19" font-weight="700" fill="#5b21b6">API / Library Wrapper</text>
+            <path d="M410 190V225" stroke="#0f766e" stroke-width="3" marker-end="url(#scArrow)"/>
+            <line x1="80" y1="220" x2="740" y2="220" stroke="#ef4444" stroke-width="2" stroke-dasharray="8 7"/><text x="120" y="210" text-anchor="start" font-size="14" font-weight="700" fill="#b91c1c">user mode</text><text x="120" y="242" text-anchor="start" font-size="14" font-weight="700" fill="#b91c1c">kernel mode</text>
+            <rect x="220" y="245" width="380" height="65" rx="12" fill="#0f766e"/><text x="410" y="284" font-size="20" font-weight="700" fill="#fff">System-Call Interface → Kernel</text>
+            <path d="M410 310V345" stroke="#0f766e" stroke-width="3" marker-end="url(#scArrow)"/>
+            <rect x="260" y="355" width="300" height="58" rx="12" fill="#334155"/><text x="410" y="390" font-size="19" font-weight="700" fill="#fff">Protected Hardware / Resource</text>
+            <path d="M600 382C735 382 735 52 600 52" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#scArrow)"/><text x="722" y="218" font-size="14" fill="#475569" transform="rotate(-90 722 218)">return value / status</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">A system call changes execution from user mode to kernel mode; after the service completes, control and a result/status return to the application.</p>
+      </div>
+
+      <div class="analogy"><strong>Security analogy:</strong> A protected person does not need personal control over every restricted weapon; authorized security personnel perform the protected service on their behalf. Likewise, applications do not receive unrestricted hardware control. They request the kernel to perform validated operations.</div>
+
+      <h3>API, library function, and system call</h3>
+      <ul>
+        <li>An <strong>API</strong> specifies functions available to programmers, their parameters, expected behavior, and return values.</li>
+        <li>A <strong>library function</strong> is code invoked by the program. It may perform the work entirely in user space or act as a wrapper around one or more system calls.</li>
+        <li>A <strong>system call</strong> enters the kernel to request a protected OS service.</li>
+        <li>The caller needs to understand the API contract, not the kernel’s internal implementation.</li>
+      </ul>
+      <p>Common API families include the <strong>Windows API</strong>, <strong>POSIX API</strong> for UNIX/Linux and related systems, and <strong>Java APIs</strong> used by programs running on the JVM.</p>
+      <div class="exam-tip"><strong>Precision note:</strong> API calls and system calls are not always one-to-one. One API call may use zero, one, or multiple system calls, and the exact system-call mapping can differ by OS and implementation.</div>
+
+      <h3>Example: <code>printf()</code> and <code>write()</code></h3>
+      <div class="diagram-panel">
+        <svg viewBox="0 0 840 420" role="img" aria-labelledby="printf-title printf-desc">
+          <title id="printf-title">C printf library call leading to write system call</title>
+          <desc id="printf-desc">A C program calls printf in user mode; the C library formats and buffers output, then may invoke the write system call, which the kernel uses to output through hardware.</desc>
+          <defs><marker id="pfArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs>
+          <g font-family="Outfit, sans-serif" text-anchor="middle">
+            <rect x="245" y="20" width="350" height="75" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="420" y="51" font-size="18" font-weight="700" fill="#1e3a8a">C user program</text><text x="420" y="78" font-size="17" fill="#1e3a8a">printf(&quot;Hello&quot;)</text>
+            <path d="M420 95V130" stroke="#0f766e" stroke-width="3" marker-end="url(#pfArrow)"/>
+            <rect x="210" y="140" width="420" height="70" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/><text x="420" y="169" font-size="18" font-weight="700" fill="#5b21b6">Standard C Library</text><text x="420" y="195" font-size="15" fill="#5b21b6">formats / buffers output</text>
+            <path d="M420 210V245" stroke="#0f766e" stroke-width="3" marker-end="url(#pfArrow)"/>
+            <line x1="80" y1="238" x2="760" y2="238" stroke="#ef4444" stroke-width="2" stroke-dasharray="8 7"/><text x="110" y="228" text-anchor="start" font-size="14" font-weight="700" fill="#b91c1c">user mode</text><text x="110" y="260" text-anchor="start" font-size="14" font-weight="700" fill="#b91c1c">kernel mode</text>
+            <rect x="255" y="265" width="330" height="65" rx="32" fill="#0f766e"/><text x="420" y="304" font-size="19" font-weight="700" fill="#fff">write() system call</text>
+            <path d="M420 330V360" stroke="#0f766e" stroke-width="3" marker-end="url(#pfArrow)"/>
+            <rect x="285" y="368" width="270" height="45" rx="10" fill="#334155"/><text x="420" y="397" font-size="17" font-weight="700" fill="#fff">Display / output device</text>
+            <path d="M588 298C735 298 735 175 630 175" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#pfArrow)"/><text x="730" y="240" font-size="14" fill="#475569" transform="rotate(-90 730 240)">return value</text>
+          </g>
+        </svg>
+        <p class="diagram-caption"><code>printf()</code> is a C library function, not itself a system call. When output must be sent, its implementation may eventually invoke the OS’s <code>write()</code>-like service.</p>
+      </div>
+
+      <h3>Mode Bit and Dual-Mode Operation</h3>
+      <p>To protect the operating system and hardware, the CPU must distinguish between ordinary user code and trusted kernel code. Hardware therefore supports at least two execution modes:</p>
+      <ul>
+        <li><strong>User mode:</strong> Used while a user application is executing. Privileged instructions and direct access to protected resources are restricted.</li>
+        <li><strong>Kernel mode:</strong> Also called supervisor, system, or privileged mode. The OS kernel may execute privileged instructions and manage hardware.</li>
+        <li>A hardware <strong>mode bit</strong> records the current mode. In the convention used by the slide, <strong>0 = kernel mode</strong> and <strong>1 = user mode</strong>.</li>
+      </ul>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 900 430" role="img" aria-labelledby="mode-title mode-desc">
+          <title id="mode-title">Mode-bit transition during a system call</title>
+          <desc id="mode-desc">A user process executes with mode bit one, calls a system call, traps into kernel mode with mode bit zero, executes the service, and returns to user mode with mode bit one.</desc>
+          <defs><marker id="modeArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs>
+          <g font-family="Outfit, sans-serif">
+            <rect x="55" y="35" width="790" height="145" rx="16" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+            <text x="80" y="67" font-size="18" font-weight="700" fill="#1e3a8a">USER MODE — mode bit = 1</text>
+            <rect x="95" y="95" width="205" height="55" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+            <text x="197" y="128" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a8a">User process executing</text>
+            <path d="M300 122H370" stroke="#0f766e" stroke-width="3" marker-end="url(#modeArrow)"/>
+            <rect x="380" y="95" width="190" height="55" rx="9" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+            <text x="475" y="128" text-anchor="middle" font-size="17" font-weight="700" fill="#5b21b6">Calls system call</text>
+            <rect x="650" y="95" width="160" height="55" rx="9" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+            <text x="730" y="118" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a8a">Return from</text><text x="730" y="138" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a8a">system call</text>
+
+            <line x1="55" y1="205" x2="845" y2="205" stroke="#ef4444" stroke-width="3" stroke-dasharray="10 8"/>
+            <text x="450" y="198" text-anchor="middle" font-size="14" font-weight="700" fill="#b91c1c">PROTECTION BOUNDARY</text>
+
+            <rect x="55" y="230" width="790" height="165" rx="16" fill="#ecfdf5" stroke="#0f766e" stroke-width="3"/>
+            <text x="80" y="263" font-size="18" font-weight="700" fill="#115e59">KERNEL MODE — mode bit = 0</text>
+            <rect x="350" y="305" width="230" height="60" rx="10" fill="#0f766e"/>
+            <text x="465" y="341" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">Execute system call</text>
+
+            <path d="M475 150C475 205 410 235 410 305" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#modeArrow)"/>
+            <text x="368" y="230" text-anchor="middle" font-size="15" font-weight="700" fill="#115e59">trap</text><text x="368" y="250" text-anchor="middle" font-size="14" fill="#115e59">bit: 1 → 0</text>
+            <path d="M580 335C690 335 730 260 730 150" fill="none" stroke="#0f766e" stroke-width="3" marker-end="url(#modeArrow)"/>
+            <text x="690" y="285" text-anchor="middle" font-size="15" font-weight="700" fill="#115e59">return</text><text x="690" y="305" text-anchor="middle" font-size="14" fill="#115e59">bit: 0 → 1</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">System-call transition: the trap switches the CPU from user mode (1) to kernel mode (0); the return-from-system-call instruction restores user mode (1).</p>
+      </div>
+      <ol>
+        <li>The application executes normally in user mode, with mode bit 1.</li>
+        <li>It requests an OS service by invoking a system call.</li>
+        <li>A controlled <strong>trap</strong> transfers execution to a predefined kernel entry point and changes the mode bit to 0.</li>
+        <li>The kernel validates the request and performs the privileged service.</li>
+        <li>A return-from-system-call operation restores the application state, changes the mode bit to 1, and resumes user code.</li>
+      </ol>
+      <div class="exam-tip"><strong>Why this matters:</strong> The mode bit prevents a faulty or malicious user program from executing privileged instructions directly. The exact numeric encoding is architecture-dependent, but exam questions commonly use <strong>kernel = 0, user = 1</strong>.</div>
+
+      <h3>Abstraction Across Software and Hardware Layers</h3>
+      <div class="definition">Abstraction means hiding unnecessary implementation details and exposing only the operations required by the layer above.</div>
+      <p>A programmer should not need to know the electrical details of a processor to display text. Likewise, an application normally does not need to know how the kernel implements file access internally. Each layer provides a simpler interface while using the services of the layer below it.</p>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 860 500" role="img" aria-labelledby="abs-title abs-desc">
+          <title id="abs-title">Abstraction layers from application to hardware</title>
+          <desc id="abs-desc">Applications use language libraries and APIs, which use operating system system calls; the kernel uses the instruction set architecture to control processor and hardware resources.</desc>
+          <defs><marker id="absArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#0f766e"/></marker></defs>
+          <g font-family="Outfit, sans-serif" text-anchor="middle">
+            <text x="430" y="28" font-size="23" font-weight="800" fill="#115e59">Layered Abstraction</text>
+            <rect x="135" y="50" width="590" height="75" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+            <text x="430" y="81" font-size="19" font-weight="700" fill="#1e3a8a">Application Programmer</text>
+            <text x="430" y="107" font-size="15" fill="#1e3a8a">C / C++ / Java / Python program expresses the required task</text>
+            <path d="M430 125V158" stroke="#0f766e" stroke-width="3" marker-end="url(#absArrow)"/>
+            <text x="565" y="151" font-size="14" fill="#475569">language API / library</text>
+
+            <rect x="135" y="168" width="590" height="75" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+            <text x="430" y="199" font-size="19" font-weight="700" fill="#5b21b6">Runtime, Libraries &amp; API</text>
+            <text x="430" y="225" font-size="15" fill="#5b21b6">Translate high-level requests; invoke OS service when required</text>
+            <path d="M430 243V276" stroke="#0f766e" stroke-width="3" marker-end="url(#absArrow)"/>
+            <text x="535" y="269" font-size="14" fill="#475569">system-call interface</text>
+
+            <rect x="135" y="286" width="590" height="75" rx="14" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+            <text x="430" y="317" font-size="19" font-weight="700" fill="#115e59">Operating-System Kernel</text>
+            <text x="430" y="343" font-size="15" fill="#115e59">Validates requests and manages processes, memory, files, and devices</text>
+            <path d="M430 361V394" stroke="#0f766e" stroke-width="3" marker-end="url(#absArrow)"/>
+            <text x="540" y="387" font-size="14" fill="#475569">ISA + device interfaces</text>
+
+            <rect x="135" y="404" width="590" height="75" rx="14" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+            <text x="430" y="435" font-size="19" font-weight="700" fill="#fff">Processor &amp; Hardware</text>
+            <text x="430" y="461" font-size="15" fill="#e2e8f0">Executes supported machine instructions and device operations</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">Each layer depends on the contract exposed below it while hiding lower-level implementation details from the layer above.</p>
+      </div>
+
+      <div class="analogy"><strong>Farmer analogy:</strong> A farmer uses land and chooses to grow sugarcane. A factory buys the sugarcane and decides whether to make sugar, jaggery, or another product. A restaurant buys sugar and decides whether to use it in tea, rasgulla, or gulab jamun. Each participant works at a different level and needs only the input/output contract of the adjacent level—not every internal detail of the full chain.</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Computing layer</th><th>Primary concern</th><th>Interface used downward</th></tr></thead>
+          <tbody>
+            <tr><td>Application programmer</td><td>What task the program must perform</td><td>Language libraries and APIs</td></tr>
+            <tr><td>Runtime / library</td><td>Translate and support high-level operations</td><td>APIs and system calls when OS help is needed</td></tr>
+            <tr><td>OS designer / kernel</td><td>Safely manage and allocate hardware resources</td><td>ISA, privileged instructions, drivers, device interfaces</td></tr>
+            <tr><td>Hardware / ISA</td><td>Which machine instructions and operations the processor supports</td><td>Physical processor, memory, buses, and devices</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Boundary clarification:</strong> The ISA is the hardware–software contract visible to machine-code software. A compiler translates source code toward that ISA; it does not generally “explain every request to the OS.” Only operations requiring protected OS services cross through system calls.</div>
+
+      <h3>Six major categories of system calls</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Typical operations</th></tr></thead>
+          <tbody>
+            <tr><td>1. Process control</td><td>Create/terminate process; load/execute; end/abort; get/set attributes; wait for time/event; signal event; allocate/free memory</td></tr>
+            <tr><td>2. File management</td><td>Create/delete; open/close; read/write/reposition; get/set file attributes</td></tr>
+            <tr><td>3. Device management</td><td>Request/release device; read/write/reposition; get/set attributes; logically attach/detach</td></tr>
+            <tr><td>4. Information maintenance</td><td>Get/set time or date; get/set system data; get/set process, file, or device attributes</td></tr>
+            <tr><td>5. Communication</td><td>Create/delete connection; send/receive messages; transfer status; shared memory or sockets</td></tr>
+            <tr><td>6. Protection</td><td>Control permissions; get/set access rights; authentication and authorization-related operations</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Memory trick:</strong> <strong>P-F-D-I-C-P</strong> — Process, File, Device, Information, Communication, Protection.</div>
+    </article>
+
+    <article class="note-card" id="preemptive">
+      <h2>15. Preemptive and Non-Preemptive Scheduling</h2>
+      <p class="muted-note">Source: <a href="https://www.geeksforgeeks.org/operating-systems/preemptive-and-non-preemptive-scheduling/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;">GeeksforGeeks — Preemptive and Non-Preemptive Scheduling</a> (accessed July 2026).</p>
+      <div class="definition">CPU scheduling is the OS activity of selecting a process from the ready queue and assigning the CPU to it. Scheduling policies aim to use the processor efficiently while controlling waiting, response, and turnaround times.</div>
+
+      <h3>Preemptive scheduling</h3>
+      <p>In preemptive scheduling, the OS may forcibly interrupt a running process and move it from the <strong>Running</strong> state back to the <strong>Ready</strong> state before its CPU burst finishes. The scheduler then assigns the CPU to another ready process.</p>
+      <p><strong>Typical reasons for preemption:</strong></p>
+      <ul>
+        <li>The running process’s time quantum expires.</li>
+        <li>A higher-priority process arrives or becomes ready.</li>
+        <li>A scheduling policy determines that another process should run—for example, it has a shorter remaining time.</li>
+      </ul>
+      <p><strong>Examples:</strong> Round Robin (RR), Shortest Remaining Time First (SRTF), and preemptive Priority Scheduling.</p>
+
+      <h3>Non-preemptive scheduling</h3>
+      <p>In non-preemptive scheduling, once a process receives the CPU, the OS does not forcibly take it away. The process releases the CPU only when it:</p>
+      <ul>
+        <li>terminates/completes its CPU burst, or</li>
+        <li>voluntarily blocks or moves to the waiting state, such as while requesting I/O.</li>
+      </ul>
+      <p><strong>Examples:</strong> First Come First Serve (FCFS), non-preemptive Shortest Job First (SJF), and non-preemptive Priority Scheduling.</p>
+
+      <div class="diagram-panel">
+        <svg viewBox="0 0 900 390" role="img" aria-labelledby="sched-title sched-desc">
+          <title id="sched-title">Preemptive and non-preemptive scheduling timelines</title>
+          <desc id="sched-desc">In the preemptive example P1 is interrupted when a higher priority P2 arrives; in the non-preemptive example P1 continues until its burst completes before P2 runs.</desc>
+          <g font-family="Outfit, sans-serif">
+            <text x="450" y="30" text-anchor="middle" font-size="23" font-weight="800" fill="#115e59">Same arrival, different scheduling decision</text>
+            <text x="55" y="78" font-size="18" font-weight="700" fill="#1e3a8a">Preemptive</text>
+            <text x="55" y="110" font-size="14" fill="#64748b">P2 arrives at t = 2 and has higher priority</text>
+            <rect x="55" y="130" width="180" height="60" rx="8" fill="#60a5fa"/><text x="145" y="167" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">P1</text>
+            <rect x="235" y="130" width="270" height="60" rx="8" fill="#f59e0b"/><text x="370" y="167" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">P2</text>
+            <rect x="505" y="130" width="315" height="60" rx="8" fill="#60a5fa"/><text x="662" y="167" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">P1 resumes</text>
+            <g font-size="13" fill="#475569"><text x="55" y="210">0</text><text x="230" y="210">2</text><text x="500" y="210">5</text><text x="810" y="210">finish</text></g>
+            <path d="M235 118V198" stroke="#dc2626" stroke-width="3" stroke-dasharray="6 5"/><text x="245" y="120" font-size="13" font-weight="700" fill="#b91c1c">P1 preempted</text>
+
+            <text x="55" y="260" font-size="18" font-weight="700" fill="#5b21b6">Non-preemptive</text>
+            <text x="55" y="290" font-size="14" fill="#64748b">P2 arrives at t = 2, but P1 keeps the CPU</text>
+            <rect x="55" y="310" width="500" height="60" rx="8" fill="#60a5fa"/><text x="305" y="347" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">P1 runs to completion</text>
+            <rect x="555" y="310" width="265" height="60" rx="8" fill="#f59e0b"/><text x="687" y="347" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">P2</text>
+            <g font-size="13" fill="#475569"><text x="55" y="388">0</text><text x="225" y="305">P2 arrives</text><text x="550" y="388">P1 finish</text><text x="810" y="388">finish</text></g>
+          </g>
+        </svg>
+        <p class="diagram-caption">Preemptive scheduling can interrupt P1 when P2 arrives; non-preemptive scheduling lets P1 retain the CPU until it finishes or blocks.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Point</th><th>Preemptive</th><th>Non-preemptive</th></tr></thead>
+          <tbody>
+            <tr><td>Can OS forcibly remove CPU?</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Running → Ready transition</td><td>Possible due to preemption</td><td>Not caused by scheduler preemption</td></tr>
+            <tr><td>CPU released when</td><td>Time slice ends, higher-priority work arrives, process blocks, or finishes</td><td>Process blocks/waits or finishes</td></tr>
+            <tr><td>Response time</td><td>Usually better for interactive and multi-user workloads</td><td>Can be poor when a long job delays short jobs</td></tr>
+            <tr><td>Context-switch overhead</td><td>Higher because switches may be frequent</td><td>Lower/minimal scheduling overhead</td></tr>
+            <tr><td>Implementation</td><td>More complex; shared-data synchronization is critical</td><td>Simpler and easier to reason about</td></tr>
+            <tr><td>Fairness risk</td><td>Low-priority process may starve</td><td>Long CPU burst can cause the convoy effect and delay later jobs</td></tr>
+            <tr><td>Examples</td><td>RR, SRTF, preemptive Priority</td><td>FCFS, SJF, non-preemptive Priority</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Advantages and disadvantages</h3>
+      <div class="key-grid">
+        <div class="key-box"><b>Preemptive — advantages</b>Responsive; prevents one ordinary task from monopolizing the CPU; suitable for modern interactive systems.</div>
+        <div class="key-box"><b>Preemptive — costs</b>More context switches, scheduling complexity, possible starvation, and race/concurrency hazards around shared data.</div>
+        <div class="key-box"><b>Non-preemptive — trade-off</b>Simple with low overhead, but one long or misbehaving CPU-bound process can delay everyone else.</div>
+      </div>
+
+      <div class="exam-tip"><strong>Important correction to the source illustration:</strong> Non-preemptive does not mean the CPU must wait idle while the current process performs I/O. Once that process blocks and enters the Waiting state, it has voluntarily released the CPU, so the scheduler can run another ready process. “Non-preemptive” only means the OS does not forcibly take the CPU from a still-running process.</div>
+      <div class="analogy"><strong>Memory analogy:</strong> In a non-preemptive meeting, the current speaker keeps the microphone until they finish or voluntarily pause. In a preemptive meeting, the moderator may stop the speaker when their time expires or an urgent speaker must be heard.</div>
+    </article>
+    </div>
+
+    <div id="view-revision" class="view">
+    <article class="note-card" id="revision">
+      <h2>8. One-Minute Revision</h2>
+      <ol>
+        <li><strong>OS = system software.</strong></li>
+        <li>It is an <strong>intermediary</strong> between users/applications and hardware.</li>
+        <li>It is a <strong>resource manager and allocator</strong>.</li>
+        <li>It is a <strong>platform and execution environment</strong> for applications.</li>
+        <li>System order: <strong>User → Applications → OS → Hardware</strong>.</li>
+        <li>Primary goal: <strong>convenience/user-friendliness</strong>.</li>
+        <li>Secondary goals: <strong>efficiency, reliability, and maintainability</strong>.</li>
+        <li>Main areas include process, memory, file, I/O, storage, security, and network management.</li>
+      </ol>
+      <div class="exam-tip"><strong>Memory trick — I-R-P:</strong> <strong>I</strong>ntermediary, <strong>R</strong>esource manager, <strong>P</strong>latform.</div>
+    </article>
+
+    <article class="note-card">
+      <h2>Chapter 2: Multiprogramming — Quick Revision</h2>
+      <ul>
+        <li><strong>Definition:</strong> Multiple jobs are kept in main memory so another ready job can run when the current one waits.</li>
+        <li><strong>Main goal:</strong> Maximize CPU utilization—“processor waits for no one.”</li>
+        <li><strong>Job pool:</strong> Jobs on disk waiting for admission to main memory.</li>
+        <li><strong>Single-CPU rule:</strong> Multiple jobs may be resident, but only one executes at an instant.</li>
+        <li><strong>Switch trigger:</strong> Running job blocks for I/O/event or terminates; OS selects another ready job.</li>
+        <li><strong>Advantages:</strong> Better utilization and throughput; CPU and I/O activities overlap.</li>
+        <li><strong>Costs:</strong> Complex scheduling, memory management, protection, and context switching.</li>
+        <li><strong>Time-sharing:</strong> Multiprogramming + frequent/preemptive CPU time slices + interactive response.</li>
+        <li><strong>Illusion, not necessarily parallelism:</strong> Rapid context switching makes tasks appear simultaneous on one CPU/core.</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Exam cue</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>Several programs in RAM?</td><td>Multiprogramming</td></tr>
+            <tr><td>CPU switches when job waits?</td><td>Core multiprogramming behavior</td></tr>
+            <tr><td>Small time quantum / Round Robin?</td><td>Time-sharing or multitasking</td></tr>
+            <tr><td>Exact simultaneous execution on one CPU?</td><td>No</td></tr>
+            <tr><td>Primary multiprogramming objective?</td><td>High CPU utilization</td></tr>
+            <tr><td>GATE 2002 conceptual answer?</td><td>(a) and (b), Option B; older keys may report D due to ambiguous (c)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Memory chain:</strong> Disk job pool → several jobs in RAM → one job runs → it waits → another ready job runs → CPU stays busy.</div>
+    </article>
+
+    <article class="note-card">
+      <h2>Chapter 3: Multiprocessing &amp; RTOS — Quick Revision</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Concept</th><th>Revision point</th></tr></thead>
+          <tbody>
+            <tr><td>Multiprocessing</td><td>Two or more processors/cores in one system; true parallel execution is possible.</td></tr>
+            <tr><td>Tightly coupled</td><td>Processors share main memory, I/O, clock/interconnect, and are managed as one computer system.</td></tr>
+            <tr><td>Benefits</td><td>Higher throughput, economy of scale, better utilization, possible graceful degradation, and energy-aware core use.</td></tr>
+            <tr><td>Multiprogramming vs multiprocessing</td><td>Many resident programs with CPU switching vs multiple CPUs executing in parallel.</td></tr>
+            <tr><td>RTOS</td><td>Correct result + result delivered within its required deadline.</td></tr>
+            <tr><td>Hard real-time</td><td>Deadline miss makes the result useless/harmful; strict timing guarantee.</td></tr>
+            <tr><td>Soft real-time</td><td>Occasional delay is tolerated; usefulness decreases gradually after deadline.</td></tr>
+            <tr><td>Key RTOS property</td><td>Predictable, deterministic bounded response—not simply high average speed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Memory line:</strong> Multi<strong>programming</strong> gives one CPU options; multi<strong>processing</strong> gives the system more CPUs; real-<strong>time</strong> gives every critical task a deadline.</div>
+    </article>
+
+    <article class="note-card">
+      <h2>Chapter 4: Interfaces &amp; System Calls — Quick Revision</h2>
+      <ul>
+        <li><strong>CLI:</strong> typed commands; precise, scriptable, efficient for experts, but has a steep learning curve.</li>
+        <li><strong>GUI:</strong> windows, icons, menus, and pointer; visual and convenient.</li>
+        <li><strong>Touch:</strong> taps and gestures; direct and mobile-friendly but less precise.</li>
+        <li><strong>System call:</strong> controlled request from a user program to the kernel for an OS service.</li>
+        <li><strong>Protection boundary:</strong> user mode → system-call interface → kernel mode → resource/hardware → return.</li>
+        <li><strong>Mode bit convention:</strong> user mode = 1; system call trap changes it to kernel mode = 0; return restores 1.</li>
+        <li><strong>Abstraction:</strong> applications use APIs/libraries; protected services use system calls; the kernel uses the ISA and drivers to control hardware.</li>
+        <li><strong>API:</strong> programmer-visible contract; it is not necessarily identical to a system call.</li>
+        <li><strong>Library wrapper:</strong> may translate an API call into one or more system calls.</li>
+        <li><code>printf()</code> is a C library function; it may ultimately use a <code>write()</code> system call.</li>
+        <li><strong>Six categories:</strong> Process, File, Device, Information, Communication, Protection.</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Question cue</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>Maximum command control/automation?</td><td>CLI</td></tr>
+            <tr><td>Program requests a protected OS service?</td><td>System call</td></tr>
+            <tr><td>Mode used by ordinary applications?</td><td>User mode</td></tr>
+            <tr><td>Mode with privileged hardware control?</td><td>Kernel mode</td></tr>
+            <tr><td>Windows, POSIX, Java?</td><td>Common API families</td></tr>
+            <tr><td>Hiding lower-level details?</td><td>Abstraction</td></tr>
+            <tr><td>System-call category mnemonic?</td><td>P-F-D-I-C-P</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="exam-tip"><strong>Core chain:</strong> User action → application/API → library wrapper → system call → kernel → hardware/service → result returns.</div>
+    </article>
+
+    <article class="note-card">
+      <h2>Chapter 5: CPU Scheduling — Quick Revision</h2>
+      <ul>
+        <li><strong>CPU scheduling:</strong> Selecting the next ready process to execute.</li>
+        <li><strong>Preemptive:</strong> OS may force Running → Ready before the CPU burst completes.</li>
+        <li><strong>Preemption triggers:</strong> time quantum expiry, higher-priority arrival, or scheduling-policy decision.</li>
+        <li><strong>Preemptive examples:</strong> RR, SRTF, preemptive Priority.</li>
+        <li><strong>Non-preemptive:</strong> Running process keeps CPU until it terminates or voluntarily blocks/waits.</li>
+        <li><strong>Non-preemptive examples:</strong> FCFS, SJF, non-preemptive Priority.</li>
+        <li><strong>Preemptive benefits/costs:</strong> Better responsiveness but more context-switch overhead, complexity, and possible starvation.</li>
+        <li><strong>Non-preemptive benefits/costs:</strong> Simple and low overhead but poor response behind long jobs.</li>
+        <li><strong>I/O trap:</strong> A blocked process has released the CPU; another ready process may run even in non-preemptive scheduling.</li>
+      </ul>
+      <div class="exam-tip"><strong>Fast test:</strong> Can the scheduler take the CPU from a process that is still running and has neither blocked nor finished? Yes = preemptive; No = non-preemptive.</div>
+    </article>
+    </div>
+
+    <footer>My Operating System Notes · Practice Hub</footer>
+  </main>
+  <script>
+    function switchView(mode, button) {
+      document.querySelectorAll('.view').forEach(function (view) {
+        view.classList.remove('active');
+      });
+      document.querySelectorAll('.toggle-btn').forEach(function (item) {
+        item.classList.remove('active');
+      });
+      document.getElementById('view-' + mode).classList.add('active');
+      button.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

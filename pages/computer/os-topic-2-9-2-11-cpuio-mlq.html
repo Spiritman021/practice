@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU+IO Burst, MLQ &amp; MLFQ — Topic 2.9-2.11 | OS Notes</title>
+<meta name="description" content="CPU Scheduling: Preemptive vs Non-Preemptive algorithms, scheduling categories (FCFS, SJF, SRTF, RR, Priority), and all scheduling times — Arrival, Burst, Completion, Turnaround, Waiting, Response for GATE &amp; UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:660px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  /* ── INFO BOXES ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.indigo { background:var(--indigol); border-color:var(--indigo);color:var(--dkgray); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── PREEMPTIVE / NON-PREEMPTIVE SPLIT ── */
+  .pnp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .pnp-card { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .pnp-head { padding:12px 18px; font-weight:700; font-size:14px; color:#fff; display:flex; align-items:center; gap:10px; }
+  .pnp-body { padding:14px 18px; font-size:13.5px; line-height:1.65; }
+  .pnp-algo-list { list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .pnp-algo-list li { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .algo-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── READY QUEUE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:120px; }
+  .flow-box h4 { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; }
+  .fa-line { width:36px; height:2px; }
+  .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+  .fa-tip-l { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right-width:8px; border-right-style:solid; }
+
+  /* ── TIMELINE DIAGRAM ── */
+  .timeline-wrap { padding:24px 20px; }
+  .tl-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+  .tl-label { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:80px; padding-top:12px; }
+  .tl-bar-area { flex:1; position:relative; }
+  .tl-bar { height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; position:relative; transition:all .3s; }
+  .tl-bar:hover { filter:brightness(1.1); }
+  .tl-tick-row { display:flex; margin-top:6px; }
+  .tl-tick { flex:1; text-align:left; font-family:'Space Mono',monospace; font-size:10px; color:var(--mdgray); font-weight:600; }
+
+  /* ── TIME CARDS ── */
+  .time-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:16px 0; }
+  .time-card { background:#fff; border-radius:12px; border:2px solid; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07); }
+  .time-card-head { padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .time-card-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .time-card-title { font-weight:700; font-size:14px; }
+  .time-card-subtitle { font-size:11px; font-weight:500; opacity:.7; }
+  .time-card-body { padding:12px 16px 14px; font-size:13px; line-height:1.65; }
+  .formula-chip { display:inline-block; background:#f8fafc; border:1.5px solid; border-radius:6px; padding:4px 12px; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; margin:6px 0 8px; }
+
+  /* ── BANK ANALOGY ── */
+  .analogy-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .analogy-cell { background:#fff; border-radius:10px; padding:14px 16px; border:1.5px solid; font-size:13px; line-height:1.65; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .analogy-cell .ah { font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+
+  /* ── FORMULA TABLE ── */
+  .formula-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .formula-table th { padding:10px 14px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .formula-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:middle; line-height:1.6; }
+  .formula-table tr:last-child td { border-bottom:none; }
+  .formula-table td:first-child { font-weight:700; color:var(--teal); font-size:13px; }
+  .formula-table td:nth-child(2) { background:#f8fafc; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy); font-weight:700; }
+  .formula-table td:nth-child(3) { color:var(--dkgray); }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+  .orange-text { color:var(--orange); font-weight:700; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#fce4ec22; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+
+  /* ── CRITERIA PILLS ── */
+  .criteria-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .crit-pill { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .crit-icon { font-size:18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:220px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+  .rev-kv code { background:#f1f5f9; border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:11.5px; color:var(--navy); }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .pnp-grid,.analogy-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+
+  /* ===== INJECTED COMPONENT STYLES (FCFS/SJF/SRTF pages) ===== */
+  :root { --indigo:#283593; --p1c:#1565C0; --p2c:#2E7D32; --p3c:#6A1B9A; --p4c:#C62828; }
+  .algo-card{border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 3px 14px rgba(0,0,0,.07);}
+  .algo-card-head{padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .algo-card-body{padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;}
+  .algo-pill{background:#fff;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;flex:1;min-width:150px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .pill-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;}
+  .step-wrap{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .step-box{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .step-text{font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+  .step-text b{color:var(--navy);}
+  .step-text code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--teal);}
+  .gantt-wrap{padding:20px 20px 8px;overflow-x:auto;}
+  .gantt-row{display:flex;align-items:stretch;min-width:max-content;}
+  .gantt-cell{height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:#fff;border-right:2px solid rgba(255,255,255,.3);flex-shrink:0;}
+  .gantt-cell:last-child{border-right:none;}
+  .gantt-cell.idle{background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 5px,#f8fafc 5px,#f8fafc 10px);color:#757575;font-size:11px;}
+  .gantt-tick-row{display:flex;min-width:max-content;margin-top:2px;padding-bottom:4px;}
+  .gantt-tick{font-family:'Space Mono',monospace;font-size:10px;color:#757575;font-weight:700;flex-shrink:0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sub-sec{width:32px;height:32px;font-size:13px;}
+  .sec-head h2{font-size:20px;font-weight:700;margin:0;}
+  .sec-head h2.sub{font-size:17px;}
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.blue{background:#E3F2FD;border-color:#1565C0;color:#0D1B4B;}
+  .info-box.orange{background:#FFF3E0;border-color:#E65100;color:#424242;}
+  .info-box.green{background:#E8F5E9;border-color:#2E7D32;color:#424242;}
+  .info-box.gold{background:#fff8e1;border-color:#F9A825;color:#5d4037;}
+  .diagram{background:#fff;border:1px solid #b2dfdb;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:#006064;color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:#757575;font-style:italic;padding:8px 16px;background:#f9fdfd;border-top:1px solid #e0f7fa;}
+  .proc-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .proc-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .proc-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;text-align:center;font-weight:500;}
+  .proc-table tr:last-child td{border-bottom:none;}
+  .proc-table td.label{font-weight:700;color:#0D1B4B;text-align:left;}
+  .proc-table tfoot td{font-weight:700;background:#f0fafa;}
+  .tie-box{background:#fff8e1;border:2px dashed #F9A825;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px;line-height:1.7;}
+  .tie-title{font-weight:700;color:#b7791f;font-size:14px;margin-bottom:6px;}
+  .rq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .rq-lbl{font-size:11px;font-weight:700;color:#757575;text-transform:uppercase;}
+  .rq-p{border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-arr{color:#757575;font-size:18px;}
+  .rq-cpu{background:#00838f;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-idle{background:#e2e8f0;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#757575;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #b2dfdb;}
+  .rev-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-body{padding:16px 20px;}
+  .rv{display:flex;gap:8px;margin-bottom:9px;font-size:13px;align-items:flex-start;}
+  .rv .k{font-weight:700;color:#006064;min-width:210px;flex-shrink:0;}
+  .rv .v{color:#424242;line-height:1.55;}
+  .rv code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:#0D1B4B;}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cmp-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .cmp-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;vertical-align:top;line-height:1.6;}
+  .cmp-table tr:last-child td{border-bottom:none;}
+  .cmp-table td:first-child{font-weight:700;color:#0D1B4B;background:#f8fafc;}
+  .g{color:#2E7D32;font-weight:700;} .r{color:#C62828;font-weight:700;}
+  @media(max-width:640px){.algo-card-body{flex-direction:column;}.rv .k{min-width:120px;}}
+
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 2.9-2.11</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>CPU+IO Burst, MLQ &amp; MLFQ</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 2.9-2.11: CPU+IO Burst / MLQ / MLFQ</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 2.9-2.11 • CPU+IO / MLQ / MLFQ</div>
+    <h1>CPU+IO, MLQ &amp; MLFQ &mdash; <span>Complete Study Notes</span></h1>
+    <p class="hero-sub">CPU+IO Burst Scheduling (Priority Preemptive) &mdash; full solved numerical with CPU &amp; IO timeline. Multi-Level Queue Scheduling (MLQ) &mdash; three-tier process classification. Multi-Level Feedback Queue (MLFQ) &mdash; aging and promotion strategy to eliminate starvation.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐⭐</span><span class="badge">UGC NET ⭐⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Heavy Numericals</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESCRIPTIVE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+<!-- ═════════════════════════ 2.9 CPU+IO BURST ══════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num" style="background:var(--teal2);color:#fff;">2.9</div>
+  <h2>CPU + IO Burst Scheduling &mdash; Priority Preemptive</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--teal2);">&#9881; CPU+IO Burst &mdash; Key Concept</div>
+  <div class="algo-card-body" style="background:#e0f7fa;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">Process Life Cycle</span><b>CPU Burst &rarr; IO Burst &rarr; CPU Burst &rarr; ...</b> A real process alternates between CPU and IO device usage</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">Priority Rule</span>Lower number = Higher priority (stated in question)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">Mode</span>Preemptive Priority &mdash; run 1 unit at a time, check priority at every step</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">IO Device</span>Each process uses its IO device independently (parallel with CPU activity)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">CPU Idle</span>CPU goes idle when all processes are in IO &mdash; count this for utilisation</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--teal2);">Completion Time</span>When a process finishes its LAST CPU burst &mdash; not after IO</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.9-A &mdash; Given Data (Lower Priority Number = Higher Priority)</div>
+  <div style="padding:16px;overflow-x:auto;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#3949ab;color:#fff;">Arrival Time</th>
+        <th style="background:var(--purple);color:#fff;">Priority</th>
+        <th style="background:var(--teal2);color:#fff;">CPU Burst 1</th>
+        <th style="background:var(--orange);color:#fff;">IO Burst</th>
+        <th style="background:var(--green);color:#fff;">CPU Burst 2</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>2</td><td>1</td><td>5</td><td>3</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>2</td><td>3</td><td>3</td><td>3</td><td>1</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>3</td><td>1 &#128309; Highest</td><td>2</td><td>3</td><td>1</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>3</td><td>4 &#128308; Lowest</td><td>2</td><td>4</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">P3 has the highest priority (smallest number = 1). P4 has the lowest. Preemptive: run 1 unit at a time, check at every step.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.9-B &mdash; CPU Execution Gantt Chart</div>
+  <div class="gantt-wrap">
+    <div class="gantt-row">
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+      <div class="gantt-cell idle" style="width:40px;">IDLE</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:40px;">P2</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:80px;">P3</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:40px;">P2</div>
+      <div class="gantt-cell" style="background:#1565C0;width:80px;">P1</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:40px;">P3</div>
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:40px;">P2</div>
+      <div class="gantt-cell" style="background:#C62828;width:80px;">P4</div>
+      <div class="gantt-cell idle" style="width:40px;">IDLE</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:40px;">P2</div>
+      <div class="gantt-cell idle" style="width:80px;">IDLE</div>
+      <div class="gantt-cell" style="background:#C62828;width:40px;">P4</div>
+    </div>
+    <div class="gantt-tick-row">
+      <div class="gantt-tick" style="width:40px;">0</div>
+      <div class="gantt-tick" style="width:40px;">1</div>
+      <div class="gantt-tick" style="width:40px;">2</div>
+      <div class="gantt-tick" style="width:80px;">3</div>
+      <div class="gantt-tick" style="width:40px;">5</div>
+      <div class="gantt-tick" style="width:80px;">6</div>
+      <div class="gantt-tick" style="width:40px;">8</div>
+      <div class="gantt-tick" style="width:40px;">9</div>
+      <div class="gantt-tick" style="width:40px;">10</div>
+      <div class="gantt-tick" style="width:80px;">11</div>
+      <div class="gantt-tick" style="width:40px;">13</div>
+      <div class="gantt-tick" style="width:40px;">14</div>
+      <div class="gantt-tick" style="width:80px;">15</div>
+      <div class="gantt-tick">17&nbsp;&nbsp;&nbsp;18</div>
+    </div>
+  </div>
+  <div class="diagram-caption">Striped = CPU IDLE. P1 and P2 appear multiple times. CT = rightmost block for each process.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.9-C &mdash; IO Activity Timeline (runs in parallel with CPU)</div>
+  <div style="padding:16px 20px;font-size:13px;">
+    <div style="display:grid;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:32px;font-weight:700;color:#1565C0;">P1</span>
+        <div style="display:flex;flex:1;gap:2px;font-size:11px;font-family:monospace;">
+          <span style="padding:6px 8px;background:#e3f2fd;border-radius:4px;flex:1;">CPU1<br>0&rarr;1</span>
+          <span style="padding:6px 8px;background:#FFB74D;border-radius:4px;flex:5;">IO (t=1&rarr;6)</span>
+          <span style="padding:6px 8px;background:#1565C0;color:#fff;border-radius:4px;flex:3;">CPU2 (6&rarr;8, 9&rarr;10)</span>
+          <span style="padding:6px 8px;background:#e8f5e9;border-radius:4px;flex:8;">&#9989; Done at t=10</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:32px;font-weight:700;color:#2E7D32;">P2</span>
+        <div style="display:flex;flex:1;gap:2px;font-size:11px;font-family:monospace;">
+          <span style="padding:6px 8px;background:#e8f5e944;border-radius:4px;flex:2;">wait</span>
+          <span style="padding:6px 8px;background:#2E7D32;color:#fff;border-radius:4px;flex:3;">CPU1 (2&rarr;3,5&rarr;6,10&rarr;11)</span>
+          <span style="padding:6px 8px;background:#FFB74D;border-radius:4px;flex:3;">IO (t=11&rarr;14)</span>
+          <span style="padding:6px 8px;background:#2E7D32;color:#fff;border-radius:4px;flex:1;">CPU2 14&rarr;15</span>
+          <span style="padding:6px 8px;background:#e8f5e9;border-radius:4px;flex:5;">&#9989; Done at t=15</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:32px;font-weight:700;color:#6A1B9A;">P3</span>
+        <div style="display:flex;flex:1;gap:2px;font-size:11px;font-family:monospace;">
+          <span style="padding:6px 8px;background:#f3e5f544;border-radius:4px;flex:3;">wait</span>
+          <span style="padding:6px 8px;background:#6A1B9A;color:#fff;border-radius:4px;flex:2;">CPU1 (3&rarr;5)</span>
+          <span style="padding:6px 8px;background:#FFB74D;border-radius:4px;flex:3;">IO (t=5&rarr;8)</span>
+          <span style="padding:6px 8px;background:#6A1B9A;color:#fff;border-radius:4px;flex:1;">CPU2 8&rarr;9</span>
+          <span style="padding:6px 8px;background:#e8f5e9;border-radius:4px;flex:9;">&#9989; Done at t=9</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:32px;font-weight:700;color:#C62828;">P4</span>
+        <div style="display:flex;flex:1;gap:2px;font-size:11px;font-family:monospace;">
+          <span style="padding:6px 8px;background:#ffebee44;border-radius:4px;flex:3;">wait</span>
+          <span style="padding:6px 8px;background:#C62828;color:#fff;border-radius:4px;flex:2;">CPU1 (11&rarr;13)</span>
+          <span style="padding:6px 8px;background:#FFB74D;border-radius:4px;flex:4;">IO (t=13&rarr;17)</span>
+          <span style="padding:6px 8px;background:#C62828;color:#fff;border-radius:4px;flex:1;">CPU2 17&rarr;18</span>
+          <span style="padding:6px 8px;background:#e8f5e9;border-radius:4px;flex:5;">&#9989; Done at t=18</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:11.5px;color:#757575;font-style:italic;">Orange bars = IO burst (runs independently from CPU). CPU can serve other processes while a process is doing IO.</div>
+  </div>
+  <div class="diagram-caption">IO runs in parallel. CPU stays IDLE only when ALL processes are in IO simultaneously.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box"><div class="step-num" style="background:var(--teal2);">1</div><div class="step-text"><b>t=0:</b> Only P1 arrived. Run P1 CPU1=1 unit. P1 finishes CPU1 at t=1, starts IO (IO=5, ends at t=6).</div></div>
+  <div class="step-box"><div class="step-num" style="background:#757575;">2</div><div class="step-text"><b>t=1&rarr;2: CPU IDLE.</b> P2 arrives at t=2, P3/P4 at t=3. No process ready yet.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--teal2);">3</div><div class="step-text"><b>t=2:</b> P2 (Pri=3) arrives. Run P2 for 1 unit. CPU1: 3&rarr;2.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--purple);">4</div><div class="step-text"><b>t=3:</b> P3 (Pri=1) and P4 (Pri=4) arrive. P3 has HIGHEST priority &rarr; preempts P2. Run P3 CPU1. t=3&rarr;5 (2 units). P3&rarr;IO (IO=3, ends t=8).</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--teal2);">5</div><div class="step-text"><b>t=5:</b> Ready: P2 (CPU1 rem=2, Pri=3), P4 (CPU1=2, Pri=4). P2 wins. Run P2. t=5&rarr;6. CPU1: 2&rarr;1.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--blue);">6</div><div class="step-text"><b>t=6: P1 IO completes!</b> P1 re-enters ready queue (CPU2=3, Pri=2). P1 priority 2 &gt; P2 priority 3 &rarr; preempt P2, run P1. t=6&rarr;8. CPU2: 3&rarr;1.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--purple);">7</div><div class="step-text"><b>t=8: P3 IO completes!</b> P3 re-enters (CPU2=1, Pri=1). P3 Pri=1 &gt; P1 Pri=2 &rarr; preempt P1, run P3. t=8&rarr;9. <b>P3 DONE at t=9. CT(P3)=9.</b></div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--blue);">8</div><div class="step-text"><b>t=9:</b> P1 (CPU2=1, Pri=2) runs. t=9&rarr;10. <b>P1 DONE at t=10. CT(P1)=10.</b></div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--green);">9</div><div class="step-text"><b>t=10:</b> P2 (CPU1=1, Pri=3) runs. t=10&rarr;11. P2 CPU1 done &rarr; P2 starts IO (IO=3, ends t=14).</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--red);">10</div><div class="step-text"><b>t=11:</b> P4 (CPU1=2, Pri=4) is only process. Runs t=11&rarr;13. P4 CPU1 done &rarr; P4 starts IO (IO=4, ends t=17).</div></div>
+  <div class="step-box"><div class="step-num" style="background:#757575;">11</div><div class="step-text"><b>t=13&rarr;14: CPU IDLE.</b> Both P2 and P4 are doing IO. P2 IO ends at t=14.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--green);">12</div><div class="step-text"><b>t=14:</b> P2 IO done. P2 CPU2=1. Runs t=14&rarr;15. <b>P2 DONE at t=15. CT(P2)=15.</b></div></div>
+  <div class="step-box"><div class="step-num" style="background:#757575;">13</div><div class="step-text"><b>t=15&rarr;17: CPU IDLE.</b> Only P4 in IO. P4 IO ends at t=17.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--red);">14</div><div class="step-text"><b>t=17:</b> P4 IO done. P4 CPU2=1. Runs t=17&rarr;18. <b>P4 DONE at t=18. CT(P4)=18.</b></div></div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.9-D &mdash; Final Results &amp; CPU Utilisation</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:var(--green);color:#fff;">CT (Completion Time)</th>
+        <th style="background:var(--teal2);color:#fff;">First CPU at</th>
+        <th style="background:var(--teal2);color:#fff;">Last CPU at</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1 (Pri=2)</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">10</td><td>t=0 (CPU1)</td><td>t=9&rarr;10 (CPU2)</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2 (Pri=3)</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">15</td><td>t=2 (CPU1)</td><td>t=14&rarr;15 (CPU2)</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3 (Pri=1) &#9733;</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">9</td><td>t=3 (CPU1)</td><td>t=8&rarr;9 (CPU2)</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4 (Pri=4)</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">18</td><td>t=11 (CPU1)</td><td>t=17&rarr;18 (CPU2)</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;background:#ffebee;border-radius:8px;padding:14px;border-left:4px solid var(--red);">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px;">CPU IDLE Periods</div>
+        <div style="font-size:13px;">t=1&rarr;2 (1 unit)</div>
+        <div style="font-size:13px;">t=13&rarr;14 (1 unit)</div>
+        <div style="font-size:13px;">t=15&rarr;17 (2 units)</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);margin-top:6px;">Total Idle = 4 units</div>
+      </div>
+      <div style="flex:1;min-width:160px;background:#e8f5e9;border-radius:8px;padding:14px;border-left:4px solid var(--green);">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px;">CPU Utilisation</div>
+        <div style="font-size:13px;">Total Time = 18 units</div>
+        <div style="font-size:13px;">Busy = 18 &minus; 4 = 14 units</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green);margin-top:6px;">CPU Usage = 14/18 = 77.78%</div>
+        <div style="font-size:13px;color:var(--red);">CPU Idle = 4/18 = 22.22%</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">CT = last time the process uses CPU. For CPU+IO questions: Completion happens after the LAST CPU burst, not after IO.</div>
+</div>
+
+<!-- ═══════════════════════════ 2.10 MLQ ══════════════════════════════ -->
+<div class="sec-head" style="margin-top:52px;">
+  <div class="sec-num" style="background:var(--blue);color:#fff;">2.10</div>
+  <h2>Multi-Level Queue (MLQ) Scheduling</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--blue);">&#128229; Multi-Level Queue &mdash; Core Idea</div>
+  <div class="algo-card-body" style="background:#e3f2fd;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Problem Solved</span>Real-life processes are of different types; a single queue is insufficient</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Solution</span>Separate queue for each process type, each with its own algorithm</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Key Drawback</span><b style="color:var(--red);">Starvation</b> &mdash; lower-priority queues starve when high-priority queues always have work</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Movement</span>Processes are permanently assigned to a queue; no movement between queues</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.10-A &mdash; Multi-Level Queue Structure</div>
+  <div style="padding:20px;">
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:600px;margin:0 auto;">
+      <div style="background:linear-gradient(135deg,#C62828,#b71c1c);border-radius:10px;padding:14px 20px;color:#fff;">
+        <div style="font-weight:700;font-size:15px;">&#9312; System Processes &mdash; Queue 1 (Highest Priority)</div>
+        <div style="font-size:13px;margin-top:4px;opacity:.9;">Algorithm: Round Robin &bull; Examples: OS interrupts, kernel tasks</div>
+      </div>
+      <div style="text-align:center;font-size:22px;color:#757575;">&#8595; (serves only when Queue 1 is empty)</div>
+      <div style="background:linear-gradient(135deg,#1565C0,#0d47a1);border-radius:10px;padding:14px 20px;color:#fff;">
+        <div style="font-weight:700;font-size:15px;">&#9313; Interactive Processes &mdash; Queue 2 (Medium Priority)</div>
+        <div style="font-size:13px;margin-top:4px;opacity:.9;">Algorithm: SJF or any &bull; Examples: VLC, browser, foreground apps</div>
+      </div>
+      <div style="text-align:center;font-size:22px;color:#757575;">&#8595; (serves only when Queues 1 &amp; 2 are empty)</div>
+      <div style="background:linear-gradient(135deg,#2E7D32,#1b5e20);border-radius:10px;padding:14px 20px;color:#fff;">
+        <div style="font-weight:700;font-size:15px;">&#9314; Batch Processes &mdash; Queue 3 (Lowest Priority)</div>
+        <div style="font-size:13px;margin-top:4px;opacity:.9;">Algorithm: FCFS or any &bull; Examples: background jobs, batch scripts</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;background:#ffebee;border-radius:8px;padding:12px 16px;border-left:4px solid var(--red);">
+      <b style="color:var(--red);">&#9888; Starvation Problem:</b> If System Process queue always has work, Interactive and Batch processes NEVER get CPU. Queue 3 may wait indefinitely.
+    </div>
+  </div>
+  <div class="diagram-caption">Each queue has its own algorithm. Queues are served strictly top-to-bottom by priority.</div>
+</div>
+
+<div class="info-box blue">&#128161; <b>Key Difference from Standard Scheduling:</b> In MLQ, processes are classified on arrival and placed in the appropriate queue permanently. The queue itself has a fixed priority, and processes in lower queues only get CPU when all higher queues are completely empty.</div>
+
+<!-- ═══════════════════════════ 2.11 MLFQ ══════════════════════════════ -->
+<div class="sec-head" style="margin-top:52px;">
+  <div class="sec-num" style="background:var(--orange);color:#fff;">2.11</div>
+  <h2>Multi-Level Feedback Queue (MLFQ) Scheduling</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--orange);">&#128260; MLFQ &mdash; Core Idea (Eliminates Starvation)</div>
+  <div class="algo-card-body" style="background:#fff3e0;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--orange);">Problem Solved</span>Starvation in MLQ &mdash; lower-priority processes never get CPU</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--orange);">Solution: Feedback</span>Low-priority processes are <b>promoted</b> to higher queues over time (Aging)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--orange);">Movement</span>Processes CAN move between queues (upward promotion)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--orange);">High Priority</span>System processes still run in their own queue without promotion needed</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--orange);">Each Queue TQ</span>Lower queues get larger time quantum (TQ doubles as you go down)</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.11-A &mdash; MLFQ Queue Structure &amp; Promotion</div>
+  <div style="padding:20px;">
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:680px;margin:0 auto;">
+      <div style="background:#C62828;border-radius:8px;padding:10px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">RQ1 &mdash; Highest Priority, TQ=2</span>
+        <span style="font-size:12px;opacity:.9;">New batch process enters here</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 20px;">
+        <span style="font-size:20px;">&#8595;</span>
+        <span style="font-size:12px;color:#757575;">If not done in TQ=2 &rarr; promote to RQ2</span>
+      </div>
+      <div style="background:#E65100;border-radius:8px;padding:10px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">RQ2 &mdash; TQ=4</span>
+        <span style="font-size:12px;opacity:.9;">Gets more time than RQ1</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 20px;">
+        <span style="font-size:20px;">&#8595;</span>
+        <span style="font-size:12px;color:#757575;">If not done in TQ=4 &rarr; promote to RQ3</span>
+      </div>
+      <div style="background:#1565C0;border-radius:8px;padding:10px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">RQ3 &mdash; TQ=8</span>
+        <span style="font-size:12px;opacity:.9;">Even more time</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 20px;">
+        <span style="font-size:20px;">&#8595;</span>
+        <span style="font-size:12px;color:#757575;">If not done in TQ=8 &rarr; promote to RQ4</span>
+      </div>
+      <div style="background:#2E7D32;border-radius:8px;padding:10px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">RQ4 &mdash; FCFS (no time limit)</span>
+        <span style="font-size:12px;opacity:.9;">Runs to completion</span>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">Queues have increasing time quantum. Processes are promoted when they exceed a queue's TQ, getting faster CPU access each time.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.11-B &mdash; Worked Example: P1 (Batch Process, BT=19)</div>
+  <div style="padding:16px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:12px;background:#ffebee;border-radius:8px;padding:12px 16px;">
+        <div style="background:#C62828;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap;">RQ1 (TQ=2)</div>
+        <div style="font-size:13.5px;line-height:1.6;">P1 arrives at RQ1. Runs for 2 units. Remaining = 19&minus;2 = <b>17</b>.<br>Not finished &rarr; <b>Promoted to RQ2</b>. New space created in RQ1 for fresh processes.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#fff3e0;border-radius:8px;padding:12px 16px;">
+        <div style="background:#E65100;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap;">RQ2 (TQ=4)</div>
+        <div style="font-size:13.5px;line-height:1.6;">P1 runs for 4 units. Remaining = 17&minus;4 = <b>13</b>.<br>Not finished &rarr; <b>Promoted to RQ3</b>. Getting CPU faster than waiting in low priority queue.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#e3f2fd;border-radius:8px;padding:12px 16px;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap;">RQ3 (TQ=8)</div>
+        <div style="font-size:13.5px;line-height:1.6;">P1 runs for 8 units. Remaining = 13&minus;8 = <b>5</b>.<br>Not finished &rarr; <b>Promoted to RQ4</b>.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#e8f5e9;border-radius:8px;padding:12px 16px;">
+        <div style="background:#2E7D32;color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap;">RQ4 (FCFS)</div>
+        <div style="font-size:13.5px;line-height:1.6;">P1 runs for remaining <b>5 units</b>. Completes! Total execution = 2+4+8+5 = 19 &#9989;</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">Total BT=19 distributed across queues: 2+4+8+5. Each promotion gives P1 faster CPU access, preventing starvation.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.11-C &mdash; MLQ vs MLFQ Comparison</div>
+  <div style="padding:16px;">
+    <table class="cmp-table">
+      <thead><tr>
+        <th style="background:#f8fafc;color:var(--navy);text-align:left;">Parameter</th>
+        <th style="background:#e3f2fd;color:#1565C0;">&#128229; MLQ</th>
+        <th style="background:#fff3e0;color:#E65100;">&#128260; MLFQ</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Process movement</td><td>Fixed queue, no movement</td><td>Promoted to higher queues (aging)</td></tr>
+        <tr><td>Starvation</td><td style="color:var(--red);font-weight:700;">Yes &mdash; lower queues may starve</td><td style="color:var(--green);font-weight:700;">No &mdash; aging prevents starvation</td></tr>
+        <tr><td>Flexibility</td><td>Low &mdash; strict classification</td><td>High &mdash; adapts over time</td></tr>
+        <tr><td>High priority handling</td><td>Always runs first, no feedback</td><td>System processes run normally, no promotion needed</td></tr>
+        <tr><td>Complexity</td><td>Simpler</td><td>More complex (tracks queue level)</td></tr>
+        <tr><td>Real OS use</td><td>Less common (strict)</td><td>Windows, Linux schedulers use MLFQ-like systems</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">MLFQ is the evolution of MLQ that solves starvation while keeping process type separation.</div>
+</div>
+
+<div class="info-box gold">&#11088; <b>Exam Point:</b> MLFQ is used in real OS like Windows and Unix. The key idea is <b>aging</b> (promoting waiting processes). MLQ typically has no numerical questions &mdash; questions are theory-based. MLFQ may have a worked-example type question like the P1(BT=19) example above.</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--teal2);"><div class="rev-num">2.9</div> CPU+IO Burst Scheduling Answers</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">P1 (Pri=2, AT=0)</span><span class="v">CPU1=1, IO1=5, CPU2=3. CT = <b>10</b></span></div>
+      <div class="rv"><span class="k">P2 (Pri=3, AT=2)</span><span class="v">CPU1=3, IO1=3, CPU2=1. CT = <b>15</b></span></div>
+      <div class="rv"><span class="k">P3 (Pri=1, AT=3) &#9733;</span><span class="v">CPU1=2, IO1=3, CPU2=1. CT = <b>9</b> (earliest)</span></div>
+      <div class="rv"><span class="k">P4 (Pri=4, AT=3)</span><span class="v">CPU1=2, IO1=4, CPU2=1. CT = <b>18</b> (latest)</span></div>
+      <div class="rv"><span class="k">CPU Idle periods</span><span class="v">t=1&rarr;2 (1u) + t=13&rarr;14 (1u) + t=15&rarr;17 (2u) = <b>4 units total</b></span></div>
+      <div class="rv"><span class="k">CPU Utilisation</span><span class="v">14/18 = 77.78% busy &bull; 4/18 = 22.22% idle</span></div>
+      <div class="rv"><span class="k">&#9733; Key Rule</span><span class="v">IO runs independently (parallel). CPU idles ONLY when all processes are simultaneously doing IO.</span></div>
+      <div class="rv"><span class="k">&#9733; CT Location</span><span class="v">Rightmost LAST CPU block for each process. Never after IO burst.</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--blue);"><div class="rev-num">2.10</div> Multi-Level Queue (MLQ)</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Core idea</span><span class="v">Multiple queues, one per process type. Each has its own scheduling algorithm.</span></div>
+      <div class="rv"><span class="k">Queue types</span><span class="v">System Processes (RR) &rarr; Interactive (SJF) &rarr; Batch/Background (FCFS)</span></div>
+      <div class="rv"><span class="k">Priority</span><span class="v">Strictly top-down. Lower queues only run when ALL higher queues are empty.</span></div>
+      <div class="rv"><span class="k">Movement</span><span class="v">None &mdash; processes stay in their assigned queue permanently.</span></div>
+      <div class="rv"><span class="k">&#9733; Starvation</span><span class="v"><b style="color:var(--red);">YES</b> &mdash; if system processes keep coming, batch processes may never run.</span></div>
+      <div class="rv"><span class="k">&#9733; Exam Note</span><span class="v">MLQ questions are purely theory. No numerical problems typically exist.</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--orange);"><div class="rev-num">2.11</div> Multi-Level Feedback Queue (MLFQ)</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Solves</span><span class="v">Starvation problem of MLQ via Aging (promotion)</span></div>
+      <div class="rv"><span class="k">Aging / Promotion</span><span class="v">Low-priority process moves to higher queue after waiting. Gets CPU sooner.</span></div>
+      <div class="rv"><span class="k">TQ pattern</span><span class="v">RQ1 TQ=2, RQ2 TQ=4, RQ3 TQ=8, RQ4 FCFS (doubles at each level)</span></div>
+      <div class="rv"><span class="k">Example (BT=19)</span><span class="v">RQ1: 2u done, 17 left &rarr; RQ2: 4u done, 13 left &rarr; RQ3: 8u done, 5 left &rarr; RQ4: 5u (FCFS done)</span></div>
+      <div class="rv"><span class="k">&#9733; Starvation</span><span class="v"><b style="color:var(--green);">NO</b> &mdash; aging guarantees every process eventually gets promoted and executed.</span></div>
+      <div class="rv"><span class="k">&#9733; High priority</span><span class="v">System processes run normally; feedback/promotion only applies to lower-priority queues.</span></div>
+      <div class="rv"><span class="k">Real OS use</span><span class="v">Windows, Unix, Linux all use MLFQ-inspired scheduling internally.</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 2.9-2.11)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+</div><!-- end main -->
+
+<script>
+function switchView(name, e) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('view-' + name);
+  if (el) el.classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
+  if (name === 'quiz' && !quizStarted) { quizStarted = true; renderQuestion(); }
+}
+
+var questions = [
+  {q: "In CPU+IO Burst scheduling, when does CPU go IDLE?",
+   options: ["When any one process starts IO", "When the running process has higher IO time than CPU time", "When ALL ready processes are simultaneously doing IO", "When priority queue is empty"],
+   answer: 2,
+   explanation: "CPU goes IDLE only when every process in the system is currently doing IO. Since IO runs independently on separate IO devices, CPU and IO can run in parallel. The CPU only sits idle when there is literally no process ready to run."},
+  {q: "In the CPU+IO solved numerical: P1(AT=0,Pri=2,CPU1=1,IO=5,CPU2=3), when does P1 complete CPU1 and go to IO?",
+   options: ["t=0", "t=1", "t=3", "t=6"],
+   answer: 1,
+   explanation: "P1 is the only process at t=0, so it immediately gets CPU. CPU1=1 unit. P1 runs t=0 to t=1. At t=1, CPU1 is done and P1 starts IO (IO=5). IO runs from t=1 to t=6."},
+  {q: "At t=3 in the numerical, P3(Pri=1) and P4(Pri=4) both arrive. P2(Pri=3,rem=2) is running. What happens?",
+   options: ["P2 continues (already running)", "P3 preempts P2 (Pri=1 is highest, lower number=higher priority)", "P4 preempts P2 (arrived last)", "CPU IDLE since multiple processes arrived"],
+   answer: 1,
+   explanation: "Lower priority number = Higher priority. P3 has priority 1 (highest of all). P2 has priority 3. Since P3 > P2 in priority, P3 immediately preempts P2. P2 goes back to ready queue with CPU1 remaining=2."},
+  {q: "In CPU+IO scheduling, what is the Completion Time of P3 (Pri=1,CPU2=1)?",
+   options: ["5", "8", "9", "10"],
+   answer: 2,
+   explanation: "P3 finishes CPU1 at t=5 and starts IO (IO=3, t=5 to t=8). At t=8, P3 IO completes and P3 re-enters ready queue with CPU2=1. P3 has highest priority (Pri=1), preempts P1 (Pri=2). P3 runs t=8 to t=9. CT(P3) = 9."},
+  {q: "At t=6, P1 IO completes (IO=5, started at t=1). P2 (Pri=3, CPU1 rem=1) is running. What happens?",
+   options: ["P2 continues (it was already running)", "P1 (Pri=2) preempts P2 (Pri=3) since P1 has higher priority", "P1 waits since P2 started first", "CPU splits time between P1 and P2"],
+   answer: 1,
+   explanation: "When P1 IO completes at t=6, P1 enters the ready queue with CPU2=3 and priority=2. P2 is running with priority=3. Since 2 < 3 (lower number = higher priority), P1 has higher priority than P2. P1 preempts P2. P1 runs from t=6."},
+  {q: "What is the CPU idle ratio for the CPU+IO numerical (total time = 18 units)?",
+   options: ["1/18", "2/18", "4/18", "6/18"],
+   answer: 2,
+   explanation: "Idle periods: t=1 to 2 (1 unit), t=13 to 14 (1 unit), t=15 to 17 (2 units). Total idle = 4 units. Total time = 18. CPU idle ratio = 4/18. CPU utilisation = 14/18 = 77.78%."},
+  {q: "What is the PRIMARY advantage of Multi-Level Queue (MLQ) scheduling?",
+   options: ["It eliminates starvation completely", "It classifies processes by type, giving each type its own queue and algorithm", "It uses aging to promote low-priority processes", "It uses a single queue for all processes"],
+   answer: 1,
+   explanation: "MLQ's key advantage is process classification. System, interactive, and batch processes each get their own queue with an appropriate algorithm (e.g., RR for system, SJF for interactive, FCFS for batch). This matches real-world process priorities."},
+  {q: "What is the main PROBLEM with Multi-Level Queue (MLQ)?",
+   options: ["Too many queues use too much memory", "Low-priority queue processes may STARVE if high-priority queues always have work", "System processes cannot use Round Robin", "Batch processes cannot be preempted"],
+   answer: 1,
+   explanation: "Starvation: if System Process queue always has new processes arriving, Interactive and Batch queues never get CPU turn. Lower-priority processes can wait indefinitely. This is the key weakness of MLQ that MLFQ was designed to solve."},
+  {q: "How does Multi-Level Feedback Queue (MLFQ) solve starvation?",
+   options: ["By using Round Robin for all queues", "By using Aging: promoting waiting processes to higher priority queues over time", "By reducing the time quantum of higher queues", "By preventing new system processes from entering"],
+   answer: 1,
+   explanation: "MLFQ uses Aging (feedback mechanism): a process waiting too long in a low-priority queue gets promoted to a higher-priority queue. This guarantees that every process will eventually reach a high-priority queue and get CPU time."},
+  {q: "In the MLFQ example (P1, BT=19, TQs: RQ1=2, RQ2=4, RQ3=8, RQ4=FCFS), how much CPU does P1 use in RQ3?",
+   options: ["2 units", "4 units", "8 units", "5 units"],
+   answer: 2,
+   explanation: "P1 enters RQ1, runs 2 units (rem=17), promoted to RQ2, runs 4 units (rem=13), promoted to RQ3. In RQ3, TQ=8. P1 has 13 units remaining and TQ=8, so it runs for 8 units (rem=5), then promoted to RQ4."},
+  {q: "In MLFQ, which processes typically do NOT need the feedback/promotion mechanism?",
+   options: ["Batch processes (lowest priority)", "Interactive processes (medium priority)", "System processes (highest priority)", "All processes need feedback equally"],
+   answer: 2,
+   explanation: "High priority processes like system processes (OS interrupts, kernel tasks) have the highest priority queue and will always get CPU quickly. Feedback promotion is specifically designed for lower-priority processes (like batch jobs) that would otherwise starve."},
+  {q: "STAR POINT: In the CPU+IO numerical, why does CT represent the LAST CPU burst end time, NOT the last IO end time?",
+   options: ["Because IO time is not counted in scheduling", "Because CT = when the process fully leaves the CPU. After the last CPU burst, the process is DONE", "Because IO always ends before CPU", "Because priority decides CT, not IO"],
+   answer: 1,
+   explanation: "Completion Time (CT) = the moment when the process finishes all its work and leaves the system. For CPU+IO processes, the LAST action before termination is the final CPU burst. The process is considered complete when it finishes that final CPU burst, not when it was doing IO in the middle of execution."}
+];
+var current = 0, score = 0, answered = false, quizStarted = false;
+
+function renderQuestion() {
+  var c = document.getElementById('quiz-container');
+  if (!c) return;
+  if (current >= questions.length) { renderResults(); return; }
+  document.getElementById('q-progress-fill').style.width = (current / questions.length * 100).toFixed(0) + '%';
+  document.getElementById('q-progress-label').textContent = 'Question ' + (current + 1) + ' of ' + questions.length + ' (Topics 2.9-2.11)';
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+  var q = questions[current]; answered = false;
+  var opts = q.options.map(function(opt, i) {
+    return '<div class="quiz-option" id="opt-' + i + '" onclick="selectOption(' + i + ')"><div class="quiz-option-marker">' + String.fromCharCode(65 + i) + '</div>' + opt + '</div>';
+  }).join('');
+  c.innerHTML = '<div class="quiz-card"><div class="quiz-title-tag">Question ' + (current+1) + ' of ' + questions.length + '</div><h3>' + q.q + '</h3><div class="quiz-options">' + opts + '</div><div id="explanation-box"></div><div class="quiz-controls"><button class="quiz-btn secondary" onclick="skipQuestion()">Skip</button><button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next</button></div></div>';
+}
+function selectOption(i) {
+  if (answered) return; answered = true;
+  var q = questions[current];
+  document.querySelectorAll('.quiz-option').forEach(function(el, idx) {
+    if (idx === q.answer) el.classList.add('correct');
+    else if (idx === i && i !== q.answer) el.classList.add('incorrect');
+  });
+  if (i === q.answer) score++;
+  document.getElementById('explanation-box').innerHTML = '<div class="quiz-explanation"><div class="quiz-explanation-title">Explanation</div><div class="quiz-explanation-text">' + q.explanation + '</div></div>';
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+}
+function nextQuestion() { current++; renderQuestion(); }
+function skipQuestion() { current++; renderQuestion(); }
+function renderResults() {
+  var pct = Math.round(score / questions.length * 100);
+  var bc, bt, fb;
+  if (pct === 100) { bc='master'; bt='MASTER'; fb='Perfect! You mastered CPU+IO scheduling, MLQ, and MLFQ. Well prepared for GATE and UGC NET!'; }
+  else if (pct >= 80) { bc='excellent'; bt='EXCELLENT'; fb='Great work! Review any missed questions on idle periods and MLFQ promotion logic.'; }
+  else if (pct >= 60) { bc='good'; bt='GOOD'; fb='Good progress. Re-trace the CPU+IO timeline carefully for idle period counting.'; }
+  else { bc='review'; bt='REVIEW'; fb='Go back to Descriptive tab. Trace the CPU and IO timelines step by step, then retry.'; }
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Quiz Complete!';
+  document.getElementById('q-score-label').textContent = 'Final Score: ' + score + '/' + questions.length;
+  document.getElementById('quiz-container').innerHTML = '<div class="results-score-box"><div class="results-score-circle"><div class="results-score-num">' + score + '</div><div class="results-score-total">/ ' + questions.length + '</div></div><span class="results-badge ' + bc + '">' + bt + '</span><p class="results-feedback">' + fb + '</p></div><div style="text-align:center;margin-top:8px;"><button class="quiz-btn primary" onclick="restartQuiz()">Restart Quiz</button></div>';
+}
+function restartQuiz() { current = 0; score = 0; answered = false; renderQuestion(); }
+
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

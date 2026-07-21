@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Process Synchronization &amp; Producer-Consumer — Topic 3.1-3.2 | OS Notes</title>
+<meta name="description" content="CPU Scheduling: Preemptive vs Non-Preemptive algorithms, scheduling categories (FCFS, SJF, SRTF, RR, Priority), and all scheduling times — Arrival, Burst, Completion, Turnaround, Waiting, Response for GATE &amp; UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:660px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  /* ── INFO BOXES ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.indigo { background:var(--indigol); border-color:var(--indigo);color:var(--dkgray); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── PREEMPTIVE / NON-PREEMPTIVE SPLIT ── */
+  .pnp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .pnp-card { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .pnp-head { padding:12px 18px; font-weight:700; font-size:14px; color:#fff; display:flex; align-items:center; gap:10px; }
+  .pnp-body { padding:14px 18px; font-size:13.5px; line-height:1.65; }
+  .pnp-algo-list { list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .pnp-algo-list li { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .algo-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── READY QUEUE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:120px; }
+  .flow-box h4 { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; }
+  .fa-line { width:36px; height:2px; }
+  .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+  .fa-tip-l { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right-width:8px; border-right-style:solid; }
+
+  /* ── TIMELINE DIAGRAM ── */
+  .timeline-wrap { padding:24px 20px; }
+  .tl-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+  .tl-label { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:80px; padding-top:12px; }
+  .tl-bar-area { flex:1; position:relative; }
+  .tl-bar { height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; position:relative; transition:all .3s; }
+  .tl-bar:hover { filter:brightness(1.1); }
+  .tl-tick-row { display:flex; margin-top:6px; }
+  .tl-tick { flex:1; text-align:left; font-family:'Space Mono',monospace; font-size:10px; color:var(--mdgray); font-weight:600; }
+
+  /* ── TIME CARDS ── */
+  .time-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:16px 0; }
+  .time-card { background:#fff; border-radius:12px; border:2px solid; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07); }
+  .time-card-head { padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .time-card-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .time-card-title { font-weight:700; font-size:14px; }
+  .time-card-subtitle { font-size:11px; font-weight:500; opacity:.7; }
+  .time-card-body { padding:12px 16px 14px; font-size:13px; line-height:1.65; }
+  .formula-chip { display:inline-block; background:#f8fafc; border:1.5px solid; border-radius:6px; padding:4px 12px; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; margin:6px 0 8px; }
+
+  /* ── BANK ANALOGY ── */
+  .analogy-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .analogy-cell { background:#fff; border-radius:10px; padding:14px 16px; border:1.5px solid; font-size:13px; line-height:1.65; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .analogy-cell .ah { font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+
+  /* ── FORMULA TABLE ── */
+  .formula-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .formula-table th { padding:10px 14px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .formula-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:middle; line-height:1.6; }
+  .formula-table tr:last-child td { border-bottom:none; }
+  .formula-table td:first-child { font-weight:700; color:var(--teal); font-size:13px; }
+  .formula-table td:nth-child(2) { background:#f8fafc; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy); font-weight:700; }
+  .formula-table td:nth-child(3) { color:var(--dkgray); }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+  .orange-text { color:var(--orange); font-weight:700; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#fce4ec22; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+
+  /* ── CRITERIA PILLS ── */
+  .criteria-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .crit-pill { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .crit-icon { font-size:18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:220px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+  .rev-kv code { background:#f1f5f9; border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:11.5px; color:var(--navy); }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .pnp-grid,.analogy-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+
+  /* ===== INJECTED COMPONENT STYLES (FCFS/SJF/SRTF pages) ===== */
+  :root { --indigo:#283593; --p1c:#1565C0; --p2c:#2E7D32; --p3c:#6A1B9A; --p4c:#C62828; }
+  .algo-card{border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 3px 14px rgba(0,0,0,.07);}
+  .algo-card-head{padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .algo-card-body{padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;}
+  .algo-pill{background:#fff;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;flex:1;min-width:150px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .pill-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;}
+  .step-wrap{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .step-box{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .step-text{font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+  .step-text b{color:var(--navy);}
+  .step-text code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--teal);}
+  .gantt-wrap{padding:20px 20px 8px;overflow-x:auto;}
+  .gantt-row{display:flex;align-items:stretch;min-width:max-content;}
+  .gantt-cell{height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:#fff;border-right:2px solid rgba(255,255,255,.3);flex-shrink:0;}
+  .gantt-cell:last-child{border-right:none;}
+  .gantt-cell.idle{background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 5px,#f8fafc 5px,#f8fafc 10px);color:#757575;font-size:11px;}
+  .gantt-tick-row{display:flex;min-width:max-content;margin-top:2px;padding-bottom:4px;}
+  .gantt-tick{font-family:'Space Mono',monospace;font-size:10px;color:#757575;font-weight:700;flex-shrink:0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sub-sec{width:32px;height:32px;font-size:13px;}
+  .sec-head h2{font-size:20px;font-weight:700;margin:0;}
+  .sec-head h2.sub{font-size:17px;}
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.blue{background:#E3F2FD;border-color:#1565C0;color:#0D1B4B;}
+  .info-box.orange{background:#FFF3E0;border-color:#E65100;color:#424242;}
+  .info-box.green{background:#E8F5E9;border-color:#2E7D32;color:#424242;}
+  .info-box.gold{background:#fff8e1;border-color:#F9A825;color:#5d4037;}
+  .diagram{background:#fff;border:1px solid #b2dfdb;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:#006064;color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:#757575;font-style:italic;padding:8px 16px;background:#f9fdfd;border-top:1px solid #e0f7fa;}
+  .proc-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .proc-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .proc-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;text-align:center;font-weight:500;}
+  .proc-table tr:last-child td{border-bottom:none;}
+  .proc-table td.label{font-weight:700;color:#0D1B4B;text-align:left;}
+  .proc-table tfoot td{font-weight:700;background:#f0fafa;}
+  .tie-box{background:#fff8e1;border:2px dashed #F9A825;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px;line-height:1.7;}
+  .tie-title{font-weight:700;color:#b7791f;font-size:14px;margin-bottom:6px;}
+  .rq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .rq-lbl{font-size:11px;font-weight:700;color:#757575;text-transform:uppercase;}
+  .rq-p{border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-arr{color:#757575;font-size:18px;}
+  .rq-cpu{background:#00838f;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-idle{background:#e2e8f0;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#757575;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #b2dfdb;}
+  .rev-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-body{padding:16px 20px;}
+  .rv{display:flex;gap:8px;margin-bottom:9px;font-size:13px;align-items:flex-start;}
+  .rv .k{font-weight:700;color:#006064;min-width:210px;flex-shrink:0;}
+  .rv .v{color:#424242;line-height:1.55;}
+  .rv code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:#0D1B4B;}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cmp-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .cmp-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;vertical-align:top;line-height:1.6;}
+  .cmp-table tr:last-child td{border-bottom:none;}
+  .cmp-table td:first-child{font-weight:700;color:#0D1B4B;background:#f8fafc;}
+  .g{color:#2E7D32;font-weight:700;} .r{color:#C62828;font-weight:700;}
+  @media(max-width:640px){.algo-card-body{flex-direction:column;}.rv .k{min-width:120px;}}
+
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 3.1/3.2</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>Process Sync &amp; Producer-Consumer</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 3.1-3.2: Process Sync &amp; Producer-Consumer</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 3.1-3.2 • PROCESS SYNCHRONIZATION</div>
+    <h1>Process Synchronization &mdash; <span>Race Condition &amp; Producer-Consumer</span></h1>
+    <p class="hero-sub">Why cooperative processes need synchronization &mdash; Race Condition explained with P1/P2 example. Producer-Consumer Problem with buffer, count variable, and micro-instruction race condition. Full step-by-step execution trace showing how wrong values arise.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐⭐</span><span class="badge">UGC NET ⭐⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Heavy Numericals</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESCRIPTIVE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+<!-- ═══════════════════ 3.1 PROCESS SYNCHRONIZATION ═══════════════════ -->
+<div class="sec-head">
+  <div class="sec-num" style="background:var(--teal2);color:#fff;">3.1</div>
+  <h2>Process Synchronization &mdash; Why It Is Needed</h2>
+</div>
+
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--teal2);">&#9654; Two Modes of Process Execution</div>
+  <div class="algo-card-body" style="background:#e0f7fa;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px;">
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;border-left:5px solid var(--green);">
+        <div style="font-weight:700;color:var(--green);margin-bottom:6px;">&#128274; Serial Mode (Sequential)</div>
+        <div style="font-size:13px;line-height:1.7;">Processes execute one by one.<br>P2 cannot start until P1 finishes.<br>&#128200; Like an ATM &mdash; only one customer at a time.<br><b style="color:var(--green);">No synchronization needed.</b></div>
+      </div>
+      <div style="background:#ffebee;border-radius:10px;padding:14px;border-left:5px solid var(--red);">
+        <div style="font-weight:700;color:var(--red);margin-bottom:6px;">&#9889; Parallel Mode (Concurrent)</div>
+        <div style="font-size:13px;line-height:1.7;">Many processes run simultaneously.<br>Time-sharing / multiprogrammed systems.<br>&#128200; Like IRCTC &mdash; thousands at once.<br><b style="color:var(--red);">Synchronization is critical!</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.1-A &mdash; Process Classification</div>
+  <div style="padding:20px;">
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:660px;margin:0 auto;">
+      <div style="background:linear-gradient(135deg,#1565C0,#0d47a1);border-radius:12px;padding:16px 20px;color:#fff;text-align:center;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">All Processes in a Parallel System</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="background:#fff3e0;border-radius:10px;padding:14px;border:2px solid var(--orange);">
+          <div style="font-weight:700;color:var(--orange);font-size:14px;margin-bottom:8px;">&#128101; Independent Processes</div>
+          <div style="font-size:13px;line-height:1.7;color:#555;">Nothing shared between them.<br>Execution of one does NOT affect other.<br><br><b>Example:</b> Transacting on SBI server + transacting on HDFC server simultaneously &mdash; two completely separate servers.</div>
+          <div style="margin-top:8px;background:#e8f5e9;border-radius:6px;padding:8px;font-size:12px;color:var(--green);font-weight:700;">&#9989; No synchronization needed</div>
+        </div>
+        <div style="background:#fce4ec;border-radius:10px;padding:14px;border:2px solid var(--red);">
+          <div style="font-weight:700;color:var(--red);font-size:14px;margin-bottom:8px;">&#129309; Cooperative Processes</div>
+          <div style="font-size:13px;line-height:1.7;color:#555;">Share something common.<br>Execution of one CAN affect other.<br><br><b>Example:</b> IRCTC booking &mdash; thousands sharing the same ticket DB simultaneously.</div>
+          <div style="margin-top:8px;background:#ffebee;border-radius:6px;padding:8px;font-size:12px;color:var(--red);font-weight:700;">&#9888; Synchronization REQUIRED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">Only Cooperative processes need synchronization. Independent processes run in total isolation.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.1-B &mdash; What Can Cooperative Processes Share?</div>
+  <div style="padding:16px 20px;">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:600px;margin:0 auto;">
+      <div style="background:#e3f2fd;border-radius:10px;padding:14px;text-align:center;border-top:4px solid #1565C0;">
+        <div style="font-size:28px;">&#128203;</div>
+        <div style="font-weight:700;color:#1565C0;margin:6px 0 4px;">Variable</div>
+        <div style="font-size:12.5px;color:#555;">A global/shared variable that both processes can read and write</div>
+      </div>
+      <div style="background:#f3e5f5;border-radius:10px;padding:14px;text-align:center;border-top:4px solid var(--purple);">
+        <div style="font-size:28px;">&#128190;</div>
+        <div style="font-weight:700;color:var(--purple);margin:6px 0 4px;">Memory / Buffer</div>
+        <div style="font-size:12.5px;color:#555;">A shared region in RAM that both processes access</div>
+      </div>
+      <div style="background:#e8f5e9;border-radius:10px;padding:14px;text-align:center;border-top:4px solid var(--green);">
+        <div style="font-size:28px;">&#128196;</div>
+        <div style="font-weight:700;color:var(--green);margin:6px 0 4px;">Code</div>
+        <div style="font-size:12.5px;color:#555;">Common code sections (like shared library functions) used by both</div>
+      </div>
+      <div style="background:#fff3e0;border-radius:10px;padding:14px;text-align:center;border-top:4px solid var(--orange);">
+        <div style="font-size:28px;">&#128247;</div>
+        <div style="font-weight:700;color:var(--orange);margin:6px 0 4px;">Resources</div>
+        <div style="font-size:12.5px;color:#555;">Hardware: CPU, Printer, Scanner, Disk &mdash; shared hardware devices</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">If any one of these is shared, the processes are Cooperative and must be synchronized.</div>
+</div>
+
+<!-- Race Condition Example -->
+<div class="sec-head" style="margin-top:40px;">
+  <div class="sec-num" style="background:var(--red);color:#fff;">RC</div>
+  <h2>Race Condition &mdash; Solved Example (P1 &amp; P2)</h2>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.1-C &mdash; Code for P1 and P2 (Shared Variable = 5)</div>
+  <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:#1a237e;border-radius:10px;padding:16px;font-family:monospace;color:#fff;">
+      <div style="color:#80CBC4;font-weight:700;margin-bottom:10px;">// Process P1</div>
+      <div style="color:#A5D6A7;margin-bottom:2px;">int shared = 5; <span style="color:#78909C;">// GLOBAL</span></div>
+      <div style="color:#FFD54F;margin:8px 0 2px;">// Local variable</div>
+      <div style="color:#e0e0e0;margin-bottom:2px;">int X;</div>
+      <div style="margin-top:8px;border-left:3px solid #80CBC4;padding-left:10px;">
+        <div style="color:#80CBC4;">// Instructions</div>
+        <div style="color:#FFD54F;">I1: X = shared;  <span style="color:#78909C;">// X=5</span></div>
+        <div style="color:#FFD54F;">I2: X++;          <span style="color:#78909C;">// X=6</span></div>
+        <div style="color:#ef9a9a;">I3: sleep(1);     <span style="color:#78909C;">// PAUSE/PREEMPT</span></div>
+        <div style="color:#FFD54F;">I4: shared = X;   <span style="color:#78909C;">// shared=6?</span></div>
+      </div>
+    </div>
+    <div style="background:#1a237e;border-radius:10px;padding:16px;font-family:monospace;color:#fff;">
+      <div style="color:#f48fb1;font-weight:700;margin-bottom:10px;">// Process P2</div>
+      <div style="color:#A5D6A7;margin-bottom:2px;">int shared = 5; <span style="color:#78909C;">// GLOBAL (same)</span></div>
+      <div style="color:#FFD54F;margin:8px 0 2px;">// Local variable</div>
+      <div style="color:#e0e0e0;margin-bottom:2px;">int Y;</div>
+      <div style="margin-top:8px;border-left:3px solid #f48fb1;padding-left:10px;">
+        <div style="color:#f48fb1;">// Instructions</div>
+        <div style="color:#FFD54F;">I1: Y = shared;  <span style="color:#78909C;">// Y=5</span></div>
+        <div style="color:#FFD54F;">I2: Y--;          <span style="color:#78909C;">// Y=4</span></div>
+        <div style="color:#ef9a9a;">I3: sleep(1);     <span style="color:#78909C;">// PAUSE/PREEMPT</span></div>
+        <div style="color:#FFD54F;">I4: shared = Y;   <span style="color:#78909C;">// shared=4?</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 20px 16px;">
+    <div style="background:#fff3e0;border-radius:8px;padding:12px 16px;border-left:4px solid var(--orange);">
+      <b style="color:var(--orange);">&#128221; Key:</b> <code>shared</code> is the <b>common/global variable</b> (initialized to 5). X and Y are <b>local</b> to each process. sleep(1) simulates preemption. Expected answer: 5+1&minus;1 = <b>5</b>. But race condition gives wrong answers!
+    </div>
+  </div>
+  <div class="diagram-caption">Both processes share the same variable "shared". Without synchronization, the final value is unpredictable.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.1-D &mdash; Execution Trace: If P1 Starts First (Answer = 4, WRONG)</div>
+  <div style="padding:16px 20px;">
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P1 &rarr; I1</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;"><code>X = shared</code> &rarr; X = <b>5</b> (shared was 5). Local X gets value 5.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P1 &rarr; I2</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;"><code>X++</code> &rarr; X = <b>6</b>. Local X is now 6. shared is still 5 (not updated yet).</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#ef9a9a;color:#b71c1c;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P1 &rarr; I3</div>
+        <div style="background:#ffebee;border-radius:6px;padding:8px 12px;font-size:13px;"><code>sleep(1)</code> &rarr; <b>P1 is PREEMPTED!</b> CPU saves P1 state in PCB (X=6, at I4 next). CPU switches to P2.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P2 &rarr; I1</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;"><code>Y = shared</code> &rarr; Y = <b>5</b>. shared is still 5 (P1 never wrote back). Local Y gets 5.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P2 &rarr; I2</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;"><code>Y--</code> &rarr; Y = <b>4</b>. Local Y is now 4.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#ef9a9a;color:#b71c1c;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P2 &rarr; I3</div>
+        <div style="background:#ffebee;border-radius:6px;padding:8px 12px;font-size:13px;"><code>sleep(1)</code> &rarr; <b>P2 is PREEMPTED!</b> CPU saves P2 state in PCB (Y=4, at I4 next). P1's 1s sleep is done &rarr; CPU resumes P1.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P1 &rarr; I4</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;"><code>shared = X</code> &rarr; shared = <b>6</b>. P1 loads X=6 from its PCB and writes to shared. P1 terminates.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:13px;">P2 &rarr; I4</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;"><code>shared = Y</code> &rarr; shared = <b>4</b>. P2 loads Y=4 from its PCB and overwrites shared. P2 terminates.</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#ffebee;border-radius:8px;padding:12px;border-left:4px solid var(--red);text-align:center;">
+        <div style="font-size:13px;color:#757575;">Final value of shared</div>
+        <div style="font-size:28px;font-weight:900;color:var(--red);">4</div>
+        <div style="font-size:12px;color:var(--red);">&#10008; WRONG! (Expected: 5)</div>
+      </div>
+      <div style="background:#e8f5e9;border-radius:8px;padding:12px;border-left:4px solid var(--green);text-align:center;">
+        <div style="font-size:13px;color:#757575;">If P2 starts first instead</div>
+        <div style="font-size:28px;font-weight:900;color:var(--orange);">6</div>
+        <div style="font-size:12px;color:var(--orange);">&#10008; Also WRONG! (Expected: 5)</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">Both execution orders give wrong results. The expected answer (5+1-1=5) is never achieved without synchronization.</div>
+</div>
+
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--red);">&#9889; What is Race Condition?</div>
+  <div class="algo-card-body" style="background:#ffebee;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--red);">Definition</span>When multiple processes access &amp; modify a shared resource concurrently, and the final result depends on the ORDER of execution</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--red);">In this example</span>4 and 6 are "racing" &mdash; whichever process writes last wins, but both answers are wrong</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--red);">Root Cause</span>Processes are cooperative (shared variable) but NOT synchronized</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--red);">Solutions</span>Semaphores, Peterson's Solution, Mutex Locks, Monitors (covered in next topics)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ 3.2 PRODUCER-CONSUMER ═══════════════════ -->
+<div class="sec-head" style="margin-top:52px;">
+  <div class="sec-num" style="background:var(--blue);color:#fff;">3.2</div>
+  <h2>Producer-Consumer Problem</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--blue);">&#128682; Producer-Consumer &mdash; Setup</div>
+  <div class="algo-card-body" style="background:#e3f2fd;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Two Processes</span>Producer (creates items) and Consumer (uses items) running <b>in parallel</b> (cooperative)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Shared: Buffer</span>A fixed-size circular buffer of n=8 slots (indices 0 to 7) shared by both</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Shared: count</span>Global variable tracking how many items are currently in buffer. Starts at 0.</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">in pointer</span>Producer's pointer &mdash; shows NEXT EMPTY slot where producer will place item</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">out pointer</span>Consumer's pointer &mdash; shows NEXT ITEM to consume from buffer</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--blue);">Circular buffer</span>Uses mod n: when in/out reaches n-1, next position wraps back to 0</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.2-A &mdash; Producer and Consumer Code</div>
+  <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:#0d2137;border-radius:10px;padding:16px;font-family:monospace;color:#fff;font-size:12px;line-height:1.8;">
+      <div style="color:#80CBC4;font-weight:700;margin-bottom:8px;">// PRODUCER</div>
+      <div style="color:#A5D6A7;">int count = 0; <span style="color:#546e7a;">// global, shared</span></div>
+      <div style="color:#A5D6A7;">buffer[n];     <span style="color:#546e7a;">// shared, n=8</span></div>
+      <div style="margin-top:8px;color:#e0e0e0;">void producer(void) {</div>
+      <div style="padding-left:16px;color:#e0e0e0;">int item_p;</div>
+      <div style="padding-left:16px;color:#e0e0e0;">while (true) {</div>
+      <div style="padding-left:32px;color:#FFD54F;">produce_item(item_p);</div>
+      <div style="padding-left:32px;color:#ef9a9a;">while(count==n) ;</div>
+      <div style="padding-left:32px;color:#546e7a;">// buffer full, wait</div>
+      <div style="padding-left:32px;color:#80CBC4;">buffer[in] = item_p;</div>
+      <div style="padding-left:32px;color:#80CBC4;">in = (in+1) % n;</div>
+      <div style="padding-left:32px;color:#f48fb1;font-weight:700;">count = count + 1;</div>
+      <div style="padding-left:16px;color:#e0e0e0;">}</div>
+      <div style="color:#e0e0e0;">}</div>
+    </div>
+    <div style="background:#0d2137;border-radius:10px;padding:16px;font-family:monospace;color:#fff;font-size:12px;line-height:1.8;">
+      <div style="color:#f48fb1;font-weight:700;margin-bottom:8px;">// CONSUMER</div>
+      <div style="color:#A5D6A7;">int count = 0; <span style="color:#546e7a;">// same global</span></div>
+      <div style="color:#A5D6A7;">buffer[n];     <span style="color:#546e7a;">// same buffer</span></div>
+      <div style="margin-top:8px;color:#e0e0e0;">void consumer(void) {</div>
+      <div style="padding-left:16px;color:#e0e0e0;">int item_c;</div>
+      <div style="padding-left:16px;color:#e0e0e0;">while (true) {</div>
+      <div style="padding-left:32px;color:#ef9a9a;">while(count==0) ;</div>
+      <div style="padding-left:32px;color:#546e7a;">// buffer empty, wait</div>
+      <div style="padding-left:32px;color:#80CBC4;">item_c = buffer[out];</div>
+      <div style="padding-left:32px;color:#80CBC4;">out = (out+1) % n;</div>
+      <div style="padding-left:32px;color:#FFD54F;font-weight:700;">count = count - 1;</div>
+      <div style="padding-left:16px;color:#e0e0e0;">}</div>
+      <div style="color:#e0e0e0;">}</div>
+    </div>
+  </div>
+  <div style="padding:0 20px 16px;">
+    <div style="background:#fff3e0;border-radius:8px;padding:12px 16px;border-left:4px solid var(--orange);">
+      <b>Producer guard:</b> <code>while(count==n)</code> = Buffer full, wait &bull; <b>Consumer guard:</b> <code>while(count==0)</code> = Buffer empty, wait.<br>The highlighted lines <code>count=count+1</code> and <code>count=count-1</code> are the CRITICAL SECTIONS causing race condition.
+    </div>
+  </div>
+  <div class="diagram-caption">Pink/yellow highlighted lines are where the race condition happens. Both read and write the shared "count" variable.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.2-B &mdash; Shared Buffer (n=8) &amp; Pointer Mechanics</div>
+  <div style="padding:16px 20px;">
+    <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#1565C0;color:#fff;padding:10px 14px;border-radius:6px;font-weight:700;font-family:monospace;min-width:52px;text-align:center;">X1</div>
+        <div style="font-size:11px;color:#757575;">0 (out)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#1565C0;color:#fff;padding:10px 14px;border-radius:6px;font-weight:700;font-family:monospace;min-width:52px;text-align:center;">X2</div>
+        <div style="font-size:11px;color:#757575;">1</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#1565C0;color:#fff;padding:10px 14px;border-radius:6px;font-weight:700;font-family:monospace;min-width:52px;text-align:center;">X3</div>
+        <div style="font-size:11px;color:#757575;">2</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#4caf5044;border:2px dashed #4caf50;color:#2E7D32;padding:10px 14px;border-radius:6px;font-family:monospace;min-width:52px;text-align:center;">__</div>
+        <div style="font-size:11px;color:#2E7D32;font-weight:700;">3 (in)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#f5f5f5;border:2px dashed #bbb;padding:10px 14px;border-radius:6px;font-family:monospace;min-width:52px;text-align:center;color:#bbb;">__</div>
+        <div style="font-size:11px;color:#757575;">4</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#f5f5f5;border:2px dashed #bbb;padding:10px 14px;border-radius:6px;font-family:monospace;min-width:52px;text-align:center;color:#bbb;">__</div>
+        <div style="font-size:11px;color:#757575;">5</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#f5f5f5;border:2px dashed #bbb;padding:10px 14px;border-radius:6px;font-family:monospace;min-width:52px;text-align:center;color:#bbb;">__</div>
+        <div style="font-size:11px;color:#757575;">6</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="background:#f5f5f5;border:2px dashed #bbb;padding:10px 14px;border-radius:6px;font-family:monospace;min-width:52px;text-align:center;color:#bbb;">__</div>
+        <div style="font-size:11px;color:#757575;">7</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:12.5px;">
+      <div style="background:#e3f2fd;border-radius:6px;padding:8px 14px;">&#128309; <b>in = 3</b> &mdash; Next empty slot for producer</div>
+      <div style="background:#e8f5e9;border-radius:6px;padding:8px 14px;">&#128994; <b>out = 0</b> &mdash; Next item for consumer</div>
+      <div style="background:#fff3e0;border-radius:6px;padding:8px 14px;">&#128992; <b>count = 3</b> &mdash; Items currently in buffer</div>
+    </div>
+    <div style="margin-top:12px;background:#f8f9fa;border-radius:8px;padding:10px 14px;font-size:13px;">
+      <b>Circular buffer rule:</b> in = (in+1) mod 8 &rarr; after slot 7, wraps to 0. Same for out. This prevents array overflow.
+    </div>
+  </div>
+  <div class="diagram-caption">Buffer with 3 items (X1, X2, X3). in points to next empty slot (3). out points to next item to consume (0). count=3.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.2-C &mdash; Micro-Instructions: How CPU Executes count = count + 1</div>
+  <div style="padding:16px 20px;">
+    <div style="background:#fafafa;border:2px solid #e0e0e0;border-radius:10px;padding:16px;font-family:monospace;font-size:13px;max-width:500px;margin:0 auto;">
+      <div style="color:#757575;margin-bottom:8px;">// High-level C instruction:</div>
+      <div style="color:#1565C0;font-size:15px;font-weight:700;">count = count + 1;</div>
+      <div style="margin-top:14px;border-top:2px dashed #e0e0e0;padding-top:12px;color:#555;margin-bottom:8px;">// CPU converts to 3 micro-instructions:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;">
+          <span style="color:#1565C0;font-weight:700;">i1:</span> LOAD  Rp, M[count]
+          <div style="font-size:11px;color:#757575;margin-top:2px;">Load count value from memory into register Rp</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:6px;padding:8px 12px;">
+          <span style="color:var(--orange);font-weight:700;">i2:</span> INCR  Rp
+          <div style="font-size:11px;color:#757575;margin-top:2px;">Increment register Rp by 1 (in CPU, not in memory yet)</div>
+        </div>
+        <div style="background:#e8f5e9;border-radius:6px;padding:8px 12px;">
+          <span style="color:var(--green);font-weight:700;">i3:</span> STORE Rp, M[count]
+          <div style="font-size:11px;color:#757575;margin-top:2px;">Write Rp back to memory at count address</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;background:#fafafa;border:2px solid #e0e0e0;border-radius:10px;padding:16px;font-family:monospace;font-size:13px;max-width:500px;margin:12px auto 0;">
+      <div style="color:#757575;margin-bottom:8px;">// Similarly, count = count - 1 becomes:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;">
+          <span style="color:#1565C0;font-weight:700;">i1:</span> LOAD  Rc, M[count]
+        </div>
+        <div style="background:#fff3e0;border-radius:6px;padding:8px 12px;">
+          <span style="color:var(--orange);font-weight:700;">i2:</span> DECR  Rc
+        </div>
+        <div style="background:#e8f5e9;border-radius:6px;padding:8px 12px;">
+          <span style="color:var(--green);font-weight:700;">i3:</span> STORE Rc, M[count]
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;background:#ffebee;border-radius:8px;padding:10px 14px;font-size:13px;border-left:4px solid var(--red);">
+      <b style="color:var(--red);">&#9888; Critical Insight:</b> The update only reaches memory at i3 (STORE). If a process is preempted between i1-i2 or i2-i3, the other process sees the OLD value of count in memory.
+    </div>
+  </div>
+  <div class="diagram-caption">Every simple C statement breaks into multiple CPU micro-instructions. Preemption between i1 and i3 is the source of the race condition.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 3.2-D &mdash; Race Condition Case (Initial State: count=3, 3 items in buffer)</div>
+  <div style="padding:16px 20px;">
+    <div style="background:#fff3e0;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;">
+      <b>Starting state:</b> Buffer has 3 items (X1, X2, X3). count=3. in=3, out=0. Producer wants to add X4. Consumer wants to consume X1.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Producer &rarr; i1</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;">LOAD Rp, M[count] &rarr; <b>Rp = 3</b> (count is 3 in memory). Rp is producer's register.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Producer &rarr; i2</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;">INCR Rp &rarr; <b>Rp = 4</b>. Only the register is updated. M[count] still shows 3!</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#ef9a9a;color:#b71c1c;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">&#9889; PREEMPT</div>
+        <div style="background:#ffebee;border-radius:6px;padding:8px 12px;font-size:13px;"><b>Producer is preempted BEFORE i3!</b> PCB saves Rp=4. M[count] is still 3. CPU switches to Consumer.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Consumer &rarr; i1</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;">LOAD Rc, M[count] &rarr; <b>Rc = 3</b>. Reads count from memory (still 3, Producer never wrote back!).</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Consumer &rarr; i2</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;">DECR Rc &rarr; <b>Rc = 2</b>. Rc is decremented. M[count] still 3.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#ef9a9a;color:#b71c1c;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">&#9889; PREEMPT</div>
+        <div style="background:#ffebee;border-radius:6px;padding:8px 12px;font-size:13px;"><b>Consumer is preempted BEFORE i3!</b> PCB saves Rc=2. CPU resumes Producer (its sleep done).</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#1565C0;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Producer &rarr; i3</div>
+        <div style="background:#e3f2fd;border-radius:6px;padding:8px 12px;font-size:13px;">STORE Rp, M[count] &rarr; M[count] = <b>4</b>. Writes Rp=4 to memory. count is now 4. Producer terminates.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start;">
+        <div style="background:#c2185b;color:#fff;border-radius:6px;padding:6px 10px;text-align:center;font-weight:700;font-size:12px;">Consumer &rarr; i3</div>
+        <div style="background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:13px;">STORE Rc, M[count] &rarr; M[count] = <b>2</b>. Writes Rc=2 to memory. count is now 2. Consumer terminates.</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:#ffebee;border-radius:8px;padding:12px;border-left:4px solid var(--red);">
+        <div style="font-size:13px;color:#757575;">Final count value</div>
+        <div style="font-size:28px;font-weight:900;color:var(--red);">2</div>
+        <div style="font-size:12px;color:var(--red);">&#10008; WRONG! Buffer has 3 items but count says 2</div>
+      </div>
+      <div style="background:#e8f5e9;border-radius:8px;padding:12px;border-left:4px solid var(--green);">
+        <div style="font-size:13px;color:#757575;">Expected count value</div>
+        <div style="font-size:28px;font-weight:900;color:var(--green);">3</div>
+        <div style="font-size:12px;color:var(--green);">3 items + 1 produced &minus; 1 consumed = 3</div>
+      </div>
+    </div>
+  </div>
+  <div class="diagram-caption">Consumer's i3 (STORE Rc=2) executed AFTER Producer's i3 (STORE Rp=4) and OVERWROTE it. Final wrong count = 2.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box"><div class="step-num" style="background:var(--red);">!</div><div class="step-text"><b>Execution Order:</b> Producer(i1) &rarr; Producer(i2) &rarr; [Preempt] &rarr; Consumer(i1) &rarr; Consumer(i2) &rarr; [Preempt] &rarr; Producer(i3) &rarr; Consumer(i3). This specific interleaving causes the race condition.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--red);">!</div><div class="step-text"><b>Why count=2 is wrong:</b> We had 3 items, added X4 (+1=4), removed X1 (-1=3). Expected count=3. But Consumer's STORE ran last and overwrote with Rc=2.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--blue);">&#9654;</div><div class="step-text"><b>Key Insight:</b> Consumer's Rc was loaded when count was 3 (before Producer's i3 updated it to 4). So Consumer decremented 3 to 2 and stored 2, wiping out Producer's update.</div></div>
+  <div class="step-box"><div class="step-num" style="background:var(--green);">&#10003;</div><div class="step-text"><b>Solution:</b> The critical section (count = count &plusmn; 1) must be made atomic &mdash; only one process can access it at a time using Semaphores, Mutex Locks, or Monitors.</div></div>
+</div>
+
+<div class="info-box gold">&#11088; <b>GATE Point:</b> The Producer-Consumer problem is a classic example of a Critical Section Problem. The "critical section" is the code where shared data is accessed and modified. Any examination of count = count+1 or count = count-1 using micro-instructions (LOAD-INCR/DECR-STORE) is a standard GATE/UGC NET question pattern.</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--teal2);"><div class="rev-num">3.1</div> Process Synchronization &mdash; Key Points</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Serial Mode</span><span class="v">One process at a time, no interference. Like ATM queue. No sync needed.</span></div>
+      <div class="rv"><span class="k">Parallel Mode</span><span class="v">Multiple processes simultaneously. Time-sharing systems. Sync required for cooperative processes.</span></div>
+      <div class="rv"><span class="k">Independent Process</span><span class="v">Nothing shared. Execution of one does NOT affect other. No sync needed.</span></div>
+      <div class="rv"><span class="k">Cooperative Process</span><span class="v">Share variable / memory / code / resources. Execution of one CAN affect other. Must synchronize.</span></div>
+      <div class="rv"><span class="k">Race Condition</span><span class="v">Final result depends on execution ORDER. Multiple answers possible, all wrong.</span></div>
+      <div class="rv"><span class="k">P1/P2 Example (shared=5)</span><span class="v">If P1 first: shared = 4 (wrong). If P2 first: shared = 6 (wrong). Expected: 5.</span></div>
+      <div class="rv"><span class="k">&#9733; Root Cause</span><span class="v">sleep(1) causes preemption. P2 reads old value of "shared" before P1 writes back.</span></div>
+      <div class="rv"><span class="k">&#9733; Solutions</span><span class="v">Semaphore, Peterson's Solution, Mutex Locks, Monitors.</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--blue);"><div class="rev-num">3.2</div> Producer-Consumer Problem</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Setup</span><span class="v">Producer + Consumer sharing buffer (n=8) and global count. Both parallel (cooperative).</span></div>
+      <div class="rv"><span class="k">in pointer</span><span class="v">Next empty slot for producer. Updated: in = (in+1) % n.</span></div>
+      <div class="rv"><span class="k">out pointer</span><span class="v">Next item for consumer. Updated: out = (out+1) % n.</span></div>
+      <div class="rv"><span class="k">count</span><span class="v">Items in buffer. Shared by both. count++ by producer, count-- by consumer.</span></div>
+      <div class="rv"><span class="k">Buffer Full guard</span><span class="v">Producer: while(count == n); &mdash; infinite loop if buffer full.</span></div>
+      <div class="rv"><span class="k">Buffer Empty guard</span><span class="v">Consumer: while(count == 0); &mdash; infinite loop if buffer empty.</span></div>
+      <div class="rv"><span class="k">Micro-instructions</span><span class="v">count=count+1 &rarr; LOAD Rp, INCR Rp, STORE Rp. 3 separate machine operations!</span></div>
+      <div class="rv"><span class="k">&#9733; Race Condition Case</span><span class="v">Prod(i1,i2) &rarr; preempt &rarr; Cons(i1,i2) &rarr; preempt &rarr; Prod(i3) &rarr; Cons(i3). Count=2 but buffer has 3.</span></div>
+      <div class="rv"><span class="k">&#9733; Why wrong?</span><span class="v">Consumer loaded count=3 BEFORE producer wrote count=4. Consumer's STORE(Rc=2) overwrites producer's update.</span></div>
+      <div class="rv"><span class="k">&#9733; Critical Section</span><span class="v">The count modification code is the Critical Section. It must be atomic (uninterruptible).</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 3.1-3.2)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+</div><!-- end main -->
+<script>
+function switchView(name, e) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('view-' + name);
+  if (el) el.classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
+  if (name === 'quiz' && !quizStarted) { quizStarted = true; renderQuestion(); }
+}
+
+var questions = [
+  {q: "Which type of processes REQUIRE synchronization?",
+   options: ["Independent processes only", "Cooperative processes only", "Both independent and cooperative", "Processes with high burst time"],
+   answer: 1,
+   explanation: "Only Cooperative processes need synchronization. They share resources (variable, memory, code, hardware). Independent processes run in complete isolation with nothing shared, so they cannot affect each other."},
+  {q: "What is the outcome of the Race Condition in the P1/P2 example (shared=5, P1 does X++, P2 does Y--)?",
+   options: ["Always gives 5 (correct)", "Gives 4 if P1 runs first, 6 if P2 runs first (both wrong)", "Gives 6 if P1 runs first, 4 if P2 runs first (both wrong)", "Randomly gives 4, 5, or 6"],
+   answer: 1,
+   explanation: "If P1 runs first: P1 reads shared=5, P1 increments to X=6, P2 reads shared=5 (still old), P2 decrements to Y=4. P1 writes 6, P2 writes 4. Final=4 (wrong). If P2 goes first, final=6 (also wrong). The expected answer is 5."},
+  {q: "Why does P2 read shared=5 even though P1 already incremented X to 6 in the race condition example?",
+   options: ["P2 runs faster than P1", "P1 was preempted at sleep(1) BEFORE executing shared=X (I4). P1 never wrote back to shared.", "P2 has higher priority", "The shared variable has two copies"],
+   answer: 1,
+   explanation: "The execution order is: P1(I1,I2,I3-sleep) then preemption, then P2 runs. P1's I4 (shared=X) has NOT executed yet when P2 reads shared. So P2 still reads the original value 5. P1 writes 6 later, but P2 has already captured Y=5 and decrements to 4."},
+  {q: "In the Producer-Consumer setup, what does the 'in' pointer represent?",
+   options: ["Index of the last consumed item", "Index of the next EMPTY slot where producer will place the next item", "Total number of items in buffer", "The consumer's current position"],
+   answer: 1,
+   explanation: "The 'in' pointer always points to the NEXT EMPTY slot in the circular buffer. When producer adds an item at buffer[in], it then increments: in = (in+1) % n. This ensures producer always knows where to place the next item."},
+  {q: "What does while(count == n); in producer code mean?",
+   options: ["Buffer is empty, consumer should wake up", "Buffer is FULL (count equals buffer size n). Producer must wait in infinite loop.", "Producer should produce n items", "count should be reset to 0"],
+   answer: 1,
+   explanation: "When count == n, the buffer is completely full (all n slots occupied). Producer cannot add more items. The semicolon after while() means the producer loops doing nothing, waiting until count drops below n (i.e., consumer consumes an item and decrements count)."},
+  {q: "How many machine-level micro-instructions does 'count = count + 1' break into?",
+   options: ["1 (it is a single atomic operation)", "2 (LOAD and STORE)", "3 (LOAD, INCR, STORE)", "4 (READ, ADD, WRITE, VERIFY)"],
+   answer: 2,
+   explanation: "count = count + 1 breaks into: i1: LOAD Rp, M[count] (read count from memory to register), i2: INCR Rp (increment register by 1), i3: STORE Rp, M[count] (write register back to memory). This is why it is NOT atomic and can cause race conditions if preemption happens between i1 and i3."},
+  {q: "In the race condition case (initial count=3), Producer executes i1(Rp=3) and i2(Rp=4) then gets preempted. Consumer then executes i1 and reads M[count]. What does Consumer see?",
+   options: ["count = 4 (Producer's updated value)", "count = 3 (original memory value, Producer never executed i3/STORE)", "count = 2 (already decremented)", "count = 0 (reset after preemption)"],
+   answer: 1,
+   explanation: "Producer was preempted BEFORE executing i3 (STORE Rp, M[count]). This means the updated value Rp=4 is only in the register, NOT in memory. Memory still shows count=3. When Consumer reads M[count] in its i1, it reads the stale value 3. This is the root of the race condition."},
+  {q: "In the race condition execution (P-i1, P-i2, Preempt, C-i1, C-i2, Preempt, P-i3, C-i3), what is the FINAL value of count?",
+   options: ["3 (correct, 3+1-1=3)", "4 (only producer's update)", "2 (Consumer's stale Rc=2 overwrites)", "1 (both decremented)"],
+   answer: 2,
+   explanation: "Execution: P stores Rp=4 to count (count=4), then C stores Rc=2 to count (count=2). Consumer's i3 runs LAST and overwrites count with Rc=2. Final count=2. But buffer has 3 items (X1,X2,X3 were original, +X4 produced -X1 consumed = 3). count says 2, buffer has 3. WRONG!"},
+  {q: "A process is called 'cooperative' if it shares which of the following with another process?",
+   options: ["Only if it shares hardware resources like CPU", "Any of: shared variable, memory/buffer, code, or hardware resources", "Only if it uses the same scheduling algorithm", "Only if it has the same priority"],
+   answer: 1,
+   explanation: "Cooperative processes are defined by SHARING something. This can be any of: (1) a shared variable, (2) shared memory or buffer, (3) shared code, or (4) shared hardware resources like printer, scanner, disk. If ANY of these is shared, the processes are cooperative and need synchronization."},
+  {q: "What is the 'Critical Section' in the Producer-Consumer problem?",
+   options: ["The buffer itself", "The while(true) main loop", "The code section that accesses/modifies the shared 'count' variable (count++ and count--)", "The produce_item() function"],
+   answer: 2,
+   explanation: "The Critical Section is the code where shared data is accessed and modified. In Producer-Consumer, this is: count = count+1 (in producer) and count = count-1 (in consumer). Only one process should be allowed to execute its critical section at a time. This is achieved using semaphores, locks, or monitors."},
+  {q: "GATE TYPE: In the race condition execution sequence [P:i1, P:i2, C:i1, C:i2, P:i3, C:i3], with initial count=5, what is the final count value?",
+   options: ["5 (correct, +1 -1 = 5)", "6 (only producer)", "4 (only consumer)", "6 briefly then overwritten by 4"],
+   answer: 2,
+   explanation: "P:i1 loads Rp=5. P:i2 makes Rp=6. C:i1 loads Rc=5 (memory still 5). C:i2 makes Rc=4. P:i3 stores count=6. C:i3 stores count=4. Final = 4. Consumer's STORE runs last and overwrites. The expected correct value was 5 (no net change with 1 produce and 1 consume)."},
+  {q: "STAR POINT: Why is synchronization needed ONLY for cooperative processes and not independent processes?",
+   options: ["Because independent processes have lower priority", "Because independent processes run on different CPUs only", "Because independent processes share NOTHING. Changes by one process cannot affect another since there is no common variable, memory, code, or resource between them.", "Because independent processes use different algorithms"],
+   answer: 2,
+   explanation: "Synchronization is needed when the execution of one process CAN affect another. This only happens when they SHARE something (variable, memory, code, resources). Independent processes are completely isolated with zero shared state. No matter how they interleave, they cannot interfere. Example: two transactions on completely different banks' servers cannot affect each other."}
+];
+var current = 0, score = 0, answered = false, quizStarted = false;
+
+function renderQuestion() {
+  var c = document.getElementById('quiz-container');
+  if (!c) return;
+  if (current >= questions.length) { renderResults(); return; }
+  document.getElementById('q-progress-fill').style.width = (current / questions.length * 100).toFixed(0) + '%';
+  document.getElementById('q-progress-label').textContent = 'Question ' + (current + 1) + ' of ' + questions.length + ' (Topics 3.1-3.2)';
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+  var q = questions[current]; answered = false;
+  var opts = q.options.map(function(opt, i) {
+    return '<div class="quiz-option" id="opt-' + i + '" onclick="selectOption(' + i + ')"><div class="quiz-option-marker">' + String.fromCharCode(65 + i) + '</div>' + opt + '</div>';
+  }).join('');
+  c.innerHTML = '<div class="quiz-card"><div class="quiz-title-tag">Question ' + (current+1) + ' of ' + questions.length + '</div><h3>' + q.q + '</h3><div class="quiz-options">' + opts + '</div><div id="explanation-box"></div><div class="quiz-controls"><button class="quiz-btn secondary" onclick="skipQuestion()">Skip</button><button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next</button></div></div>';
+}
+function selectOption(i) {
+  if (answered) return; answered = true;
+  var q = questions[current];
+  document.querySelectorAll('.quiz-option').forEach(function(el, idx) {
+    if (idx === q.answer) el.classList.add('correct');
+    else if (idx === i && i !== q.answer) el.classList.add('incorrect');
+  });
+  if (i === q.answer) score++;
+  document.getElementById('explanation-box').innerHTML = '<div class="quiz-explanation"><div class="quiz-explanation-title">Explanation</div><div class="quiz-explanation-text">' + q.explanation + '</div></div>';
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+}
+function nextQuestion() { current++; renderQuestion(); }
+function skipQuestion() { current++; renderQuestion(); }
+function renderResults() {
+  var pct = Math.round(score / questions.length * 100);
+  var bc, bt, fb;
+  if (pct === 100) { bc='master'; bt='MASTER'; fb='Perfect! You fully understand race conditions, micro-instructions, and producer-consumer. Ready for semaphores!'; }
+  else if (pct >= 80) { bc='excellent'; bt='EXCELLENT'; fb='Great work! Review the LOAD-INCR-STORE breakdown and why Consumer gets stale count value.'; }
+  else if (pct >= 60) { bc='good'; bt='GOOD'; fb='Good. Re-trace the race condition execution order step by step to understand why count=2.'; }
+  else { bc='review'; bt='REVIEW'; fb='Go back to the Descriptive tab. Focus on the micro-instruction breakdown and execution trace diagram.'; }
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Quiz Complete!';
+  document.getElementById('q-score-label').textContent = 'Final Score: ' + score + '/' + questions.length;
+  document.getElementById('quiz-container').innerHTML = '<div class="results-score-box"><div class="results-score-circle"><div class="results-score-num">' + score + '</div><div class="results-score-total">/ ' + questions.length + '</div></div><span class="results-badge ' + bc + '">' + bt + '</span><p class="results-feedback">' + fb + '</p></div><div style="text-align:center;margin-top:8px;"><button class="quiz-btn primary" onclick="restartQuiz()">Restart Quiz</button></div>';
+}
+function restartQuiz() { current = 0; score = 0; answered = false; renderQuestion(); }
+
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

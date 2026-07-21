@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIX Commands & System Calls — Topic 1.6-1.7 | OS Notes</title>
+<meta name="description" content="UNIX chmod permissions (symbolic & octal), lseek system call, user mode vs kernel mode, and all 6 categories of system calls for GATE & UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --pink:   #AD1457; --pinkl: #FCE4EC;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(34px,5.5vw,56px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:620px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sec-head h2 { font-size:19px; font-weight:700; letter-spacing:-.01em; }
+
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+  .prose code { font-family:'Space Mono',monospace; background:#e0f7fa; padding:1px 6px; border-radius:3px; font-size:12px; color:var(--teal); }
+
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── CODE BLOCK ── */
+  .code-block { background:#1a1a2e; border-radius:10px; padding:16px 20px; margin:12px 0; font-family:'Space Mono',monospace; font-size:13px; line-height:1.8; overflow-x:auto; }
+  .code-block .c-comment { color:#6a9955; }
+  .code-block .c-cmd     { color:#4fc1ff; }
+  .code-block .c-val     { color:#ce9178; }
+  .code-block .c-sym     { color:#d4d4d4; }
+  .code-block .c-num     { color:#b5cea8; }
+  .code-block .c-kw      { color:#c586c0; }
+
+  /* ── PERMISSION GRID ── */
+  .perm-grid { display:flex; gap:4px; align-items:center; justify-content:center; padding:20px; flex-wrap:wrap; }
+  .perm-section { display:flex; gap:0; }
+  .perm-cell { width:42px; height:42px; border:2px solid; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; }
+  .perm-cell:first-child { border-radius:8px 0 0 8px; }
+  .perm-cell:last-child  { border-radius:0 8px 8px 0; }
+  .perm-section-label { text-align:center; font-size:11px; font-weight:700; margin-top:6px; letter-spacing:.04em; }
+  .perm-sep { font-size:24px; color:#ccc; padding:0 8px; }
+
+  /* ── OCTAL TABLE ── */
+  .oct-table { width:100%; border-collapse:collapse; font-size:13px; font-family:'Space Mono',monospace; }
+  .oct-table th { background:var(--teal); color:#fff; padding:9px 14px; text-align:center; font-weight:700; font-size:12px; }
+  .oct-table td { padding:9px 14px; border-bottom:1px solid #b2ebf2; text-align:center; vertical-align:middle; }
+  .oct-table tr:nth-child(even) td { background:var(--tealb); }
+  .oct-table tr:last-child td { border-bottom:none; }
+  .oct-table td:first-child { font-weight:700; color:var(--teal); font-size:18px; }
+
+  /* ── LSEEK FILE TAPE ── */
+  .file-tape { display:flex; gap:0; overflow-x:auto; padding:16px 20px 8px; }
+  .tape-cell { min-width:44px; height:44px; border:2px solid #b2dfdb; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; color:var(--navy); position:relative; flex-shrink:0; background:#fff; }
+  .tape-cell:first-child { border-radius:8px 0 0 8px; }
+  .tape-cell:last-child  { border-radius:0 8px 8px 0; }
+  .tape-cell.active   { background:var(--teal2); color:#fff; border-color:var(--teal2); }
+  .tape-cell.step1    { background:#fff3e0; border-color:var(--orange); }
+  .tape-cell.step2    { background:var(--greenl); border-color:var(--green); }
+  .tape-idx { display:flex; gap:0; overflow-x:auto; padding:2px 20px 16px; }
+  .idx-cell { min-width:44px; text-align:center; font-size:10px; color:var(--mdgray); font-family:'Space Mono',monospace; flex-shrink:0; }
+
+  /* ── SYSCALL CATEGORY CARD ── */
+  .sc-card { border-radius:12px; overflow:hidden; margin-bottom:16px; box-shadow:0 3px 14px rgba(0,0,0,.07); }
+  .sc-head { display:flex; align-items:center; gap:14px; padding:13px 18px; color:#fff; }
+  .sc-head .sc-num { width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .sc-head h3 { font-size:15px; font-weight:700; margin-bottom:1px; }
+  .sc-head .sc-sub { font-size:11.5px; opacity:.85; }
+  .sc-body { padding:14px 18px; background:#fff; font-size:13.5px; line-height:1.7; color:#2a2a2a; }
+  .sc-calls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .sc-call-tag { font-family:'Space Mono',monospace; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; }
+
+  /* ── USER/KERNEL MODE DIAGRAM ── */
+  .mode-diagram { padding:20px; display:flex; flex-direction:column; gap:8px; }
+  .mode-layer { border-radius:10px; padding:14px 18px; display:flex; align-items:center; gap:14px; }
+  .mode-layer .ml-icon { font-size:26px; flex-shrink:0; }
+  .mode-layer h4 { font-size:14px; font-weight:700; margin-bottom:3px; }
+  .mode-layer p  { font-size:12.5px; opacity:.85; line-height:1.5; }
+  .mode-arrow { display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:700; color:var(--teal2); }
+  .mode-arrow-line { flex:1; height:2px; background:var(--teal3); max-width:80px; }
+
+  /* ── COMPARE GRID ── */
+  .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .cmp-card { border-radius:10px; overflow:hidden; }
+  .cmp-card-head { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; }
+  .cmp-card-body { padding:14px 16px; font-size:13px; line-height:1.65; }
+
+  /* ── REVISION CARDS ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-card-head .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:190px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16.5px; font-weight:700; color:var(--navy); line-height:1.5; margin-bottom:20px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:24px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s ease; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:16px 18px; margin-bottom:24px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+  .quiz-explanation-text  { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:24px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  /* data table */
+  .dt { width:100%; border-collapse:collapse; font-size:13px; }
+  .dt th { background:var(--teal); color:#fff; padding:9px 12px; text-align:left; font-weight:700; font-size:12px; }
+  .dt td { padding:9px 12px; border-bottom:1px solid #b2ebf2; vertical-align:top; }
+  .dt tr:nth-child(even) td { background:var(--tealb); }
+  .dt tr:last-child td { border-bottom:none; }
+  .dt td:first-child { font-family:'Space Mono',monospace; font-size:12px; font-weight:700; color:var(--teal); }
+
+  @media(max-width:640px){
+    .compare-grid { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:30px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 1.6/1.7</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>UNIX Commands &amp; System Calls</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 1.6-1.7: UNIX Commands &amp; System Calls</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 1.6-1.7 • UNIX + SYSTEM CALLS</div>
+    <h1>UNIX Commands &amp; <span>System Calls</span></h1>
+    <p class="hero-sub">chmod (symbolic &amp; octal), lseek (SEEK_CUR, SEEK_SET, SEEK_END) — plus user mode vs kernel mode, and all 6 categories of system calls with examples from GATE &amp; UGC NET questions.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐</span><span class="badge">UGC NET ⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">University Exams</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════ DESCRIPTIVE ══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- ══════════ TOPIC 6: UNIX COMMANDS ══════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">6</div>
+    <h2 style="color:var(--navy);">Topic 6 — Key UNIX Commands</h2>
+  </div>
+
+  <!-- ────── 6A: chmod ────── -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">6A</div>
+    <h2 style="font-size:17px;color:var(--navy);">chmod — Change Mode (File Permissions)</h2>
+  </div>
+
+  <p class="prose"><b>chmod</b> (Change Mode) is used to set or modify the read, write, and execute permissions on a file or directory for three categories of users.</p>
+
+  <!-- Three categories -->
+  <div class="diagram">
+    <div class="diagram-title">👥 Three Categories &amp; Three Permission Types</div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <!-- Categories -->
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:10px;">📁 Three User Categories</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--bluebg);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--blue);">U — User (Owner)</div>
+              <div style="font-size:12px;color:var(--dkgray);">The person who created the file. Has the most control over it.</div>
+            </div>
+            <div style="background:var(--greenl);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--green);">G — Group</div>
+              <div style="font-size:12px;color:var(--dkgray);">Users who belong to the same group as the owner (e.g., same department).</div>
+            </div>
+            <div style="background:var(--orangel);border-left:4px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--orange);">O — Others</div>
+              <div style="font-size:12px;color:var(--dkgray);">Everyone else on the system who is neither the owner nor in the group.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Permissions -->
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--navy);margin-bottom:10px;">🔑 Three Permission Types</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:var(--redl);border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--red);">r — Read (4)</div>
+              <div style="font-size:12px;color:var(--dkgray);">Can open and read the file contents. Octal value = <b>4</b>.</div>
+            </div>
+            <div style="background:var(--purplel);border-left:4px solid var(--purple);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--purple);">w — Write (2)</div>
+              <div style="font-size:12px;color:var(--dkgray);">Can modify or delete the file contents. Octal value = <b>2</b>.</div>
+            </div>
+            <div style="background:var(--tealb);border-left:4px solid var(--teal2);border-radius:0 8px 8px 0;padding:10px 14px;">
+              <div style="font-weight:700;font-size:13px;color:var(--teal2);">x — Execute (1)</div>
+              <div style="font-size:12px;color:var(--dkgray);">Can run the file as a program/script. Octal value = <b>1</b>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Total 9 permission bits = 3 categories × 3 permission types. Always written in the order: U-G-O, and within each: r-w-x.</div>
+  </div>
+
+  <!-- Permission bit layout -->
+  <div class="diagram">
+    <div class="diagram-title">🗂️ Permission Bit Layout — 9 Positions</div>
+    <div style="overflow-x:auto;">
+      <div class="perm-grid">
+        <!-- User -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;text-transform:uppercase;">USER (U)</div>
+          <div class="perm-section">
+            <div class="perm-cell" style="border-color:var(--blue);background:var(--bluebg);color:var(--blue);">r</div>
+            <div class="perm-cell" style="border-color:var(--blue);background:var(--bluebg);color:var(--blue);">w</div>
+            <div class="perm-cell" style="border-color:var(--blue);background:var(--bluebg);color:var(--blue);">x</div>
+          </div>
+          <div style="font-size:10.5px;color:var(--mdgray);text-align:center;">positions 1-3</div>
+        </div>
+        <div class="perm-sep">|</div>
+        <!-- Group -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.06em;text-transform:uppercase;">GROUP (G)</div>
+          <div class="perm-section">
+            <div class="perm-cell" style="border-color:var(--green);background:var(--greenl);color:var(--green);">r</div>
+            <div class="perm-cell" style="border-color:var(--green);background:var(--greenl);color:var(--green);">w</div>
+            <div class="perm-cell" style="border-color:var(--green);background:var(--greenl);color:var(--green);">-</div>
+          </div>
+          <div style="font-size:10.5px;color:var(--mdgray);text-align:center;">positions 4-6</div>
+        </div>
+        <div class="perm-sep">|</div>
+        <!-- Others -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.06em;text-transform:uppercase;">OTHERS (O)</div>
+          <div class="perm-section">
+            <div class="perm-cell" style="border-color:var(--orange);background:var(--orangel);color:var(--orange);">r</div>
+            <div class="perm-cell" style="border-color:var(--orange);background:var(--orangel);color:var(--orange);">-</div>
+            <div class="perm-cell" style="border-color:var(--orange);background:var(--orangel);color:var(--orange);">-</div>
+          </div>
+          <div style="font-size:10.5px;color:var(--mdgray);text-align:center;">positions 7-9</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:8px 20px;font-size:13px;color:var(--dkgray);">
+        Example above: User=<b>rwx</b> (all), Group=<b>rw-</b> (read+write only), Others=<b>r--</b> (read only).<br>
+        A dash (<b>-</b>) means that permission is NOT granted.
+      </div>
+    </div>
+    <div class="diagram-caption">Always read left to right: first 3 = User, middle 3 = Group, last 3 = Others. Within each group: r (read), w (write), x (execute).</div>
+  </div>
+
+  <!-- Symbolic notation -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">6B</div>
+    <h2 style="font-size:17px;color:var(--navy);">Symbolic Notation — chmod with Letters</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📝 chmod Symbolic Notation — Syntax &amp; Examples</div>
+    <div style="padding:16px 20px;">
+      <div style="background:#1a1a2e;border-radius:8px;padding:14px 18px;font-family:'Space Mono',monospace;font-size:13px;margin-bottom:16px;">
+        <span style="color:#6a9955;">/* Syntax: chmod [who][operator][permission] filename */</span><br>
+        <span style="color:#c586c0;">who</span>      <span style="color:#d4d4d4;">=</span> <span style="color:#ce9178;">u</span> (user) | <span style="color:#ce9178;">g</span> (group) | <span style="color:#ce9178;">o</span> (others) | <span style="color:#ce9178;">a</span> (all = ugo)<br>
+        <span style="color:#c586c0;">operator</span> <span style="color:#d4d4d4;">=</span> <span style="color:#4fc1ff;">+</span> (add) | <span style="color:#4fc1ff;">-</span> (remove) | <span style="color:#4fc1ff;">=</span> (set exactly)<br>
+        <span style="color:#c586c0;">permission</span><span style="color:#d4d4d4;">=</span> <span style="color:#b5cea8;">r</span> (read) | <span style="color:#b5cea8;">w</span> (write) | <span style="color:#b5cea8;">x</span> (execute)
+      </div>
+
+      <table class="dt">
+        <tr><th>Command</th><th>What It Does</th><th>Explanation</th></tr>
+        <tr>
+          <td>chmod ugo+r note</td>
+          <td>Give read permission to User, Group, Others on file "note"</td>
+          <td><b>ugo</b> = all three categories, <b>+r</b> = add read. This is the answer to "assign only read to all three categories".</td>
+        </tr>
+        <tr>
+          <td>chmod a=r note</td>
+          <td>Set ONLY read for all (removes write &amp; execute too)</td>
+          <td><b>a</b> = all (same as ugo), <b>=r</b> means set EXACTLY to read only — strips write and execute.</td>
+        </tr>
+        <tr>
+          <td>chmod u+rwx note</td>
+          <td>Give User all permissions (read + write + execute)</td>
+          <td>User gets full access. Group and Others not affected.</td>
+        </tr>
+        <tr>
+          <td>chmod go+rw note</td>
+          <td>Give read &amp; write to Group and Others</td>
+          <td><b>go</b> = group and others only (not user), <b>+rw</b> = add read and write.</td>
+        </tr>
+        <tr>
+          <td>chmod o-x note</td>
+          <td>Remove execute from Others</td>
+          <td><b>o</b> = others, <b>-x</b> = take away execute permission. The minus sign removes.</td>
+        </tr>
+        <tr>
+          <td>chmod a-rw note</td>
+          <td>Remove read &amp; write from ALL</td>
+          <td><b>a</b> = all, <b>-rw</b> = remove read and write. A command that restricts access.</td>
+        </tr>
+        <tr>
+          <td>chmod ugo+rw note</td>
+          <td>Give read &amp; write to User, Group, Others</td>
+          <td>Equivalent to octal 666. All three get read and write but NOT execute.</td>
+        </tr>
+      </table>
+    </div>
+    <div class="diagram-caption">NOTE: Multiple categories and permissions can be combined in one command. "ugo+rw" and "a+rw" are equivalent.</div>
+  </div>
+
+  <!-- Octal notation -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">6C</div>
+    <h2 style="font-size:17px;color:var(--navy);">Octal Notation — chmod with Numbers</h2>
+  </div>
+
+  <p class="prose">Each permission type has a <b>fixed octal value</b>. To give multiple permissions, add their values. Then write one digit per category (U, G, O) → three digits total.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔢 Octal Values — r=4, w=2, x=1</div>
+    <div style="padding:16px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:var(--redl);border:2px solid var(--red);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:36px;font-weight:800;color:var(--red);font-family:'Space Mono',monospace;">4</div>
+          <div style="font-weight:700;color:var(--red);font-size:14px;">r — Read</div>
+          <div style="font-size:12px;color:var(--dkgray);margin-top:4px;">Open &amp; view file</div>
+        </div>
+        <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:36px;font-weight:800;color:var(--purple);font-family:'Space Mono',monospace;">2</div>
+          <div style="font-weight:700;color:var(--purple);font-size:14px;">w — Write</div>
+          <div style="font-size:12px;color:var(--dkgray);margin-top:4px;">Modify or delete</div>
+        </div>
+        <div style="background:var(--tealb);border:2px solid var(--teal2);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:36px;font-weight:800;color:var(--teal2);font-family:'Space Mono',monospace;">1</div>
+          <div style="font-weight:700;color:var(--teal2);font-size:14px;">x — Execute</div>
+          <div style="font-size:12px;color:var(--dkgray);margin-top:4px;">Run as program</div>
+        </div>
+      </div>
+
+      <table class="oct-table">
+        <tr><th>Octal</th><th>r</th><th>w</th><th>x</th><th>Calculation</th><th>Meaning</th></tr>
+        <tr><td>7</td><td style="color:var(--green);">✓</td><td style="color:var(--green);">✓</td><td style="color:var(--green);">✓</td><td>4+2+1</td><td>All permissions (read + write + execute)</td></tr>
+        <tr><td>6</td><td style="color:var(--green);">✓</td><td style="color:var(--green);">✓</td><td style="color:var(--red);">✗</td><td>4+2+0</td><td>Read + Write only</td></tr>
+        <tr><td>5</td><td style="color:var(--green);">✓</td><td style="color:var(--red);">✗</td><td style="color:var(--green);">✓</td><td>4+0+1</td><td>Read + Execute only</td></tr>
+        <tr><td>4</td><td style="color:var(--green);">✓</td><td style="color:var(--red);">✗</td><td style="color:var(--red);">✗</td><td>4+0+0</td><td>Read only</td></tr>
+        <tr><td>3</td><td style="color:var(--red);">✗</td><td style="color:var(--green);">✓</td><td style="color:var(--green);">✓</td><td>0+2+1</td><td>Write + Execute only</td></tr>
+        <tr><td>2</td><td style="color:var(--red);">✗</td><td style="color:var(--green);">✓</td><td style="color:var(--red);">✗</td><td>0+2+0</td><td>Write only</td></tr>
+        <tr><td>1</td><td style="color:var(--red);">✗</td><td style="color:var(--red);">✗</td><td style="color:var(--green);">✓</td><td>0+0+1</td><td>Execute only</td></tr>
+        <tr><td>0</td><td style="color:var(--red);">✗</td><td style="color:var(--red);">✗</td><td style="color:var(--red);">✗</td><td>0+0+0</td><td>No permissions</td></tr>
+      </table>
+    </div>
+    <div class="diagram-caption">Three-digit octal: first digit = User, second = Group, third = Others. e.g., chmod 644 file → User gets rw(6), Group gets r(4), Others gets r(4).</div>
+  </div>
+
+  <!-- Common chmod octal examples -->
+  <div class="diagram">
+    <div class="diagram-title">💡 Most Common chmod Octal Commands — With Meaning</div>
+    <div style="padding:14px 20px;">
+      <table class="dt">
+        <tr><th>Command</th><th>User</th><th>Group</th><th>Others</th><th>Use Case</th></tr>
+        <tr>
+          <td>chmod 777 file</td>
+          <td>rwx (7)</td><td>rwx (7)</td><td>rwx (7)</td>
+          <td>All permissions for everyone — very open, use carefully</td>
+        </tr>
+        <tr>
+          <td>chmod 755 file</td>
+          <td>rwx (7)</td><td>r-x (5)</td><td>r-x (5)</td>
+          <td>Owner full control; others can read &amp; execute. Standard for scripts/programs.</td>
+        </tr>
+        <tr>
+          <td>chmod 666 file</td>
+          <td>rw- (6)</td><td>rw- (6)</td><td>rw- (6)</td>
+          <td>Read+Write for all, no execute. Answer to "chmod ugo+rw" question.</td>
+        </tr>
+        <tr>
+          <td>chmod 644 file</td>
+          <td>rw- (6)</td><td>r-- (4)</td><td>r-- (4)</td>
+          <td>Owner can read+write; everyone else read-only. Standard for text files.</td>
+        </tr>
+        <tr>
+          <td>chmod 555 file</td>
+          <td>r-x (5)</td><td>r-x (5)</td><td>r-x (5)</td>
+          <td>Read+Execute for everyone, no write. Read-only executables.</td>
+        </tr>
+        <tr>
+          <td>chmod 444 file</td>
+          <td>r-- (4)</td><td>r-- (4)</td><td>r-- (4)</td>
+          <td><b>Read-only for all three categories.</b> Answer to "assign only read to all three".</td>
+        </tr>
+        <tr>
+          <td>chmod 333 file</td>
+          <td>-wx (3)</td><td>-wx (3)</td><td>-wx (3)</td>
+          <td>Write+Execute for all, no read. Unusual — mainly for append-only logs.</td>
+        </tr>
+        <tr>
+          <td>chmod 000 file</td>
+          <td>--- (0)</td><td>--- (0)</td><td>--- (0)</td>
+          <td>No permissions for anyone (not even owner without sudo).</td>
+        </tr>
+      </table>
+    </div>
+    <div class="diagram-caption">The two most exam-asked: 444 = read-only for all three, 666 = read+write for all three, 777 = all permissions for all three.</div>
+  </div>
+
+  <!-- Quick examples from lecture questions -->
+  <div class="info-box gold">
+    📝 <b>Exam Questions from Lecture — Solved:</b><br><br>
+    <b>Q1:</b> "Which command assigns ONLY read to all three categories of file 'note'?"<br>
+    → <code>chmod ugo+r note</code> (symbolic) &nbsp;OR&nbsp; <code>chmod 444 note</code> (octal) ✅<br><br>
+    <b>Q2:</b> "Represent chmod ugo+rw in octal notation."<br>
+    → rw = 4+2 = 6. Applied to U, G, O → <code>chmod 666 note</code> ✅<br><br>
+    <b>Why not "o-x" in Q1?</b> The minus sign <b>removes</b> permission. If the question says "assign read", you must <b>add (+)</b>, not subtract. "o-x" removes execute from others — that's a different operation.
+  </div>
+
+  <!-- ────── 6D: lseek ────── -->
+  <div class="sec-head" style="margin-top:28px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">6D</div>
+    <h2 style="font-size:17px;color:var(--navy);">lseek — Random Access in Files</h2>
+  </div>
+
+  <p class="prose"><b>lseek</b> is a <b>system call</b> (not just a command) used to move the <b>read/write head</b> to a specific position within an open file. By default, the head starts at position 0 (the very beginning of the file).</p>
+
+  <div class="info-box blue">📌 <b>Purpose:</b> Sequential access reads byte-by-byte from start. lseek enables <b>random access</b> — jumping to any position in the file instantly, like a seek head on a disk. Use it when you don't want to read from the beginning every time.</div>
+
+  <div class="diagram">
+    <div class="diagram-title">📄 lseek — Three Modes (SEEK_CUR, SEEK_SET, SEEK_END)</div>
+    <div style="padding:16px 20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:var(--orangel);border:2px solid var(--orange);border-radius:10px;padding:12px 14px;text-align:center;">
+          <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--orange);margin-bottom:6px;">SEEK_CUR</div>
+          <div style="font-size:12.5px;color:var(--dkgray);line-height:1.6;">Move <b>relative</b> to the <b>current position</b>.<br>+n = move n bytes forward.<br>-n = move n bytes backward.</div>
+        </div>
+        <div style="background:var(--greenl);border:2px solid var(--green);border-radius:10px;padding:12px 14px;text-align:center;">
+          <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--green);margin-bottom:6px;">SEEK_SET</div>
+          <div style="font-size:12.5px;color:var(--dkgray);line-height:1.6;">Move to an <b>absolute position</b> from the <b>beginning of file</b>.<br>lseek(n, 5, SEEK_SET) → position 5.</div>
+        </div>
+        <div style="background:var(--redl);border:2px solid var(--red);border-radius:10px;padding:12px 14px;text-align:center;">
+          <div style="font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--red);margin-bottom:6px;">SEEK_END</div>
+          <div style="font-size:12.5px;color:var(--dkgray);line-height:1.6;">Move <b>relative</b> to the <b>end of file</b>.<br>Usually used with a negative offset to go backwards from end.</div>
+        </div>
+      </div>
+      <!-- Syntax -->
+      <div class="code-block">
+        <span class="c-comment">/* lseek Syntax */</span><br>
+        <span class="c-kw">lseek</span><span class="c-sym">(</span><span class="c-val">file_descriptor</span><span class="c-sym">,</span> <span class="c-val">offset</span><span class="c-sym">,</span> <span class="c-val">whence</span><span class="c-sym">);</span><br><br>
+        <span class="c-comment">/* Parameters */</span><br>
+        <span class="c-val">file_descriptor</span>  → <span class="c-sym">integer returned by open() system call (e.g., n)</span><br>
+        <span class="c-val">offset</span>           → <span class="c-sym">number of bytes to move</span><br>
+        <span class="c-val">whence</span>           → <span class="c-sym">SEEK_CUR | SEEK_SET | SEEK_END</span>
+      </div>
+    </div>
+    <div class="diagram-caption">lseek() returns the resulting offset (byte position from beginning of file) on success, or -1 on error.</div>
+  </div>
+
+  <!-- lseek example from lecture -->
+  <div class="diagram">
+    <div class="diagram-title">🔍 Exam Question — lseek Step-by-Step (From Lecture)</div>
+    <div style="padding:18px 20px;">
+      <p style="font-size:13.5px;color:var(--dkgray);margin-bottom:12px;line-height:1.6;">File content: <code style="font-family:'Space Mono',monospace;background:#e0f7fa;padding:2px 8px;border-radius:4px;">1 2 3 4 5 6 7 8 9 0 a b c d e f g h i j</code> (index 0–19)</p>
+
+      <!-- Step 1: SEEK_CUR -->
+      <div style="background:var(--orangel);border:2px solid var(--orange);border-radius:10px;padding:12px 16px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13px;color:var(--orange);margin-bottom:6px;">Step 1: lseek(n, 10, SEEK_CUR)</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.65;">
+          Start position = <b>0</b> (default, beginning of file)<br>
+          SEEK_CUR = "move from current position"<br>
+          New position = 0 + 10 = <b>position 10</b> (the character <code style="background:#fff3e0;padding:1px 5px;border-radius:3px;font-family:'Space Mono',monospace;">a</code>)
+        </div>
+      </div>
+
+      <!-- File tape after step 1 -->
+      <div style="overflow-x:auto;margin-bottom:12px;">
+        <div class="file-tape">
+          <div class="tape-cell">1</div><div class="tape-cell">2</div><div class="tape-cell">3</div>
+          <div class="tape-cell">4</div><div class="tape-cell">5</div><div class="tape-cell">6</div>
+          <div class="tape-cell">7</div><div class="tape-cell">8</div><div class="tape-cell">9</div>
+          <div class="tape-cell">0</div>
+          <div class="tape-cell step1">a<span style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">👆 After Step 1<br>(position 10)</span></div>
+          <div class="tape-cell">b</div><div class="tape-cell">c</div><div class="tape-cell">d</div>
+          <div class="tape-cell">e</div><div class="tape-cell">f</div><div class="tape-cell">g</div>
+          <div class="tape-cell">h</div><div class="tape-cell">i</div><div class="tape-cell">j</div>
+        </div>
+        <div class="tape-idx">
+          <div class="idx-cell">0</div><div class="idx-cell">1</div><div class="idx-cell">2</div>
+          <div class="idx-cell">3</div><div class="idx-cell">4</div><div class="idx-cell">5</div>
+          <div class="idx-cell">6</div><div class="idx-cell">7</div><div class="idx-cell">8</div>
+          <div class="idx-cell">9</div><div class="idx-cell" style="color:var(--orange);font-weight:700;">10</div>
+          <div class="idx-cell">11</div><div class="idx-cell">12</div><div class="idx-cell">13</div>
+          <div class="idx-cell">14</div><div class="idx-cell">15</div><div class="idx-cell">16</div>
+          <div class="idx-cell">17</div><div class="idx-cell">18</div><div class="idx-cell">19</div>
+        </div>
+      </div>
+
+      <!-- Step 2: SEEK_SET -->
+      <div style="background:var(--greenl);border:2px solid var(--green);border-radius:10px;padding:12px 16px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13px;color:var(--green);margin-bottom:6px;">Step 2: lseek(n, 5, SEEK_SET)</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.65;">
+          SEEK_SET = "move to absolute position from beginning"<br>
+          The <b>current position (10) is ignored</b> — we set to position <b>5</b> absolutely.<br>
+          New position = <b>position 5</b> (the character <code style="background:#e8f5e9;padding:1px 5px;border-radius:3px;font-family:'Space Mono',monospace;">6</code>)
+        </div>
+      </div>
+
+      <!-- File tape after step 2 -->
+      <div style="overflow-x:auto;margin-bottom:10px;">
+        <div class="file-tape">
+          <div class="tape-cell">1</div><div class="tape-cell">2</div><div class="tape-cell">3</div>
+          <div class="tape-cell">4</div><div class="tape-cell">5</div>
+          <div class="tape-cell step2">6<span style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--green);font-weight:700;white-space:nowrap;">👆 FINAL<br>(position 5)</span></div>
+          <div class="tape-cell">7</div><div class="tape-cell">8</div><div class="tape-cell">9</div>
+          <div class="tape-cell">0</div><div class="tape-cell">a</div><div class="tape-cell">b</div>
+          <div class="tape-cell">c</div><div class="tape-cell">d</div><div class="tape-cell">e</div>
+          <div class="tape-cell">f</div><div class="tape-cell">g</div><div class="tape-cell">h</div>
+          <div class="tape-cell">i</div><div class="tape-cell">j</div>
+        </div>
+        <div class="tape-idx">
+          <div class="idx-cell">0</div><div class="idx-cell">1</div><div class="idx-cell">2</div>
+          <div class="idx-cell">3</div><div class="idx-cell">4</div>
+          <div class="idx-cell" style="color:var(--green);font-weight:700;">5</div>
+          <div class="idx-cell">6</div><div class="idx-cell">7</div><div class="idx-cell">8</div>
+          <div class="idx-cell">9</div><div class="idx-cell">10</div><div class="idx-cell">11</div>
+          <div class="idx-cell">12</div><div class="idx-cell">13</div><div class="idx-cell">14</div>
+          <div class="idx-cell">15</div><div class="idx-cell">16</div><div class="idx-cell">17</div>
+          <div class="idx-cell">18</div><div class="idx-cell">19</div>
+        </div>
+      </div>
+
+      <div style="background:var(--tealb);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--teal);font-weight:700;">
+        ✅ Final Answer: Read/Write head is at position <b>5</b>. SEEK_SET always overrides any previous position and sets absolute location.
+      </div>
+    </div>
+    <div class="diagram-caption">KEY RULE: SEEK_SET sets an ABSOLUTE position (ignores where you currently are). SEEK_CUR adds RELATIVE offset to current position. SEEK_END goes from the end.</div>
+  </div>
+
+  <div class="info-box teal">
+    🎯 <b>Order matters with lseek!</b><br>
+    • If SEEK_CUR first, then SEEK_SET: Final = <b>5</b> (SEEK_SET overrides, absolute position 5) ✅<br>
+    • If SEEK_SET first, then SEEK_CUR: Final = 5 + 10 = <b>15</b> (start at 5, move 10 forward)<br>
+    Always solve <b>step by step in the given order</b>.
+  </div>
+
+  <!-- ══════════ TOPIC 7: SYSTEM CALLS ══════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--navy);color:#fff;">7</div>
+    <h2 style="color:var(--navy);">Topic 7 — System Calls</h2>
+  </div>
+
+  <!-- User mode vs Kernel mode -->
+  <div class="sec-head" style="margin-top:10px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">7A</div>
+    <h2 style="font-size:17px;color:var(--navy);">User Mode vs Kernel Mode</h2>
+  </div>
+
+  <p class="prose">Modern CPUs operate in two privilege levels. The OS kernel runs in <b>kernel mode</b> (privileged), while user applications run in <b>user mode</b> (restricted). To access hardware or OS resources, user programs must cross into kernel mode via a <b>system call</b>.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🖥️ User Mode vs Kernel Mode — Architecture</div>
+    <div class="mode-diagram">
+      <div class="mode-layer" style="background:var(--greenl);border:2px solid var(--green);">
+        <div class="ml-icon">👤</div>
+        <div>
+          <h4 style="color:var(--green);">User Mode (Unprivileged)</h4>
+          <p style="color:var(--dkgray);">Applications, user programs, scripts run here. Cannot directly access hardware, files on disk, or OS internals. Examples: writing a C program, running Firefox, playing a game.</p>
+        </div>
+      </div>
+      <div class="mode-arrow">
+        <div class="mode-arrow-line"></div>
+        <span>System Call (crosses the boundary)</span>
+        <div class="mode-arrow-line"></div>
+      </div>
+      <div class="mode-layer" style="background:var(--redl);border:2px solid var(--red);">
+        <div class="ml-icon">⚙️</div>
+        <div>
+          <h4 style="color:var(--red);">Kernel Mode (Privileged)</h4>
+          <p style="color:var(--dkgray);">OS kernel runs here. Has direct access to all hardware (CPU, RAM, disk, devices). Executes privileged instructions. Manages all resources.</p>
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 20px;background:#f9fdfd;border-top:1px solid #e0f7fa;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+        <div><b>Example 1:</b> <code>printf("Hello")</code> in C → printf() calls write() system call → crosses to kernel mode → OS sends text to monitor → returns to user mode.</div>
+        <div><b>Example 2:</b> Open a file → open() system call → kernel checks permissions, locates file on disk → returns file descriptor to user space.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Every interaction with hardware, files, or OS services MUST go through a system call. APIs like printf() are wrappers that internally invoke system calls.</div>
+  </div>
+
+  <!-- What is a system call -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">7B</div>
+    <h2 style="font-size:17px;color:var(--navy);">What Is a System Call?</h2>
+  </div>
+
+  <div class="info-box teal">📌 <b>Definition:</b> A system call is the <b>programmatic interface</b> through which a user-mode application requests a service from the OS kernel. It is the only legal way to transition from user mode to kernel mode. Every OS operation — file access, device I/O, process creation — happens through a system call.</div>
+
+  <div class="diagram">
+    <div class="diagram-title">🔄 System Call Flow — From User Program to Hardware</div>
+    <div style="padding:18px 20px;overflow-x:auto;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+        <div style="background:var(--greenl);border:2px solid var(--green);border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;">
+          <div style="font-size:22px;margin-bottom:4px;">👤</div>
+          <div style="font-weight:700;font-size:12px;color:var(--green);">User Program</div>
+          <div style="font-size:10.5px;color:var(--dkgray);margin-top:3px;">calls printf() or write()</div>
+        </div>
+        <div style="font-size:20px;color:var(--mdgray);">→</div>
+        <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;">
+          <div style="font-size:22px;margin-bottom:4px;">📚</div>
+          <div style="font-weight:700;font-size:12px;color:var(--blue);">API / Library</div>
+          <div style="font-size:10.5px;color:var(--dkgray);margin-top:3px;">printf() wraps write() sys call</div>
+        </div>
+        <div style="font-size:20px;color:var(--mdgray);">→</div>
+        <div style="background:var(--orangel);border:2px solid var(--orange);border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;">
+          <div style="font-size:22px;margin-bottom:4px;">📞</div>
+          <div style="font-weight:700;font-size:12px;color:var(--orange);">System Call</div>
+          <div style="font-size:10.5px;color:var(--dkgray);margin-top:3px;">Trap to kernel mode</div>
+        </div>
+        <div style="font-size:20px;color:var(--mdgray);">→</div>
+        <div style="background:var(--redl);border:2px solid var(--red);border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;">
+          <div style="font-size:22px;margin-bottom:4px;">⚙️</div>
+          <div style="font-weight:700;font-size:12px;color:var(--red);">OS Kernel</div>
+          <div style="font-size:10.5px;color:var(--dkgray);margin-top:3px;">Executes privileged code</div>
+        </div>
+        <div style="font-size:20px;color:var(--mdgray);">→</div>
+        <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:10px;padding:12px 14px;text-align:center;min-width:110px;">
+          <div style="font-size:22px;margin-bottom:4px;">🖨️</div>
+          <div style="font-weight:700;font-size:12px;color:var(--purple);">Hardware</div>
+          <div style="font-size:10.5px;color:var(--dkgray);margin-top:3px;">Monitor, Disk, Printer</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:#f9fdfd;border-radius:8px;font-size:12.5px;color:var(--dkgray);">
+        ⚠️ <b>printf() is NOT a system call.</b> It is a C library function. But it internally calls the write() system call to output text to the monitor. Similarly, scanf() → read(), fopen() → open(), fclose() → close(). The library functions are user-friendly wrappers around raw system calls.
+      </div>
+    </div>
+    <div class="diagram-caption">Linux exposes ~300 system calls. Windows 7 has ~700 system calls. You never call most directly — APIs handle that for you.</div>
+  </div>
+
+  <!-- ── 7C: CATEGORIES OF SYSTEM CALLS ── -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;width:32px;height:32px;font-size:13px;">7C</div>
+    <h2 style="font-size:17px;color:var(--navy);">6 Categories of System Calls</h2>
+  </div>
+
+  <!-- Category 1: File Related -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#1565c0,#1976d2);">
+      <div class="sc-num">1</div>
+      <div>
+        <h3>File-Related System Calls</h3>
+        <div class="sc-sub">Create, open, read, write, close, delete files</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used whenever a process wants to perform any operation on a <b>file</b> stored on the hard disk (secondary memory). All file I/O goes through these calls.</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">open(path, flags)</b><br>
+          Opens a file. Returns a file descriptor (integer) used in subsequent calls.
+        </div>
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">read(fd, buffer, count)</b><br>
+          Reads 'count' bytes from file descriptor fd into buffer.
+        </div>
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">write(fd, buffer, count)</b><br>
+          Writes 'count' bytes from buffer to file descriptor fd.
+        </div>
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">close(fd)</b><br>
+          Closes the file descriptor. Frees OS resources for that file.
+        </div>
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">lseek(fd, offset, whence)</b><br>
+          Repositions read/write head. Used for random access. (SEEK_CUR, SEEK_SET, SEEK_END)
+        </div>
+        <div style="background:var(--bluebg);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--blue);">unlink(path)</b><br>
+          Removes (deletes) a file from the filesystem.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 2: Device Related -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#e65100,#f57c00);">
+      <div class="sc-num">2</div>
+      <div>
+        <h3>Device-Related System Calls</h3>
+        <div class="sc-sub">Access, control, and manage hardware devices</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used to interact with hardware devices — hard disk, printer, monitor, keyboard. Users cannot access devices directly; all device interactions go through the OS kernel via these calls.</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div style="background:var(--orangel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--orange);">read() / write()</b><br>
+          Read data from a device OR write data to it (same calls as file, different fd targets).
+        </div>
+        <div style="background:var(--orangel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--orange);">ioctl(fd, request, ...)</b><br>
+          I/O Control — configure device parameters, set baud rate, screen size, etc. Very versatile.
+        </div>
+        <div style="background:var(--orangel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--orange);">lseek()</b><br>
+          Reposition within a device that supports seeking (e.g., disk drives, tape drives).
+        </div>
+        <div style="background:var(--orangel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--orange);">Get/Set attributes</b><br>
+          Read or modify a device's attributes (device type, speed, buffer size, etc.).
+        </div>
+      </div>
+      <div class="info-box orange" style="margin-top:10px;">📌 <b>ioctl()</b> is the most powerful and flexible device system call. It handles all device-specific operations that don't fit neatly into read/write. Examples: getting terminal window size, configuring serial port settings, controlling network interface cards.</div>
+    </div>
+  </div>
+
+  <!-- Category 3: Information Related -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#2e7d32,#388e3c);">
+      <div class="sc-num">3</div>
+      <div>
+        <h3>Information-Related System Calls</h3>
+        <div class="sc-sub">Get metadata about processes, files, system</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used to query <b>metadata</b> — information <i>about</i> data. For example, a file's size, creation date, permissions (its attributes), or a process's ID, state, and priority.</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div style="background:var(--greenl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--green);">getpid()</b><br>
+          Returns the Process ID (PID) of the currently running process.
+        </div>
+        <div style="background:var(--greenl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--green);">getppid()</b><br>
+          Returns the Parent Process ID — the PID of the process that created this one (fork parent).
+        </div>
+        <div style="background:var(--greenl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--green);">time() / gettimeofday()</b><br>
+          Get current system time and date. Used to timestamp events.
+        </div>
+        <div style="background:var(--greenl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--green);">stat(path, buf)</b><br>
+          Get detailed file attributes: size, permissions, owner, modification time, inode number.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 4: Process Control -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#c62828,#e53935);">
+      <div class="sc-num">4</div>
+      <div>
+        <h3>Process Control System Calls</h3>
+        <div class="sc-sub">Create, manage, and terminate processes</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used to manage the entire lifecycle of processes — loading, executing, creating child processes, waiting, and terminating. These are the most fundamental system calls in OS.</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div style="background:var(--redl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--red);">fork()</b><br>
+          Creates a <b>child process</b> — an identical copy of the calling (parent) process. Both parent and child run concurrently. Used for multi-processing.
+        </div>
+        <div style="background:var(--redl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--red);">exec()</b><br>
+          Replaces the current process image with a new program. Used after fork() to run a different program in the child.
+        </div>
+        <div style="background:var(--redl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--red);">wait()</b><br>
+          Parent process waits for child to finish. Used for synchronization between parent and child.
+        </div>
+        <div style="background:var(--redl);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--red);">exit() / abort()</b><br>
+          Terminate a process normally (exit) or abnormally (abort). Frees all resources.
+        </div>
+        <div style="background:var(--redl);border-radius:8px;padding:10px 12px;grid-column:1/-1;">
+          <b style="color:var(--red);">fork() — How it creates multiprocessing:</b><br>
+          Parent calls fork() → OS creates child process (exact copy of parent). fork() returns 0 to child, child PID to parent. Both run independently. Child does its work; parent does its work simultaneously. This is how servers handle multiple client requests.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 5: Communication -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#6a1b9a,#8e24aa);">
+      <div class="sc-num">5</div>
+      <div>
+        <h3>Communication System Calls (IPC)</h3>
+        <div class="sc-sub">Inter-process communication — pipe, shared memory, sockets</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used for <b>Inter-Process Communication (IPC)</b> — allowing two or more processes to exchange data. Two main IPC mechanisms: <b>Pipes</b> (unidirectional byte stream) and <b>Shared Memory</b> (fastest IPC method).</p>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--purple);">pipe(fd[2])</b><br>
+          Creates a pipe — a unidirectional data channel. Data written to fd[1] can be read from fd[0]. Used between parent and child processes.
+        </div>
+        <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--purple);">shmget()</b><br>
+          Get/create a shared memory segment. Multiple processes can map it into their address space and read/write directly. Fastest IPC.
+        </div>
+        <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--purple);">socket() / connect()</b><br>
+          Create network connections. Used for communication between processes on different machines (client-server communication).
+        </div>
+        <div style="background:var(--purplel);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--purple);">send() / recv()</b><br>
+          Send and receive messages through a socket or message queue. Used in network programming.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 6: Protection & Security -->
+  <div class="sc-card">
+    <div class="sc-head" style="background:linear-gradient(135deg,#004d40,#00695c);">
+      <div class="sc-num">6</div>
+      <div>
+        <h3>Protection &amp; Security System Calls</h3>
+        <div class="sc-sub">chmod, umask, access control, privileges</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <p>Used to manage <b>access control and security</b> — who can access what, with which permissions. These prevent unauthorised access and enforce the OS's security model.</p>
+      <div class="sc-calls">
+        <span class="sc-call-tag" style="background:var(--tealb);color:var(--teal);">chmod(path, mode)</span>
+        <span class="sc-call-tag" style="background:var(--orangel);color:var(--orange);">umask(mask)</span>
+        <span class="sc-call-tag" style="background:var(--greenl);color:var(--green);">chown(path, uid, gid)</span>
+        <span class="sc-call-tag" style="background:var(--purplel);color:var(--purple);">access(path, mode)</span>
+        <span class="sc-call-tag" style="background:var(--redl);color:var(--red);">setuid(uid)</span>
+        <span class="sc-call-tag" style="background:var(--bluebg);color:var(--blue);">getuid()</span>
+      </div>
+      <div style="margin-top:12px;font-size:13px;color:var(--dkgray);">
+        <b>chmod(path, mode)</b> — the system call behind the chmod UNIX command. Changes file permission bits.<br>
+        <b>umask(mask)</b> — sets default permission mask for newly created files (subtracts permissions from default).<br>
+        <b>chown()</b> — change file owner and group.<br>
+        <b>access()</b> — check if the process has permission to access a file.
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary table -->
+  <div class="diagram" style="margin-top:14px;">
+    <div class="diagram-title">📊 System Call Categories — Quick Reference</div>
+    <div style="overflow-x:auto;">
+      <table class="dt">
+        <tr><th>#</th><th>Category</th><th>Key System Calls</th><th>Use Case</th></tr>
+        <tr><td>1</td><td>File Related</td><td>open, read, write, close, lseek, unlink</td><td>Any file operation on disk</td></tr>
+        <tr><td>2</td><td>Device Related</td><td>read, write, ioctl, lseek</td><td>Access printer, monitor, hard disk, keyboard</td></tr>
+        <tr><td>3</td><td>Information</td><td>getpid, getppid, time, stat</td><td>Get process/file/system metadata</td></tr>
+        <tr><td>4</td><td>Process Control</td><td>fork, exec, exit, wait, abort</td><td>Create, run, synchronise, terminate processes</td></tr>
+        <tr><td>5</td><td>Communication</td><td>pipe, shmget, socket, send, recv</td><td>IPC — share data between processes</td></tr>
+        <tr><td>6</td><td>Protection/Security</td><td>chmod, umask, chown, access, setuid</td><td>File permissions, access control</td></tr>
+      </table>
+    </div>
+    <div class="diagram-caption">Linux: ~300 system calls total. Windows 7: ~700 system calls. These 6 categories cover all major groupings.</div>
+  </div>
+
+</div><!-- /view-descriptive -->
+
+
+<!-- ════════════════════ REVISION NOTES ════════════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">1</div>chmod — Permissions Fundamentals
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">chmod stands for</div><div class="rv">Change Mode — changes read/write/execute permissions on a file or directory.</div></div>
+      <div class="rev-kv"><div class="rk">3 categories</div><div class="rv">U = User (owner), G = Group, O = Others. Always in this order.</div></div>
+      <div class="rev-kv"><div class="rk">3 permissions</div><div class="rv">r = Read (4), w = Write (2), x = Execute (1). Always in this order.</div></div>
+      <div class="rev-kv"><div class="rk">9 positions</div><div class="rv">rwx (User) | rwx (Group) | rwx (Others). Dash (–) means permission NOT given.</div></div>
+      <div class="rev-kv"><div class="rk">Symbolic operators</div><div class="rv">+ (add permission), – (remove), = (set exactly). e.g., chmod go+r file</div></div>
+      <div class="rev-kv"><div class="rk">'a' shorthand</div><div class="rv">a = all = ugo. chmod a+r = chmod ugo+r.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal2);">
+      <div class="rev-num">2</div>chmod Octal — Key Values
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">r = 4, w = 2, x = 1</div><div class="rv">Fixed values. Memorise these — all octal calculations derive from these three.</div></div>
+      <div class="rev-kv"><div class="rk">7 = rwx</div><div class="rv">4+2+1 = All three permissions (read + write + execute).</div></div>
+      <div class="rev-kv"><div class="rk">6 = rw-</div><div class="rv">4+2 = Read + Write. No execute. chmod 666 = rw for all three categories.</div></div>
+      <div class="rev-kv"><div class="rk">5 = r-x</div><div class="rv">4+1 = Read + Execute. No write. chmod 555 = r-x for all.</div></div>
+      <div class="rev-kv"><div class="rk">4 = r--</div><div class="rv">Read only. chmod 444 = read-only for all three. Answer to "assign only read to all".</div></div>
+      <div class="rev-kv"><div class="rk">3 = -wx</div><div class="rv">2+1 = Write + Execute. No read.</div></div>
+      <div class="rev-kv"><div class="rk">chmod 444 note</div><div class="rv">Assigns read-only to User, Group, Others. Symbolic equivalent: chmod a=r note (or chmod ugo+r note).</div></div>
+      <div class="rev-kv"><div class="rk">chmod 666 note</div><div class="rv">Assigns read+write to all three. Symbolic: chmod ugo+rw note.</div></div>
+      <div class="rev-kv"><div class="rk">chmod 777 note</div><div class="rv">All permissions to all three. Symbolic: chmod a+rwx note.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">3</div>lseek System Call
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Purpose</div><div class="rv">Move the read/write head to a specific position in an open file. Enables random access (not just sequential).</div></div>
+      <div class="rev-kv"><div class="rk">Default position</div><div class="rv">0 (index 0 = beginning of file) when a file is first opened.</div></div>
+      <div class="rev-kv"><div class="rk">Syntax</div><div class="rv">lseek(fd, offset, whence) → returns new position from start of file.</div></div>
+      <div class="rev-kv"><div class="rk">SEEK_CUR</div><div class="rv">Move RELATIVE to current position. +n = forward, –n = backward. New pos = current + offset.</div></div>
+      <div class="rev-kv"><div class="rk">SEEK_SET</div><div class="rv">Move to ABSOLUTE position from beginning. Ignores current position. New pos = offset exactly.</div></div>
+      <div class="rev-kv"><div class="rk">SEEK_END</div><div class="rv">Move relative to END of file. Usually used with negative offset (–n = move n bytes from end).</div></div>
+      <div class="rev-kv"><div class="rk">Exam question</div><div class="rv">lseek(n,10,SEEK_CUR) then lseek(n,5,SEEK_SET) → final position = <b>5</b>. SEEK_SET always sets absolute.</div></div>
+      <div class="rev-kv"><div class="rk">Order matters</div><div class="rv">SEEK_SET first (pos=5), then SEEK_CUR +10 → final = 15. Always solve step by step in given order.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--navy);">
+      <div class="rev-num">4</div>System Calls — Core Concepts
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Definition</div><div class="rv">Programmatic interface to switch from user mode to kernel mode. The only legal way to access OS/hardware services.</div></div>
+      <div class="rev-kv"><div class="rk">User mode</div><div class="rv">Applications run here. Cannot directly access hardware, files on disk, or OS internals.</div></div>
+      <div class="rev-kv"><div class="rk">Kernel mode</div><div class="rv">OS kernel runs here. Has full hardware access. Executes privileged instructions.</div></div>
+      <div class="rev-kv"><div class="rk">printf() ≠ system call</div><div class="rv">printf() is a C library function. It internally invokes the write() system call. APIs are user-friendly wrappers.</div></div>
+      <div class="rev-kv"><div class="rk">Linux system calls</div><div class="rv">~300 system calls in Linux. Windows 7 has ~700 system calls.</div></div>
+      <div class="rev-kv"><div class="rk">Direct usage (Linux)</div><div class="rv">In Linux, you can call read(), write(), open(), close(), fork() directly in C programs.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal2);">
+      <div class="rev-num">5</div>6 System Call Categories — Quick Ref
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">① File Related</div><div class="rv">open, read, write, close, lseek, unlink. Any file operation on disk.</div></div>
+      <div class="rev-kv"><div class="rk">② Device Related</div><div class="rv">read, write, ioctl(), lseek. Access printer, monitor, disk, keyboard. ioctl() = most versatile device control call.</div></div>
+      <div class="rev-kv"><div class="rk">③ Information</div><div class="rv">getpid() (process ID), getppid() (parent PID), time(), stat() (file attributes/metadata).</div></div>
+      <div class="rev-kv"><div class="rk">④ Process Control</div><div class="rv">fork() (create child process), exec() (run new program), wait() (parent waits for child), exit()/abort() (terminate).</div></div>
+      <div class="rev-kv"><div class="rk">⑤ Communication (IPC)</div><div class="rv">pipe() (unidirectional channel), shmget() (shared memory — fastest IPC), socket(), send(), recv().</div></div>
+      <div class="rev-kv"><div class="rk">⑥ Protection/Security</div><div class="rv">chmod() (change permissions), umask() (default permission mask), chown() (change owner), access().</div></div>
+      <div class="rev-kv"><div class="rk">fork() special note</div><div class="rv">Creates a child process (copy of parent). Parent and child run concurrently — enables multi-processing without multiple CPUs.</div></div>
+    </div>
+  </div>
+
+</div><!-- /view-revision -->
+
+
+<!-- ════════════════════ QUIZ ════════════════════ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function switchView(id,e){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  (e.target||e).classList.add('active');
+  if(id==='quiz'&&!quizInitialised)initQuiz();
+}
+
+const questions=[
+  {
+    q:"What is the correct octal representation of the command: chmod ugo+rw note ?",
+    options:["chmod 444 note","chmod 666 note","chmod 555 note","chmod 777 note"],
+    answer:1,
+    explanation:"rw = read(4) + write(2) = 6. Applied to all three categories (User, Group, Others) → three digits each '6' → 666. chmod 666 note is the octal form of chmod ugo+rw note. Remember: 7=rwx, 6=rw-, 5=r-x, 4=r--."
+  },
+  {
+    q:"Which chmod command assigns ONLY read permission to all three categories (User, Group, Others) of file 'note'?",
+    options:["chmod a-rw note (removes read and write)","chmod go+r note (only Group and Others, not User)","chmod ugo+r note (gives read to all three)","chmod o-x note (removes execute from Others only)"],
+    answer:2,
+    explanation:"chmod ugo+r note — 'ugo' targets all three categories (User, Group, Others), '+r' adds read permission. Octal equivalent: chmod 444 note (4 = read only for each). Options A, B, C, D are wrong: A removes permissions, B only targets Group+Others, D removes execute from Others."
+  },
+  {
+    q:"In octal notation, what does permission value '5' represent for a category?",
+    options:["Read + Write (4+2=6 not 5)","Read only (just 4)","Read + Execute (4+1=5)","Write + Execute (2+1=3)"],
+    answer:2,
+    explanation:"r=4, w=2, x=1. To get 5: 4+1 = Read + Execute. No write permission. So chmod 555 file gives Read+Execute to User, Group, and Others — but no write access for anyone. Often used for scripts that should be read and run but not modified."
+  },
+  {
+    q:"What do the three positions (r, w, x) within each permission section represent?",
+    options:["Read=1, Write=2, Execute=4 (opposite of correct values)","Read=4, Write=2, Execute=1 (fixed octal values, always this order)","Read=2, Write=4, Execute=1 (random assignment)","These values change based on the operating system"],
+    answer:1,
+    explanation:"r=4, w=2, x=1 — these are FIXED values in UNIX/Linux, never change. Read is always 4, Write is always 2, Execute is always 1. To calculate permission value: add the values you want to grant. 7=all, 6=rw, 5=rx, 4=r, 3=wx, 2=w, 1=x, 0=none."
+  },
+  {
+    q:"What is the purpose of lseek() system call?",
+    options:["Create a new file and open it for writing","Delete a file from the filesystem permanently","Move the read/write head to a specific position within an open file for random access","Seek for a filename in the filesystem directory tree"],
+    answer:2,
+    explanation:"lseek() repositions the file offset (read/write head) within an open file. By default, reading/writing happens sequentially from position 0. lseek() allows jumping to any position for random access — like SEEK_CUR (relative to current), SEEK_SET (absolute), or SEEK_END (relative to end)."
+  },
+  {
+    q:"Given: lseek(n, 10, SEEK_CUR) is called first (current position = 0), then lseek(n, 5, SEEK_SET) is called. What is the final position of the read/write head?",
+    options:["Position 15 (10 + 5 added together)","Position 5 (SEEK_SET overrides, sets to absolute position 5)","Position 10 (second call ignored)","Position 0 (reset to beginning)"],
+    answer:1,
+    explanation:"Step 1: lseek(n, 10, SEEK_CUR) — move 10 forward from current position 0 → position becomes 10. Step 2: lseek(n, 5, SEEK_SET) — SEEK_SET sets to ABSOLUTE position 5, ignoring where we currently are (10). So final position = 5. If the order were reversed (SEEK_SET=5 first, then SEEK_CUR+10), the answer would be 15."
+  },
+  {
+    q:"What is the difference between SEEK_CUR and SEEK_SET in lseek()?",
+    options:["SEEK_CUR = absolute position from start; SEEK_SET = relative to current position","SEEK_CUR = relative offset from CURRENT position; SEEK_SET = absolute position from BEGINNING of file","Both do the same thing — they are just aliases","SEEK_CUR goes backwards; SEEK_SET goes forwards only"],
+    answer:1,
+    explanation:"SEEK_CUR: new position = CURRENT position + offset. It's RELATIVE. SEEK_SET: new position = offset from beginning of file. It's ABSOLUTE — completely ignores where you currently are. SEEK_END: relative to END of file (use negative offset to go backwards from end)."
+  },
+  {
+    q:"What is a system call in operating systems?",
+    options:["A call made by the OS to the user application to request input","A programmatic interface that allows user-mode applications to request services from the OS kernel (crossing from user mode to kernel mode)","A special type of function call that executes faster than normal function calls","A command typed in the terminal by the user"],
+    answer:1,
+    explanation:"A system call is the programmatic way to switch from user mode to kernel mode. User applications cannot directly access hardware, files on disk, or OS resources — they must make a system call, which traps to the kernel, executes the privileged operation, and returns the result to user space. It is the ONLY legal way for user programs to access OS services."
+  },
+  {
+    q:"In C programming, printf() is called. Is printf() a system call?",
+    options:["Yes — printf() is a direct system call to write to the monitor","No — printf() is a C library function (user-space) that internally invokes the write() system call to do the actual output","printf() is part of the kernel and runs in kernel mode directly","printf() doesn't use system calls at all — it directly accesses video memory"],
+    answer:1,
+    explanation:"printf() is NOT a system call. It is a C standard library function that runs in user space. Internally, printf() formats the string and then calls the write() system call to send the output to the file descriptor (stdout = fd 1). The write() system call then traps to the kernel, which sends data to the monitor. Similarly: scanf() → read(), fopen() → open(), fclose() → close()."
+  },
+  {
+    q:"Which system call is used to create a child process in Linux — enabling a multiprocessing environment?",
+    options:["exec() — replaces current process with a new program","pipe() — creates a communication channel between processes","fork() — creates an exact copy (child) of the calling process; both run concurrently","shmget() — creates shared memory for multiple processes"],
+    answer:2,
+    explanation:"fork() creates a child process that is an exact copy of the parent. fork() returns 0 to the child and the child's PID to the parent. Both then run concurrently — parent does its work, child does its work independently. This enables multi-processing without needing multiple CPUs. Often combined with exec() to run a different program in the child."
+  },
+  {
+    q:"getpid() and getppid() belong to which category of system calls?",
+    options:["File-Related System Calls","Process Control System Calls","Information-Related System Calls — they return process metadata","Communication System Calls"],
+    answer:2,
+    explanation:"getpid() and getppid() are Information-Related system calls. They return metadata about processes: getpid() = Process ID of the current process, getppid() = Parent Process ID (the PID of the process that created this one via fork()). Information system calls also include time(), gettimeofday(), stat() (file attributes) — anything that retrieves metadata about processes, files, or the system."
+  },
+  {
+    q:"Which system call is used for Inter-Process Communication via shared memory in Linux?",
+    options:["pipe() — creates a unidirectional byte stream channel","fork() — creates a child process","shmget() — creates or accesses a shared memory segment (fastest IPC method)","ioctl() — controls input/output devices"],
+    answer:2,
+    explanation:"shmget() (shared memory get) creates or accesses a shared memory segment. Multiple processes can map this segment into their address space and read/write directly — no copying needed. This makes shared memory the FASTEST IPC method. pipe() creates a unidirectional channel (also IPC but slower). ioctl() is for device control, not IPC."
+  }
+];
+
+let quizInitialised=false,current=0,score=0,answered=false;
+function initQuiz(){quizInitialised=true;renderQuestion();}
+function renderQuestion(){
+  const container=document.getElementById('quiz-container');
+  if(current>=questions.length){renderResults();return;}
+  const fill=(current/questions.length*100).toFixed(0);
+  document.getElementById('q-progress-fill').style.width=fill+'%';
+  document.getElementById('q-progress-label').textContent=`Question ${current+1} of ${questions.length}`;
+  document.getElementById('q-score-label').textContent=`Score: ${score}`;
+  const q=questions[current];
+  answered=false;
+  container.innerHTML=`
+    <div class="quiz-card">
+      <div class="quiz-title-tag">UNIX + SYSTEM CALLS — Q${current+1}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options">
+        ${q.options.map((o,i)=>`
+          <div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+            <div class="quiz-option-marker">${String.fromCharCode(65+i)}</div>${o}
+          </div>`).join('')}
+      </div>
+      <div id="explanation-wrap"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="current=0;score=0;renderQuestion();">↩ Restart</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+function selectOption(idx){
+  if(answered)return;
+  answered=true;
+  const q=questions[current];
+  q.options.forEach((_,i)=>{
+    const el=document.getElementById('opt-'+i);
+    if(i===q.answer)el.classList.add('correct');
+    else if(i===idx&&i!==q.answer)el.classList.add('incorrect');
+  });
+  if(idx===q.answer)score++;
+  document.getElementById('q-score-label').textContent=`Score: ${score}`;
+  document.getElementById('explanation-wrap').innerHTML=`
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">💡 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>`;
+  document.getElementById('next-btn').disabled=false;
+}
+function nextQuestion(){current++;renderQuestion();}
+function renderResults(){
+  const pct=Math.round(score/questions.length*100);
+  let badge='review',label='Keep Practising!',fb="Review chmod values and system call categories again.";
+  if(pct>=90){badge='master';label='🏆 MASTER!';fb="Outstanding! You have completely mastered UNIX commands and System Calls.";}
+  else if(pct>=75){badge='excellent';label='🌟 Excellent!';fb="Great score! Quick revision of lseek modes will make you perfect.";}
+  else if(pct>=55){badge='good';label='👍 Good Job!';fb="Good start. Focus on the octal permission table and system call categories.";}
+  document.getElementById('quiz-container').innerHTML=`
+    <div class="results-score-box">
+      <div class="results-score-circle">
+        <div class="results-score-num">${score}</div>
+        <div class="results-score-total">out of ${questions.length}</div>
+      </div>
+      <div class="results-badge ${badge}">${label}</div>
+      <div class="results-feedback">${fb}<br><br>Score: ${pct}%</div>
+    </div>
+    <button class="quiz-btn primary" style="margin:0 auto 24px;display:block;" onclick="current=0;score=0;renderQuestion();">🔄 Try Again</button>`;
+  document.getElementById('q-progress-fill').style.width='100%';
+  document.getElementById('q-progress-label').textContent='Completed!';
+  document.getElementById('q-score-label').textContent=`Final Score: ${score}/${questions.length}`;
+}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

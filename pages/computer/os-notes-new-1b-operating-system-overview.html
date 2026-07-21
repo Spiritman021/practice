@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Operating System overview for IBPS SO IT Officer — kernel, architecture, resource management, device drivers and exam revision.">
+  <title>1.B Operating System Overview | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 1.B</nav><section class="hero"><span class="badge">SECTION 1 · SUBTOPIC 1.B</span><h1>Operating System Overview</h1><p>Kernel, architecture, resource management, and IBPS SO exam notes.</p></section><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+Perfect. This topic is **very important for IBPS SO (IT Officer)** because many direct questions are asked from it. I'll explain it like a teacher, using simple examples, exam tips, and easy tricks, without missing anything.
+
+---
+
+# Operating System (OS) - Overview
+
+---
+
+# What is an Operating System?
+
+## Definition
+
+An **Operating System (OS)** is a **System Software** that acts as an **interface between the user and computer hardware**.
+
+### Simple Diagram
+
+```text
+User
+   ↓
+Application Software
+   ↓
+Operating System
+   ↓
+Hardware
+```
+
+### Real-Life Example
+
+Suppose you want to print a document.
+
+Without an OS:
+
+* You would have to tell the CPU what to do.
+* Tell the RAM where to store data.
+* Tell the printer when to print.
+
+Impossible!
+
+Instead,
+
+You simply click **Print**, and the **Operating System** handles everything.
+
+So,
+
+> **OS acts as a manager between you and the hardware.**
+
+---
+
+# What does an Operating System do?
+
+The tutorial says that an OS performs basic tasks like:
+
+* File Management
+* Memory Management
+* Process Management
+* Input/Output Management
+* Device Management
+
+Think of the OS as the **manager of the entire computer**.
+
+Imagine a company.
+
+* Employees = Programs
+* Office resources = CPU, RAM, Printer
+* Manager = Operating System
+
+The manager decides:
+
+* Who gets work?
+* Who gets resources?
+* When resources are returned?
+
+Exactly the same is done by the OS.
+
+---
+
+# OS Enables Applications to Use Hardware
+
+Applications cannot directly access hardware.
+
+Example:
+
+When you open Chrome,
+
+Chrome cannot directly access:
+
+* CPU
+* RAM
+* Keyboard
+* Screen
+
+Instead,
+
+```text
+Chrome
+   ↓
+Operating System
+   ↓
+Hardware
+```
+
+The Operating System acts as a translator.
+
+---
+
+# What is Kernel?
+
+The tutorial says:
+
+> **The software that contains the core components of the operating system is called the Kernel.**
+
+This is one of the **most important definitions**.
+
+## What is Kernel?
+
+The **Kernel** is the **core (heart)** of the Operating System.
+
+It is always loaded into memory after the computer starts.
+
+It directly communicates with the hardware.
+
+### Easy Analogy
+
+Imagine a school.
+
+* Principal = Operating System
+* Principal's office = Kernel
+
+All important decisions are taken from the principal's office.
+
+Similarly,
+
+The Kernel controls all important operations.
+
+---
+
+## Kernel Responsibilities
+
+Kernel manages:
+
+* CPU
+* RAM
+* Devices
+* File System
+* Interrupts
+* Processes
+
+Without the kernel,
+
+the Operating System cannot work.
+
+### Remember
+
+> **Kernel = Core of Operating System**
+
+**IBPS Question**
+
+**Which part of the Operating System directly communicates with hardware?**
+
+Answer:
+
+**Kernel**
+
+---
+
+# Main Purpose of Operating System
+
+The tutorial mentions two main purposes.
+
+---
+
+## Purpose 1
+
+Allow applications to interact with hardware.
+
+Example
+
+When you play a movie,
+
+The media player requests
+
+* speaker
+* display
+* RAM
+
+The Operating System manages everything.
+
+---
+
+## Purpose 2
+
+Manage hardware and software resources.
+
+Resources include
+
+Hardware
+
+* CPU
+* RAM
+* Hard Disk
+* Printer
+
+Software
+
+* Running programs
+* Background services
+
+The OS decides
+
+Who gets what.
+
+---
+
+# Popular Operating Systems
+
+The tutorial mentions:
+
+### Windows
+
+Developed by Microsoft.
+
+Most widely used desktop OS.
+
+---
+
+### Linux
+
+Open Source.
+
+Developed by Linus Torvalds.
+
+Many versions (Ubuntu, Fedora, CentOS).
+
+---
+
+### VMS
+
+Used mainly in enterprise systems.
+
+---
+
+### OS/400
+
+IBM Operating System.
+
+---
+
+### AIX
+
+IBM's UNIX Operating System.
+
+---
+
+### z/OS
+
+IBM Mainframe Operating System.
+
+Mostly used in banks.
+
+IBPS may ask this.
+
+---
+
+# Operating Systems are Everywhere
+
+Earlier,
+
+OS existed only in computers.
+
+Today,
+
+OS exists in
+
+* Mobile phones
+* Smart TVs
+* Cars
+* ATM machines
+* Washing machines
+* Toys
+* Smart Watches
+
+Almost every smart device has an Operating System.
+
+---
+
+# Different Definitions of Operating System
+
+The tutorial gives three definitions.
+
+Don't memorize all.
+
+Understand the common idea.
+
+---
+
+## Definition 1
+
+Operating System is a low-level software that supports basic computer functions.
+
+Examples
+
+* Scheduling
+* Device control
+
+---
+
+## Definition 2
+
+Operating System acts as an interface between user and hardware.
+
+This is the most common exam definition.
+
+---
+
+## Definition 3 (Wikipedia)
+
+Operating System is system software that
+
+* manages hardware
+* manages software resources
+* provides services to programs
+
+All three definitions mean the same thing.
+
+---
+
+# Architecture of Operating System
+
+Although the image isn't included in the text, the conceptual architecture is:
+
+```text
+User
+   ↓
+Application Software
+   ↓
+Operating System
+   ↓
+Hardware
+```
+
+Always remember this flow.
+
+The user never directly communicates with hardware.
+
+---
+
+# Functions of Operating System
+
+These are among the most important topics for IBPS SO.
+
+---
+
+# 1. Memory Management ⭐⭐⭐⭐⭐
+
+## What is Memory?
+
+Here,
+
+Memory means **Main Memory (RAM)**.
+
+The tutorial says:
+
+Main memory is a large collection of words (or bytes), and every location has its own address.
+
+Example
+
+```
+RAM
+
+Address      Data
+
+1000         A
+1001         B
+1002         C
+1003         D
+```
+
+Every byte has its own address.
+
+---
+
+## Why RAM?
+
+CPU can access RAM very quickly.
+
+Programs must first be loaded into RAM before execution.
+
+Example
+
+When you open Chrome,
+
+```text
+Hard Disk
+     ↓
+RAM
+     ↓
+CPU
+```
+
+CPU cannot directly execute programs from the hard disk because RAM is much faster.
+
+---
+
+## Memory Management Responsibilities
+
+### 1. Keeps track of RAM
+
+OS knows
+
+* which part is occupied
+* which part is free
+* which program is using which memory
+
+Example
+
+```
+RAM
+
+Chrome      2 GB
+
+VS Code     1 GB
+
+Spotify     500 MB
+
+Free        4.5 GB
+```
+
+The OS keeps this information.
+
+---
+
+### 2. Decides who gets memory
+
+Suppose
+
+Chrome
+
+VS Code
+
+Spotify
+
+all request memory together.
+
+The OS decides
+
+who gets memory first,
+
+how much memory,
+
+and when.
+
+---
+
+### 3. Allocates Memory
+
+When a process starts,
+
+OS gives memory.
+
+Example
+
+You open Photoshop.
+
+Photoshop requests 2 GB.
+
+OS allocates it.
+
+---
+
+### 4. Deallocates Memory
+
+When Photoshop closes,
+
+OS frees that memory.
+
+Otherwise,
+
+RAM would remain full forever.
+
+---
+
+# 2. Processor Management (CPU Management) ⭐⭐⭐⭐⭐
+
+This is also called **Process Scheduling**.
+
+The CPU can execute only one instruction at a time on a single core.
+
+When multiple programs are running,
+
+the OS decides
+
+Who gets CPU?
+
+For how long?
+
+---
+
+### Example
+
+Running
+
+* Chrome
+* Spotify
+* MS Word
+* Antivirus
+
+All are asking for CPU.
+
+OS decides
+
+```
+Chrome      5 ms
+
+Spotify     5 ms
+
+Word        5 ms
+
+Antivirus   5 ms
+```
+
+This switching happens so quickly that all programs appear to run simultaneously.
+
+---
+
+## Processor Management Responsibilities
+
+### Keeps track of processor
+
+OS knows
+
+* CPU status
+* Running process
+* Waiting process
+* Blocked process
+
+The tutorial calls the responsible program the **Traffic Controller**, meaning the component that keeps track of processor usage and process status.
+
+---
+
+### Allocates CPU
+
+OS assigns CPU to a process.
+
+---
+
+### Deallocates CPU
+
+When process finishes,
+
+CPU is released.
+
+---
+
+# 3. Device Management ⭐⭐⭐⭐
+
+A device means
+
+* Printer
+* Keyboard
+* Mouse
+* Scanner
+* Monitor
+
+The OS controls these using **Device Drivers**.
+
+### What is a Device Driver?
+
+A **Device Driver** is software that allows the Operating System to communicate with a hardware device.
+
+Example:
+
+Printer ↔ Printer Driver ↔ Operating System
+
+Without the correct driver, the OS cannot properly use that hardware.
+
+---
+
+## Responsibilities
+
+### Keeps track of devices
+
+OS knows
+
+* which devices exist
+* which are busy
+* which are free
+
+---
+
+### Decides who gets the device
+
+Suppose
+
+Two users want to print.
+
+OS creates a queue.
+
+```
+Printer Queue
+
+File A
+
+File B
+
+File C
+```
+
+---
+
+### Allocates device
+
+Printer goes to first request.
+
+---
+
+### Deallocates device
+
+Printing finishes.
+
+Printer becomes free.
+
+---
+
+# 4. File Management ⭐⭐⭐⭐⭐
+
+A file system organizes files into directories (folders).
+
+Example
+
+```
+Documents
+
+   Resume.pdf
+
+   Notes.docx
+
+Pictures
+
+   Photo.jpg
+```
+
+---
+
+## Responsibilities
+
+### Keeps track
+
+OS stores
+
+* file name
+* location
+* owner
+* permissions
+* size
+* status
+
+---
+
+### Decides resource allocation
+
+Who can use files.
+
+---
+
+### Allocates resources
+
+Opens files.
+
+---
+
+### Deallocates resources
+
+Closes files after use.
+
+---
+
+# Other Important Activities
+
+---
+
+# Security
+
+OS prevents unauthorized access.
+
+Methods
+
+* Password
+* PIN
+* Fingerprint
+* Face Unlock
+
+Example
+
+Windows Login.
+
+---
+
+# Control Over System Performance
+
+OS monitors
+
+* CPU usage
+* RAM usage
+* Waiting time
+* Response time
+
+Task Manager is a good example.
+
+---
+
+# Job Accounting
+
+OS records
+
+* CPU time used
+* Memory used
+* User information
+
+Mainly used on servers and multi-user systems.
+
+---
+
+# Error Detection
+
+OS detects errors like
+
+* Disk errors
+* Memory errors
+* Device failures
+* Software crashes
+
+It reports them using
+
+* Error messages
+* Logs
+* Debug information
+
+---
+
+# Coordination Between Software and Users
+
+Many software tools depend on the OS.
+
+Examples:
+
+* Compiler
+* Assembler
+* Interpreter
+
+The OS coordinates their execution and resource usage so users can run them efficiently.
+
+---
+
+# IBPS SO Memory Trick
+
+Remember the major functions using:
+
+**PMFDNS**
+
+* **P** → Processor Management
+* **M** → Memory Management
+* **F** → File Management
+* **D** → Device Management
+* **N** → Network Management
+* **S** → Security
+
+Then remember the remaining support functions:
+
+* Performance Control
+* Job Accounting
+* Error Detection
+* Coordination
+
+---
+
+# IBPS SO Exam Notes (Most Important)
+
+| Topic                | Remember                                              |
+| -------------------- | ----------------------------------------------------- |
+| Operating System     | Interface between User and Hardware                   |
+| Type of Software     | System Software                                       |
+| Kernel               | Core part of the OS; directly interacts with hardware |
+| Memory Management    | Allocates and frees RAM                               |
+| Processor Management | CPU scheduling / Process scheduling                   |
+| Device Management    | Uses device drivers to manage hardware devices        |
+| File Management      | Manages files and directories                         |
+| Security             | Prevents unauthorized access                          |
+| Job Accounting       | Tracks resource usage by users/jobs                   |
+| Error Detection      | Detects and reports system errors                     |
+| Performance Control  | Monitors system efficiency                            |
+
+### **IBPS SO Tip**
+
+From this chapter, the questions most commonly focus on:
+
+* **Kernel** and its role.
+* The **major functions of the Operating System**.
+* The difference between **Memory Management, Processor Management, Device Management, and File Management**.
+* The fact that **programs must be loaded into RAM before the CPU executes them**.
+* **Device Drivers** and their role in communicating with hardware.
+
+Master these concepts first—they are the foundation for later topics like processes, scheduling, memory management, deadlocks, paging, and synchronization.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="../../ask-ai.js" defer></script>
+</body></html>
+

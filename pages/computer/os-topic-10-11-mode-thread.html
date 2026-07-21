@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User/Kernel Mode, Process vs Thread & ULT vs KLT — Topic 1.10-1.11-1.12 | OS Notes</title>
+<meta name="description" content="User mode vs kernel mode (mode bit, TRAP, dual mode), Process vs Thread, and User Level Thread vs Kernel Level Thread — blocking, context switching, mapping models for GATE & UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:640px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── MODE BIT BADGE ── */
+  .mode-badge { display:inline-flex; align-items:center; gap:8px; border-radius:8px; padding:8px 16px; font-weight:700; font-size:14px; }
+  .bit-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:16px; flex-shrink:0; }
+
+  /* ── DUAL MODE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:130px; }
+  .flow-box h4 { font-size:13.5px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11.5px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 12px; flex-shrink:0; }
+  .flow-arrow .fa-line { width:40px; height:2px; }
+  .flow-arrow .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .flow-arrow .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+
+  /* ── PROCESS ANATOMY ── */
+  .anatomy-box { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .anatomy-title { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; text-align:center; }
+  .anatomy-row { display:flex; }
+  .anatomy-cell { flex:1; padding:12px 10px; text-align:center; font-size:12.5px; font-weight:600; border-right:1px solid rgba(0,0,0,.08); }
+  .anatomy-cell:last-child { border-right:none; }
+  .anatomy-cell .ac-icon { font-size:22px; margin-bottom:4px; }
+  .anatomy-cell .ac-label { font-weight:700; font-size:13px; display:block; margin-bottom:2px; }
+  .anatomy-cell .ac-sub { font-size:11px; font-weight:400; color:var(--mdgray); line-height:1.4; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#e3f2fd44; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+
+  /* ── THREAD STRUCTURE ── */
+  .thread-struct { padding:18px 20px; display:flex; gap:18px; flex-wrap:wrap; justify-content:center; }
+  .ts-process { border-radius:12px; overflow:hidden; flex:1; min-width:200px; box-shadow:0 3px 12px rgba(0,0,0,.08); }
+  .ts-process-hd { padding:10px 14px; font-weight:700; font-size:13px; color:#fff; text-align:center; }
+  .ts-shared { padding:12px 14px; font-size:12.5px; }
+  .ts-shared-label { font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+  .ts-shared-item { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:6px; margin-bottom:6px; font-weight:600; font-size:12.5px; }
+  .ts-thread-row { display:flex; gap:8px; padding:8px 14px; }
+  .ts-thread { flex:1; border-radius:8px; padding:8px; text-align:center; }
+  .ts-thread .tst-label { font-weight:700; font-size:11.5px; margin-bottom:5px; }
+  .ts-thread .tst-item  { font-size:10.5px; padding:3px 6px; border-radius:4px; margin-bottom:3px; font-weight:600; }
+
+  /* ── CONTEXT SWITCH ── */
+  .ctx-row { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+  .ctx-col { padding:16px 18px; }
+
+  /* ── BLOCKING DIAGRAM ── */
+  .block-row { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+  .block-col { padding:16px 18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:200px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .ctx-row,.block-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 1.10/1.11/1.12</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>User/Kernel Mode, Process vs Thread &amp; ULT vs KLT</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 1.10-1.11-1.12: User/Kernel Mode, Process vs Thread &amp; ULT vs KLT</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 1.10-1.11-1.12 • DUAL MODE + THREADS + ULT vs KLT</div>
+    <h1>User/Kernel Mode, Process vs Thread<br><span>&amp; ULT vs KLT</span></h1>
+    <p class="hero-sub">Mode bit (0/1), TRAP &amp; dual-mode — Process (heavyweight) vs Thread (lightweight) — plus User Level vs Kernel Level Threads: creation speed, context switching order, blocking behaviour, thread mapping models (many-to-one, one-to-one, many-to-many) and GATE 2014 trap.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐</span><span class="badge">UGC NET ⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Frequently Asked</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+<!-- ══════════════ DESCRIPTIVE ══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- ════════ TOPIC 10: USER MODE vs KERNEL MODE ════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">10</div>
+    <h2>Topic 10 — User Mode vs Kernel Mode</h2>
+  </div>
+
+  <!-- 10A: Mode Bit -->
+  <div class="sec-head" style="margin-top:10px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">10A</div>
+    <h2 class="sub">The Mode Bit — How Hardware Knows Which Mode</h2>
+  </div>
+
+  <p class="prose">Modern CPUs have a special register called the <b>mode bit</b> (also called privilege bit). It has only two values and tells the hardware which level of privilege the currently running code has.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔲 The Mode Bit — Only Two Values</div>
+    <div style="padding:20px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <div style="background:var(--greenl);border:3px solid var(--green);border-radius:14px;padding:20px 28px;text-align:center;flex:1;min-width:200px;">
+        <div class="bit-circle" style="background:var(--green);color:#fff;margin:0 auto 10px;width:56px;height:56px;font-size:28px;">1</div>
+        <div style="font-weight:800;font-size:17px;color:var(--green);margin-bottom:6px;">User Mode</div>
+        <div style="font-weight:700;font-size:11px;color:var(--green);letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase;">Mode Bit = 1</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.65;">Normal applications run here.<br>Text editor, MS Office, music player, games, browsers — all run in user mode by default.<br><b>Cannot directly access hardware.</b></div>
+      </div>
+      <div style="display:flex;align-items:center;font-size:28px;color:var(--mdgray);">⟷</div>
+      <div style="background:var(--redl);border:3px solid var(--red);border-radius:14px;padding:20px 28px;text-align:center;flex:1;min-width:200px;">
+        <div class="bit-circle" style="background:var(--red);color:#fff;margin:0 auto 10px;width:56px;height:56px;font-size:28px;">0</div>
+        <div style="font-weight:800;font-size:17px;color:var(--red);margin-bottom:6px;">Kernel Mode</div>
+        <div style="font-weight:700;font-size:11px;color:var(--red);letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase;">Mode Bit = 0</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.65;">OS kernel, device drivers run here.<br>Has <b>full access to all hardware</b>: CPU registers, RAM, hard disk, monitor, printer, network cards.<br>Executes privileged instructions.</div>
+      </div>
+    </div>
+    <div style="padding:10px 20px;background:#f9fdfd;border-top:1px solid #e0f7fa;font-size:13px;color:var(--dkgray);text-align:center;">
+      The <b>processor continuously switches</b> between mode 1 (user) and mode 0 (kernel) during execution. This switching is the heart of the <b>Dual Mode</b> operation.
+    </div>
+    <div class="diagram-caption">Mnemonic: Mode bit 1 = User (U-1). Mode bit 0 = Kernel (K-0). Whenever you see "mode bit = 0" → think kernel mode, privileged, OS in control.</div>
+  </div>
+
+  <!-- 10B: Dual Mode Operation -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">10B</div>
+    <h2 class="sub">Dual Mode Operation — How Switching Works</h2>
+  </div>
+
+  <p class="prose">Whenever a user process needs OS services (file access, device I/O, printing), it invokes a <b>system call</b>. This generates a <b>TRAP</b> (software interrupt) that switches the CPU from user mode to kernel mode. After the kernel finishes, it returns to user mode.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔄 Complete Dual Mode Switching Flow — Step by Step</div>
+    <div class="flow-wrap">
+      <div class="flow-row">
+        <!-- Step 1: User Mode -->
+        <div class="flow-box" style="background:var(--greenl);border:2px solid var(--green);">
+          <div style="font-size:24px;margin-bottom:6px;">👤</div>
+          <h4 style="color:var(--green);">① User Mode</h4>
+          <p style="color:var(--dkgray);">Mode bit = <b>1</b><br>App is executing<br>(e.g., C program running)</p>
+        </div>
+        <!-- Arrow 1 -->
+        <div class="flow-arrow">
+          <div style="display:flex;align-items:center;">
+            <div class="fa-line" style="background:var(--orange);"></div>
+            <div class="fa-tip-r" style="border-left-color:var(--orange);"></div>
+          </div>
+          <div class="fa-label" style="color:var(--orange);">System Call<br>invoked</div>
+        </div>
+        <!-- Step 2: TRAP -->
+        <div class="flow-box" style="background:var(--orangel);border:2px solid var(--orange);">
+          <div style="font-size:24px;margin-bottom:6px;">⚡</div>
+          <h4 style="color:var(--orange);">② TRAP Generated</h4>
+          <p style="color:var(--dkgray);">Software interrupt fires<br>Mode bit: 1 → <b>0</b><br>CPU switches mode</p>
+        </div>
+        <!-- Arrow 2 -->
+        <div class="flow-arrow">
+          <div style="display:flex;align-items:center;">
+            <div class="fa-line" style="background:var(--red);"></div>
+            <div class="fa-tip-r" style="border-left-color:var(--red);"></div>
+          </div>
+          <div class="fa-label" style="color:var(--red);">Now in<br>Kernel Mode</div>
+        </div>
+        <!-- Step 3: Kernel Mode -->
+        <div class="flow-box" style="background:var(--redl);border:2px solid var(--red);">
+          <div style="font-size:24px;margin-bottom:6px;">⚙️</div>
+          <h4 style="color:var(--red);">③ Kernel Mode</h4>
+          <p style="color:var(--dkgray);">Mode bit = <b>0</b><br>OS executes the<br>system call<br>(read/write/print)</p>
+        </div>
+        <!-- Arrow 3 -->
+        <div class="flow-arrow">
+          <div style="display:flex;align-items:center;">
+            <div class="fa-line" style="background:var(--green);"></div>
+            <div class="fa-tip-r" style="border-left-color:var(--green);"></div>
+          </div>
+          <div class="fa-label" style="color:var(--green);">Return to<br>user</div>
+        </div>
+        <!-- Step 4: Back to User -->
+        <div class="flow-box" style="background:var(--greenl);border:2px solid var(--green);">
+          <div style="font-size:24px;margin-bottom:6px;">👤</div>
+          <h4 style="color:var(--green);">④ User Mode</h4>
+          <p style="color:var(--dkgray);">Mode bit: 0 → <b>1</b><br>App continues<br>from where it left</p>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">This mode switching happens thousands of times per second during normal program execution. It is extremely fast but essential for security and resource protection.</div>
+  </div>
+
+  <!-- 10C: Detailed Example -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">10C</div>
+    <h2 class="sub">Detailed Example — C Program Reading a File</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📋 C Program: Read File → Write File → Print — All Mode Switches</div>
+    <div style="padding:16px 20px;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--green);">USER MODE (bit=1)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            C program starts executing in user mode. <code style="background:#e8f5e9;padding:1px 5px;border-radius:3px;font-family:monospace;">int x = 2 + 2;</code> — CPU does this arithmetic. No kernel needed. Mode bit stays 1.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--orangel);border:2px solid var(--orange);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--orange);">TRAP (1 → 0)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            Program calls <code style="background:#fff3e0;padding:1px 5px;border-radius:3px;font-family:monospace;">read(fd, buffer, size);</code> to read a file from hard disk. Hard disk is hardware → needs kernel. TRAP fires → mode bit changes 1 → 0.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--red);">KERNEL MODE (bit=0)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            OS kernel reads data from hard disk into buffer. Kernel has direct hardware access. Data is fetched. Now kernel calls <code style="background:#ffebee;padding:1px 5px;border-radius:3px;font-family:monospace;">write()</code> to update the file → still in kernel mode.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--green);">RETURN (0 → 1)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            System call completes. Kernel returns control to user process. Mode bit changes 0 → 1. Program continues in user mode.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--orangel);border:2px solid var(--orange);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--orange);">TRAP AGAIN (1 → 0)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            Program calls <code style="background:#fff3e0;padding:1px 5px;border-radius:3px;font-family:monospace;">printf("4");</code> to print to monitor. Monitor is hardware → needs kernel. Another TRAP. Mode 1 → 0.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:8px 12px;min-width:130px;text-align:center;flex-shrink:0;">
+            <div style="font-weight:700;font-size:11.5px;color:var(--red);">KERNEL MODE (bit=0)</div>
+          </div>
+          <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;padding-top:6px;">
+            OS kernel sends "4" to monitor hardware. Output appears on screen. Returns to user mode. Mode 0 → 1.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Key insight: 2+2=4 (arithmetic) does NOT need kernel. But printf("4") (printing to monitor) DOES need kernel because the monitor is hardware under OS control.</div>
+  </div>
+
+  <!-- 10D: Bank Analogy -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">10D</div>
+    <h2 class="sub">Bank Analogy — Why Dual Mode is Necessary</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🏦 Bank Analogy — User Mode vs Kernel Mode</div>
+    <div style="padding:18px 20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="background:var(--greenl);border-radius:10px;padding:14px 16px;">
+          <div style="font-weight:800;font-size:14px;color:var(--green);margin-bottom:10px;">👤 You (Customer) = User Mode</div>
+          <ul style="list-style:none;font-size:13px;color:var(--dkgray);line-height:1.7;">
+            <li>• You enter the bank (start application)</li>
+            <li>• You fill a withdrawal form (make a system call)</li>
+            <li>• You hand the form through the small window</li>
+            <li>• You CANNOT go behind the counter yourself</li>
+            <li>• You wait for the clerk to process it</li>
+            <li>• Clerk gives you money (kernel returns result)</li>
+            <li>• You leave with money (return to user mode)</li>
+          </ul>
+        </div>
+        <div style="background:var(--redl);border-radius:10px;padding:14px 16px;">
+          <div style="font-weight:800;font-size:14px;color:var(--red);margin-bottom:10px;">⚙️ Bank Clerk/PO = Kernel Mode</div>
+          <ul style="list-style:none;font-size:13px;color:var(--dkgray);line-height:1.7;">
+            <li>• Works behind the counter (kernel mode area)</li>
+            <li>• Has access to the vault (hardware/resources)</li>
+            <li>• Processes the withdrawal form (executes sys call)</li>
+            <li>• Verifies identity and balance (checks permissions)</li>
+            <li>• Accesses the drawer (disk/hardware access)</li>
+            <li>• Gives money through the window (returns data)</li>
+            <li>• Controls all resources in the bank (OS manages all)</li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:var(--tealb);border-radius:10px;padding:12px 16px;font-size:13.5px;color:var(--teal);line-height:1.7;">
+        <b>Why can't you just go behind the counter?</b> If users could directly access hardware (like going behind the counter and taking money from the vault), there would be NO security. Any process could overwrite any other process's data, crash the system, steal information, or take full control. The dual mode system prevents this — user mode code literally CANNOT execute privileged instructions. Hardware enforces this.
+      </div>
+    </div>
+    <div class="diagram-caption">The "small window" between you and the clerk = the system call interface. The form you fill = the system call parameters. The entire bank layout = the kernel-managed hardware resources.</div>
+  </div>
+
+  <div class="info-box gold">
+    ⭐ <b>Key exam points:</b><br>
+    • Mode bit = 1 → User Mode (less privileged)<br>
+    • Mode bit = 0 → Kernel Mode (fully privileged)<br>
+    • Switching from user → kernel mode: <b>TRAP</b> (software interrupt) is generated<br>
+    • Switching from kernel → user mode: after system call returns<br>
+    • <b>Dual mode</b> = the two-mode design (user + kernel) — essential for OS security and resource management<br>
+    • 2+2=4 (arithmetic) = stays in user mode. printf() = needs kernel mode (monitor is hardware)
+  </div>
+
+  <!-- ════════ TOPIC 11: PROCESS vs THREAD ════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;">11</div>
+    <h2>Topic 11 — Process vs Thread</h2>
+  </div>
+
+  <!-- 11A: Definitions -->
+  <div class="sec-head" style="margin-top:10px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11A</div>
+    <h2 class="sub">Definitions — Heavy vs Lightweight</h2>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;">
+    <div style="background:#fff;border:2px solid var(--blue);border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+      <div style="font-weight:800;font-size:16px;color:var(--blue);margin-bottom:8px;">⚙️ Process = Heavyweight</div>
+      <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;">A program in execution. An independent unit with its own memory space, code, data, stack, registers, and PID. Created via <code style="background:#e3f2fd;padding:1px 5px;border-radius:3px;font-family:monospace;">fork()</code> system call (kernel involvement). OS treats it as a completely separate entity.</div>
+    </div>
+    <div style="background:#fff;border:2px solid var(--purple);border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+      <div style="font-weight:800;font-size:16px;color:var(--purple);margin-bottom:8px;">🧵 Thread = Lightweight</div>
+      <div style="font-size:13.5px;color:var(--dkgray);line-height:1.7;">A sub-unit within a process. Multiple threads of the same process share code, data, and heap memory. Each thread only has its own stack and registers. Created by application (no kernel system call needed for user-level threads).</div>
+    </div>
+  </div>
+
+  <!-- 11B: Anatomy of Process and Thread -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11B</div>
+    <h2 class="sub">What a Process Contains vs What Threads Share</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🏗️ Process Anatomy — Components of a Process</div>
+    <div style="padding:16px 20px;">
+      <div class="anatomy-box">
+        <div class="anatomy-title" style="background:var(--blue);">⚙️ One Process — Everything It Contains</div>
+        <div class="anatomy-row">
+          <div class="anatomy-cell" style="background:#e3f2fd;">
+            <div class="ac-icon">📄</div>
+            <span class="ac-label" style="color:var(--blue);">Code</span>
+            <span class="ac-sub">Program instructions (compiled bytecode)</span>
+          </div>
+          <div class="anatomy-cell" style="background:#e8f5e9;">
+            <div class="ac-icon">🗄️</div>
+            <span class="ac-label" style="color:var(--green);">Data / Files</span>
+            <span class="ac-sub">Global variables, open file handles, heap memory</span>
+          </div>
+          <div class="anatomy-cell" style="background:#fff3e0;">
+            <div class="ac-icon">📚</div>
+            <span class="ac-label" style="color:var(--orange);">Stack</span>
+            <span class="ac-sub">Function calls, local variables, return addresses</span>
+          </div>
+          <div class="anatomy-cell" style="background:var(--purplel);">
+            <div class="ac-icon">🔢</div>
+            <span class="ac-label" style="color:var(--purple);">Registers</span>
+            <span class="ac-sub">CPU registers, program counter, I/O registers</span>
+          </div>
+          <div class="anatomy-cell" style="background:var(--redl);">
+            <div class="ac-icon">🏷️</div>
+            <span class="ac-label" style="color:var(--red);">PID / PCB</span>
+            <span class="ac-sub">Process ID, Process Control Block (saved state)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">When fork() creates a child process, ALL of these components are duplicated — a complete independent copy. This is why processes are "heavyweight."</div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🧵 Thread Structure — Shared vs Private Resources</div>
+    <div class="thread-struct">
+      <!-- Process wrapper with threads inside -->
+      <div class="ts-process" style="border:3px solid var(--purple);">
+        <div class="ts-process-hd" style="background:var(--purple);">⚙️ One Process (Contains 3 Threads)</div>
+        <!-- Shared section -->
+        <div class="ts-shared" style="background:var(--purplel);">
+          <div class="ts-shared-label" style="color:var(--purple);">🔗 SHARED BY ALL THREADS (same copy)</div>
+          <div class="ts-shared-item" style="background:#fff;color:var(--blue);">📄 Code — all threads run the same program code</div>
+          <div class="ts-shared-item" style="background:#fff;color:var(--green);">🗄️ Data &amp; Files — same global variables, same heap, same open files</div>
+        </div>
+        <!-- Threads row -->
+        <div style="background:#f9f0ff;padding:8px 14px 4px;font-weight:700;font-size:11px;color:var(--purple);text-transform:uppercase;letter-spacing:.06em;">🔒 PRIVATE — Each Thread Gets Its Own</div>
+        <div class="ts-thread-row">
+          <div class="ts-thread" style="background:var(--orangel);border:2px solid var(--orange);">
+            <div class="tst-label" style="color:var(--orange);">Thread T1</div>
+            <div class="tst-item" style="background:#fff3e0;color:var(--orange);">📚 Stack (T1)</div>
+            <div class="tst-item" style="background:#fff3e0;color:var(--orange);">🔢 Registers (T1)</div>
+          </div>
+          <div class="ts-thread" style="background:var(--tealb);border:2px solid var(--teal2);">
+            <div class="tst-label" style="color:var(--teal2);">Thread T2</div>
+            <div class="tst-item" style="background:#e0f7fa;color:var(--teal2);">📚 Stack (T2)</div>
+            <div class="tst-item" style="background:#e0f7fa;color:var(--teal2);">🔢 Registers (T2)</div>
+          </div>
+          <div class="ts-thread" style="background:var(--bluebg);border:2px solid var(--blue);">
+            <div class="tst-label" style="color:var(--blue);">Thread T3</div>
+            <div class="tst-item" style="background:#e3f2fd;color:var(--blue);">📚 Stack (T3)</div>
+            <div class="tst-item" style="background:#e3f2fd;color:var(--blue);">🔢 Registers (T3)</div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#f3e5f5;font-size:11.5px;color:var(--purple);text-align:center;">OS sees this entire box as ONE PROCESS. It doesn't distinguish T1, T2, T3 (for user-level threads).</div>
+      </div>
+    </div>
+    <div class="diagram-caption">Each thread has its own execution context (stack + registers) but shares everything else with other threads. This is why threads are "lightweight" — no duplication of code or data.</div>
+  </div>
+
+  <!-- 11C: Why use threads? -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11C</div>
+    <h2 class="sub">When to Use Threads vs Processes</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🖨️ Print Server Example — Thread vs Process</div>
+    <div style="padding:16px 20px;">
+      <p style="font-size:13.5px;color:var(--dkgray);line-height:1.7;margin-bottom:14px;">
+        A print server receives print requests from 100 clients simultaneously. The same print code needs to run 100 times. Which approach is better?
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:var(--redl);border-radius:10px;padding:14px 16px;">
+          <div style="font-weight:700;font-size:13.5px;color:var(--red);margin-bottom:8px;">❌ Using Processes (fork())</div>
+          <ul style="list-style:none;font-size:13px;color:var(--dkgray);line-height:1.75;">
+            <li>• 100 clients → 100 child processes created</li>
+            <li>• Each gets its OWN copy of print code</li>
+            <li>• Each gets its OWN copy of data</li>
+            <li>• 100 separate memory spaces</li>
+            <li>• HUGE overhead — memory, time, resources</li>
+            <li>• Context switching very slow</li>
+          </ul>
+        </div>
+        <div style="background:var(--greenl);border-radius:10px;padding:14px 16px;">
+          <div style="font-weight:700;font-size:13.5px;color:var(--green);margin-bottom:8px;">✅ Using Threads</div>
+          <ul style="list-style:none;font-size:13px;color:var(--dkgray);line-height:1.75;">
+            <li>• 100 clients → 100 threads within 1 process</li>
+            <li>• All share the SAME print code (no copy!)</li>
+            <li>• All share the SAME data space</li>
+            <li>• Only stack &amp; registers differ per thread</li>
+            <li>• Minimal memory overhead</li>
+            <li>• Context switching very fast</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Use threads when the same code needs to run multiple times in parallel (web servers, print servers, game engines). Use processes when tasks are truly independent and need full isolation.</div>
+  </div>
+
+  <!-- 11D: Context Switching -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11D</div>
+    <h2 class="sub">Context Switching — Process vs Thread</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⏱️ Context Switching — Why Process Switching is Slower</div>
+    <div class="ctx-row">
+      <div class="ctx-col" style="background:var(--redl);border-right:1px solid #ffcdd2;">
+        <div style="font-weight:800;font-size:14px;color:var(--red);margin-bottom:12px;">🐢 Process Context Switch — SLOW</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--red);">① Save P1's entire state to PCB</b><br>
+            Save all registers, program counter, memory maps, open file handles, etc.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--red);">② OS involvement required</b><br>
+            Kernel manages PCB (Process Control Block). Uses OS memory and time.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--red);">③ Load P2's entire state from its PCB</b><br>
+            Restore all registers, reload memory maps, restore open files.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--red);">④ Resume P2</b><br>
+            Very expensive in time and OS resources.
+          </div>
+        </div>
+      </div>
+      <div class="ctx-col" style="background:var(--greenl);">
+        <div style="font-weight:800;font-size:14px;color:var(--green);margin-bottom:12px;">⚡ Thread Context Switch — FAST</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--green);">① Save T1's stack pointer + registers only</b><br>
+            Code and data are shared — no need to save them. Minimal saving required.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--green);">② No kernel involvement (user-level threads)</b><br>
+            Application manages thread switching. No OS overhead. No mode switch.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--green);">③ Load T2's stack pointer + registers</b><br>
+            Restore minimal state. Memory is shared — already in place.
+          </div>
+          <div style="text-align:center;font-size:18px;color:var(--mdgray);">↓</div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;">
+            <b style="color:var(--green);">④ Resume T2</b><br>
+            Very fast — no heavy OS involvement needed.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Context switching speed: Thread &gt;&gt; Process. Because threads share memory — only registers and stack pointer need saving. Processes need their entire PCB saved/restored.</div>
+  </div>
+
+  <!-- 11E: Blocking Behaviour -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11E</div>
+    <h2 class="sub">★ Blocking Behaviour — Most Important Exam Point</h2>
+  </div>
+
+  <div class="info-box red">⭐⭐ <b>Star-marked exam point from lecture:</b> The blocking behaviour of processes vs threads is critically different and appears frequently in GATE/UGC NET questions.</div>
+
+  <div class="diagram">
+    <div class="diagram-title">🚫 Blocking: Process vs Thread — Critical Difference</div>
+    <div class="block-row">
+      <div class="block-col" style="background:var(--greenl);border-right:1px solid #c8e6c9;">
+        <div style="font-weight:800;font-size:14px;color:var(--green);margin-bottom:12px;">✅ Processes — INDEPENDENT</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);margin-bottom:12px;">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--green);">
+            Process P1 makes an I/O request (e.g., read from disk). Kernel blocks P1.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--green);">
+            P1 goes to Wait/Block state. OS scheduler picks next ready process.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--green);">
+            <b style="color:var(--green);">P2, P3 continue running — completely unaffected!</b> They are independent processes.
+          </div>
+        </div>
+        <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:10px 12px;font-weight:700;font-size:13px;color:var(--green);">
+          ✅ Blocking ONE process does NOT block OTHER processes.
+        </div>
+        <div style="text-align:center;margin-top:12px;font-size:28px;">
+          🖥️ P1 (BLOCKED) &nbsp; 🖥️ P2 (RUNNING) &nbsp; 🖥️ P3 (RUNNING)
+        </div>
+      </div>
+      <div class="block-col" style="background:var(--redl);">
+        <div style="font-weight:800;font-size:14px;color:var(--red);margin-bottom:12px;">❌ Threads — INTERDEPENDENT</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);margin-bottom:12px;">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--red);">
+            Thread T1 makes an I/O request (e.g., read from disk). Request goes to kernel.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--red);">
+            <b>Kernel doesn't know about threads</b> (for user-level threads). Kernel sees the WHOLE PROCESS. Kernel blocks the entire process.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border-left:3px solid var(--red);">
+            <b style="color:var(--red);">T2 and T3 also get blocked — even though they had nothing to do with the I/O!</b>
+          </div>
+        </div>
+        <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:10px 12px;font-weight:700;font-size:13px;color:var(--red);">
+          ❌ Blocking ONE thread BLOCKS THE ENTIRE PROCESS (and all other threads in it).
+        </div>
+        <div style="text-align:center;margin-top:12px;font-size:28px;">
+          🧵 T1 (I/O req) ➜ ⛔ Whole process blocked ➜ T2, T3 also stuck
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 16px;background:#fff3e0;border-top:1px solid #ffe0b2;font-size:13px;color:var(--orange);">
+      <b>Why does blocking T1 block T2 and T3?</b> Because threading (at user level) is invisible to the OS kernel. The kernel sees one process. When that process makes an I/O request, the kernel blocks the entire process — it has no concept of "let the other threads of this process run." They share the same PID, the same scheduling unit.
+    </div>
+    <div class="diagram-caption">★ KEY: Processes = independent (blocking one doesn't affect others). Threads = interdependent (blocking one blocks all in the same process).</div>
+  </div>
+
+  <!-- 11F: Full Comparison Table -->
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">11F</div>
+    <h2 class="sub">Complete Comparison — Process vs Thread</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 Process vs Thread — All Differences in One Table</div>
+    <div style="overflow-x:auto;">
+      <table class="cmp-table">
+        <tr>
+          <th style="background:#37474f;color:#fff;text-align:left;">Property</th>
+          <th style="background:var(--blue);color:#fff;">⚙️ Process</th>
+          <th style="background:var(--purple);color:#fff;">🧵 Thread</th>
+        </tr>
+        <tr>
+          <td>Weight</td>
+          <td><span class="red-text">Heavy weight</span> — full copy of everything</td>
+          <td><span class="green-text">Light weight</span> — minimal private resources</td>
+        </tr>
+        <tr>
+          <td>Creation</td>
+          <td>System call — <code style="background:#e3f2fd;padding:1px 5px;border-radius:3px;font-family:monospace;">fork()</code> — kernel involved</td>
+          <td>API call by application — NO system call needed (for user-level threads)</td>
+        </tr>
+        <tr>
+          <td>OS awareness</td>
+          <td>OS treats each process as a <b>separate entity</b> with its own PID</td>
+          <td>OS treats the <b>entire process as one</b> — doesn't see individual threads (user-level)</td>
+        </tr>
+        <tr>
+          <td>Code &amp; Data</td>
+          <td><span class="red-text">Separate copies</span> for each child — huge overhead<br>2ⁿ−1 child processes with n forks</td>
+          <td><span class="green-text">All threads share</span> same code and data — no duplication</td>
+        </tr>
+        <tr>
+          <td>Stack &amp; Registers</td>
+          <td>Own stack, own registers (everything is separate)</td>
+          <td>Own stack and registers only — rest is shared</td>
+        </tr>
+        <tr>
+          <td>Memory &amp; Addresses</td>
+          <td><span class="red-text">Different memory addresses</span> — no sharing</td>
+          <td><span class="green-text">Shared memory and addresses</span> — same address space</td>
+        </tr>
+        <tr>
+          <td>Context switching</td>
+          <td><span class="red-text">Slow</span> — save/restore entire PCB via OS, mode switch needed</td>
+          <td><span class="green-text">Fast</span> — only save/restore stack pointer + registers, no OS needed</td>
+        </tr>
+        <tr>
+          <td>Blocking behaviour</td>
+          <td><span class="green-text">Independent</span> — blocking P1 does NOT block P2 or P3</td>
+          <td><span class="red-text">Interdependent</span> — blocking T1 (I/O) blocks the <b>entire process</b> (T2, T3 also blocked)</td>
+        </tr>
+        <tr>
+          <td>Overhead</td>
+          <td><span class="red-text">High</span> — separate code, data, memory for each</td>
+          <td><span class="green-text">Low</span> — shared resources, minimal duplication</td>
+        </tr>
+        <tr>
+          <td>Best use case</td>
+          <td>Truly independent tasks (browser + music player + word processor)</td>
+          <td>Same task, multiple instances (print server, web server, game physics engine)</td>
+        </tr>
+      </table>
+    </div>
+    <div class="diagram-caption">The two most critical exam points: (1) Context switching is FASTER in threads. (2) Blocking one thread blocks the ENTIRE process — but blocking one process doesn't affect other processes.</div>
+  </div>
+
+  <!-- User level vs kernel level threads -->
+  <div class="info-box purple">
+    🧵 <b>Two types of threads (brief mention):</b><br>
+    • <b>User-Level Threads (ULT)</b>: Managed by application, not kernel. Fast to create/switch. But blocking one blocks all (kernel unaware).<br>
+    • <b>Kernel-Level Threads (KLT)</b>: Managed by OS kernel. Kernel aware of each thread. Blocking one doesn't block others. But creation/switching is slower (involves OS).<br>
+    The lecture primarily discusses user-level threads.
+  </div>
+
+
+  <!-- ════════ TOPIC 12: USER LEVEL vs KERNEL LEVEL THREADS ════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;">12</div>
+    <h2>Topic 12 — User Level Thread (ULT) vs Kernel Level Thread (KLT)</h2>
+  </div>
+
+  <div class="sec-head" style="margin-top:10px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12A</div>
+    <h2 class="sub">Who Manages — User Library vs OS Kernel</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🧵 ULT vs KLT — Who Creates and Manages Each</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:18px 20px;background:var(--bluebg);border-right:1px solid #bee3f8;">
+        <div style="font-weight:800;font-size:15px;color:var(--blue);margin-bottom:12px;">🧵 User Level Thread (ULT)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);">
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--blue);">
+            <b style="color:var(--blue);">Managed by:</b> User-level thread library (application's responsibility).<br>
+            Example: <code style="background:#e3f2fd;padding:1px 5px;border-radius:3px;font-family:monospace;">pthread.h</code> in C — functions like <code style="background:#e3f2fd;padding:1px 5px;border-radius:3px;font-family:monospace;">pthread_create()</code>, <code style="background:#e3f2fd;padding:1px 5px;border-radius:3px;font-family:monospace;">pthread_join()</code>.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--blue);">
+            <b style="color:var(--blue);">Creation:</b> <span style="color:var(--green);font-weight:700;">No system call needed</span> — created via procedure/library calls only. Very fast.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--blue);">
+            <b style="color:var(--blue);">Kernel awareness:</b> Kernel has <b>NO knowledge</b> of ULTs. Kernel sees only the whole process as one unit.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--blue);">
+            <b style="color:var(--blue);">OS role in execution:</b> OS still needed for actual CPU scheduling, but creation and switching are entirely in user space.
+          </div>
+        </div>
+      </div>
+      <div style="padding:18px 20px;background:var(--redl);">
+        <div style="font-weight:800;font-size:15px;color:var(--red);margin-bottom:12px;">⚙️ Kernel Level Thread (KLT)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--dkgray);">
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--red);">
+            <b style="color:var(--red);">Managed by:</b> The OS kernel itself — kernel is directly responsible for creating and managing KLTs.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--red);">
+            <b style="color:var(--red);">Creation:</b> <span style="color:var(--red);font-weight:700;">Requires system calls</span> — OS involved. Slower than ULT creation. Somewhat similar to creating a process in terms of overhead.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--red);">
+            <b style="color:var(--red);">Kernel awareness:</b> Kernel <b>fully knows</b> each KLT individually. Kernel schedules each thread independently.
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 13px;border-left:3px solid var(--red);">
+            <b style="color:var(--red);">Examples:</b> Linux kernel threads, Windows threads — OS manages them directly with kernel-side data structures.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Key: ULT = library manages, no system call, kernel unaware. KLT = OS kernel manages, system call required, kernel fully aware of each thread.</div>
+  </div>
+
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12B</div>
+    <h2 class="sub">Context Switching Speed — ULT vs KLT vs Process</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">⏱️ Context Switching Speed — Fastest to Slowest</div>
+    <div style="padding:18px 20px;">
+      <div style="display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="flex:1;min-width:180px;background:var(--greenl);border:2px solid var(--green);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">⚡⚡⚡</div>
+          <div style="font-weight:800;font-size:14px;color:var(--green);margin-bottom:6px;">FASTEST<br>User Level Thread</div>
+          <div style="font-size:12px;color:var(--dkgray);line-height:1.65;">No OS/kernel involved. Only save/restore stack pointer + registers. Shared code &amp; data already in place. Pure user-space switch.</div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:22px;color:var(--mdgray);">›</div>
+        <div style="flex:1;min-width:180px;background:var(--orangel);border:2px solid var(--orange);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">⚡⚡</div>
+          <div style="font-weight:800;font-size:14px;color:var(--orange);margin-bottom:6px;">MEDIUM<br>Kernel Level Thread</div>
+          <div style="font-size:12px;color:var(--dkgray);line-height:1.65;">OS kernel invoked every time. Mode switch (user→kernel→user). System call overhead. Slower than ULT but faster than full process switch.</div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:22px;color:var(--mdgray);">›</div>
+        <div style="flex:1;min-width:180px;background:var(--redl);border:2px solid var(--red);border-radius:12px;padding:16px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:6px;">⚡</div>
+          <div style="font-weight:800;font-size:14px;color:var(--red);margin-bottom:6px;">SLOWEST<br>Process Switch</div>
+          <div style="font-size:12px;color:var(--dkgray);line-height:1.65;">Save/restore entire PCB. Different memory spaces — TLB flush, memory map reload. Maximum OS overhead.</div>
+        </div>
+      </div>
+      <div style="background:var(--tealb);border-radius:8px;padding:11px 14px;font-size:13.5px;color:var(--teal);font-weight:700;text-align:center;">
+        Speed order: ULT switching &gt; KLT switching &gt; Process switching &nbsp;&nbsp;(fastest → slowest)
+      </div>
+    </div>
+    <div class="diagram-caption">Why KLT is slower than ULT: every KLT context switch invokes the OS kernel (mode switch, system call). ULT switching stays entirely in user space — no kernel at all.</div>
+  </div>
+
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12C</div>
+    <h2 class="sub">★ Blocking Behaviour — ULT vs KLT (Most Asked)</h2>
+  </div>
+
+  <div class="info-box red">⭐⭐ <b>GATE/UGC NET Star Point:</b> Blocking behaviour is the most-asked ULT vs KLT difference in competitive exams.</div>
+
+  <div class="diagram">
+    <div class="diagram-title">🚫 Blocking: ULT vs KLT — Critical Difference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:16px 18px;background:var(--redl);border-right:1px solid #ffcdd2;">
+        <div style="font-weight:800;font-size:14px;color:var(--red);margin-bottom:10px;">❌ ULT — One block = ALL blocked</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.7;">
+          <b>Scenario:</b> Process has T1, T2, T3 (user-level). T1 requests disk I/O.<br><br>
+          <ol style="margin-left:16px;margin-top:6px;line-height:1.85;">
+            <li>T1's I/O request reaches kernel.</li>
+            <li>Kernel has NO knowledge of T1/T2/T3 as individual threads.</li>
+            <li>Kernel sees ONE PROCESS making an I/O request.</li>
+            <li>Kernel blocks the ENTIRE PROCESS.</li>
+            <li>T2 and T3 also stuck — even though they wanted to run!</li>
+          </ol>
+        </div>
+        <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:9px 12px;font-weight:700;font-size:13px;color:var(--red);margin-top:10px;">
+          ❌ One ULT block → whole process blocked (T1 + T2 + T3 all stuck)
+        </div>
+      </div>
+      <div style="padding:16px 18px;background:var(--greenl);">
+        <div style="font-weight:800;font-size:14px;color:var(--green);margin-bottom:10px;">✅ KLT — One blocks, others continue</div>
+        <div style="font-size:13px;color:var(--dkgray);line-height:1.7;">
+          <b>Scenario:</b> Process has T1, T2, T3 (kernel-level). T1 requests disk I/O.<br><br>
+          <ol style="margin-left:16px;margin-top:6px;line-height:1.85;">
+            <li>T1's I/O request reaches kernel.</li>
+            <li>Kernel KNOWS T1, T2, T3 are separate threads (it created them!).</li>
+            <li>Kernel blocks ONLY T1 — puts T1 in Wait state.</li>
+            <li>Kernel scheduler picks T2 or T3 to run next.</li>
+            <li>T2 and T3 continue executing normally.</li>
+          </ol>
+        </div>
+        <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:9px 12px;font-weight:700;font-size:13px;color:var(--green);margin-top:10px;">
+          ✅ One KLT block → only that thread. T2 and T3 keep running.
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Root cause: ULT — kernel blind to threads (sees one process → blocks everything). KLT — kernel sees each thread individually → blocks selectively.</div>
+  </div>
+
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12D</div>
+    <h2 class="sub">Thread Mapping Models — Solving the ULT Blocking Problem</h2>
+  </div>
+
+  <p class="prose">Since ULTs have the "one blocks all" problem, operating systems use <b>mapping models</b> that connect ULTs to KLTs. The mapping tells the kernel how many user threads correspond to how many kernel threads.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🗺️ Thread Mapping Models — Many-to-One, One-to-One, Many-to-Many</div>
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;">
+
+      <!-- Many-to-One -->
+      <div style="background:#fff;border:2px solid var(--blue);border-radius:12px;overflow:hidden;">
+        <div style="background:var(--blue);color:#fff;padding:10px 16px;font-weight:700;font-size:13.5px;">① Many-to-One (M:1)</div>
+        <div style="padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;">
+          <div style="text-align:center;min-width:150px;">
+            <div style="display:flex;gap:5px;justify-content:center;margin-bottom:5px;">
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT1</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT2</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT3</div>
+            </div>
+            <div style="font-size:14px;color:var(--mdgray);">↓ all map to ↓</div>
+            <div style="background:var(--redl);border:2px solid var(--red);border-radius:5px;padding:4px 14px;display:inline-block;font-family:monospace;font-size:11px;font-weight:700;color:var(--red);margin-top:5px;">KLT1 only</div>
+          </div>
+          <div style="font-size:13px;color:var(--dkgray);line-height:1.7;">
+            <b>Multiple ULTs → Single KLT.</b> All user threads multiplexed over one kernel thread. Only one ULT runs at a time.<br>
+            <span style="color:var(--red);font-weight:700;">⚠ Problem:</span> One ULT blocks → all blocked. Cannot use multiple CPUs in parallel. Not for multiprocessors.
+          </div>
+        </div>
+      </div>
+
+      <!-- One-to-One -->
+      <div style="background:#fff;border:2px solid var(--green);border-radius:12px;overflow:hidden;">
+        <div style="background:var(--green);color:#fff;padding:10px 16px;font-weight:700;font-size:13.5px;">② One-to-One (1:1) — Used by Linux &amp; Windows</div>
+        <div style="padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;">
+          <div style="text-align:center;min-width:150px;">
+            <div style="display:flex;gap:5px;justify-content:center;margin-bottom:4px;">
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT1</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT2</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--blue);">ULT3</div>
+            </div>
+            <div style="font-size:14px;color:var(--mdgray);">↓&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;↓</div>
+            <div style="display:flex;gap:5px;justify-content:center;margin-top:4px;">
+              <div style="background:var(--greenl);border:2px solid var(--green);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--green);">KLT1</div>
+              <div style="background:var(--greenl);border:2px solid var(--green);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--green);">KLT2</div>
+              <div style="background:var(--greenl);border:2px solid var(--green);border-radius:5px;padding:4px 8px;font-family:monospace;font-size:11px;font-weight:700;color:var(--green);">KLT3</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--dkgray);line-height:1.7;">
+            <b>Each ULT → Its own KLT.</b> If one KLT blocks → others keep running (kernel sees them separately). True multiprocessor parallelism — different KLTs can run on different CPU cores.<br>
+            <span style="color:var(--red);font-weight:700;">⚠ Problem:</span> Creating many threads = many kernel threads = overhead.<br>
+            <span style="color:var(--green);font-weight:700;">✅ Used by:</span> <b>Linux, Windows.</b> Most common modern approach.
+          </div>
+        </div>
+      </div>
+
+      <!-- Many-to-Many -->
+      <div style="background:#fff;border:2px solid var(--purple);border-radius:12px;overflow:hidden;">
+        <div style="background:var(--purple);color:#fff;padding:10px 16px;font-weight:700;font-size:13.5px;">③ Many-to-Many (M:N) — Hybrid Model</div>
+        <div style="padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;">
+          <div style="text-align:center;min-width:150px;">
+            <div style="display:flex;gap:4px;justify-content:center;margin-bottom:4px;">
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:3px 7px;font-family:monospace;font-size:10px;font-weight:700;color:var(--blue);">U1</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:3px 7px;font-family:monospace;font-size:10px;font-weight:700;color:var(--blue);">U2</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:3px 7px;font-family:monospace;font-size:10px;font-weight:700;color:var(--blue);">U3</div>
+              <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:5px;padding:3px 7px;font-family:monospace;font-size:10px;font-weight:700;color:var(--blue);">U4</div>
+            </div>
+            <div style="font-size:13px;color:var(--mdgray);">↘ ↓ ↙ mapped</div>
+            <div style="display:flex;gap:6px;justify-content:center;margin-top:4px;">
+              <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:5px;padding:3px 10px;font-family:monospace;font-size:10px;font-weight:700;color:var(--purple);">K1</div>
+              <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:5px;padding:3px 10px;font-family:monospace;font-size:10px;font-weight:700;color:var(--purple);">K2</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--dkgray);line-height:1.7;">
+            <b>Many ULTs → Fewer KLTs.</b> Best of both worlds. Multiple ULTs multiplexed over multiple KLTs. OS can schedule another KLT when one blocks. True parallelism possible without 1:1 overhead.<br>
+            <span style="color:var(--green);font-weight:700;">✅ Benefit:</span> No overhead of 1:1, no blocking-all problem of M:1. Flexible and efficient.<br>
+            <span style="color:var(--orange);font-weight:700;">⚡ Also called:</span> <b>Hybrid model.</b>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Linux uses One-to-One (1:1). Many-to-Many resolves both limitations (blocking + overhead). For exams: know which model solves the blocking problem (1:1 and M:N) and which doesn't (M:1).</div>
+  </div>
+
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12E</div>
+    <h2 class="sub">GATE 2014 — Code Sharing Clarification (Important!)</h2>
+  </div>
+
+  <div class="info-box red">⭐ <b>GATE 2014 asked:</b> "Kernel level threads do NOT share the code section." — This statement is <b>FALSE</b>. Here is the correct explanation:</div>
+
+  <div class="diagram">
+    <div class="diagram-title">📋 GATE 2014 Clarification — Do KLTs Share Code?</div>
+    <div style="padding:16px 20px;">
+      <div style="background:var(--redl);border:2px solid var(--red);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13.5px;color:var(--red);margin-bottom:6px;">❌ WRONG STATEMENT (GATE 2014 option):</div>
+        <div style="font-size:13.5px;color:var(--dkgray);">"Kernel level threads do not share the code section."</div>
+      </div>
+      <div style="background:var(--greenl);border:2px solid var(--green);border-radius:10px;padding:14px 16px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13.5px;color:var(--green);margin-bottom:6px;">✅ CORRECT:</div>
+        <div style="font-size:13.5px;color:var(--dkgray);line-height:1.75;">
+          Both <b>ULT and KLT</b> share code and data. They are still THREADS — the fundamental property of any thread is sharing code + data.<br><br>
+          The "user" or "kernel" label only refers to <b>WHO MANAGES</b> the thread, not <b>what it shares</b>. Regardless of level:<br>
+          • ✅ All threads share: Code section + Data section (global variables, heap)<br>
+          • ❌ Each thread keeps private: Stack + Registers<br><br>
+          That is why both ULT and KLT are called <b>lightweight processes</b> — no code/data duplication.
+        </div>
+      </div>
+      <div style="background:var(--tealb);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--teal);">
+        <b>Universal thread rule:</b> ANY thread (ULT or KLT) ALWAYS shares code + data, and ALWAYS has its own stack + registers. The type only affects: creation method, context switching speed, blocking behaviour, and kernel awareness.
+      </div>
+    </div>
+    <div class="diagram-caption">This GATE 2014 trap catches students who think KLTs are "more process-like" and therefore don't share. But threads always share code/data regardless of their level.</div>
+  </div>
+
+  <div class="sec-head" style="margin-top:20px;">
+    <div class="sec-num sub-sec" style="background:var(--teal2);color:#fff;">12F</div>
+    <h2 class="sub">Complete Comparison — ULT vs KLT</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 ULT vs KLT — All Differences in One Table</div>
+    <div style="overflow-x:auto;">
+      <table class="cmp-table">
+        <tr>
+          <th style="background:#37474f;color:#fff;text-align:left;">Property</th>
+          <th style="background:var(--blue);color:#fff;">🧵 User Level Thread (ULT)</th>
+          <th style="background:var(--red);color:#fff;">⚙️ Kernel Level Thread (KLT)</th>
+        </tr>
+        <tr>
+          <td>Managed by</td>
+          <td>User-level thread library (application) — e.g., pthread.h</td>
+          <td>OS Kernel itself — kernel's own data structures</td>
+        </tr>
+        <tr>
+          <td>Creation method</td>
+          <td><span class="green-text">No system call</span> — library call. Very fast.</td>
+          <td><span class="red-text">Requires system call</span> — OS involved. Slower.</td>
+        </tr>
+        <tr>
+          <td>Kernel awareness</td>
+          <td><span class="red-text">Kernel NOT aware</span> of individual ULTs. Sees whole process.</td>
+          <td><span class="green-text">Kernel fully aware</span> of each KLT individually.</td>
+        </tr>
+        <tr>
+          <td>Context switching</td>
+          <td><span class="green-text">Fastest</span> — pure user space, no kernel or mode switch</td>
+          <td><span class="red-text">Slower</span> — kernel invoked, mode switch overhead each time</td>
+        </tr>
+        <tr>
+          <td>Blocking ⭐</td>
+          <td><span class="red-text">One ULT blocks → ENTIRE PROCESS blocked</span></td>
+          <td><span class="green-text">One KLT blocks → only that thread. Others run.</span></td>
+        </tr>
+        <tr>
+          <td>Code &amp; Data sharing ⭐</td>
+          <td><span class="green-text">Shares code + data</span> (threads always share these)</td>
+          <td><span class="green-text">Also shares code + data</span> (GATE 2014 — KLTs are still threads!)</td>
+        </tr>
+        <tr>
+          <td>Stack &amp; Registers</td>
+          <td>Each ULT has its own stack and registers</td>
+          <td>Each KLT has its own stack and registers</td>
+        </tr>
+        <tr>
+          <td>Multiprocessor support</td>
+          <td><span class="red-text">Poor</span> — M:1 mapping means only 1 CPU used at a time</td>
+          <td><span class="green-text">Good</span> — kernel can schedule KLTs on different CPU cores</td>
+        </tr>
+        <tr>
+          <td>Examples</td>
+          <td>pthreads (POSIX threads), older Java green threads</td>
+          <td>Linux (1:1 model), Windows threads</td>
+        </tr>
+      </table>
+    </div>
+    <div class="diagram-caption">Most-asked exam points: (1) Blocking — ULT one blocks all; KLT one blocks only itself. (2) Code sharing — BOTH ULT and KLT share code and data (GATE 2014 trap).</div>
+  </div>
+
+</div><!-- /view-descriptive -->
+
+
+<!-- ════════════════════ REVISION NOTES ════════════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">1</div>User Mode vs Kernel Mode — Mode Bit
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Mode bit = 1</div><div class="rv"><b>User Mode</b> — normal applications run here. Cannot directly access hardware. Lower privilege.</div></div>
+      <div class="rev-kv"><div class="rk">Mode bit = 0</div><div class="rv"><b>Kernel Mode</b> — OS kernel, device drivers run here. Full hardware access. Highest privilege.</div></div>
+      <div class="rev-kv"><div class="rk">TRAP</div><div class="rv">Software interrupt generated when user process makes a system call. Causes mode switch: 1 → 0. Kernel takes control.</div></div>
+      <div class="rev-kv"><div class="rk">Return from kernel</div><div class="rv">After system call completes, mode switches back: 0 → 1. User process resumes.</div></div>
+      <div class="rev-kv"><div class="rk">Dual Mode</div><div class="rv">The two-mode design (user + kernel) is called Dual Mode Operation. Essential for OS security and resource management.</div></div>
+      <div class="rev-kv"><div class="rk">2+2=4 (arithmetic)</div><div class="rv">Does NOT need kernel. Stays in user mode. CPU does arithmetic itself.</div></div>
+      <div class="rev-kv"><div class="rk">printf("4")</div><div class="rv">NEEDS kernel. Monitor is hardware under OS control → system call → TRAP → kernel mode → prints → returns to user mode.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">2</div>Bank Analogy — Dual Mode
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">You (customer)</div><div class="rv">= User Mode. Can interact with the bank (system) only through the prescribed interface (system calls).</div></div>
+      <div class="rev-kv"><div class="rk">Bank clerk/PO</div><div class="rv">= Kernel Mode. Has access to the vault (hardware). Processes your request (executes system call).</div></div>
+      <div class="rev-kv"><div class="rk">Filling a form</div><div class="rv">= Making a system call. You provide parameters (form) → kernel processes it → returns result (money).</div></div>
+      <div class="rev-kv"><div class="rk">Why not direct access?</div><div class="rv">If user could directly touch hardware (go behind counter), there'd be no security, no resource management — total chaos. Dual mode prevents this.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">3</div>Process vs Thread — Core Differences
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Process</div><div class="rv"><b>Heavyweight</b>. Own code, data, stack, registers, PID, memory address space. Created by fork() (system call = kernel involved).</div></div>
+      <div class="rev-kv"><div class="rk">Thread</div><div class="rv"><b>Lightweight</b>. Shares code &amp; data with other threads. Only has own stack and registers. Created by application (no system call for user-level).</div></div>
+      <div class="rev-kv"><div class="rk">OS view of Process</div><div class="rv">Each process = separate entity with its own PID. OS schedules and manages each independently.</div></div>
+      <div class="rev-kv"><div class="rk">OS view of Thread</div><div class="rv">OS treats the whole process as ONE unit (for user-level threads). Does NOT know individual threads exist.</div></div>
+      <div class="rev-kv"><div class="rk">What threads share</div><div class="rv">Code + Data + Heap + Open files. Same memory address space.</div></div>
+      <div class="rev-kv"><div class="rk">What threads keep private</div><div class="rv">Stack (own function call history) + Registers (own execution state). That's it.</div></div>
+      <div class="rev-kv"><div class="rk">Print server example</div><div class="rv">100 clients → use 100 threads (not 100 child processes). Threads share the same print code — no duplication overhead.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--red);">
+      <div class="rev-num">4</div>★ Context Switching &amp; Blocking — Star Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Process context switch</div><div class="rv"><b>SLOW</b> — must save/restore entire PCB (all registers, memory maps, file handles). Kernel (OS) involved. Mode switch required.</div></div>
+      <div class="rev-kv"><div class="rk">Thread context switch</div><div class="rv"><b>FAST</b> — only save/restore stack pointer + CPU registers. No OS involvement needed. Memory is shared — no reload.</div></div>
+      <div class="rev-kv"><div class="rk">Why time slicing?</div><div class="rv">Time quantum (e.g., 2ms) → CPU runs P1/T1 for 2ms → switches to P2/T2 → this switching is context switching.</div></div>
+      <div class="rev-kv"><div class="rk">Blocking a process</div><div class="rv"><b>INDEPENDENT</b> — blocking P1 (for I/O) does NOT block P2 or P3. Other processes continue running normally.</div></div>
+      <div class="rev-kv"><div class="rk">Blocking a thread</div><div class="rv"><b>INTERDEPENDENT</b> — blocking T1 blocks the ENTIRE process (T2 and T3 also blocked). Kernel sees one process → blocks whole thing.</div></div>
+      <div class="rev-kv"><div class="rk">Why thread blocking is total</div><div class="rv">Kernel (for user-level threads) doesn't know individual threads exist. When T1 makes I/O request → kernel blocks the whole process → T2, T3 also stuck.</div></div>
+      <div class="rev-kv"><div class="rk">Processes = independent</div><div class="rv">Using different memories &amp; addresses → blocking one has zero effect on others.</div></div>
+      <div class="rev-kv"><div class="rk">Threads = interdependent</div><div class="rv">Sharing memory &amp; addresses → blocking via kernel affects the shared process unit.</div></div>
+    </div>
+  </div>
+
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">5</div>ULT vs KLT — Core Differences
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">ULT managed by</div><div class="rv">User-level thread library (application). e.g., pthread.h. Functions: pthread_create(), pthread_join(). No kernel involvement in creation.</div></div>
+      <div class="rev-kv"><div class="rk">KLT managed by</div><div class="rv">OS Kernel itself. Kernel creates and tracks each thread with kernel-side data structures.</div></div>
+      <div class="rev-kv"><div class="rk">ULT creation</div><div class="rv"><b>No system call</b> — library/procedure call. Very fast to create.</div></div>
+      <div class="rev-kv"><div class="rk">KLT creation</div><div class="rv"><b>Requires system call</b> — OS involved. Slower. Comparable overhead to creating a process.</div></div>
+      <div class="rev-kv"><div class="rk">Kernel awareness — ULT</div><div class="rv">Kernel has NO knowledge of individual ULTs. Sees the whole process as one unit.</div></div>
+      <div class="rev-kv"><div class="rk">Kernel awareness — KLT</div><div class="rv">Kernel fully knows each KLT individually. Schedules them independently.</div></div>
+      <div class="rev-kv"><div class="rk">Context switching speed</div><div class="rv"><b>ULT switching &gt; KLT switching &gt; Process switching</b> (fastest to slowest). ULT = pure user space. KLT = kernel invoked each time. Process = entire PCB saved/restored.</div></div>
+      <div class="rev-kv"><div class="rk">ULT blocking ⭐</div><div class="rv"><b>One ULT blocks → ENTIRE PROCESS blocked.</b> Kernel blind to threads → blocks the whole process when any I/O is requested.</div></div>
+      <div class="rev-kv"><div class="rk">KLT blocking ⭐</div><div class="rv"><b>One KLT blocks → only that KLT blocked.</b> Kernel aware of each KLT → can block one without affecting others. T2 and T3 continue.</div></div>
+      <div class="rev-kv"><div class="rk">GATE 2014 trap ⭐</div><div class="rv">"KLT does not share code" is <b>WRONG (FALSE)</b>. Both ULT and KLT share code + data. All threads (ULT or KLT) always share code &amp; data and always have own stack &amp; registers. "User/kernel" only means WHO MANAGES — not what is shared.</div></div>
+      <div class="rev-kv"><div class="rk">Many-to-One (M:1)</div><div class="rv">Many ULTs → 1 KLT. Fast ULT switching but: one block = all blocked, no multiprocessor parallelism.</div></div>
+      <div class="rev-kv"><div class="rk">One-to-One (1:1)</div><div class="rv">Each ULT → own KLT. Solves blocking (only that KLT blocked) + enables true multiprocessor parallelism. <b>Used by Linux and Windows.</b></div></div>
+      <div class="rev-kv"><div class="rk">Many-to-Many (M:N)</div><div class="rv">Many ULTs → fewer KLTs. Best of both worlds — no 1:1 overhead, no M:1 blocking problem. <b>Hybrid model.</b></div></div>
+    </div>
+  </div>
+
+</div><!-- /view-revision -->
+
+
+<!-- ════════════════════ QUIZ ════════════════════ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 1.10-1.11-1.12)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function switchView(id,e){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  (e.target||e).classList.add('active');
+  if(id==='quiz'&&!quizInitialised)initQuiz();
+}
+
+const questions=[
+  {
+    q:"What is the value of the mode bit when the CPU is in USER MODE?",
+    options:["0 — user mode is privileged so it gets 0","1 — user mode has mode bit = 1","2 — there are three modes: 0, 1, 2","The mode bit has no fixed value in user mode"],
+    answer:1,
+    explanation:"Mode bit = 1 in USER MODE. Mode bit = 0 in KERNEL MODE. Mnemonic: User=1, Kernel=0. This is set by the hardware and enforced by the CPU itself. The processor continuously checks the mode bit to decide which instructions are allowed to execute."
+  },
+  {
+    q:"What event causes the CPU to switch from User Mode (bit=1) to Kernel Mode (bit=0)?",
+    options:["A hardware interrupt from a keyboard or mouse","A TRAP (software interrupt) generated when a system call is made","The clock running out of time quantum","The process completing all its instructions"],
+    answer:1,
+    explanation:"A TRAP (also called a software interrupt) is generated when a user process makes a system call. The TRAP causes the CPU to switch from mode bit 1 (user) to mode bit 0 (kernel). The OS then executes the requested system call. After it completes, mode switches back from 0 to 1."
+  },
+  {
+    q:"In the bank analogy for dual mode: you (customer) = user mode, bank clerk = kernel mode. What represents the SYSTEM CALL in this analogy?",
+    options:["Walking into the bank building","Going behind the counter and taking money directly from the vault","Filling out a withdrawal form and handing it through the window to the clerk","The bank's security cameras"],
+    answer:2,
+    explanation:"The system call is like filling out a withdrawal form and handing it through the small window to the bank clerk. You (user mode) cannot go behind the counter (kernel mode) directly — that's exactly what the dual mode prevents. You request the service (system call), the clerk processes it (kernel executes), and you receive the result (return to user mode)."
+  },
+  {
+    q:"A C program executes: int x = 2 + 2; printf(\"%d\", x); — Which part requires switching to Kernel Mode?",
+    options:["Both operations — arithmetic and printf both need kernel","Neither — simple programs never need kernel mode","Only int x = 2+2 — arithmetic is the privileged operation","Only printf() — printing to monitor requires kernel because monitor is hardware under OS control"],
+    answer:3,
+    explanation:"2+2=4 (arithmetic) is done by the CPU itself — no hardware access, no kernel needed, stays in user mode. But printf(\"%d\", x) sends output to the MONITOR, which is hardware under OS control. This requires a system call (write()) → TRAP → kernel mode → OS sends data to monitor hardware → returns to user mode. The mode switch only happens for printf()."
+  },
+  {
+    q:"What is 'Dual Mode' in operating systems?",
+    options:["When two CPUs work simultaneously in parallel","The two-mode design (User Mode + Kernel Mode) where the CPU can operate in either privileged or unprivileged state — essential for OS security","When two operating systems are installed on the same machine (dual boot)","When the OS can run in both 32-bit and 64-bit mode"],
+    answer:1,
+    explanation:"Dual Mode = the two-mode operating design where a CPU can run in either User Mode (bit=1, unprivileged, no hardware access) or Kernel Mode (bit=0, privileged, full hardware access). This is essential for security and resource management — it prevents user programs from directly accessing hardware or other processes' memory. All modern CPUs support this via the mode bit register."
+  },
+  {
+    q:"What is the key difference between a Process and a Thread in terms of 'weight'?",
+    options:["Process = lightweight (fewer resources); Thread = heavyweight (more resources)","Process = heavyweight (own code, data, stack, registers, PID, memory); Thread = lightweight (only own stack and registers, shares rest)","Both are equally heavy — weight is determined by code size","Threads are heavier because they have multiple stacks"],
+    answer:1,
+    explanation:"Process = HEAVYWEIGHT because it has its own complete private copy of everything: code, data, heap, stack, registers, PID, memory address space. Creating a child process (fork()) duplicates all of this. Thread = LIGHTWEIGHT because threads within the same process SHARE code, data, and heap. Each thread only keeps its own stack and registers. No duplication of the rest."
+  },
+  {
+    q:"Which resources do threads within the same process SHARE?",
+    options:["Stack and registers — these are the shared parts","Code + Data + Heap + Open files (everything except stack and registers)","Nothing — each thread has completely private resources","Only the CPU registers — code is separate for each thread"],
+    answer:1,
+    explanation:"Threads in the same process share: Code (all run the same program), Data/Heap (same global variables, same dynamically allocated memory), and Open File handles. What each thread keeps PRIVATE: its own Stack (function call history, local variables) and its own CPU Registers (program counter, execution state). This is why threads are lightweight — no code/data duplication."
+  },
+  {
+    q:"How does the OS view multiple processes vs multiple threads (user-level) of one process?",
+    options:["OS treats threads as separate entities (different PIDs), but groups processes into one unit","OS treats each PROCESS as separate (different PIDs). But for user-level threads, OS sees the whole process as ONE unit — it doesn't know individual threads exist","OS manages both the same way — no difference in OS view","OS doesn't manage either — both are managed by the application"],
+    answer:1,
+    explanation:"Each PROCESS gets its own PID. The OS schedules, tracks, and manages each process individually as a completely separate entity. For USER-LEVEL THREADS, the OS kernel has no knowledge of the individual threads — it sees only the single process. Thread management is done by the user-space thread library (application level). This is why blocking one user-level thread blocks the entire process."
+  },
+  {
+    q:"Why is context switching FASTER for threads than for processes?",
+    options:["Threads have faster CPUs allocated to them","Thread switching only requires saving/restoring stack pointer + registers. Process switching requires saving/restoring the entire PCB (all registers, memory maps, file handles) with OS involvement","Thread switching is actually slower — they have more state to save","Both have identical context switching speed"],
+    answer:1,
+    explanation:"Process context switch: Must save the entire PCB (Process Control Block) — all registers, program counter, memory maps, open file handles, etc. This requires kernel/OS involvement and a mode switch. Thread context switch: Only save/restore the stack pointer and CPU registers — code and data are already shared in the same memory. No OS involvement needed for user-level threads. This makes thread switching significantly faster."
+  },
+  {
+    q:"★ STAR POINT: Thread T1 makes an I/O request (e.g., read from disk). What happens to threads T2 and T3 in the same process?",
+    options:["T2 and T3 continue running normally — only T1 is blocked, just like processes","T2 and T3 are also blocked — the kernel blocks the entire process because it doesn't know about individual user-level threads","T2 and T3 get their own CPU immediately while T1 waits","The process terminates — I/O requests terminate the whole process"],
+    answer:1,
+    explanation:"T2 and T3 are ALSO BLOCKED. Here's why: User-level threads are invisible to the OS kernel. When T1 makes an I/O request, the request goes to the kernel. The kernel sees only ONE PROCESS (not individual threads). The kernel blocks the whole process (puts it in Wait state). Since T2 and T3 are part of the same process, they are also blocked. This is the major disadvantage of user-level threads: one thread's I/O request freezes all threads."
+  },
+  {
+    q:"★ STAR POINT: Process P1 makes an I/O request. What happens to processes P2 and P3?",
+    options:["P2 and P3 are also blocked — similar to threads","P2 and P3 continue running — processes are INDEPENDENT. Blocking P1 has zero effect on P2 and P3","P2 and P3 are suspended to give priority to P1's I/O","The OS terminates P2 and P3 to free resources for P1"],
+    answer:1,
+    explanation:"P2 and P3 CONTINUE RUNNING — processes are INDEPENDENT. When P1 makes an I/O request, only P1 goes to the Wait/Block state. The OS scheduler picks P2 or P3 from the ready queue and runs them. P1 and P2 have different memory spaces, different PIDs — they don't share anything. So blocking P1 has absolutely no effect on P2 or P3. This is the key independence property of processes."
+  },
+  {
+    q:"Why are threads described as 'interdependent' while processes are 'independent'?",
+    options:["Threads use different CPUs so they depend on hardware; processes share one CPU","Threads share memory and address space — so actions on one (like I/O request causing a block) affect all others. Processes use different memories and addresses — no sharing, no interference","Processes depend on each other for memory; threads are completely isolated","Both are equally independent — the terms are used interchangeably"],
+    answer:1,
+    explanation:"Threads are INTERDEPENDENT because they share memory and address space. When T1 blocks (I/O request → kernel blocks the whole process), T2 and T3 are also affected because they're all in the same shared unit. Processes are INDEPENDENT because they use DIFFERENT memory and different addresses — no sharing. Blocking P1 has zero effect on P2 because they live in completely separate memory spaces with no connection."
+  },
+  {
+    q:"Who manages User Level Threads (ULTs) — and what library is commonly used?",
+    options:["The OS kernel — kernel creates and schedules ULTs with system calls","A user-level thread library at the application level (e.g., pthread.h in C — functions like pthread_create(), pthread_join()). No kernel involvement in creation.","The CPU hardware interrupt controller manages ULTs","ULTs are managed by the hard disk driver"],
+    answer:1,
+    explanation:"ULTs are managed by a USER-LEVEL THREAD LIBRARY — an application-level library like POSIX pthreads (pthread.h in C). Functions like pthread_create() and pthread_join() create and manage threads entirely in user space, with NO KERNEL involvement in thread creation. The kernel has NO KNOWLEDGE of these individual threads — it sees only the whole process. This is why ULT creation is very fast (no system call needed), but also why one blocking ULT blocks the entire process (kernel can't distinguish individual threads)."
+  },
+  {
+    q:"What is the correct order of context switching speed, from FASTEST to SLOWEST?",
+    options:["Process > KLT > ULT","KLT > ULT > Process","ULT > KLT > Process","All three are equally fast"],
+    answer:2,
+    explanation:"ULT > KLT > Process (fastest to slowest). ULT switching is FASTEST: happens entirely in user space, no kernel involved, no mode switch, only stack pointer + registers saved. KLT switching is MEDIUM: OS kernel is invoked for every switch, mode switch required (user→kernel→user), system call overhead. Process switching is SLOWEST: save/restore entire PCB (all registers, memory maps, file handles, TLB flush), maximum OS involvement. This is a commonly tested fact in GATE and UGC NET."
+  },
+  {
+    q:"★ A process has T1, T2, T3 as user-level threads. T1 makes an I/O request. T2 and T3 were ready to run. What happens?",
+    options:["Only T1 is blocked; T2 and T3 continue running since the kernel knows about each thread","T1, T2, and T3 are ALL blocked — the kernel sees only one process and blocks the entire process when T1 makes the I/O request","T1 is terminated; T2 and T3 take its resources","The OS automatically converts T2 and T3 to kernel-level threads to avoid blocking"],
+    answer:1,
+    explanation:"All three (T1, T2, T3) are blocked. For USER-LEVEL THREADS: the OS kernel has NO KNOWLEDGE of individual threads. When T1 makes an I/O request, the kernel sees just ONE PROCESS making an I/O request. The kernel then blocks the ENTIRE PROCESS — putting it in Wait state. Since T2 and T3 are part of the same process, they are also blocked and cannot run. This is the major disadvantage of user-level threads: one thread's I/O freezes the entire process. Contrast with KLT: if T1 were kernel-level, only T1 would be blocked while T2 and T3 continue."
+  },
+  {
+    q:"★ GATE 2014: 'Kernel level threads do NOT share the code section.' Is this TRUE or FALSE?",
+    options:["TRUE — KLTs are managed by the OS so they have their own separate code sections like processes","FALSE — Both ULT and KLT share code + data. All threads (regardless of level) always share code and data and have their own stack and registers.","TRUE — KLTs share data but have separate code sections","TRUE — only ULTs share code; KLTs do not"],
+    answer:1,
+    explanation:"FALSE — this is the GATE 2014 trap. Whether a thread is user-level or kernel-level, it is still a THREAD. The fundamental property of ALL threads is that they SHARE code and data with other threads in the same process. Both ULT and KLT: SHARE code section (same program instructions) and data section (global variables, heap). Both have their OWN stack and registers. The 'user' or 'kernel' prefix ONLY refers to WHO MANAGES the thread (library vs OS kernel), NOT what it shares. KLTs are still lightweight processes — they still share code and data just like ULTs do."
+  },
+  {
+    q:"Which thread mapping model does Linux use, and which problem does it solve over Many-to-One?",
+    options:["Many-to-One (M:1) — Linux maps all threads to one kernel thread for simplicity","One-to-One (1:1) — each ULT gets its own KLT, solving the blocking problem (one KLT blocking doesn't freeze others) and enabling multiprocessor parallelism","Many-to-Many (M:N) — Linux uses the hybrid model for maximum flexibility","Linux doesn't use any mapping — it only uses fork() for all concurrency"],
+    answer:1,
+    explanation:"Linux uses the ONE-TO-ONE (1:1) model — each user thread is mapped to its own kernel-level thread. This solves two major problems of Many-to-One: (1) BLOCKING — if one KLT blocks (I/O request), the kernel blocks only that KLT. Other KLTs (and their corresponding ULTs) keep running. (2) MULTIPROCESSOR — different KLTs can run on different CPU cores simultaneously, achieving true parallelism. Windows also uses 1:1. The Many-to-Many (M:N) model is called the hybrid model — it maps many ULTs to fewer (but more than 1) KLTs, combining benefits of both M:1 and 1:1."
+  }
+];
+
+let quizInitialised=false,current=0,score=0,answered=false;
+function initQuiz(){quizInitialised=true;renderQuestion();}
+function renderQuestion(){
+  const c=document.getElementById('quiz-container');
+  if(current>=questions.length){renderResults();return;}
+  document.getElementById('q-progress-fill').style.width=(current/questions.length*100).toFixed(0)+'%';
+  document.getElementById('q-progress-label').textContent=`Question ${current+1} of ${questions.length} (Topics 1.10-1.11-1.12)`;
+  document.getElementById('q-score-label').textContent=`Score: ${score}`;
+  const q=questions[current];
+  answered=false;
+  c.innerHTML=`
+    <div class="quiz-card">
+      <div class="quiz-title-tag">USER/KERNEL MODE + PROCESS vs THREAD — Q${current+1}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options">
+        ${q.options.map((o,i)=>`
+          <div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+            <div class="quiz-option-marker">${String.fromCharCode(65+i)}</div>${o}
+          </div>`).join('')}
+      </div>
+      <div id="explanation-wrap"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="current=0;score=0;renderQuestion();">↩ Restart</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+function selectOption(idx){
+  if(answered)return;
+  answered=true;
+  const q=questions[current];
+  q.options.forEach((_,i)=>{
+    const el=document.getElementById('opt-'+i);
+    if(i===q.answer)el.classList.add('correct');
+    else if(i===idx&&i!==q.answer)el.classList.add('incorrect');
+  });
+  if(idx===q.answer)score++;
+  document.getElementById('q-score-label').textContent=`Score: ${score}`;
+  document.getElementById('explanation-wrap').innerHTML=`
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">💡 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>`;
+  document.getElementById('next-btn').disabled=false;
+}
+function nextQuestion(){current++;renderQuestion();}
+function renderResults(){
+  const pct=Math.round(score/questions.length*100);
+  let badge='review',label='Keep Practising!',fb='Review the mode bit values and the blocking behaviour difference.';
+  if(pct>=90){badge='master';label='🏆 MASTER!';fb='Perfect! You have completely mastered Dual Mode and Process vs Thread.';}
+  else if(pct>=75){badge='excellent';label='🌟 Excellent!';fb='Great score! Quick review of the blocking behaviour (★ star points) will perfect you.';}
+  else if(pct>=55){badge='good';label='👍 Good Job!';fb='Good start! Focus on the two star-marked points: context switching speed and blocking behaviour.';}
+  document.getElementById('quiz-container').innerHTML=`
+    <div class="results-score-box">
+      <div class="results-score-circle">
+        <div class="results-score-num">${score}</div>
+        <div class="results-score-total">out of ${questions.length}</div>
+      </div>
+      <div class="results-badge ${badge}">${label}</div>
+      <div class="results-feedback">${fb}<br><br>Score: ${pct}%</div>
+    </div>
+    <button class="quiz-btn primary" style="margin:0 auto 24px;display:block;" onclick="current=0;score=0;renderQuestion();">🔄 Try Again</button>`;
+  document.getElementById('q-progress-fill').style.width='100%';
+  document.getElementById('q-progress-label').textContent='Completed!';
+  document.getElementById('q-score-label').textContent=`Final Score: ${score}/${questions.length}`;
+}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

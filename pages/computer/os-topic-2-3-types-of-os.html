@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Types of Operating System — Topic 1.2-1.3 | Operating System Notes</title>
+<meta name="description" content="Types of OS: Batch OS, Multi-programmed OS, Multi-tasking/Time-sharing OS — full explanation with diagrams, analogies, and key differences for GATE & UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064;
+    --teal2:  #00838f;
+    --teal3:  #4dd0e1;
+    --tealb:  #e0f7fa;
+    --navy:   #0D1B4B;
+    --blue:   #1565C0;
+    --lblue:  #42A5F5;
+    --red:    #C62828;
+    --redl:   #FFEBEE;
+    --green:  #2E7D32;
+    --greenl: #E8F5E9;
+    --orange: #E65100;
+    --orangel:#FFF3E0;
+    --purple: #6A1B9A;
+    --purplel:#F3E5F5;
+    --bluebg: #E3F2FD;
+    --text:   #1A1A1A;
+    --white:  #ffffff;
+    --dkgray: #424242;
+    --mdgray: #757575;
+    --gold:   #F9A825;
+    --brown:  #5D4037;
+    --brownl: #EFEBE9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0fafa; color: var(--text); min-height: 100vh; }
+
+  /* ── TOPBAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:15px; font-weight:600; letter-spacing:.02em; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 20px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s ease; color:var(--dkgray); background:transparent; letter-spacing:.02em; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;text-decoration:none;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(38px,6vw,60px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:580px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.04em; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADER ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sec-head h2 { font-size:19px; font-weight:700; letter-spacing:-.01em; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+  .prose code { font-family:'Space Mono',monospace; background:#e0f7fa; padding:1px 6px; border-radius:3px; font-size:12px; color:var(--teal); }
+
+  /* ── INFO BOX ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2);  color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);   color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange); color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green);  color:var(--dkgray); }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);    color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);   color:#5d4037; }
+  .info-box.brown  { background:var(--brownl);  border-color:var(--brown);  color:var(--brown); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── DATA TABLE ── */
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-table th { background:var(--teal); color:#fff; padding:9px 12px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .data-table td { padding:9px 12px; border-bottom:1px solid #b2ebf2; vertical-align:top; }
+  .data-table tr:nth-child(even) td { background:var(--tealb); }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table td:first-child { font-weight:600; color:var(--teal); }
+
+  /* ── COMPARE GRID ── */
+  .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .cmp-card { border-radius:10px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+  .cmp-card-head { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; display:flex; align-items:center; gap:8px; }
+  .cmp-card-body { padding:14px 16px; font-size:13.5px; line-height:1.65; }
+
+  /* ── PILL LIST ── */
+  .pill-list { list-style:none; margin:6px 0; }
+  .pill-list li { display:flex; gap:8px; font-size:13px; margin-bottom:6px; line-height:1.55; align-items:flex-start; }
+
+  /* ── OS TYPE CARD (main container for each OS type) ── */
+  .os-card { border-radius:14px; overflow:hidden; margin-bottom:28px; box-shadow:0 4px 20px rgba(0,0,0,.08); border:1px solid #ddd; }
+  .os-card-header { padding:18px 24px; color:#fff; display:flex; align-items:center; gap:16px; }
+  .os-card-header .os-icon { font-size:36px; flex-shrink:0; }
+  .os-card-header .os-era  { font-size:11px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:3px 10px; letter-spacing:.04em; margin-top:4px; display:inline-block; }
+  .os-card-header h3 { font-size:20px; font-weight:800; letter-spacing:.02em; margin-bottom:2px; }
+  .os-card-body { padding:20px 24px; background:#fff; }
+
+  /* ── BATCH OS TIMELINE ── */
+  .timeline { padding:20px 24px; }
+  .tl-step { display:flex; gap:16px; margin-bottom:20px; align-items:flex-start; }
+  .tl-badge { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; margin-top:2px; }
+  .tl-content h4 { font-size:14px; font-weight:700; margin-bottom:5px; }
+  .tl-content p  { font-size:13px; line-height:1.6; color:var(--dkgray); }
+  .tl-line { width:2px; height:18px; background:#b2dfdb; margin-left:19px; }
+
+  /* ── CPU TIMELINE (execution order) ── */
+  .exec-track { padding:18px 20px; overflow-x:auto; }
+  .gantt { display:flex; align-items:stretch; gap:0; margin-bottom:8px; border-radius:6px; overflow:hidden; border:1px solid #b2dfdb; }
+  .gantt-block { padding:10px 14px; text-align:center; font-weight:700; font-size:12.5px; flex:1; min-width:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+  .gantt-block .gb-label { font-size:10px; font-weight:400; opacity:.8; }
+  .gantt-labels { display:flex; gap:0; margin-top:4px; }
+  .gantt-tick { flex:1; min-width:60px; text-align:center; font-size:11px; color:var(--mdgray); font-family:'Space Mono',monospace; padding:0 2px; }
+
+  /* ── STUDENT ANALOGY ── */
+  .student-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:16px; }
+  .student-card { border-radius:8px; padding:10px 6px; text-align:center; border:2px solid; }
+  .student-card .s-icon { font-size:20px; margin-bottom:4px; }
+  .student-card .s-name { font-size:10.5px; font-weight:700; margin-bottom:4px; }
+  .student-card .s-qs   { display:flex; gap:3px; flex-wrap:wrap; justify-content:center; }
+  .q-dot { width:14px; height:14px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; color:#fff; }
+
+  /* ── REVISION CARDS ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-card-head .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:8px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:175px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:32px; box-shadow:0 4px 20px rgba(0,0,0,0.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:18px; font-weight:700; color:var(--navy); line-height:1.5; margin-bottom:20px; }
+  .quiz-options { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+  .quiz-option { display:flex; align-items:center; padding:16px 20px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:14px; font-weight:500; color:var(--text); transition:all 0.2s ease; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:14px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; transition:all 0.2s ease; background:#fff; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:18px 20px; margin-bottom:24px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+  .quiz-explanation-text  { font-size:13.5px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .quiz-btn { padding:12px 28px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.2s ease; font-family:'DM Sans',sans-serif; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-btn.secondary:hover { background:#e2e8f0; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width 0.3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; position:relative; overflow:hidden; }
+  .results-score-box::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 80% 20%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; line-height:1; color:#fff; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2); color:#fff; }
+  .results-badge.good      { background:var(--blue);  color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  /* ── TAG CHIPS ── */
+  .tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:4px; letter-spacing:.04em; }
+  .tag.non-pre { background:var(--orangel); color:var(--orange); }
+  .tag.pre     { background:var(--greenl);  color:var(--green); }
+  .tag.old     { background:var(--brownl);  color:var(--brown); }
+  .tag.modern  { background:var(--bluebg);  color:var(--blue);  }
+
+  /* ── ADVANTAGE / DISADVANTAGE LIST ── */
+  .adv-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+  .adv-col { border-radius:10px; padding:14px 16px; font-size:13px; line-height:1.65; }
+  .adv-col ul { list-style:none; }
+  .adv-col li { padding:3px 0 3px 20px; position:relative; margin-bottom:5px; }
+  .adv-col li::before { position:absolute; left:0; font-size:12px; top:4px; }
+  .adv-col.pros { background:var(--greenl); }
+  .adv-col.pros li::before { content:'✅'; }
+  .adv-col.cons { background:var(--redl); }
+  .adv-col.cons li::before { content:'❌'; }
+
+  /* ── MEGA COMPARISON TABLE ── */
+  .mega-compare { padding:0; }
+  .mc-head { display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:0; }
+  .mc-cell { padding:10px 12px; font-size:12.5px; }
+  .mc-head .mc-cell { background:var(--teal); color:#fff; font-weight:700; font-size:11.5px; letter-spacing:.04em; }
+  .mc-row { display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:0; border-top:1px solid #b2ebf2; }
+  .mc-row:nth-child(even) .mc-cell { background:var(--tealb); }
+  .mc-row .mc-cell:first-child { font-weight:600; color:var(--teal); }
+
+  @media(max-width:620px) {
+    .compare-grid, .adv-grid { grid-template-columns:1fr; }
+    .student-grid { grid-template-columns:repeat(3,1fr); }
+    .mc-head, .mc-row { grid-template-columns:1fr; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .topbar-title { display:none; }
+    .hero h1 { font-size:32px; }
+    .hero { padding:28px 20px 24px; }
+    .main { padding:24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 1.2/1.3</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>Types of OS</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 1.2-1.3: Types of OS</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 1.2-1.3 • TYPES OF OS</div>
+    <h1>Types of <span>Operating System</span></h1>
+    <p class="hero-sub">Batch OS (1960s), Multi-programmed OS, and Multi-tasking / Time-sharing OS — with full diagrams, CPU execution analogies, and the critical differences that appear in every exam.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐</span>
+      <span class="badge">UGC NET ⭐</span>
+      <span class="badge">B.Tech / BCA</span>
+      <span class="badge">University Exams</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════════ DESCRIPTIVE VIEW ═══════════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- OVERVIEW -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;">0</div>
+    <h2 style="color:var(--navy);">Overview — All Types of OS</h2>
+  </div>
+  <p class="prose">Operating systems are classified into several types based on how they handle jobs, processes, users, and timing. Here is the full category list:</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🗂️ Types of Operating System — Category Overview</div>
+    <div style="padding:18px 20px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--brown);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">📦 Batch OS</div>
+          <div style="background:var(--brownl);padding:10px 14px;font-size:12.5px;color:var(--brown);">Group similar jobs into batches; execute without user interaction. (1960s era)</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--blue);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">📂 Multi-programmed OS</div>
+          <div style="background:var(--bluebg);padding:10px 14px;font-size:12.5px;color:var(--navy);">Multiple processes in RAM; CPU switches only when process goes for I/O (non-preemptive).</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--teal2);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">⏱️ Multi-tasking / Time-sharing OS</div>
+          <div style="background:var(--tealb);padding:10px 14px;font-size:12.5px;color:var(--teal);">CPU switches between processes on a fixed time quantum (preemptive). Modern laptops use this.</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--red);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">⚡ Real-Time OS (RTOS)</div>
+          <div style="background:var(--redl);padding:10px 14px;font-size:12.5px;color:var(--red);">Guarantees response within strict deadlines. Hard RTOS (airplanes, medical devices) and Soft RTOS.</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--purple);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">🌐 Distributed OS</div>
+          <div style="background:var(--purplel);padding:10px 14px;font-size:12.5px;color:var(--purple);">Multiple networked computers appear as one system. Resources shared across the network.</div>
+        </div>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);">
+          <div style="background:var(--green);color:#fff;padding:9px 14px;font-weight:700;font-size:12.5px;">🔗 Clustered &amp; Embedded OS</div>
+          <div style="background:var(--greenl);padding:10px 14px;font-size:12.5px;color:var(--green);">Clustered: multiple computers work on one task. Embedded: OS built into devices (microwave, washing machine).</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The first three types (Batch, Multi-programmed, Multi-tasking) are the most exam-critical. Multi-programmed vs Multi-tasking difference is a guaranteed exam topic.</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 1: BATCH OS -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--brown);color:#fff;">1</div>
+    <h2 style="color:var(--navy);">Batch Operating System <span class="tag old">1960s Era</span></h2>
+  </div>
+
+  <div class="os-card">
+    <div class="os-card-header" style="background:linear-gradient(135deg,#4e342e,#6d4c41);">
+      <div class="os-icon">📦</div>
+      <div>
+        <h3>Batch Operating System</h3>
+        <div class="os-era">1960s · IBM FORTRAN · IBSYS 709X · No Direct Interaction</div>
+      </div>
+    </div>
+    <div class="os-card-body">
+      <p class="prose"><b>Core Idea:</b> Group (batch) similar jobs together and feed them to the computer for sequential execution — without any user interaction during execution.</p>
+
+      <!-- Historical context -->
+      <div class="diagram">
+        <div class="diagram-title">🏛️ Historical Context — How Batch OS Worked in 1960s</div>
+        <div class="timeline">
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">1</div>
+            <div class="tl-content">
+              <h4>Computers were huge and rare — only at big organisations</h4>
+              <p>In the 1960s, only major companies like NASA, ISRO, or research labs needed computers. Ordinary people did not have personal computers. The machines were enormous and stored centrally in a company building.</p>
+            </div>
+          </div>
+          <div class="tl-line"></div>
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">2</div>
+            <div class="tl-content">
+              <h4>Load your job onto Punch Cards / Paper Tape / Magnetic Tape</h4>
+              <p>If you had a computation to do — say a set of mathematical calculations — you encoded your program <b>offline</b> onto a punch card (physical card with holes punched to represent data) or magnetic tape. The computer was not directly accessible to you.</p>
+            </div>
+          </div>
+          <div class="tl-line"></div>
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">3</div>
+            <div class="tl-content">
+              <h4>Hand the punch card to the Operator</h4>
+              <p>You physically went to the computing centre and handed your punch card to an <b>Operator</b> (a trained person who managed the computer system). You did NOT insert anything into the computer yourself. The operator was the intermediary.</p>
+            </div>
+          </div>
+          <div class="tl-line"></div>
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">4</div>
+            <div class="tl-content">
+              <h4>Operator creates Batches of similar jobs</h4>
+              <p>The operator collected all submitted jobs and <b>grouped similar types of jobs into batches</b> (e.g., Batch B1 has all calculation jobs, Batch B2 has all data processing jobs). Similar jobs are grouped because they need similar system resources — this reduces setup overhead between jobs.</p>
+            </div>
+          </div>
+          <div class="tl-line"></div>
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">5</div>
+            <div class="tl-content">
+              <h4>CPU executes jobs one by one in the batch</h4>
+              <p>The OS picks Job 1 from Batch 1 and gives it to the CPU. CPU executes it. If the job requests an I/O operation (reading from disk, accessing a device), the <b>CPU sits idle waiting</b> for the I/O to complete — then continues. This idle time was a major disadvantage.</p>
+            </div>
+          </div>
+          <div class="tl-line"></div>
+          <div class="tl-step">
+            <div class="tl-badge" style="background:var(--brown);">6</div>
+            <div class="tl-content">
+              <h4>Collect result after days, weeks, or months</h4>
+              <p>You had no idea when your job would be executed — it depended on how many jobs were ahead of yours. Results were printed or recorded offline on a tape. You came back later to collect them. There was <b>zero interaction</b> once you submitted the job.</p>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-caption">This entire process was the "Batch" workflow — submit, wait, collect. No user interaction possible once submitted.</div>
+      </div>
+
+      <!-- Batch workflow diagram -->
+      <div class="diagram">
+        <div class="diagram-title">📊 Batch OS — Job Flow Diagram</div>
+        <div style="padding:20px;">
+          <!-- Row 1: Users to Operator -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+            <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px;">
+              <div style="font-size:20px;">👤</div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--blue);">User A</div>
+              <div style="font-size:10px;color:var(--mdgray);">Punch Card</div>
+            </div>
+            <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px;">
+              <div style="font-size:20px;">👤</div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--green);">User B</div>
+              <div style="font-size:10px;color:var(--mdgray);">Punch Card</div>
+            </div>
+            <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:8px;padding:10px 14px;text-align:center;min-width:90px;">
+              <div style="font-size:20px;">👤</div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--purple);">User C</div>
+              <div style="font-size:10px;color:var(--mdgray);">Punch Card</div>
+            </div>
+            <div style="font-size:22px;color:var(--mdgray);">→</div>
+            <div style="background:var(--brownl);border:2px solid var(--brown);border-radius:8px;padding:12px 16px;text-align:center;min-width:100px;">
+              <div style="font-size:22px;">🧑‍💼</div>
+              <div style="font-size:12px;font-weight:700;color:var(--brown);">OPERATOR</div>
+              <div style="font-size:10px;color:var(--mdgray);">Creates batches</div>
+            </div>
+          </div>
+          <!-- Row 2: Batches -->
+          <div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="font-size:22px;color:var(--mdgray);align-self:center;">→</div>
+            <div style="background:#fff;border:2px solid var(--orange);border-radius:8px;padding:10px 14px;min-width:100px;">
+              <div style="font-weight:700;font-size:12px;color:var(--orange);margin-bottom:6px;">Batch B1</div>
+              <div style="font-size:11px;color:var(--dkgray);">Job1, Job2, Job3<br>(similar type)</div>
+            </div>
+            <div style="background:#fff;border:2px solid var(--blue);border-radius:8px;padding:10px 14px;min-width:100px;">
+              <div style="font-weight:700;font-size:12px;color:var(--blue);margin-bottom:6px;">Batch B2</div>
+              <div style="font-size:11px;color:var(--dkgray);">Job4, Job5<br>(similar type)</div>
+            </div>
+            <div style="background:#fff;border:2px solid var(--purple);border-radius:8px;padding:10px 14px;min-width:100px;">
+              <div style="font-weight:700;font-size:12px;color:var(--purple);margin-bottom:6px;">Batch B3</div>
+              <div style="font-size:11px;color:var(--dkgray);">Job6, Job7, Job8<br>(similar type)</div>
+            </div>
+            <div style="font-size:22px;color:var(--mdgray);align-self:center;">→</div>
+            <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:12px 16px;text-align:center;min-width:100px;align-self:center;">
+              <div style="font-size:22px;">🧠</div>
+              <div style="font-size:12px;font-weight:700;color:var(--red);">CPU</div>
+              <div style="font-size:10px;color:var(--dkgray);">Executes<br>Job1 → Job2 → Job3…</div>
+            </div>
+          </div>
+          <!-- CPU Idle problem -->
+          <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;font-size:13px;color:#5d4037;">
+            ⚠️ <b>CPU Idle Problem:</b> If Job1 requests an I/O operation (read from disk, access device) → CPU waits doing nothing until I/O completes → <b>wasted CPU time</b> is the biggest disadvantage of Batch OS.
+          </div>
+        </div>
+        <div class="diagram-caption">Jobs in the same batch are of similar type, so no reconfiguration is needed between them — reducing setup overhead.</div>
+      </div>
+
+      <!-- Refinement: Monitors -->
+      <div class="info-box brown">
+        🖥️ <b>Refinement — Monitors:</b> To eliminate the need for human operators, early <b>resident monitors</b> were introduced. These were simple programs that could read jobs directly from punched cards fed into the machine. IBM developed <b>FORTRAN Monitor System (FMS)</b> and <b>IBSYS 709X</b> — landmark systems from the 1960s. The monitor automatically loaded and ran jobs in sequence.
+      </div>
+
+      <!-- Batch Advantages / Disadvantages -->
+      <div class="adv-grid" style="margin-top:14px;">
+        <div class="adv-col pros">
+          <div style="font-weight:700;font-size:13px;color:var(--green);margin-bottom:10px;">✅ Advantages</div>
+          <ul>
+            <li>CPU is kept busy (within a batch, no idle time between similar jobs)</li>
+            <li>Operator can group similar jobs — reduces setup overhead</li>
+            <li>Good for repetitive, large-volume computing tasks</li>
+            <li>Easy to manage from operator's side</li>
+          </ul>
+        </div>
+        <div class="adv-col cons">
+          <div style="font-weight:700;font-size:13px;color:var(--red);margin-bottom:10px;">❌ Disadvantages</div>
+          <ul>
+            <li><b>CPU idle time</b> when a job waits for I/O — huge waste</li>
+            <li>No user interaction once job is submitted</li>
+            <li>Result may take days, weeks, or even months</li>
+            <li>Debugging is very difficult — no real-time feedback</li>
+            <li>Non-preemptive — CPU cannot switch to another job during I/O wait</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box gold">📝 <b>Exam note:</b> IBM FORTRAN Monitor System (FMS) and IBSYS 709X are the key systems from the Batch OS era. If a question asks about Batch OS systems/examples — these two are the answer. Both are from the 1960s.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 2: MULTI-PROGRAMMED OS -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;">2</div>
+    <h2 style="color:var(--navy);">Multi-Programmed Operating System <span class="tag non-pre">Non-Preemptive</span></h2>
+  </div>
+
+  <div class="os-card">
+    <div class="os-card-header" style="background:linear-gradient(135deg,#0d47a1,#1976d2);">
+      <div class="os-icon">📂</div>
+      <div>
+        <h3>Multi-Programmed OS</h3>
+        <div class="os-era">Multiple Processes in RAM · Non-Preemptive · CPU switches only on voluntary I/O request</div>
+      </div>
+    </div>
+    <div class="os-card-body">
+      <p class="prose"><b>Core Idea:</b> Load <b>multiple processes simultaneously into RAM</b>. When the currently running process voluntarily goes for an I/O operation, the OS immediately gives the CPU to another process — so the CPU is never idle waiting for I/O.</p>
+
+      <div class="info-box blue">🎯 <b>Key Goal:</b> Maximise <b>CPU utilisation</b> — keep the CPU busy as much as possible. Reduce idle time.</div>
+
+      <!-- RAM diagram showing multiple processes -->
+      <div class="diagram">
+        <div class="diagram-title">🧠 Multi-programmed OS — RAM Layout</div>
+        <div style="padding:18px 20px;">
+          <div style="display:flex;gap:8px;margin-bottom:16px;align-items:stretch;flex-wrap:wrap;">
+            <!-- RAM box -->
+            <div style="flex:2;min-width:200px;border:3px solid var(--green);border-radius:10px;overflow:hidden;">
+              <div style="background:var(--green);color:#fff;padding:8px 14px;font-weight:700;font-size:12px;font-family:'Space Mono',monospace;">RAM (Main Memory)</div>
+              <div style="padding:12px;display:flex;flex-direction:column;gap:6px;">
+                <div style="background:var(--bluebg);border:1.5px solid var(--blue);border-radius:6px;padding:8px 12px;font-size:12.5px;font-weight:700;color:var(--blue);">P1 — Process 1</div>
+                <div style="background:var(--greenl);border:1.5px solid var(--green);border-radius:6px;padding:8px 12px;font-size:12.5px;font-weight:700;color:var(--green);">P2 — Process 2</div>
+                <div style="background:var(--purplel);border:1.5px solid var(--purple);border-radius:6px;padding:8px 12px;font-size:12.5px;font-weight:700;color:var(--purple);">P3 — Process 3</div>
+                <div style="background:var(--orangel);border:1.5px solid var(--orange);border-radius:6px;padding:8px 12px;font-size:12.5px;font-weight:700;color:var(--orange);">P4 — Process 4</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;font-size:24px;color:var(--teal2);">→</div>
+            <!-- CPU box -->
+            <div style="flex:1;min-width:100px;border:3px solid var(--red);border-radius:10px;overflow:hidden;text-align:center;">
+              <div style="background:var(--red);color:#fff;padding:8px 14px;font-weight:700;font-size:12px;font-family:'Space Mono',monospace;">CPU</div>
+              <div style="padding:16px;font-size:14px;font-weight:700;color:var(--red);">⚙️<br><span style="font-size:12px;color:var(--dkgray);">Executing<br>P1 right now</span></div>
+            </div>
+          </div>
+          <!-- What happens during I/O -->
+          <div style="background:#fff;border:1px solid #b2dfdb;border-radius:10px;overflow:hidden;">
+            <div style="background:var(--teal2);color:#fff;font-size:12px;font-weight:700;padding:8px 14px;letter-spacing:.04em;font-family:'Space Mono',monospace;">WHAT HAPPENS WHEN P1 REQUESTS I/O?</div>
+            <div style="padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div style="background:var(--bluebg);border-radius:8px;padding:10px;font-size:12.5px;text-align:center;flex:1;min-width:120px;">
+                <div style="font-weight:700;color:var(--blue);margin-bottom:4px;">P1 → I/O</div>
+                <div style="color:var(--dkgray);">P1 voluntarily leaves CPU to perform disk/device I/O</div>
+              </div>
+              <div style="font-size:20px;color:var(--teal2);">→</div>
+              <div style="background:var(--greenl);border-radius:8px;padding:10px;font-size:12.5px;text-align:center;flex:1;min-width:120px;">
+                <div style="font-weight:700;color:var(--green);margin-bottom:4px;">CPU → P2</div>
+                <div style="color:var(--dkgray);">OS immediately gives CPU to P2 (instead of idling)</div>
+              </div>
+              <div style="font-size:20px;color:var(--teal2);">→</div>
+              <div style="background:var(--tealb);border-radius:8px;padding:10px;font-size:12.5px;text-align:center;flex:1;min-width:120px;">
+                <div style="font-weight:700;color:var(--teal2);margin-bottom:4px;">P1 I/O Done</div>
+                <div style="color:var(--dkgray);">P1 goes back to ready queue, waits for P2 to complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-caption">The key insight: CPU never sits idle. When one process is doing I/O, another process uses the CPU.</div>
+      </div>
+
+      <!-- Student analogy for multi-programmed -->
+      <div class="diagram">
+        <div class="diagram-title">🎓 Student Analogy — Multi-programmed OS</div>
+        <div style="padding:16px 20px;">
+          <p style="font-size:13.5px;margin-bottom:14px;color:var(--dkgray);line-height:1.65;">Imagine: <b>10 students in a classroom</b>, each has <b>5 questions</b> to solve. I am the CPU. In multi-programmed mode:</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+            <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:8px;padding:10px 14px;font-size:13px;flex:1;min-width:150px;">
+              <div style="font-weight:700;color:var(--blue);margin-bottom:5px;">Step 1</div>
+              I go to <b>Student 1</b> and solve <b>all 5 questions</b> — Q1, Q2, Q3, Q4, Q5.
+            </div>
+            <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:10px 14px;font-size:13px;flex:1;min-width:150px;">
+              <div style="font-weight:700;color:var(--green);margin-bottom:5px;">Step 2</div>
+              ONLY if Student 1 says <i>"I need to go do something else (I/O)"</i> mid-way, I switch. Otherwise, <b>all 5 questions first</b>.
+            </div>
+            <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:8px;padding:10px 14px;font-size:13px;flex:1;min-width:150px;">
+              <div style="font-weight:700;color:var(--purple);margin-bottom:5px;">Step 3</div>
+              Then I go to <b>Student 2</b> and solve all their 5 questions. Then Student 3, 4... all the way to Student 10.
+            </div>
+          </div>
+          <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;font-size:13px;color:#5d4037;">
+            ⚠️ <b>Problem:</b> Student 10 has to wait for ALL 9 students before getting any attention — very long response time for later processes.
+          </div>
+        </div>
+        <div class="diagram-caption">Non-preemptive: the CPU does NOT switch voluntarily. The process must give up the CPU itself (voluntary I/O request).</div>
+      </div>
+
+      <!-- CPU Execution Timeline for Multi-programmed -->
+      <div class="diagram">
+        <div class="diagram-title">📊 CPU Execution Timeline — Multi-programmed (Non-preemptive)</div>
+        <div class="exec-track">
+          <div style="font-size:12px;color:var(--mdgray);margin-bottom:8px;font-family:'Space Mono',monospace;">Timeline →</div>
+          <div class="gantt">
+            <div class="gantt-block" style="background:var(--blue);color:#fff;flex:3;">
+              <span>P1</span>
+              <span class="gb-label">Runs fully until I/O or completion</span>
+            </div>
+            <div class="gantt-block" style="background:#ef9a9a;color:#fff;flex:1;">
+              <span>IDLE</span>
+              <span class="gb-label">P1 I/O wait</span>
+            </div>
+            <div class="gantt-block" style="background:var(--green);color:#fff;flex:3;">
+              <span>P2</span>
+              <span class="gb-label">Runs fully until I/O or completion</span>
+            </div>
+            <div class="gantt-block" style="background:var(--purple);color:#fff;flex:3;">
+              <span>P3</span>
+              <span class="gb-label">Runs completely</span>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:12.5px;color:var(--dkgray);line-height:1.65;">
+            ✅ <b>CPU Utilisation improved</b> compared to Batch OS — when P1 does I/O, P2 runs instead of CPU sitting idle.<br>
+            ⚠️ <b>Response time is poor</b> — P3 must wait for all of P1 and P2 to finish first.
+          </div>
+        </div>
+        <div class="diagram-caption">CPU only switches when the currently running process voluntarily releases it (for I/O or completion).</div>
+      </div>
+
+      <div class="adv-grid">
+        <div class="adv-col pros">
+          <div style="font-weight:700;font-size:13px;color:var(--green);margin-bottom:10px;">✅ Advantages</div>
+          <ul>
+            <li><b>CPU utilisation is high</b> — CPU rarely sits idle</li>
+            <li>Multiple processes in RAM ready to use CPU instantly</li>
+            <li>Better than Batch OS — I/O waiting doesn't waste CPU</li>
+            <li>Throughput improves significantly over Batch OS</li>
+          </ul>
+        </div>
+        <div class="adv-col cons">
+          <div style="font-weight:700;font-size:13px;color:var(--red);margin-bottom:10px;">❌ Disadvantages</div>
+          <ul>
+            <li><b>Poor response time</b> — later processes wait for earlier ones to fully complete</li>
+            <li>Non-preemptive — CPU cannot be taken away from a running process forcefully</li>
+            <li>One long-running process can monopolise the CPU</li>
+            <li>Not suitable for interactive (real-time user input) applications</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 3: MULTI-TASKING OS -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;">3</div>
+    <h2 style="color:var(--navy);">Multi-Tasking / Time-Sharing OS <span class="tag pre">Preemptive</span> <span class="tag modern">Modern Laptops</span></h2>
+  </div>
+
+  <div class="os-card">
+    <div class="os-card-header" style="background:linear-gradient(135deg,#004d40,#00838f);">
+      <div class="os-icon">⏱️</div>
+      <div>
+        <h3>Multi-Tasking / Time-Sharing OS</h3>
+        <div class="os-era">Preemptive · Fixed Time Quantum · Better Response Time · Round Robin Algorithm</div>
+      </div>
+    </div>
+    <div class="os-card-body">
+      <p class="prose"><b>Core Idea:</b> The CPU is given to each process for a <b>fixed time interval (time quantum)</b>. When the time is up, the CPU is forcefully taken away (preempted) and given to the next process — regardless of whether the current process has finished.</p>
+
+      <div class="info-box teal">🎯 <b>Key Goals:</b> (1) Minimise CPU idle time — same as multi-programmed. (2) Improve <b>Response Time</b> — the additional and more important advantage over multi-programmed OS.</div>
+
+      <!-- Time quantum diagram -->
+      <div class="diagram">
+        <div class="diagram-title">⏱️ Multi-tasking OS — Time Quantum Concept</div>
+        <div style="padding:16px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+            <div style="background:var(--tealb);border:2px solid var(--teal2);border-radius:8px;padding:10px 16px;font-size:13px;text-align:center;">
+              <div style="font-size:11px;color:var(--mdgray);margin-bottom:4px;">Time Quantum (Q)</div>
+              <div style="font-weight:700;color:var(--teal2);font-size:18px;">e.g. 2 ms</div>
+            </div>
+            <div style="font-size:13.5px;color:var(--dkgray);flex:1;min-width:200px;line-height:1.65;">
+              A <b>time quantum (Q)</b> is a fixed time slice decided in advance. Each process gets the CPU for exactly Q time units. If it finishes in less — great. If not — it is <b>preempted</b> and put back in the ready queue.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student analogy for multi-tasking -->
+      <div class="diagram">
+        <div class="diagram-title">🎓 Student Analogy — Multi-tasking / Time-sharing OS</div>
+        <div style="padding:16px 20px;">
+          <p style="font-size:13.5px;margin-bottom:14px;color:var(--dkgray);line-height:1.65;">Same scenario: <b>10 students, 5 questions each</b>. But now I am multi-tasking — I decide in advance: <b>"I will solve only 2 questions per student per round."</b></p>
+
+          <!-- Round 1 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-weight:700;font-size:12.5px;color:var(--teal2);margin-bottom:8px;background:var(--tealb);padding:6px 12px;border-radius:6px;">Round 1 — Solve Q1 &amp; Q2 for everyone:</div>
+            <div class="student-grid" style="grid-template-columns:repeat(5,1fr);padding:0;">
+              <div class="student-card" style="border-color:var(--blue);background:var(--bluebg);">
+                <div class="s-icon">🧑</div>
+                <div class="s-name" style="color:var(--blue);">S1</div>
+                <div class="s-qs">
+                  <div class="q-dot" style="background:var(--green);">1</div>
+                  <div class="q-dot" style="background:var(--green);">2</div>
+                  <div class="q-dot" style="background:#ccc;">3</div>
+                  <div class="q-dot" style="background:#ccc;">4</div>
+                  <div class="q-dot" style="background:#ccc;">5</div>
+                </div>
+              </div>
+              <div class="student-card" style="border-color:var(--blue);background:var(--bluebg);">
+                <div class="s-icon">🧑</div>
+                <div class="s-name" style="color:var(--blue);">S2</div>
+                <div class="s-qs">
+                  <div class="q-dot" style="background:var(--green);">1</div>
+                  <div class="q-dot" style="background:var(--green);">2</div>
+                  <div class="q-dot" style="background:#ccc;">3</div>
+                  <div class="q-dot" style="background:#ccc;">4</div>
+                  <div class="q-dot" style="background:#ccc;">5</div>
+                </div>
+              </div>
+              <div class="student-card" style="border-color:var(--blue);background:var(--bluebg);">
+                <div class="s-icon">🧑</div>
+                <div class="s-name" style="color:var(--blue);">S3</div>
+                <div class="s-qs">
+                  <div class="q-dot" style="background:var(--green);">1</div>
+                  <div class="q-dot" style="background:var(--green);">2</div>
+                  <div class="q-dot" style="background:#ccc;">3</div>
+                  <div class="q-dot" style="background:#ccc;">4</div>
+                  <div class="q-dot" style="background:#ccc;">5</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--mdgray);">···</div>
+              <div class="student-card" style="border-color:var(--teal2);background:var(--tealb);">
+                <div class="s-icon">🧑</div>
+                <div class="s-name" style="color:var(--teal2);">S10</div>
+                <div class="s-qs">
+                  <div class="q-dot" style="background:var(--green);">1</div>
+                  <div class="q-dot" style="background:var(--green);">2</div>
+                  <div class="q-dot" style="background:#ccc;">3</div>
+                  <div class="q-dot" style="background:#ccc;">4</div>
+                  <div class="q-dot" style="background:#ccc;">5</div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--teal2);font-weight:700;margin-top:6px;">✅ S10 already got a response after Round 1! (In multi-programmed, S10 waits until S1–S9 fully complete)</div>
+          </div>
+
+          <!-- Round 2 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-weight:700;font-size:12.5px;color:var(--blue);margin-bottom:8px;background:var(--bluebg);padding:6px 12px;border-radius:6px;">Round 2 — Solve Q3 &amp; Q4 for everyone:</div>
+            <div style="font-size:12.5px;color:var(--dkgray);">Go back to S1 → solve Q3 &amp; Q4, then S2 → Q3 &amp; Q4, then S3 → Q3 &amp; Q4 ... all the way to S10 → Q3 &amp; Q4.</div>
+          </div>
+          <!-- Round 3 -->
+          <div>
+            <div style="font-weight:700;font-size:12.5px;color:var(--purple);margin-bottom:8px;background:var(--purplel);padding:6px 12px;border-radius:6px;">Round 3 — Solve Q5 for everyone:</div>
+            <div style="font-size:12.5px;color:var(--dkgray);">Go back to S1 → solve Q5, then S2 → Q5 ... S10 → Q5. All students done!</div>
+          </div>
+        </div>
+        <div class="diagram-caption">Key insight: Even S10 gets a response quickly because the CPU cycles through all processes in small time slices — not completing one before moving to the next.</div>
+      </div>
+
+      <!-- Multi-tasking CPU timeline -->
+      <div class="diagram">
+        <div class="diagram-title">📊 CPU Execution Timeline — Multi-tasking (Preemptive, Round Robin)</div>
+        <div class="exec-track">
+          <div style="font-size:12px;color:var(--mdgray);margin-bottom:8px;font-family:'Space Mono',monospace;">Timeline → (Q = time quantum)</div>
+          <div class="gantt">
+            <div class="gantt-block" style="background:var(--blue);color:#fff;">
+              <span>P1</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--green);color:#fff;">
+              <span>P2</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--purple);color:#fff;">
+              <span>P3</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--orange);color:#fff;">
+              <span>P4</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--blue);color:#fff;opacity:.8;">
+              <span>P1</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--green);color:#fff;opacity:.8;">
+              <span>P2</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--purple);color:#fff;opacity:.8;">
+              <span>P3</span><span class="gb-label">Q time</span>
+            </div>
+            <div class="gantt-block" style="background:var(--orange);color:#fff;opacity:.8;">
+              <span>P4</span><span class="gb-label">Q time</span>
+            </div>
+          </div>
+          <div style="margin-top:10px;font-size:12.5px;color:var(--dkgray);line-height:1.65;">
+            ✅ <b>CPU Utilisation: High</b> — CPU is always busy<br>
+            ✅ <b>Response Time: Low</b> — all processes get CPU quickly in every round<br>
+            🔧 Algorithm used: <b>Round Robin</b> (the natural implementation of time-sharing)
+          </div>
+        </div>
+        <div class="diagram-caption">Each process gets CPU for exactly one time quantum, then goes to the back of the ready queue. This creates the illusion of parallel execution.</div>
+      </div>
+
+      <!-- Response time explanation -->
+      <div class="diagram">
+        <div class="diagram-title">⏱️ Response Time: Multi-programmed vs Multi-tasking</div>
+        <div style="padding:18px 20px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="border-radius:10px;overflow:hidden;border:2px solid var(--blue);">
+              <div style="background:var(--blue);color:#fff;padding:8px 14px;font-weight:700;font-size:12.5px;">Multi-programmed</div>
+              <div style="padding:12px;font-size:13px;color:var(--dkgray);line-height:1.65;">
+                P1 fully → P2 fully → P3 fully → P4 finally gets response.<br><br>
+                <b style="color:var(--red);">Response Time for P4 = burst time of P1 + P2 + P3</b><br>
+                (Could be very long if P1, P2, P3 are heavy processes)
+              </div>
+            </div>
+            <div style="border-radius:10px;overflow:hidden;border:2px solid var(--teal2);">
+              <div style="background:var(--teal2);color:#fff;padding:8px 14px;font-weight:700;font-size:12.5px;">Multi-tasking</div>
+              <div style="padding:12px;font-size:13px;color:var(--dkgray);line-height:1.65;">
+                P1(Q) → P2(Q) → P3(Q) → P4 gets CPU in Round 1!<br><br>
+                <b style="color:var(--green);">Response Time for P4 = 3 × time quantum</b><br>
+                (Much smaller — proportional only to quantum × number of processes before it)
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-caption">This is WHY modern OS use time-sharing — interactive applications (typing, browsing) require fast response times.</div>
+      </div>
+
+      <div class="adv-grid">
+        <div class="adv-col pros">
+          <div style="font-weight:700;font-size:13px;color:var(--green);margin-bottom:10px;">✅ Advantages</div>
+          <ul>
+            <li><b>Low idle time</b> — CPU stays busy across all processes</li>
+            <li><b>Better response time</b> — all processes get CPU quickly</li>
+            <li>Fair CPU distribution — no single process can monopolise</li>
+            <li>Suitable for interactive systems (typing, GUI, browsing)</li>
+            <li>This is what your laptop/desktop OS uses right now</li>
+          </ul>
+        </div>
+        <div class="adv-col cons">
+          <div style="font-weight:700;font-size:13px;color:var(--red);margin-bottom:10px;">❌ Disadvantages</div>
+          <ul>
+            <li><b>Context switching overhead</b> — switching between processes takes time</li>
+            <li>If time quantum is too small — most time spent switching, not executing</li>
+            <li>If time quantum is too large — behaves like multi-programmed (poor response)</li>
+            <li>Choosing the right Q value is a design challenge</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box green">🖥️ <b>Real-world usage:</b> The operating system on your laptop — Windows, macOS, Linux — uses a multi-tasking (time-sharing) approach. When you have Word, Chrome, and Spotify all "running" at the same time, they are actually taking turns using the CPU. The switching is so fast (milliseconds) that it feels simultaneous. The primary algorithm used is <b>Round Robin</b>.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 4: MEGA COMPARISON -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--gold);color:#000;">4</div>
+    <h2 style="color:var(--navy);">The Critical Comparison — All Three Side by Side</h2>
+  </div>
+  <p class="prose">This is the table that exam questions test most frequently. Know every row of this comparison:</p>
+
+  <div class="diagram">
+    <div class="diagram-title">📊 Batch OS vs Multi-programmed OS vs Multi-tasking OS</div>
+    <div class="mega-compare">
+      <div class="mc-head">
+        <div class="mc-cell">Property</div>
+        <div class="mc-cell">📦 Batch OS</div>
+        <div class="mc-cell">📂 Multi-programmed</div>
+        <div class="mc-cell">⏱️ Multi-tasking</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Processes in RAM</div>
+        <div class="mc-cell">One at a time (job queue)</div>
+        <div class="mc-cell">Multiple simultaneously</div>
+        <div class="mc-cell">Multiple simultaneously</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Preemption</div>
+        <div class="mc-cell">❌ None (non-preemptive)</div>
+        <div class="mc-cell">❌ Non-preemptive</div>
+        <div class="mc-cell">✅ Preemptive</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">CPU switching trigger</div>
+        <div class="mc-cell">Job finishes only</div>
+        <div class="mc-cell">Voluntary I/O request by process</div>
+        <div class="mc-cell">Time quantum expires (forced)</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">CPU Idle Time</div>
+        <div class="mc-cell">🔴 Very High (I/O wait)</div>
+        <div class="mc-cell">🟡 Reduced</div>
+        <div class="mc-cell">🟢 Very Low</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Response Time</div>
+        <div class="mc-cell">🔴 Very Poor (days/weeks)</div>
+        <div class="mc-cell">🔴 Poor (must wait for earlier processes)</div>
+        <div class="mc-cell">🟢 Good (all processes get CPU quickly)</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">User Interaction</div>
+        <div class="mc-cell">❌ None</div>
+        <div class="mc-cell">⚠️ Limited</div>
+        <div class="mc-cell">✅ Full interactive support</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Main Goal</div>
+        <div class="mc-cell">Batch throughput</div>
+        <div class="mc-cell">Max CPU utilisation</div>
+        <div class="mc-cell">CPU utilisation + Response time</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Algorithm used</div>
+        <div class="mc-cell">Sequential (FIFO)</div>
+        <div class="mc-cell">Non-preemptive algorithms</div>
+        <div class="mc-cell">Round Robin (primary)</div>
+      </div>
+      <div class="mc-row">
+        <div class="mc-cell">Era / Usage</div>
+        <div class="mc-cell">1960s, IBM FORTRAN, IBSYS 709X</div>
+        <div class="mc-cell">Server-side, batch servers</div>
+        <div class="mc-cell">Modern desktops &amp; laptops</div>
+      </div>
+    </div>
+    <div class="diagram-caption">★ Multi-programmed vs Multi-tasking is the most exam-tested distinction in all of OS Types.</div>
+  </div>
+
+  <div class="info-box gold">⭐ <b>The ONE key difference to always remember:</b> Multi-programmed focuses on <b>CPU Utilisation</b> (keep CPU busy). Multi-tasking adds <b>Response Time</b> on top of that. Multi-tasking is preemptive; multi-programmed is non-preemptive. Multi-tasking is what modern computers use.</div>
+
+</div><!-- /view-descriptive -->
+
+
+<!-- ═══════════════════ REVISION NOTES ═══════════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--brown);">
+      <div class="rev-num">1</div>
+      Batch Operating System
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Core idea</div><div class="rv">Group similar jobs into batches; submit to operator; CPU executes batch sequentially without user interaction.</div></div>
+      <div class="rev-kv"><div class="rk">Era</div><div class="rv">1960s. Only large organisations (NASA, ISRO) had computers. Personal computers did not exist.</div></div>
+      <div class="rev-kv"><div class="rk">Job submission</div><div class="rv">Offline onto Punch Cards / Paper Tape / Magnetic Tape → hand to Operator → Operator loads batch → CPU executes.</div></div>
+      <div class="rev-kv"><div class="rk">CPU behaviour</div><div class="rv">Non-preemptive. Executes one job at a time. If job requests I/O → CPU sits IDLE waiting (biggest disadvantage).</div></div>
+      <div class="rev-kv"><div class="rk">User interaction</div><div class="rv">ZERO. Once submitted, user has no control. Result may arrive after days, weeks, or months.</div></div>
+      <div class="rev-kv"><div class="rk">Refinement</div><div class="rv">Monitors introduced to eliminate need for operators (resident monitor reads punch cards directly).</div></div>
+      <div class="rev-kv"><div class="rk">Key systems (exam)</div><div class="rv">IBM FORTRAN Monitor System (FMS) and IBSYS 709X — both from 1960s.</div></div>
+      <div class="rev-kv"><div class="rk">Disadvantages</div><div class="rv">High CPU idle time (I/O wait), no user interaction, unknown wait time, poor debugging support.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">2</div>
+      Multi-programmed OS
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Core idea</div><div class="rv">Load multiple processes simultaneously into RAM. When process goes to I/O, CPU immediately runs another process.</div></div>
+      <div class="rev-kv"><div class="rk">Preemption type</div><div class="rv"><b>NON-PREEMPTIVE</b> — CPU can only be taken from a process if the process voluntarily requests I/O or terminates.</div></div>
+      <div class="rev-kv"><div class="rk">Switching trigger</div><div class="rv">Process voluntarily goes for I/O operation (e.g., read from disk, access device). NOT on a timer.</div></div>
+      <div class="rev-kv"><div class="rk">CPU idle time</div><div class="rv">Reduced compared to Batch OS. When P1 does I/O, P2 uses the CPU — no wasted time.</div></div>
+      <div class="rev-kv"><div class="rk">Response time</div><div class="rv"><b>Poor.</b> Process P10 must wait for P1–P9 to fully complete or do I/O before getting any CPU time.</div></div>
+      <div class="rev-kv"><div class="rk">Goal</div><div class="rv">Maximise CPU utilisation — keep CPU as busy as possible.</div></div>
+      <div class="rev-kv"><div class="rk">Student analogy</div><div class="rv">Solve ALL 5 questions for Student 1, then ALL 5 for Student 2… Student 10 waits for everyone before getting any help.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal2);">
+      <div class="rev-num">3</div>
+      Multi-tasking / Time-sharing OS
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Core idea</div><div class="rv">CPU given to each process for a fixed TIME QUANTUM. After quantum expires, CPU forcefully switches (preempts) to next process.</div></div>
+      <div class="rev-kv"><div class="rk">Preemption type</div><div class="rv"><b>PREEMPTIVE</b> — OS forces the switch when time quantum expires. Process does not need to give up CPU voluntarily.</div></div>
+      <div class="rev-kv"><div class="rk">Switching trigger</div><div class="rv">Time quantum expires OR process requests I/O (whichever comes first).</div></div>
+      <div class="rev-kv"><div class="rk">CPU idle time</div><div class="rv"><b>Very low.</b> CPU always has processes to execute.</div></div>
+      <div class="rev-kv"><div class="rk">Response time</div><div class="rv"><b>Good / Low.</b> All processes get CPU within 1 round. P10 gets response after only 9 × quantum wait.</div></div>
+      <div class="rev-kv"><div class="rk">Goals</div><div class="rv">CPU utilisation AND better response time (both are goals, unlike multi-programmed which only focuses on CPU use).</div></div>
+      <div class="rev-kv"><div class="rk">Algorithm used</div><div class="rv">Round Robin — each process gets equal time quantum in circular fashion.</div></div>
+      <div class="rev-kv"><div class="rk">Real-world usage</div><div class="rv">Your laptop/desktop right now. Windows, macOS, Linux all use time-sharing. Enables running Word + Chrome + Music simultaneously.</div></div>
+      <div class="rev-kv"><div class="rk">Student analogy</div><div class="rv">Solve 2 questions for each student in a round → back to Student 1 for next 2 → everyone gets progress in every round.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--gold);color:#000;">
+      <div class="rev-num" style="color:#000;">4</div>
+      Key Differences — Quick Exam Table
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Preemption</div><div class="rv">Multi-programmed = Non-preemptive. Multi-tasking = Preemptive.</div></div>
+      <div class="rev-kv"><div class="rk">CPU switch trigger</div><div class="rv">Multi-programmed: voluntary I/O by process. Multi-tasking: time quantum expiry (forced by OS).</div></div>
+      <div class="rev-kv"><div class="rk">Primary focus</div><div class="rv">Multi-programmed: CPU Utilisation only. Multi-tasking: CPU Utilisation + Response Time.</div></div>
+      <div class="rev-kv"><div class="rk">Response time</div><div class="rv">Multi-programmed: Poor. Multi-tasking: Good.</div></div>
+      <div class="rev-kv"><div class="rk">Modern use</div><div class="rv">Modern laptops = Multi-tasking OS. Not multi-programmed.</div></div>
+      <div class="rev-kv"><div class="rk">Batch OS systems</div><div class="rv">IBM FORTRAN Monitor System (FMS) and IBSYS 709X — 1960s.</div></div>
+    </div>
+  </div>
+
+</div><!-- /view-revision -->
+
+
+<!-- ═══════════════════ QUIZ VIEW ═══════════════════ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 10</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-fill" id="q-progress-fill"></div>
+    </div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function switchView(id, e) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  (e.target || e).classList.add('active');
+  if (id === 'quiz' && !quizInitialised) initQuiz();
+}
+
+const questions = [
+  {
+    q: "In Batch Operating System, who was responsible for grouping similar jobs together before feeding them to the computer?",
+    options: ["The user / programmer directly", "The CPU's scheduler automatically", "A human Operator who managed the computing centre", "The compiler program"],
+    answer: 2,
+    explanation: "In Batch OS, the user only submitted their job (on a punch card) to a human Operator. The Operator was responsible for grouping similar jobs into batches and loading them into the computer. The user had NO direct interaction with the computer system."
+  },
+  {
+    q: "What is the biggest disadvantage of Batch Operating System?",
+    options: ["Too many users access the system simultaneously", "CPU sits IDLE when a job waits for I/O — wasted CPU time", "Jobs are executed in random order", "Users can interfere with each other's jobs"],
+    answer: 1,
+    explanation: "In Batch OS, when a job requests an I/O operation (reading from disk, accessing a device), the CPU has nothing else to run — it just sits idle waiting. This idle time is completely wasted processor capacity and was the main motivation to develop Multi-programmed OS."
+  },
+  {
+    q: "Which IBM systems are associated with the Batch Operating System era of the 1960s? (as mentioned in Gate Smashers lecture)",
+    options: ["Windows NT and OS/2", "FORTRAN Monitor System (FMS) and IBSYS 709X", "UNIX and BSD", "MS-DOS and CP/M"],
+    answer: 1,
+    explanation: "IBM's FORTRAN Monitor System (FMS) and IBSYS 709X are the landmark Batch OS systems from the 1960s. These are the specific examples mentioned in the Gate Smashers lecture. If an exam asks about Batch OS examples — FMS and IBSYS 709X are the answer."
+  },
+  {
+    q: "In Multi-programmed OS, when does the CPU switch from one process to another?",
+    options: ["Every 10 milliseconds automatically", "When the OS administrator clicks a button", "Only when the currently running process voluntarily goes for an I/O operation or terminates", "Randomly based on which process has the highest priority"],
+    answer: 2,
+    explanation: "Multi-programmed OS is NON-PREEMPTIVE. The CPU only switches when the current process voluntarily gives it up — by requesting an I/O operation (like reading a file) or completing execution. The OS cannot forcefully take the CPU away from a running process in multi-programmed mode."
+  },
+  {
+    q: "What is the KEY advantage of Multi-tasking OS over Multi-programmed OS?",
+    options: ["Multi-tasking uses less RAM", "Multi-tasking improves Response Time — all processes get CPU attention quickly", "Multi-tasking doesn't need a hard disk", "Multi-tasking can run on older hardware without RAM"],
+    answer: 1,
+    explanation: "Both OS types reduce CPU idle time. The additional advantage of Multi-tasking is RESPONSE TIME. In multi-programmed, P10 must wait for P1 through P9 to fully finish. In multi-tasking (round robin), P10 gets CPU after just 9 time quanta — regardless of whether P1–P9 have finished. This is why interactive applications need multi-tasking."
+  },
+  {
+    q: "Using the student analogy from the lecture: In Multi-programmed mode, 10 students each have 5 questions. What does the CPU (teacher) do?",
+    options: ["Solve 1 question for each student in rotation until all done", "Solve ALL 5 questions for Student 1, then ALL 5 for Student 2, and so on", "Skip every other student to finish faster", "Let students solve their own questions — CPU is just supervising"],
+    answer: 1,
+    explanation: "In Multi-programmed OS (non-preemptive), the CPU fully completes one process before moving to the next. Using the student analogy: solve all 5 questions of Student 1 completely, THEN move to Student 2's 5 questions, and so on. The CPU switches to another process ONLY if Student 1 says 'I need to step out for a minute' (I/O request)."
+  },
+  {
+    q: "What is a 'Time Quantum' in Multi-tasking (Time-sharing) OS?",
+    options: ["The total amount of time the computer is switched on", "A fixed time interval assigned to each process during which it can use the CPU", "The time taken for a context switch between processes", "The amount of RAM allocated to each process"],
+    answer: 1,
+    explanation: "A Time Quantum (also called time slice) is a fixed, pre-decided duration assigned to each process for using the CPU. When the quantum expires, the OS forcefully takes the CPU away (preempts) the current process and gives it to the next process in the ready queue. This is the core mechanism of time-sharing OS."
+  },
+  {
+    q: "Multi-tasking OS is described as PREEMPTIVE. What does preemptive mean in this context?",
+    options: ["The OS runs processes in order of their file names", "The OS can forcefully take the CPU away from a running process when its time quantum expires — without waiting for the process to give it up voluntarily", "Processes must request CPU time in advance by submitting a form", "The CPU works faster in preemptive mode"],
+    answer: 1,
+    explanation: "PREEMPTIVE = the OS can forcefully interrupt and remove a running process from the CPU at any time (typically when the time quantum expires). The process does NOT need to voluntarily give up the CPU. This is the opposite of non-preemptive (multi-programmed) where the process decides when to leave the CPU."
+  },
+  {
+    q: "Which type of OS do modern laptops and desktops (Windows, macOS, Linux) actually use?",
+    options: ["Batch OS — because it's the most stable", "Multi-programmed OS — because it maximises CPU utilisation", "Multi-tasking (Time-sharing) OS — because it provides good response time and is preemptive", "Distributed OS only — because all modern computers are networked"],
+    answer: 2,
+    explanation: "Modern laptops/desktops use Multi-tasking (Time-sharing) OS. The lecture explicitly states this: 'The system that we use in real time, that's multi-tasking or time-sharing. There we use Round Robin and a lot of algorithms.' When you run Word + Chrome + Spotify simultaneously, the OS is time-sharing the CPU among all three using preemptive scheduling."
+  },
+  {
+    q: "Which of the following correctly summarises the difference in focus between Multi-programmed OS and Multi-tasking OS?",
+    options: [
+      "Multi-programmed focuses on Security; Multi-tasking focuses on Speed",
+      "Multi-programmed focuses only on CPU Utilisation (reducing idle time); Multi-tasking focuses on both CPU Utilisation AND Response Time",
+      "Both have identical goals — the only difference is the hardware they run on",
+      "Multi-programmed focuses on Response Time; Multi-tasking focuses on CPU Utilisation"
+    ],
+    answer: 1,
+    explanation: "This is the core difference from the lecture: Multi-programmed OS focuses on CPU Utilisation — keeping the CPU busy (reducing idle time). Multi-tasking OS has the SAME goal PLUS an additional goal: improving Response Time. Multi-tasking ensures all processes get CPU attention quickly, not just that CPU stays busy. Response time is the additional advantage of multi-tasking."
+  }
+];
+
+let quizInitialised = false;
+let current = 0, score = 0, answered = false;
+
+function initQuiz() { quizInitialised = true; renderQuestion(); }
+
+function renderQuestion() {
+  const container = document.getElementById('quiz-container');
+  if (current >= questions.length) { renderResults(); return; }
+  const fill = (current / questions.length * 100).toFixed(0);
+  document.getElementById('q-progress-fill').style.width = fill + '%';
+  document.getElementById('q-progress-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+  const q = questions[current];
+  answered = false;
+  container.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-title-tag">TYPES OF OS — Q${current + 1}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options" id="options-wrap">
+        ${q.options.map((opt, i) => `
+          <div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+            <div class="quiz-option-marker">${String.fromCharCode(65+i)}</div>
+            ${opt}
+          </div>`).join('')}
+      </div>
+      <div id="explanation-wrap"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="current=0;score=0;renderQuestion();">↩ Restart</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  q.options.forEach((_, i) => {
+    const el = document.getElementById('opt-' + i);
+    if (i === q.answer) el.classList.add('correct');
+    else if (i === idx && i !== q.answer) el.classList.add('incorrect');
+  });
+  if (idx === q.answer) score++;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+  document.getElementById('explanation-wrap').innerHTML = `
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">💡 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+
+function renderResults() {
+  const pct = Math.round(score / questions.length * 100);
+  let badge='review', label='Keep Practising!', fb="Review the explanations and try again!";
+  if (pct>=90){ badge='master';    label='🏆 MASTER!';    fb="Perfect! You have a crystal clear understanding of OS types."; }
+  else if(pct>=75){ badge='excellent'; label='🌟 Excellent!'; fb="Great work! Quick revision of the comparison table will make you perfect."; }
+  else if(pct>=55){ badge='good';      label='👍 Good Job!';  fb="Good start. Focus on the Multi-programmed vs Multi-tasking difference."; }
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="results-score-box">
+      <div style="position:relative;">
+        <div class="results-score-circle">
+          <div class="results-score-num">${score}</div>
+          <div class="results-score-total">out of ${questions.length}</div>
+        </div>
+        <div class="results-badge ${badge}">${label}</div>
+        <div class="results-feedback">${fb}<br><br>Score: ${pct}%</div>
+      </div>
+    </div>
+    <button class="quiz-btn primary" style="margin:0 auto 24px;display:block;" onclick="current=0;score=0;renderQuestion();">🔄 Try Again</button>`;
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Completed!';
+  document.getElementById('q-score-label').textContent = `Final Score: ${score}/${questions.length}`;
+}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

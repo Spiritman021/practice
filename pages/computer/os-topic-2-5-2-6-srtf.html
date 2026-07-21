@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRTF Scheduling — Topic 2.5-2.6 | OS Notes</title>
+<meta name="description" content="CPU Scheduling: Preemptive vs Non-Preemptive algorithms, scheduling categories (FCFS, SJF, SRTF, RR, Priority), and all scheduling times — Arrival, Burst, Completion, Turnaround, Waiting, Response for GATE &amp; UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:660px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  /* ── INFO BOXES ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.indigo { background:var(--indigol); border-color:var(--indigo);color:var(--dkgray); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── PREEMPTIVE / NON-PREEMPTIVE SPLIT ── */
+  .pnp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .pnp-card { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .pnp-head { padding:12px 18px; font-weight:700; font-size:14px; color:#fff; display:flex; align-items:center; gap:10px; }
+  .pnp-body { padding:14px 18px; font-size:13.5px; line-height:1.65; }
+  .pnp-algo-list { list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .pnp-algo-list li { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .algo-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── READY QUEUE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:120px; }
+  .flow-box h4 { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; }
+  .fa-line { width:36px; height:2px; }
+  .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+  .fa-tip-l { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right-width:8px; border-right-style:solid; }
+
+  /* ── TIMELINE DIAGRAM ── */
+  .timeline-wrap { padding:24px 20px; }
+  .tl-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+  .tl-label { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:80px; padding-top:12px; }
+  .tl-bar-area { flex:1; position:relative; }
+  .tl-bar { height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; position:relative; transition:all .3s; }
+  .tl-bar:hover { filter:brightness(1.1); }
+  .tl-tick-row { display:flex; margin-top:6px; }
+  .tl-tick { flex:1; text-align:left; font-family:'Space Mono',monospace; font-size:10px; color:var(--mdgray); font-weight:600; }
+
+  /* ── TIME CARDS ── */
+  .time-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:16px 0; }
+  .time-card { background:#fff; border-radius:12px; border:2px solid; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07); }
+  .time-card-head { padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .time-card-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .time-card-title { font-weight:700; font-size:14px; }
+  .time-card-subtitle { font-size:11px; font-weight:500; opacity:.7; }
+  .time-card-body { padding:12px 16px 14px; font-size:13px; line-height:1.65; }
+  .formula-chip { display:inline-block; background:#f8fafc; border:1.5px solid; border-radius:6px; padding:4px 12px; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; margin:6px 0 8px; }
+
+  /* ── BANK ANALOGY ── */
+  .analogy-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .analogy-cell { background:#fff; border-radius:10px; padding:14px 16px; border:1.5px solid; font-size:13px; line-height:1.65; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .analogy-cell .ah { font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+
+  /* ── FORMULA TABLE ── */
+  .formula-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .formula-table th { padding:10px 14px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .formula-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:middle; line-height:1.6; }
+  .formula-table tr:last-child td { border-bottom:none; }
+  .formula-table td:first-child { font-weight:700; color:var(--teal); font-size:13px; }
+  .formula-table td:nth-child(2) { background:#f8fafc; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy); font-weight:700; }
+  .formula-table td:nth-child(3) { color:var(--dkgray); }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+  .orange-text { color:var(--orange); font-weight:700; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#fce4ec22; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+
+  /* ── CRITERIA PILLS ── */
+  .criteria-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .crit-pill { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .crit-icon { font-size:18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:220px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+  .rev-kv code { background:#f1f5f9; border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:11.5px; color:var(--navy); }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .pnp-grid,.analogy-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+
+  /* ===== INJECTED COMPONENT STYLES (FCFS/SJF/SRTF pages) ===== */
+  :root { --indigo:#283593; --p1c:#1565C0; --p2c:#2E7D32; --p3c:#6A1B9A; --p4c:#C62828; }
+  .algo-card{border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 3px 14px rgba(0,0,0,.07);}
+  .algo-card-head{padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .algo-card-body{padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;}
+  .algo-pill{background:#fff;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;flex:1;min-width:150px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .pill-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;}
+  .step-wrap{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .step-box{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .step-text{font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+  .step-text b{color:var(--navy);}
+  .step-text code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--teal);}
+  .gantt-wrap{padding:20px 20px 8px;overflow-x:auto;}
+  .gantt-row{display:flex;align-items:stretch;min-width:max-content;}
+  .gantt-cell{height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:#fff;border-right:2px solid rgba(255,255,255,.3);flex-shrink:0;}
+  .gantt-cell:last-child{border-right:none;}
+  .gantt-cell.idle{background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 5px,#f8fafc 5px,#f8fafc 10px);color:#757575;font-size:11px;}
+  .gantt-tick-row{display:flex;min-width:max-content;margin-top:2px;padding-bottom:4px;}
+  .gantt-tick{font-family:'Space Mono',monospace;font-size:10px;color:#757575;font-weight:700;flex-shrink:0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sub-sec{width:32px;height:32px;font-size:13px;}
+  .sec-head h2{font-size:20px;font-weight:700;margin:0;}
+  .sec-head h2.sub{font-size:17px;}
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.blue{background:#E3F2FD;border-color:#1565C0;color:#0D1B4B;}
+  .info-box.orange{background:#FFF3E0;border-color:#E65100;color:#424242;}
+  .info-box.green{background:#E8F5E9;border-color:#2E7D32;color:#424242;}
+  .info-box.gold{background:#fff8e1;border-color:#F9A825;color:#5d4037;}
+  .diagram{background:#fff;border:1px solid #b2dfdb;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:#006064;color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:#757575;font-style:italic;padding:8px 16px;background:#f9fdfd;border-top:1px solid #e0f7fa;}
+  .proc-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .proc-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .proc-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;text-align:center;font-weight:500;}
+  .proc-table tr:last-child td{border-bottom:none;}
+  .proc-table td.label{font-weight:700;color:#0D1B4B;text-align:left;}
+  .proc-table tfoot td{font-weight:700;background:#f0fafa;}
+  .tie-box{background:#fff8e1;border:2px dashed #F9A825;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px;line-height:1.7;}
+  .tie-title{font-weight:700;color:#b7791f;font-size:14px;margin-bottom:6px;}
+  .rq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .rq-lbl{font-size:11px;font-weight:700;color:#757575;text-transform:uppercase;}
+  .rq-p{border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-arr{color:#757575;font-size:18px;}
+  .rq-cpu{background:#00838f;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-idle{background:#e2e8f0;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#757575;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #b2dfdb;}
+  .rev-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-body{padding:16px 20px;}
+  .rv{display:flex;gap:8px;margin-bottom:9px;font-size:13px;align-items:flex-start;}
+  .rv .k{font-weight:700;color:#006064;min-width:210px;flex-shrink:0;}
+  .rv .v{color:#424242;line-height:1.55;}
+  .rv code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:#0D1B4B;}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cmp-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .cmp-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;vertical-align:top;line-height:1.6;}
+  .cmp-table tr:last-child td{border-bottom:none;}
+  .cmp-table td:first-child{font-weight:700;color:#0D1B4B;background:#f8fafc;}
+  .g{color:#2E7D32;font-weight:700;} .r{color:#C62828;font-weight:700;}
+  @media(max-width:640px){.algo-card-body{flex-direction:column;}.rv .k{min-width:120px;}}
+
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 2.5/2.6</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>SRTF &mdash; Preemptive SJF</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 2.1-2.2: CPU Scheduling — Intro &amp; Times</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 2.1-2.2 • CPU SCHEDULING</div>
+    <h1>SRTF &mdash; <span>Preemptive SJF Solved Numericals</span></h1>
+    <p class="hero-sub">Shortest Remaining Time First (SRTF = Preemptive SJF) &mdash; solved numericals from GATE 2004 and UGC NET July 2018, step-by-step Gantt charts with preemption points, updated remaining-time tracking, CT / TAT / WT / RT tables, and why RT &ne; WT in preemptive scheduling.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐⭐</span><span class="badge">UGC NET ⭐⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Heavy Numericals</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESCRIPTIVE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+<!-- 2.5 SRTF INTRO -->
+<div class="sec-head">
+  <div class="sec-num" style="background:var(--green);color:#fff;">2.5</div>
+  <h2>SRTF &mdash; Shortest Remaining Time First</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--green);">&#129001; SRTF &mdash; Algorithm at a Glance</div>
+  <div class="algo-card-body" style="background:#e8f5e9;">
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">Also Called</span><b style="color:var(--navy);">Preemptive SJF</b> &mdash; SJF with preemption enabled</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">Selection Criteria</span><b style="color:var(--navy);">Remaining Burst Time</b> &mdash; smallest remaining BT among arrived processes</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">Mode</span><b style="color:var(--navy);">Preemptive</b> &mdash; CPU can be snatched if a shorter process arrives</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">Starvation</span><b style="color:var(--red);">Yes</b> &mdash; long processes may starve indefinitely</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">RT vs WT</span><b style="color:var(--red);">RT &ne; WT</b> &mdash; first CPU time may differ from total wait time</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#2E7D32;">Optimal</span><b style="color:var(--green);">Yes</b> &mdash; minimum average WT among all algorithms (proven)</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.5-A &mdash; SRTF vs SJF: How Preemption Works</div>
+  <div style="padding:20px;">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:260px;background:#e3f2fd;border-radius:10px;padding:16px;border-left:4px solid var(--blue);">
+        <div style="font-weight:700;color:var(--blue);margin-bottom:8px;font-size:13px;">&#128309; SJF (Non-Preemptive)</div>
+        <div style="font-size:12.5px;line-height:1.7;color:var(--dkgray);">
+          Once a process gets CPU &rarr; runs to completion<br>
+          New arrivals wait until current process finishes<br>
+          Decision only at completion points<br>
+          <b>RT = WT always</b>
+        </div>
+      </div>
+      <div style="flex:1;min-width:260px;background:#e8f5e9;border-radius:10px;padding:16px;border-left:4px solid var(--green);">
+        <div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:13px;">&#129001; SRTF (Preemptive)</div>
+        <div style="font-size:12.5px;line-height:1.7;color:var(--dkgray);">
+          Every time a new process arrives &rarr; check burst times<br>
+          If new process has smaller remaining BT &rarr; preempt!<br>
+          Decision at every arrival event<br>
+          <b>RT &ne; WT (can differ in preemptive)</b>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;background:#fff8e1;border-radius:8px;padding:12px 16px;font-size:13px;border-left:4px solid var(--gold);">
+      <b>&#9888; Key Rule:</b> In SRTF, compare <b>REMAINING burst times</b> (not original BT). The remaining time decreases as the process runs. Track this carefully!
+    </div>
+  </div>
+  <div class="diagram-caption">SRTF checks at every new arrival: should I preempt the current running process?</div>
+</div>
+
+<div class="info-box blue">&#128161; <b>Tie-Breaking in SRTF:</b> Same as SJF &mdash; if remaining BT is equal: (1) pick lower Arrival Time, (2) if AT also equal: pick lower Process ID. Apply at every decision point.</div>
+
+<div class="info-box orange">&#9888;&#65039; <b>Completion Time (CT) Tricky!</b> In SRTF, a process may appear multiple times in Gantt chart. CT = the time at the <b>right edge of its LAST Gantt block</b>. Don't use intermediate values!</div>
+
+<!-- 2.5 NUMERICAL 1: GATE 2004 variant -->
+<div class="sec-head" style="margin-top:36px;">
+  <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">A</div>
+  <h2 class="sub">SRTF Numerical 1 &mdash; GATE 2004 Variant (Step-by-Step)</h2>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.5-A &mdash; Given Data: P1(AT=0,BT=5), P2(AT=1,BT=3), P3(AT=2,BT=4), P4(AT=4,BT=1)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#1565C0;color:#fff;">Arrival Time (AT)</th>
+        <th style="background:var(--green);color:#fff;">Burst Time (BT)</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>3</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>4</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">SRTF = Preemptive SJF. Compare REMAINING burst times at every new arrival event.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.5-B &mdash; Remaining Burst Time Tracker (Read column by column)</div>
+  <div style="padding:16px;overflow-x:auto;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#37474f;color:#fff;">t=0</th>
+        <th style="background:#37474f;color:#fff;">t=1</th>
+        <th style="background:#37474f;color:#fff;">t=2</th>
+        <th style="background:#37474f;color:#fff;">t=3</th>
+        <th style="background:#37474f;color:#fff;">t=4</th>
+        <th style="background:#37474f;color:#fff;">t=5</th>
+        <th style="background:#37474f;color:#fff;">t=9</th>
+        <th style="background:#37474f;color:#fff;">t=13</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1 (orig BT=5)</td><td><b>5</b>&rarr;4</td><td>4 (preempted)</td><td>4 (waiting)</td><td>4 (waiting)</td><td>4 (waiting)</td><td><b>4</b>&rarr;0</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">CT=9</td><td>-</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2 (orig BT=3)</td><td>-</td><td><b>3</b>&rarr;2</td><td><b>2</b>&rarr;1</td><td><b>1</b>&rarr;0</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">CT=4</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3 (orig BT=4)</td><td>-</td><td>-</td><td>4 (waiting)</td><td>4 (waiting)</td><td>4 (waiting)</td><td>4 (waiting)</td><td><b>4</b>&rarr;0</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">CT=13</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4 (orig BT=1)</td><td>-</td><td>-</td><td>-</td><td>-</td><td><b>1</b>&rarr;0</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">CT=5</td><td>-</td><td>-</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">Bold = currently running. Arrow shows remaining BT after running. Preemption happens when a shorter process arrives.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">1</div>
+    <div class="step-text"><b>t=0:</b> Only P1 arrived. No competition &rarr; run P1 for 1 unit. <b>P1 remaining = 5&minus;1 = 4.</b><br>Run only 1 unit because we must check at t=1 for new arrivals (SRTF is preemptive).</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--green);">2</div>
+    <div class="step-text"><b>t=1:</b> P1(rem=4) and P2(BT=3) are ready. P2 rem=3 &lt; P1 rem=4 &rarr; <b>Preempt P1, run P2.</b><br>After 1 unit: P2 remaining = 2. Send P1 back to Ready Queue.</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--green);">3</div>
+    <div class="step-text"><b>t=2:</b> P1(rem=4), P2(rem=2), P3(BT=4) arrived. Compare: P2 rem=2 is smallest &rarr; <b>Continue P2.</b><br>After 1 unit: P2 remaining = 1.</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--green);">4</div>
+    <div class="step-text"><b>t=3:</b> P1(rem=4), P2(rem=1), P3(rem=4). P4 not yet arrived (AT=4). P2 still smallest &rarr; <b>Continue P2.</b><br>P2 remaining = 0 &rarr; <b>P2 COMPLETES at t=4. CT(P2) = 4.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:#F9A825;color:#000;">5</div>
+    <div class="step-text"><b>t=4:</b> P1(rem=4), P3(rem=4), P4(BT=1) just arrived. Compare: 4, 4, 1 &rarr; P4 is smallest! &rarr; <b>Run P4.</b><br>P4 has BT=1 &rarr; runs exactly 1 unit &rarr; <b>P4 COMPLETES at t=5. CT(P4) = 5.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:#F9A825;color:#000;">6</div>
+    <div class="step-text"><b>t=5 &mdash; TIE!</b> P1(rem=4) and P3(rem=4). No new arrivals. BT equal &rarr; compare AT: P1 AT=0 &lt; P3 AT=2 &rarr; <b>Select P1.</b><br>No more new processes &rarr; run P1 fully from 5 to 9. <b>P1 COMPLETES at t=9. CT(P1) = 9.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">7</div>
+    <div class="step-text"><b>t=9:</b> Only P3 remains. No competition &rarr; run P3 fully from 9 to 13. <b>P3 COMPLETES at t=13. CT(P3) = 13.</b></div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.5-C &mdash; SRTF Gantt Chart (Numerical 1)</div>
+  <div class="gantt-wrap">
+    <div class="gantt-row">
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:120px;">P2</div>
+      <div class="gantt-cell" style="background:#C62828;width:40px;">P4</div>
+      <div class="gantt-cell" style="background:#1565C0;width:160px;">P1</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:160px;">P3</div>
+    </div>
+    <div class="gantt-tick-row">
+      <div class="gantt-tick" style="width:40px;">0</div>
+      <div class="gantt-tick" style="width:120px;">1</div>
+      <div class="gantt-tick" style="width:40px;">4</div>
+      <div class="gantt-tick" style="width:160px;">5</div>
+      <div class="gantt-tick" style="width:160px;">9</div>
+      <div class="gantt-tick">13</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:10px 20px 4px;font-size:12px;">
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#1565C0;display:inline-block;"></span>P1 (0&rarr;1, 5&rarr;9)</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#2E7D32;display:inline-block;"></span>P2 (1&rarr;4) preempts P1</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#C62828;display:inline-block;"></span>P4 (4&rarr;5) shortest at t=4</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#6A1B9A;display:inline-block;"></span>P3 (9&rarr;13)</span>
+  </div>
+  <div class="diagram-caption">P1 appears TWICE in Gantt! CT(P1)=9 (right edge of LAST block). CT(P2)=4, CT(P4)=5, CT(P3)=13.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.5-D &mdash; Complete Results (CT / TAT / WT / RT)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#3949ab;color:#fff;">AT</th>
+        <th style="background:var(--teal2);color:#fff;">BT</th>
+        <th style="background:var(--green);color:#fff;">CT</th>
+        <th style="background:var(--orange);color:#fff;">TAT=CT&minus;AT</th>
+        <th style="background:var(--red);color:#fff;">WT=TAT&minus;BT</th>
+        <th style="background:var(--purple);color:#fff;">RT=1st CPU&minus;AT</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">9</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">9&minus;0=<b>9</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">9&minus;5=<b>4</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">0&minus;0=<b>0</b></td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>3</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">4</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">4&minus;1=<b>3</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">3&minus;3=<b>0</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">1&minus;1=<b>0</b></td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>4</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">13</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">13&minus;2=<b>11</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">11&minus;4=<b>7</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">9&minus;2=<b>7</b></td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">5</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">5&minus;4=<b>1</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">1&minus;1=<b>0</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">4&minus;4=<b>0</b></td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td colspan="4" style="text-align:right;color:var(--teal);">Averages &rarr;</td>
+        <td style="background:#fff3e0;color:var(--orange);font-weight:700;">Avg TAT=24/4=<b>6</b></td>
+        <td style="background:#ffebee;color:var(--red);font-weight:700;">Avg WT=11/4=<b>2.75</b></td>
+        <td style="background:#f3e5f5;color:var(--purple);font-weight:700;">Avg RT=7/4=<b>1.75</b></td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="diagram-caption">&#11088; P3: WT=7 but RT=7 also here. P1: WT=4 but RT=0 (got CPU immediately at t=0). RT &ne; WT possible in preemptive!</div>
+</div>
+
+<div class="info-box gold">&#11088; <b>RT &ne; WT in SRTF:</b> P1 got CPU immediately at t=0 so RT=0. But P1 was preempted by P2, waited, then ran again &rarr; total WT=4. P3 never got CPU until t=9 (even though it arrived at t=2) &rarr; RT=7. RT = time of FIRST CPU minus AT.</div>
+
+<!-- 2.6 NUMERICAL 2: UGC NET July 2018 -->
+<div class="sec-head" style="margin-top:52px;">
+  <div class="sec-num" style="background:var(--purple);color:#fff;">2.6</div>
+  <h2>SRTF Numerical 2 &mdash; UGC NET July 2018</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--purple);">&#128218; UGC NET July 2018 &mdash; Preemptive SJF (3 processes)</div>
+  <div class="algo-card-body" style="background:#f3e5f5;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Exam</span>UGC NET July 2018</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Task Asked</span>Find correct Gantt chart from 4 options</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Algorithm</span>Pre-emptive SJF = SRTF</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Answer</span>Option B: P1(0&rarr;1), P2(1&rarr;5), P1(5&rarr;11), P3(11&rarr;19)</div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.6-A &mdash; Given Data: P1(AT=0,BT=7), P2(AT=1,BT=4), P3(AT=2,BT=8)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#1565C0;color:#fff;">Arrival Time (AT)</th>
+        <th style="background:var(--green);color:#fff;">Burst Time (BT)</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>7</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>8</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">Pre-emptive SJF (SRTF). Compare remaining burst times at every arrival event.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">1</div>
+    <div class="step-text"><b>t=0:</b> Only P1 arrived. No competition &rarr; run P1 for 1 unit. P1 remaining = 7&minus;1 = 6.</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--green);">2</div>
+    <div class="step-text"><b>t=1:</b> P1(rem=6) and P2(BT=4). P2 rem=4 &lt; P1 rem=6 &rarr; <b>Preempt P1, run P2.</b><br>At t=2: P3 arrives (BT=8). Compare P1(rem=6), P2(rem=3), P3(BT=8). P2 still smallest &rarr; <b>Continue P2.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--green);">3</div>
+    <div class="step-text"><b>t=2 to t=5:</b> P2 continues running (rem=3&rarr;2&rarr;1&rarr;0). No shorter process arrives. <b>P2 COMPLETES at t=5. CT(P2)=5.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">4</div>
+    <div class="step-text"><b>t=5:</b> P1(rem=6) and P3(rem=8). P1 rem=6 &lt; P3 rem=8 &rarr; <b>Run P1 to completion.</b><br>P1 runs from t=5 to t=11 (6 units). <b>P1 COMPLETES at t=11. CT(P1)=11.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">5</div>
+    <div class="step-text"><b>t=11:</b> Only P3 remains. No competition &rarr; run P3 fully from t=11 to t=19 (8 units). <b>P3 COMPLETES at t=19. CT(P3)=19.</b></div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.6-B &mdash; SRTF Gantt Chart (UGC NET 2018) &mdash; <b style="color:var(--green);">ANSWER: Option B</b></div>
+  <div class="gantt-wrap">
+    <div class="gantt-row">
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:160px;">P2</div>
+      <div class="gantt-cell" style="background:#1565C0;width:240px;">P1</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:320px;">P3</div>
+    </div>
+    <div class="gantt-tick-row">
+      <div class="gantt-tick" style="width:40px;">0</div>
+      <div class="gantt-tick" style="width:160px;">1</div>
+      <div class="gantt-tick" style="width:240px;">5</div>
+      <div class="gantt-tick" style="width:320px;">11</div>
+      <div class="gantt-tick">19</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;padding:10px 20px 4px;font-size:12px;">
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#1565C0;display:inline-block;"></span>P1 (0&rarr;1, 5&rarr;11)</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#2E7D32;display:inline-block;"></span>P2 (1&rarr;5) preempts P1</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#6A1B9A;display:inline-block;"></span>P3 (11&rarr;19) last</span>
+  </div>
+  <div class="diagram-caption">UGC NET 2018 correct answer: P1(0-1), P2(1-5), P1(5-11), P3(11-19). P2 preempts P1 at t=1 because P2 BT=4 &lt; P1 remaining=6.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.6-C &mdash; Complete Results (CT / TAT / WT / RT)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#3949ab;color:#fff;">AT</th>
+        <th style="background:var(--teal2);color:#fff;">BT</th>
+        <th style="background:var(--green);color:#fff;">CT</th>
+        <th style="background:var(--orange);color:#fff;">TAT=CT&minus;AT</th>
+        <th style="background:var(--red);color:#fff;">WT=TAT&minus;BT</th>
+        <th style="background:var(--purple);color:#fff;">RT=1st CPU&minus;AT</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>7</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">11</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">11&minus;0=<b>11</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">11&minus;7=<b>4</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">0&minus;0=<b>0</b></td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">5</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">5&minus;1=<b>4</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">4&minus;4=<b>0</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">1&minus;1=<b>0</b></td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>8</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">19</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">19&minus;2=<b>17</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">17&minus;8=<b>9</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">11&minus;2=<b>9</b></td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td colspan="4" style="text-align:right;color:var(--teal);">Averages &rarr;</td>
+        <td style="background:#fff3e0;color:var(--orange);font-weight:700;">Avg TAT=32/3=<b>10.67</b></td>
+        <td style="background:#ffebee;color:var(--red);font-weight:700;">Avg WT=13/3=<b>4.33</b></td>
+        <td style="background:#f3e5f5;color:var(--purple);font-weight:700;">Avg RT=9/3=<b>3</b></td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="diagram-caption">P3 arrived at t=2 but got CPU only at t=11 &rarr; RT=9. All processes completed at t=19.</div>
+</div>
+<div class="info-box green">&#128161; <b>All processes completed at t=19.</b> If exam asks "when did all processes finish?" &rarr; answer is 19. Always give the CT of the LAST process.</div>
+
+<!-- Key Rules Summary -->
+<div class="sec-head" style="margin-top:40px;">
+  <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">C</div>
+  <h2 class="sub">SRTF &mdash; Complete Rule Summary &amp; Exam Tips</h2>
+</div>
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.6-D &mdash; SJF vs SRTF Comparison</div>
+  <div style="padding:16px 0;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:#f8fafc;color:var(--navy);text-align:left;">Parameter</th>
+        <th style="background:#e8f5e9;color:#2E7D32;">&#129001; SJF (Non-Preemptive)</th>
+        <th style="background:#f3e5f5;color:var(--purple);">&#9889; SRTF (Preemptive)</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700;">Selection</td><td>Burst Time at arrival</td><td>REMAINING Burst Time at every event</td></tr>
+        <tr><td style="font-weight:700;">CPU snatching</td><td style="color:var(--green);font-weight:700;">No &mdash; runs to completion</td><td style="color:var(--red);font-weight:700;">Yes &mdash; preempted if shorter arrives</td></tr>
+        <tr><td style="font-weight:700;">Decision points</td><td>Only at completions/idle</td><td>At every new arrival + every completion</td></tr>
+        <tr><td style="font-weight:700;">RT vs WT</td><td style="color:var(--green);font-weight:700;">RT = WT always</td><td style="color:var(--red);font-weight:700;">RT &ne; WT possible (usually differs)</td></tr>
+        <tr><td style="font-weight:700;">Avg Waiting Time</td><td style="color:var(--green);font-weight:700;">Minimum for non-preemptive</td><td style="color:var(--green);font-weight:700;">Minimum overall (best possible!)</td></tr>
+        <tr><td style="font-weight:700;">Starvation</td><td style="color:var(--red);font-weight:700;">Yes</td><td style="color:var(--red);font-weight:700;">Yes (even more so)</td></tr>
+        <tr><td style="font-weight:700;">CT location</td><td>Right edge of single Gantt block</td><td style="color:var(--red);font-weight:700;">Right edge of LAST Gantt block for that process</td></tr>
+        <tr><td style="font-weight:700;">Context switch cost</td><td style="color:var(--green);font-weight:700;">Low (fewer switches)</td><td style="color:var(--red);font-weight:700;">High (many preemptions)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">SRTF gives the globally minimum average waiting time &mdash; better than even SJF non-preemptive.</div>
+</div>
+<div class="info-box gold">&#11088; <b>Ultimate Exam Theorem:</b> SRTF gives the <b>minimum average waiting time among ALL scheduling algorithms</b> (both preemptive and non-preemptive). Direct GATE/UGC NET fact!</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--green);"><div class="rev-num">2.5</div> SRTF &mdash; Algorithm Basics</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Full name</span><span class="v">Shortest Remaining Time First = Preemptive SJF</span></div>
+      <div class="rv"><span class="k">Selection criterion</span><span class="v">Smallest REMAINING Burst Time among arrived processes</span></div>
+      <div class="rv"><span class="k">Mode</span><span class="v">Preemptive &mdash; CPU can be snatched at any new arrival</span></div>
+      <div class="rv"><span class="k">When to preempt</span><span class="v">When a new process arrives with BT &lt; remaining BT of current running process</span></div>
+      <div class="rv"><span class="k">Tie-break (same rem BT)</span><span class="v">1st: lower AT | 2nd: lower Process ID</span></div>
+      <div class="rv"><span class="k">Starvation?</span><span class="v">Yes &mdash; long processes may never get CPU if shorter ones keep arriving</span></div>
+      <div class="rv"><span class="k">&#11088; Optimal theorem</span><span class="v">SRTF gives the <b>MINIMUM average WT among ALL scheduling algorithms</b></span></div>
+      <div class="rv"><span class="k">RT vs WT</span><span class="v">RT &ne; WT in preemptive. RT = first CPU time &minus; AT. WT = TAT &minus; BT.</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--purple);"><div class="rev-num">2.5</div> SRTF Numerical 1 Answers (GATE 2004 variant)</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Processes</span><span class="v">P1(AT=0,BT=5), P2(AT=1,BT=3), P3(AT=2,BT=4), P4(AT=4,BT=1)</span></div>
+      <div class="rv"><span class="k">Gantt Chart</span><span class="v">P1(0&rarr;1) | P2(1&rarr;4) | P4(4&rarr;5) | P1(5&rarr;9) | P3(9&rarr;13)</span></div>
+      <div class="rv"><span class="k">Completion Times</span><span class="v">P1=9, P2=4, P3=13, P4=5</span></div>
+      <div class="rv"><span class="k">TAT values</span><span class="v">P1=9, P2=3, P3=11, P4=1 | Avg TAT = 24/4 = <b>6</b></span></div>
+      <div class="rv"><span class="k">WT values</span><span class="v">P1=4, P2=0, P3=7, P4=0 | Avg WT = 11/4 = <b>2.75</b></span></div>
+      <div class="rv"><span class="k">RT values</span><span class="v">P1=0, P2=0, P3=7, P4=0 | Avg RT = 7/4 = <b>1.75</b></span></div>
+      <div class="rv"><span class="k">All done at</span><span class="v">t=13</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--indigo);"><div class="rev-num">2.6</div> SRTF Numerical 2 Answers (UGC NET July 2018)</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Processes</span><span class="v">P1(AT=0,BT=7), P2(AT=1,BT=4), P3(AT=2,BT=8)</span></div>
+      <div class="rv"><span class="k">Gantt Chart</span><span class="v">P1(0&rarr;1) | P2(1&rarr;5) | P1(5&rarr;11) | P3(11&rarr;19)</span></div>
+      <div class="rv"><span class="k">Correct Answer</span><span class="v">Option B in UGC NET 2018 exam</span></div>
+      <div class="rv"><span class="k">Completion Times</span><span class="v">P1=11, P2=5, P3=19</span></div>
+      <div class="rv"><span class="k">TAT values</span><span class="v">P1=11, P2=4, P3=17 | Avg TAT = 32/3 = <b>10.67</b></span></div>
+      <div class="rv"><span class="k">WT values</span><span class="v">P1=4, P2=0, P3=9 | Avg WT = 13/3 = <b>4.33</b></span></div>
+      <div class="rv"><span class="k">RT values</span><span class="v">P1=0, P2=0, P3=9 | Avg RT = 9/3 = <b>3</b></span></div>
+      <div class="rv"><span class="k">All done at</span><span class="v">t=19</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--teal2);"><div class="rev-num">&#9733;</div> Star Points &amp; Common Mistakes</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">&#9733; CT in preemptive</span><span class="v">Right edge of LAST block in Gantt chart (a process appears multiple times!)</span></div>
+      <div class="rv"><span class="k">&#9733; RT formula</span><span class="v"><code>First CPU time &minus; AT</code>. RT &ne; WT in preemptive scheduling.</span></div>
+      <div class="rv"><span class="k">&#9733; WT formula</span><span class="v"><code>TAT &minus; BT</code> = <code>CT &minus; AT &minus; BT</code></span></div>
+      <div class="rv"><span class="k">&#9733; Remaining BT tracking</span><span class="v">Keep subtracting from BT each time the process runs. Compare REMAINING, not original BT.</span></div>
+      <div class="rv"><span class="k">&#9733; Only 1 process?</span><span class="v">No competition &rarr; run to completion directly. No need to check 1 unit at a time.</span></div>
+      <div class="rv"><span class="k">&#9733; SRTF optimal</span><span class="v">Minimum avg WT among ALL algorithms &mdash; preemptive and non-preemptive alike.</span></div>
+      <div class="rv"><span class="k">&#9733; Context switching</span><span class="v">SRTF causes more context switches (overhead) &mdash; impractical in real OS but important for theory exams.</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 2.5-2.6)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+</div><!-- end main -->
+
+<script>
+function switchView(name, e) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
+  if (name === 'quiz' && !quizStarted) {
+    quizStarted = true;
+    renderQuestion();
+  }
+}
+
+const questions = [
+  {
+    q: "SRTF stands for? And it is the same as which other algorithm?",
+    options: [
+      "Shortest Remaining Time First = Non-Preemptive SJF",
+      "Shortest Remaining Time First = Preemptive SJF",
+      "Shortest Run Time First = Round Robin",
+      "Scheduled Response Time First = Priority"
+    ],
+    answer: 1,
+    explanation: "SRTF = Shortest Remaining Time First. It is exactly the same as Preemptive SJF. The key word is PREEMPTIVE — CPU can be taken away from a running process if a shorter one arrives."
+  },
+  {
+    q: "In SRTF, when does the scheduler make a preemption decision?",
+    options: [
+      "Only when the current process completes",
+      "Only at fixed time intervals (time quantum)",
+      "Every time a new process arrives in the Ready Queue",
+      "Every 5 units of time"
+    ],
+    answer: 2,
+    explanation: "In SRTF, whenever a new process arrives, the scheduler compares its burst time with the REMAINING burst time of the current running process. If the new process is shorter, it preempts the running process."
+  },
+  {
+    q: "In SRTF (P1:AT=0,BT=5 | P2:AT=1,BT=3 | P3:AT=2,BT=4 | P4:AT=4,BT=1), what runs at t=1?",
+    options: [
+      "P1 continues (it started first)",
+      "P2 preempts P1 (BT=3 less than P1 remaining=4)",
+      "P3 preempts (it hasn't started)",
+      "CPU goes IDLE at t=1"
+    ],
+    answer: 1,
+    explanation: "At t=1: P1 has remaining BT=4. P2 arrives with BT=3. Since 3 < 4, P2 preempts P1. P1 goes back to Ready Queue with remaining BT=4. P2 starts running."
+  },
+  {
+    q: "In SRTF, what is the Completion Time of P1 (AT=0,BT=5) when Gantt shows P1(0→1), P2(1→4), P4(4→5), P1(5→9), P3(9→13)?",
+    options: [
+      "1 (when P1 was first preempted)",
+      "5 (first time P1 finished a block)",
+      "9 (last P1 block ends here)",
+      "13"
+    ],
+    answer: 2,
+    explanation: "CT = right edge of the LAST Gantt block for that process. P1 appears twice: 0→1 and 5→9. The LAST block ends at 9. So CT(P1) = 9. Never use intermediate Gantt block edges for CT in preemptive scheduling!"
+  },
+  {
+    q: "In SRTF, what is the Response Time of P3 (AT=2,BT=4) in: P1(0→1), P2(1→4), P4(4→5), P1(5→9), P3(9→13)?",
+    options: [
+      "0 (it arrived early)",
+      "7 (9 minus 2)",
+      "11 (TAT minus BT)",
+      "7 (same as WT)"
+    ],
+    answer: 1,
+    explanation: "RT = First CPU time − AT. P3 first gets CPU at t=9. AT=2. RT = 9−2 = 7. Note that WT=7 also in this case, but RT and WT are calculated differently and can differ in other problems."
+  },
+  {
+    q: "What is the average Waiting Time for SRTF Numerical 1 (P1:AT=0,BT=5 | P2:AT=1,BT=3 | P3:AT=2,BT=4 | P4:AT=4,BT=1)?",
+    options: [
+      "2.25",
+      "2.75",
+      "3",
+      "6"
+    ],
+    answer: 1,
+    explanation: "WT: P1=4, P2=0, P3=7, P4=0. Sum=11. Avg WT = 11/4 = 2.75. P2 and P4 have WT=0 (got CPU without waiting). P3 had to wait long (7 units) before getting CPU."
+  },
+  {
+    q: "UGC NET July 2018: For P1(AT=0,BT=7), P2(AT=1,BT=4), P3(AT=2,BT=8) with preemptive SJF, what runs from t=1 to t=5?",
+    options: [
+      "P1 continues",
+      "P2 (BT=4 less than P1 remaining=6)",
+      "P3 (it just arrived)",
+      "CPU IDLE"
+    ],
+    answer: 1,
+    explanation: "At t=1: P1 has remaining BT=6. P2 arrives with BT=4. Since 4 < 6, P2 preempts P1. P2 then runs continuously from t=1 to t=5 (BT=4 units). At t=2, P3 arrives with BT=8 which is greater than P2's remaining BT, so P2 continues uninterrupted."
+  },
+  {
+    q: "In UGC NET 2018 SRTF question (P1:AT=0,BT=7 | P2:AT=1,BT=4 | P3:AT=2,BT=8), what is the Completion Time of P1?",
+    options: [
+      "7",
+      "8",
+      "11",
+      "19"
+    ],
+    answer: 2,
+    explanation: "Gantt: P1(0→1), P2(1→5), P1(5→11), P3(11→19). P1 appears twice. Last block is 5→11. CT(P1) = 11. P1 had remaining BT=6 when preempted at t=1, then ran from t=5 to t=11 (6 units) to completion."
+  },
+  {
+    q: "In SRTF vs SJF: which statement about Response Time is CORRECT?",
+    options: [
+      "RT = WT in both SRTF and SJF",
+      "RT = WT only in SJF (non-preemptive); RT can differ from WT in SRTF",
+      "RT = 0 always in SRTF",
+      "RT = BT in preemptive scheduling"
+    ],
+    answer: 1,
+    explanation: "In SJF (Non-Preemptive), a process runs to completion once started, so RT = WT always. In SRTF (Preemptive), a process might get CPU immediately (RT=0) but then be preempted and wait more (WT > 0). So RT and WT can differ."
+  },
+  {
+    q: "At t=4 in SRTF Numerical 1 (P1:rem=4, P3:rem=4, P4 just arrived BT=1): which process runs?",
+    options: [
+      "P1 (arrived first)",
+      "P3 (arrived before P4)",
+      "P4 (BT=1 is smallest)",
+      "Tie: P1 and P3 run together"
+    ],
+    answer: 2,
+    explanation: "At t=4: P1 has remaining BT=4, P3 has remaining BT=4, P4 just arrived with BT=1. Comparing: 4, 4, 1. P4 is smallest (BT=1). So P4 runs and completes in just 1 unit at t=5."
+  },
+  {
+    q: "STAR POINT: SRTF gives minimum average waiting time among which set of algorithms?",
+    options: [
+      "Only non-preemptive algorithms",
+      "Only preemptive algorithms",
+      "All scheduling algorithms — both preemptive and non-preemptive",
+      "Only for 4 or fewer processes"
+    ],
+    answer: 2,
+    explanation: "SRTF (Preemptive SJF) gives the MINIMUM AVERAGE WAITING TIME among ALL CPU scheduling algorithms — preemptive and non-preemptive. Even better than SJF non-preemptive. This is a proven theorem and a direct GATE/UGC NET fact."
+  },
+  {
+    q: "STAR POINT: In SRTF, process P3 arrives at t=2 but gets CPU only at t=9. P3 has BT=4. What are WT and RT?",
+    options: [
+      "WT=7, RT=7",
+      "WT=7, RT=9",
+      "WT=3, RT=7",
+      "WT=11, RT=7"
+    ],
+    answer: 0,
+    explanation: "CT(P3)=13. TAT=13−2=11. WT=TAT−BT=11−4=7. RT=First CPU time−AT=9−2=7. In this case WT=RT=7 by coincidence. RT is the time from arrival to FIRST CPU allocation, while WT is total time spent waiting in queue (total non-CPU time)."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let quizStarted = false;
+
+function renderQuestion() {
+  const container = document.getElementById('quiz-container');
+  if (current >= questions.length) {
+    renderResults();
+    return;
+  }
+  document.getElementById('q-progress-fill').style.width = (current / questions.length * 100).toFixed(0) + '%';
+  document.getElementById('q-progress-label').textContent = 'Question ' + (current + 1) + ' of ' + questions.length + ' (Topics 2.5-2.6)';
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+  
+  const q = questions[current];
+  answered = false;
+  
+  let optionsHtml = q.options.map((opt, i) => {
+    return `<div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+      <div class="quiz-option-marker">${String.fromCharCode(65 + i)}</div>
+      ${opt}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-title-tag">Question ${current + 1} of ${questions.length}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options">
+        ${optionsHtml}
+      </div>
+      <div id="explanation-box"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="skipQuestion()">Skip</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next</button>
+      </div>
+    </div>
+  `;
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  
+  document.querySelectorAll('.quiz-option').forEach((el, idx) => {
+    if (idx === q.answer) {
+      el.classList.add('correct');
+    } else if (idx === i && i !== q.answer) {
+      el.classList.add('incorrect');
+    }
+  });
+  
+  if (i === q.answer) {
+    score++;
+  }
+  
+  document.getElementById('explanation-box').innerHTML = `
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">📚 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>
+  `;
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('q-score-label').textContent = 'Score: ' + score;
+}
+
+function nextQuestion() {
+  current++;
+  renderQuestion();
+}
+
+function skipQuestion() {
+  current++;
+  renderQuestion();
+}
+
+function renderResults() {
+  const pct = Math.round(score / questions.length * 100);
+  let badgeClass, badgeText, feedback;
+  if (pct === 100) {
+    badgeClass = 'master';
+    badgeText = '🏆 MASTER';
+    feedback = 'Outstanding! You mastered SRTF — the toughest preemptive scheduling algorithm. Ready for Round Robin and Priority!';
+  } else if (pct >= 80) {
+    badgeClass = 'excellent';
+    badgeText = '🥇 EXCELLENT';
+    feedback = 'Great work! Review missed questions on CT location in Gantt chart and RT vs WT distinction.';
+  } else if (pct >= 60) {
+    badgeClass = 'good';
+    badgeText = '🥈 GOOD';
+    feedback = 'Good progress. Focus on tracking remaining BT carefully and identifying CT from LAST Gantt block.';
+  } else {
+    badgeClass = 'review';
+    badgeText = '📖 REVIEW';
+    feedback = 'Go back to Descriptive tab. Trace through both Gantt charts step by step, then retry.';
+  }
+  
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Quiz Complete!';
+  document.getElementById('q-score-label').textContent = `Final Score: ${score}/${questions.length}`;
+  
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="results-score-box">
+      <div class="results-score-circle">
+        <div class="results-score-num">${score}</div>
+        <div class="results-score-total">/ ${questions.length}</div>
+      </div>
+      <span class="results-badge ${badgeClass}">${badgeText}</span>
+      <p class="results-feedback">${feedback}</p>
+    </div>
+    <div style="text-align:center; margin-top:8px;">
+      <button class="quiz-btn primary" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>
+  `;
+}
+
+function restartQuiz() {
+  current = 0;
+  score = 0;
+  answered = false;
+  renderQuestion();
+}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

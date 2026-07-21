@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to OS &amp; Functionalities — Topic 1.1 | Operating System Notes</title>
+<meta name="description" content="Introduction to Operating System — definition, interface role, hardware components, major goals (convenience & throughput), and 5 key functionalities for GATE & UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064;
+    --teal2:  #00838f;
+    --teal3:  #4dd0e1;
+    --tealb:  #e0f7fa;
+    --navy:   #0D1B4B;
+    --blue:   #1565C0;
+    --lblue:  #42A5F5;
+    --red:    #C62828;
+    --redl:   #FFEBEE;
+    --green:  #2E7D32;
+    --greenl: #E8F5E9;
+    --orange: #E65100;
+    --orangel:#FFF3E0;
+    --purple: #6A1B9A;
+    --purplel:#F3E5F5;
+    --bluebg: #E3F2FD;
+    --text:   #1A1A1A;
+    --white:  #ffffff;
+    --dkgray: #424242;
+    --mdgray: #757575;
+    --gold:   #F9A825;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f0fafa; color: var(--text); min-height: 100vh; }
+
+  /* ── TOPBAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:15px; font-weight:600; letter-spacing:.02em; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 20px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s ease; color:var(--dkgray); background:transparent; letter-spacing:.02em; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 32px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;flex-wrap:wrap;}
+  .ph-breadcrumb a{color:#2563eb;text-decoration:none;transition:color .15s;}
+  .ph-breadcrumb a:hover{color:#1d4ed8;text-decoration:underline;}
+  .ph-breadcrumb .sep{color:#94a3b8;}
+  .ph-breadcrumb .current{color:#64748b;font-weight:600;}
+  .ph-breadcrumb .back-btn{margin-left:auto;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:4px 12px;color:#334155;font-weight:600;white-space:nowrap;text-decoration:none;}
+  .ph-breadcrumb .back-btn:hover{background:#e2e8f0;}
+  @media(max-width:600px){.ph-breadcrumb{padding:7px 16px;font-size:11.5px;}}
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; border-bottom:1px solid rgba(255,255,255,.08); }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(38px,6vw,60px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:560px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; letter-spacing:.04em; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sec-head h2 { font-size:19px; font-weight:700; letter-spacing:-.01em; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+  .prose code { font-family:'Space Mono',monospace; background:#e0f7fa; padding:1px 6px; border-radius:3px; font-size:12px; color:var(--teal); }
+
+  /* ── INFO BOX ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2);  color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);   color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange); color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green);  color:var(--dkgray); }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);    color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);   color:#5d4037; }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── DATA TABLE ── */
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-table th { background:var(--teal); color:#fff; padding:9px 12px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .data-table td { padding:9px 12px; border-bottom:1px solid #b2ebf2; vertical-align:top; }
+  .data-table tr:nth-child(even) td { background:var(--tealb); }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table td:first-child { font-weight:600; color:var(--teal); }
+
+  /* ── COMPARE GRID ── */
+  .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .cmp-card { border-radius:10px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+  .cmp-card-head { padding:10px 16px; font-weight:700; font-size:13px; color:#fff; display:flex; align-items:center; gap:8px; }
+  .cmp-card-body { padding:14px 16px; font-size:13.5px; line-height:1.65; }
+
+  /* ── PILL LIST ── */
+  .pill-list { list-style:none; margin:6px 0; }
+  .pill-list li { display:flex; gap:8px; font-size:13px; margin-bottom:6px; line-height:1.55; align-items:flex-start; }
+
+  /* ── SUB-HEAD ── */
+  .sub-head { display:flex; align-items:center; gap:12px; margin:24px 0 12px; padding:10px 16px; border-radius:8px; }
+  .sub-letter { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; color:#fff; flex-shrink:0; }
+  .sub-head h3 { font-size:15px; font-weight:700; }
+  .sub-head .sub-hint { font-size:11.5px; font-weight:400; opacity:.7; margin-top:1px; }
+
+  /* ── ARCH FLOW (horizontal diagram) ── */
+  .arch-flow { display:flex; align-items:stretch; justify-content:center; gap:0; padding:24px 20px; flex-wrap:nowrap; overflow-x:auto; }
+  .arch-box { border-radius:10px; padding:14px 18px; text-align:center; min-width:110px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .arch-box .ab-icon  { font-size:26px; margin-bottom:6px; }
+  .arch-box .ab-title { font-weight:700; font-size:13px; }
+  .arch-box .ab-sub   { font-size:10.5px; margin-top:4px; line-height:1.4; opacity:.85; }
+  .arch-arrow { font-size:22px; color:var(--mdgray); padding:0 10px; display:flex; align-items:center; flex-shrink:0; }
+  .arch-arrow.teal { color:var(--teal2); }
+
+  /* ── LAYERED STACK DIAGRAM ── */
+  .layer-stack { padding:20px; }
+  .layer { border-radius:8px; padding:14px 20px; margin-bottom:6px; display:flex; align-items:center; gap:16px; }
+  .layer-num { font-family:'Space Mono',monospace; font-weight:700; font-size:13px; width:28px; flex-shrink:0; text-align:center; }
+  .layer-content h4 { font-size:14px; font-weight:700; margin-bottom:3px; }
+  .layer-content p  { font-size:12.5px; line-height:1.5; opacity:.85; }
+  .layer-arrow { text-align:center; color:var(--mdgray); font-size:20px; margin:2px 0; }
+
+  /* ── HARDWARE GRID ── */
+  .hw-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:16px; }
+  .hw-card { border-radius:10px; padding:14px 10px; text-align:center; border:2px solid; }
+  .hw-card .hw-icon  { font-size:28px; margin-bottom:8px; }
+  .hw-card .hw-name  { font-weight:700; font-size:12.5px; margin-bottom:4px; }
+  .hw-card .hw-desc  { font-size:11px; line-height:1.45; opacity:.8; }
+
+  /* ── MARKET BAR ── */
+  .market-bar { padding:20px 24px; }
+  .mbar-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .mbar-label { font-size:13px; font-weight:700; width:60px; flex-shrink:0; }
+  .mbar-track { flex:1; height:28px; border-radius:6px; background:#f0f4f8; position:relative; overflow:hidden; }
+  .mbar-fill  { height:100%; border-radius:6px; display:flex; align-items:center; padding-left:10px; font-size:12px; font-weight:700; color:#fff; transition:width 1s ease; }
+  .mbar-pct   { font-size:12px; font-weight:700; width:40px; text-align:right; flex-shrink:0; }
+
+  /* ── FUNCTIONALITY CARDS ── */
+  .func-card { border-radius:12px; overflow:hidden; margin-bottom:16px; box-shadow:0 3px 14px rgba(0,0,0,.07); }
+  .func-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; }
+  .func-card-head .func-num { width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .func-card-head h3 { font-size:15px; font-weight:700; }
+  .func-card-head .func-tag { margin-left:auto; font-size:10.5px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); border-radius:20px; padding:3px 10px; letter-spacing:.04em; }
+  .func-card-body { padding:16px 20px; font-size:13.5px; line-height:1.7; color:#2a2a2a; }
+  .func-card-body ul { list-style:none; margin:8px 0; }
+  .func-card-body li { padding:3px 0 3px 20px; position:relative; margin-bottom:4px; }
+  .func-card-body li::before { content:'▸'; position:absolute; left:0; font-size:11px; top:5px; }
+
+  /* ── SYSTEM CALL FLOW ── */
+  .syscall-flow { padding:20px 24px; }
+  .sc-step { display:flex; gap:14px; margin-bottom:14px; align-items:flex-start; }
+  .sc-badge { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; color:#fff; flex-shrink:0; margin-top:2px; }
+  .sc-content h4 { font-size:14px; font-weight:700; margin-bottom:4px; color:var(--navy); }
+  .sc-content p  { font-size:13px; line-height:1.6; color:var(--dkgray); }
+  .sc-divider { border:none; border-top:1px dashed #b2dfdb; margin:4px 0 14px 50px; }
+
+  /* ── SMART CARD ── */
+  .smart-card { background:linear-gradient(135deg,#1a237e,#0d47a1); border-radius:14px; padding:22px 24px; margin:16px 0; color:#fff; position:relative; overflow:hidden; }
+  .smart-card::before { content:'💡'; position:absolute; right:20px; top:12px; font-size:40px; opacity:.15; }
+  .smart-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
+  .smart-card p  { font-size:13.5px; line-height:1.65; color:rgba(255,255,255,.85); }
+
+  /* ── REVISION CARDS ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-card-head .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:8px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:165px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:32px; box-shadow:0 4px 20px rgba(0,0,0,0.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:18px; font-weight:700; color:var(--navy); line-height:1.5; margin-bottom:20px; }
+  .quiz-options { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+  .quiz-option { display:flex; align-items:center; padding:16px 20px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:14px; font-weight:500; color:var(--text); transition:all 0.2s ease; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:14px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; transition:all 0.2s ease; background:#fff; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:18px 20px; margin-bottom:24px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+  .quiz-explanation-text  { font-size:13.5px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .quiz-btn { padding:12px 28px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; transition:all 0.2s ease; font-family:'DM Sans',sans-serif; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; box-shadow:none; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-btn.secondary:hover { background:#e2e8f0; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width 0.3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; position:relative; overflow:hidden; }
+  .results-score-box::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 80% 20%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; line-height:1; color:#fff; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2); color:#fff; }
+  .results-badge.good      { background:var(--blue);  color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media (max-width:620px) {
+    .compare-grid, .hw-grid { grid-template-columns:1fr 1fr; }
+    .hw-grid { grid-template-columns:1fr 1fr; }
+    .arch-flow { gap:4px; }
+    .arch-box { min-width:80px; padding:10px; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 14px; font-size:12px; }
+    .hero h1 { font-size:32px; }
+    .hero { padding:28px 20px 24px; }
+    .main { padding:24px 16px 60px; }
+    .layer { padding:10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 1.1</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>Introduction &amp; Functionalities</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 1.1: Introduction &amp; Functionalities</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPIC 1.1 • INTRODUCTION</div>
+    <h1>Introduction<br>to <span>Operating System</span></h1>
+    <p class="hero-sub">What is an OS, why it's needed, how it sits between user and hardware, its two major goals, and all 5 key functionalities — with system call flow explained.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE</span>
+      <span class="badge">UGC NET</span>
+      <span class="badge">B.Tech / BCA</span>
+      <span class="badge">University Exams</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ═══════════════ DESCRIPTIVE VIEW ═══════════════ -->
+<div id="view-descriptive" class="view active">
+
+  <!-- SECTION 1 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;font-size:13px;">1.1</div>
+    <h2 style="color:var(--navy);">What Is an Operating System?</h2>
+  </div>
+  <p class="prose">An <b>Operating System (OS)</b> is <b>system software</b> — a program that lives inside your computer and has one core job: <b>act as an interface (intermediary) between the user and the hardware.</b></p>
+  <div class="info-box teal">📌 <b>One-line exam definition:</b> "An Operating System is system software that acts as an interface between the user and the hardware, manages system resources, and provides an environment for executing programs."</div>
+
+  <!-- Layer Diagram -->
+  <div class="diagram">
+    <div class="diagram-title">🏗️ Abstract View of a Computer System — 4 Layers</div>
+    <div class="layer-stack">
+      <div class="layer" style="background:#e8f5e9;border-left:4px solid var(--green);">
+        <div class="layer-num" style="color:var(--green);">L3</div>
+        <div class="layer-content">
+          <h4 style="color:var(--green);">👤 Users</h4>
+          <p>People who use the computer — students, programmers, data entry operators, etc. They interact via applications or command prompt.</p>
+        </div>
+      </div>
+      <div class="layer-arrow">↕️</div>
+      <div class="layer" style="background:#e3f2fd;border-left:4px solid var(--blue);">
+        <div class="layer-num" style="color:var(--blue);">L2</div>
+        <div class="layer-content">
+          <h4 style="color:var(--blue);">📱 System &amp; Application Programs</h4>
+          <p>Compilers, assemblers, databases, Microsoft Word, browsers, games — these define how resources solve user problems.</p>
+        </div>
+      </div>
+      <div class="layer-arrow">↕️</div>
+      <div class="layer" style="background:var(--tealb);border-left:4px solid var(--teal2);">
+        <div class="layer-num" style="color:var(--teal2);">L1</div>
+        <div class="layer-content">
+          <h4 style="color:var(--teal2);">⚙️ Operating System ← THE INTERFACE</h4>
+          <p>Controls and coordinates hardware use among all programs. This is the layer that does the actual management work.</p>
+        </div>
+      </div>
+      <div class="layer-arrow">↕️</div>
+      <div class="layer" style="background:var(--purplel);border-left:4px solid var(--purple);">
+        <div class="layer-num" style="color:var(--purple);">L0</div>
+        <div class="layer-content">
+          <h4 style="color:var(--purple);">🖥️ Computer Hardware</h4>
+          <p>CPU, RAM, Hard Disk, Keyboard, Mouse, Monitor, Printer, Scanner — the physical computing resources.</p>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">Request path: User → Application → OS → Hardware → result flows back up the same chain.</div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;font-size:13px;">1.2</div>
+    <h2 style="color:var(--navy);">Hardware Components the OS Manages</h2>
+  </div>
+  <p class="prose">Taking a laptop/desktop as an example — all of these physical components are <b>hardware</b>. The user never directly controls them; it is always the OS that mediates.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🖥️ Hardware Components — What the OS Controls</div>
+    <div class="hw-grid">
+      <div class="hw-card" style="border-color:var(--red);background:#fff5f5;">
+        <div class="hw-icon">🧠</div>
+        <div class="hw-name" style="color:var(--red);">CPU</div>
+        <div class="hw-desc">Brain of the system. Executes all instructions. OS controls which process gets CPU time and for how long.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--blue);background:#f0f6ff;">
+        <div class="hw-icon">⌨️</div>
+        <div class="hw-name" style="color:var(--blue);">I/O Devices</div>
+        <div class="hw-desc">Keyboard, Mouse (input), Monitor, Printer, Scanner (output). OS manages all device drivers and requests.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--green);background:#f0fff4;">
+        <div class="hw-icon">💾</div>
+        <div class="hw-name" style="color:var(--green);">RAM</div>
+        <div class="hw-desc">Main memory. Fast but limited in size. All processes must be loaded here before CPU can execute them.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--orange);background:#fff8f0;">
+        <div class="hw-icon">💿</div>
+        <div class="hw-name" style="color:var(--orange);">Hard Disk</div>
+        <div class="hw-desc">Secondary memory. Large, permanent storage. OS manages how data is stored and retrieved from it.</div>
+      </div>
+    </div>
+    <div class="diagram-caption">The user accesses all these through the OS — never directly. The OS is the gatekeeper for all hardware.</div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--orange);color:#fff;font-size:13px;">1.3</div>
+    <h2 style="color:var(--navy);">Why Do We Need an OS? (Without OS Scenario)</h2>
+  </div>
+  <p class="prose">Imagine a world without any operating system. What would happen?</p>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:#b71c1c;">❌ Without OS</div>
+      <div class="cmp-card-body" style="background:#fff5f5;">
+        <ul class="pill-list">
+          <li>🔴 <span>To use any hardware, the user must <b>write a separate program</b> for every device interaction.</span></li>
+          <li>🔴 <span>Want to print a file? Write a program for the printer first, then print.</span></li>
+          <li>🔴 <span>Different programs needed for each device — printer, keyboard, CPU, disk — every single time.</span></li>
+          <li>🔴 <span>No authority to take back hardware from a user who has grabbed it — no fairness.</span></li>
+          <li>🔴 <span>User interaction with hardware becomes <b>extremely complex</b>.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--teal);">✅ With OS</div>
+      <div class="cmp-card-body" style="background:var(--tealb);">
+        <ul class="pill-list">
+          <li>🟢 <span>OS hides all hardware complexity — user just clicks buttons.</span></li>
+          <li>🟢 <span>Press Ctrl+P in Word → OS triggers print system call → printer works automatically.</span></li>
+          <li>🟢 <span>OS provides common services so apps don't have to control hardware from scratch.</span></li>
+          <li>🟢 <span>OS is the authority — allocates and de-allocates hardware fairly among multiple users.</span></li>
+          <li>🟢 <span>OS coordinates multiple programs running simultaneously without conflict.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">🔄 How a User Accesses Hardware — With OS</div>
+    <div class="arch-flow">
+      <div>
+        <div class="arch-box" style="background:var(--greenl);border:2px solid var(--green);">
+          <div class="ab-icon">👤</div>
+          <div class="ab-title" style="color:var(--green);">USER</div>
+          <div class="ab-sub" style="color:var(--dkgray);">Clicks Print<br>or opens file</div>
+        </div>
+      </div>
+      <div><div class="arch-arrow">→</div></div>
+      <div>
+        <div class="arch-box" style="background:var(--bluebg);border:2px solid var(--blue);">
+          <div class="ab-icon">📱</div>
+          <div class="ab-title" style="color:var(--blue);">APPLICATION</div>
+          <div class="ab-sub" style="color:var(--dkgray);">MS Word, Browser<br>Game, etc.</div>
+        </div>
+      </div>
+      <div><div class="arch-arrow">→</div></div>
+      <div>
+        <div class="arch-box" style="background:var(--tealb);border:2px solid var(--teal2);">
+          <div class="ab-icon">⚙️</div>
+          <div class="ab-title" style="color:var(--teal2);">OS / KERNEL</div>
+          <div class="ab-sub" style="color:var(--dkgray);">Receives system<br>call, manages</div>
+        </div>
+      </div>
+      <div><div class="arch-arrow">→</div></div>
+      <div>
+        <div class="arch-box" style="background:var(--purplel);border:2px solid var(--purple);">
+          <div class="ab-icon">🖨️</div>
+          <div class="ab-title" style="color:var(--purple);">HARDWARE</div>
+          <div class="ab-sub" style="color:var(--dkgray);">Printer, CPU,<br>Disk, RAM</div>
+        </div>
+      </div>
+      <div><div class="arch-arrow teal">←</div></div>
+      <div>
+        <div class="arch-box" style="background:#fff8e1;border:2px solid var(--gold);">
+          <div class="ab-icon">📄</div>
+          <div class="ab-title" style="color:#b7791f;">RESULT</div>
+          <div class="ab-sub" style="color:var(--dkgray);">Output sent<br>back to user</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The user never directly touches the hardware. The OS sits in the middle and handles everything transparently.</div>
+  </div>
+
+  <div class="info-box gold">🎯 <b>Interface analogy (from lecture):</b> A fan regulator, a car steering wheel, or microwave buttons let an ordinary person control a complex machine easily — without needing to understand the internal electronics. The OS does the same for computer hardware. It hides complexity and provides a simple, usable interface.</div>
+
+  <!-- SECTION 4 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--gold);color:#000;font-size:13px;">1.4</div>
+    <h2 style="color:var(--navy);">Two Major Goals of an OS</h2>
+  </div>
+  <p class="prose">The two primary goals of any operating system are <b>Convenience</b> and <b>Throughput</b>. Every design decision in OS revolves around balancing these two.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🎯 Primary Goals of an Operating System</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:20px 24px;background:#f0fdf4;border-right:1px solid #b2dfdb;">
+        <div style="font-size:32px;text-align:center;margin-bottom:10px;">😊</div>
+        <h3 style="color:var(--green);font-size:16px;font-weight:800;margin-bottom:8px;text-align:center;">CONVENIENCE</h3>
+        <p style="font-size:13px;line-height:1.65;color:var(--dkgray);">The user can access hardware in the <b>easiest possible way</b>. No technical knowledge needed. Just click, type, or tap — the OS handles the rest.</p>
+        <div style="margin-top:12px;padding:10px;background:#dcfce7;border-radius:8px;font-size:12.5px;color:var(--green);font-weight:600;">
+          🏆 Windows dominated 95% of the market for years primarily because of convenience.
+        </div>
+      </div>
+      <div style="padding:20px 24px;background:#e0f7fa;">
+        <div style="font-size:32px;text-align:center;margin-bottom:10px;">⚡</div>
+        <h3 style="color:var(--teal2);font-size:16px;font-weight:800;margin-bottom:8px;text-align:center;">THROUGHPUT</h3>
+        <p style="font-size:13px;line-height:1.65;color:var(--dkgray);"><b>Number of tasks executed per unit time.</b> The more tasks completed in a given time, the higher the throughput. Users want their problems solved <b>fast</b>.</p>
+        <div style="margin-top:12px;padding:10px;background:#b2ebf2;border-radius:8px;font-size:12.5px;color:var(--teal);font-weight:600;">
+          🐧 Linux maximises throughput — used in servers, cloud computing, and high-performance systems.
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 24px;background:#fff8e1;border-top:1px solid #ffe082;font-size:13px;color:#5d4037;">
+      ⚠️ <b>Note:</b> Linux also provides convenience — it is not inconvenient, it is just that Windows was optimised for convenience first, whereas Linux was built for high throughput servers and technical systems.
+    </div>
+    <div class="diagram-caption">Modern OS (like Windows 11, macOS) try to achieve both goals simultaneously.</div>
+  </div>
+
+  <!-- Market share bars -->
+  <div class="diagram">
+    <div class="diagram-title">📊 Desktop OS Market Share — Then vs Now (Approx. as of lecture)</div>
+    <div class="market-bar">
+      <p style="font-size:12px;color:var(--mdgray);margin-bottom:14px;font-weight:600;">EARLIER (Peak Windows era):</p>
+      <div class="mbar-row">
+        <span class="mbar-label">Windows</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:95%;background:linear-gradient(90deg,#0078d4,#00b4ff);">95%</div></div>
+        <span class="mbar-pct" style="color:#0078d4;">95%</span>
+      </div>
+      <div class="mbar-row">
+        <span class="mbar-label">Linux</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:2%;background:linear-gradient(90deg,var(--orange),#ff8f00);">2%</div></div>
+        <span class="mbar-pct" style="color:var(--orange);">~2%</span>
+      </div>
+      <div class="mbar-row">
+        <span class="mbar-label">Mac</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:3%;background:linear-gradient(90deg,#555,#888);">3%</div></div>
+        <span class="mbar-pct" style="color:#555;">~3%</span>
+      </div>
+
+      <p style="font-size:12px;color:var(--mdgray);margin:18px 0 14px;font-weight:600;">LATER (2018 approx, as mentioned in lecture):</p>
+      <div class="mbar-row">
+        <span class="mbar-label">Windows</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:82%;background:linear-gradient(90deg,#0078d4,#00b4ff);">82%</div></div>
+        <span class="mbar-pct" style="color:#0078d4;">82%</span>
+      </div>
+      <div class="mbar-row">
+        <span class="mbar-label">Linux</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:8%;background:linear-gradient(90deg,var(--orange),#ff8f00);">8%</div></div>
+        <span class="mbar-pct" style="color:var(--orange);">~8%</span>
+      </div>
+      <div class="mbar-row">
+        <span class="mbar-label">Mac</span>
+        <div class="mbar-track"><div class="mbar-fill" style="width:10%;background:linear-gradient(90deg,#555,#888);">10%</div></div>
+        <span class="mbar-pct" style="color:#555;">~10%</span>
+      </div>
+    </div>
+    <div class="diagram-caption">Windows market share decreased as throughput became more important and Linux adoption grew in servers and enterprise.</div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--blue);color:#fff;font-size:13px;">1.5</div>
+    <h2 style="color:var(--navy);">5 Key Functionalities of an Operating System</h2>
+  </div>
+  <p class="prose">These functionalities are essentially the <b>reasons why we use an OS</b>. Each one solves a real problem that would otherwise burden the user or crash the system.</p>
+
+  <!-- Func 1: Resource Manager -->
+  <div class="func-card">
+    <div class="func-card-head" style="background:var(--teal2);">
+      <div class="func-num">1</div>
+      <h3>Resource Manager / Resource Governor</h3>
+      <span class="func-tag">Hardware + Software Resources</span>
+    </div>
+    <div class="func-card-body">
+      <p>The OS acts as a <b>resource manager</b> — it controls and allocates both hardware and software resources among all competing programs and users in a fair and efficient way.</p>
+      <ul>
+        <li style="color:var(--teal)">Hardware resources: CPU time, RAM, Hard Disk, I/O devices, system buses (data bus, address bus, control bus).</li>
+        <li style="color:var(--teal)">Software resources: Files, access permissions, semaphores, shared services, authorization mechanisms.</li>
+        <li style="color:var(--dkgray)">Most critical in <b>parallel access scenarios</b> — e.g., on a server where hundreds of users send requests simultaneously. The OS decides who gets how much resource and for how long, then takes it back when done.</li>
+        <li style="color:var(--dkgray)">Example: Open Task Manager in Windows → you can see CPU %, RAM usage, Disk I/O — all managed and monitored by the OS in real-time.</li>
+      </ul>
+      <div class="info-box teal" style="margin-top:12px;">👥 <b>Government analogy:</b> A government manages shared national resources (land, water, minerals) by deciding who can use them, how much, and under what rules. The OS does the same for computer hardware — it is the authority that enforces resource policies.</div>
+    </div>
+  </div>
+
+  <!-- Func 2: Process Management -->
+  <div class="func-card">
+    <div class="func-card-head" style="background:var(--blue);">
+      <div class="func-num">2</div>
+      <h3>Process Management</h3>
+      <span class="func-tag">CPU Scheduling</span>
+    </div>
+    <div class="func-card-body">
+      <p>The OS manages all processes running on the system. A <b>process</b> is a program in execution. When you save a .C file and run it — that program becomes a process.</p>
+      <ul>
+        <li style="color:var(--blue)">Multiple processes can run simultaneously: Microsoft Word + VLC Media Player + a game, all at once.</li>
+        <li style="color:var(--blue)">OS decides <b>how</b> and <b>when</b> each process gets CPU time using <b>CPU Scheduling Algorithms</b>.</li>
+        <li style="color:var(--dkgray)">Algorithms used: FIFO/FCFS, SJF, Round Robin, Priority Scheduling, SRTF, etc.</li>
+        <li style="color:var(--dkgray)">The OS ensures no single process monopolises the CPU, and all processes eventually get executed.</li>
+      </ul>
+      <div class="diagram" style="margin-top:12px;">
+        <div class="diagram-title">⚙️ Process Execution Flow</div>
+        <div class="arch-flow" style="padding:16px 12px;">
+          <div><div class="arch-box" style="background:#fff3e0;border:2px solid var(--orange);min-width:90px;">
+            <div class="ab-icon">📝</div>
+            <div class="ab-title" style="color:var(--orange);">Program</div>
+            <div class="ab-sub">.c file<br>on Disk</div>
+          </div></div>
+          <div><div class="arch-arrow">→</div></div>
+          <div><div class="arch-box" style="background:#e8f5e9;border:2px solid var(--green);min-width:90px;">
+            <div class="ab-icon">🔄</div>
+            <div class="ab-title" style="color:var(--green);">Process</div>
+            <div class="ab-sub">Loaded<br>into RAM</div>
+          </div></div>
+          <div><div class="arch-arrow">→</div></div>
+          <div><div class="arch-box" style="background:var(--tealb);border:2px solid var(--teal2);min-width:90px;">
+            <div class="ab-icon">🗂️</div>
+            <div class="ab-title" style="color:var(--teal2);">Ready Queue</div>
+            <div class="ab-sub">OS schedules<br>(CPU algo)</div>
+          </div></div>
+          <div><div class="arch-arrow">→</div></div>
+          <div><div class="arch-box" style="background:var(--redl);border:2px solid var(--red);min-width:90px;">
+            <div class="ab-icon">🧠</div>
+            <div class="ab-title" style="color:var(--red);">CPU</div>
+            <div class="ab-sub">Executes<br>the process</div>
+          </div></div>
+          <div><div class="arch-arrow">→</div></div>
+          <div><div class="arch-box" style="background:#f3e5f5;border:2px solid var(--purple);min-width:90px;">
+            <div class="ab-icon">✅</div>
+            <div class="ab-title" style="color:var(--purple);">Done</div>
+            <div class="ab-sub">Process<br>terminated</div>
+          </div></div>
+        </div>
+        <div class="diagram-caption">The OS orchestrates this entire flow using CPU Scheduling Algorithms — ensuring efficient and fair CPU utilisation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Func 3: Storage Management -->
+  <div class="func-card">
+    <div class="func-card-head" style="background:var(--orange);">
+      <div class="func-num">3</div>
+      <h3>Storage Management</h3>
+      <span class="func-tag">Hard Disk / Secondary Memory</span>
+    </div>
+    <div class="func-card-body">
+      <p>Storage management deals with the <b>Hard Disk (secondary memory)</b> — how data is permanently stored, organised, and retrieved. This is different from memory management (which is about RAM).</p>
+      <ul>
+        <li style="color:var(--orange)">The OS manages how data is written to tracks and sectors on the disk.</li>
+        <li style="color:var(--orange)">This is achieved through <b>File Systems</b>.</li>
+        <li style="color:var(--dkgray)">File systems used in Windows: <b>NTFS</b> (New Technology File System), <b>FAT32</b></li>
+        <li style="color:var(--dkgray)">File systems used in Linux: <b>ext4</b>, <b>NFS</b> (Network File System), <b>CIFS</b> (Common Internet File System)</li>
+        <li style="color:var(--dkgray)">The file system organises data into files and directories, manages free space, and ensures data integrity.</li>
+      </ul>
+      <div class="info-box orange" style="margin-top:12px;">📁 <b>Why separate from Memory Management?</b> Hard disk has no size constraint in the way RAM does — you can add more storage easily. RAM is strictly limited, which is why its management is a distinct and critical OS function.</div>
+    </div>
+  </div>
+
+  <!-- Func 4: Memory Management -->
+  <div class="func-card">
+    <div class="func-card-head" style="background:var(--green);">
+      <div class="func-num">4</div>
+      <h3>Memory Management</h3>
+      <span class="func-tag">RAM — Limited &amp; Critical</span>
+    </div>
+    <div class="func-card-body">
+      <p>Memory management deals with <b>RAM (main memory)</b>. RAM is limited in size, and all processes must pass through RAM before the CPU can execute them. The OS must carefully manage this scarce resource.</p>
+
+      <div class="diagram" style="margin:12px 0;">
+        <div class="diagram-title">🧠 Why RAM Management is Critical</div>
+        <div style="padding:16px 20px;">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;">
+            <div style="background:var(--bluebg);border:2px solid var(--blue);border-radius:8px;padding:8px;text-align:center;font-size:11.5px;font-weight:700;color:var(--blue);">P1<br><span style="font-weight:400;color:var(--dkgray);">0–100</span></div>
+            <div style="background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:8px;text-align:center;font-size:11.5px;font-weight:700;color:var(--green);">P2<br><span style="font-weight:400;color:var(--dkgray);">101–200</span></div>
+            <div style="background:var(--purplel);border:2px solid var(--purple);border-radius:8px;padding:8px;text-align:center;font-size:11.5px;font-weight:700;color:var(--purple);">P3<br><span style="font-weight:400;color:var(--dkgray);">201–300</span></div>
+            <div style="background:#f5f5f5;border:2px dashed #bdbdbd;border-radius:8px;padding:8px;text-align:center;font-size:11.5px;color:#9e9e9e;">P4<br><span style="font-weight:600;color:#e53935;">WAITING</span></div>
+            <div style="background:#f5f5f5;border:2px dashed #bdbdbd;border-radius:8px;padding:8px;text-align:center;font-size:11.5px;color:#9e9e9e;">P5<br><span style="font-weight:600;color:#e53935;">WAITING</span></div>
+          </div>
+          <p style="font-size:13px;line-height:1.65;color:var(--dkgray);">RAM is full with P1, P2, P3. When P1 finishes executing, the OS <b>deallocates</b> its memory (0–100) and brings P4 into RAM. This cycle of <b>allocation and deallocation</b> is memory management.</p>
+        </div>
+        <div class="diagram-caption">RAM is a shared, limited resource. Without OS memory management, finished processes would sit in RAM forever, blocking new ones.</div>
+      </div>
+
+      <ul>
+        <li style="color:var(--green)"><b>Multi-programming / Multi-tasking:</b> Multiple processes are loaded into RAM simultaneously. OS switches CPU among them rapidly, giving the illusion of parallel execution.</li>
+        <li style="color:var(--green)"><b>Allocation:</b> OS assigns a memory region to a process when it starts.</li>
+        <li style="color:var(--green)"><b>Deallocation (Swapping):</b> When a process finishes or is paused, OS reclaims its RAM so another process can be loaded.</li>
+        <li style="color:var(--dkgray)">Key concepts covered in detail in separate topics: Paging, Segmentation, Virtual Memory, Page Replacement, Fragmentation.</li>
+      </ul>
+      <div class="info-box green" style="margin-top:12px;">💡 <b>Why OS must manage RAM:</b> If a finished process holds onto its RAM allocation and never gives it back, the system runs out of memory. New processes can't load, and the system freezes. The OS prevents this by forcefully reclaiming memory.</div>
+    </div>
+  </div>
+
+  <!-- Func 5: Security -->
+  <div class="func-card">
+    <div class="func-card-head" style="background:var(--red);">
+      <div class="func-num">5</div>
+      <h3>Security &amp; Privacy</h3>
+      <span class="func-tag">Authentication + Process Isolation</span>
+    </div>
+    <div class="func-card-body">
+      <p>The OS provides two levels of security: <b>user authentication</b> (who can log in) and <b>process isolation</b> (preventing processes from interfering with each other).</p>
+
+      <div class="compare-grid" style="margin-top:12px;">
+        <div class="cmp-card">
+          <div class="cmp-card-head" style="background:#b71c1c;">🔐 User Authentication</div>
+          <div class="cmp-card-body" style="background:#fff5f5;">
+            <ul class="pill-list">
+              <li>🔑 <span>Password protection at login — only authorised users can access the system.</span></li>
+              <li>🔑 <span>Windows uses the <b>Kerberos security protocol</b> to store passwords in secured, encrypted files.</span></li>
+              <li>🔑 <span>Kerberos ensures that even if someone accesses the password file, they cannot read the actual passwords.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-card-head" style="background:var(--navy);">🛡️ Process Isolation</div>
+          <div class="cmp-card-body" style="background:#e8eaf6;">
+            <ul class="pill-list">
+              <li>🛡️ <span>Each process is given a <b>specific memory segment</b> (e.g., P1 gets 0–100, P2 gets 101–200).</span></li>
+              <li>🛡️ <span>If P2 tries to access memory outside its range (101–200), the OS <b>immediately blocks that process</b>.</span></li>
+              <li>🛡️ <span>Prevents malicious or buggy processes from corrupting other processes' data.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram" style="margin-top:12px;">
+        <div class="diagram-title">🛡️ Process Memory Isolation — Security in Action</div>
+        <div style="padding:16px 20px;">
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:140px;background:var(--bluebg);border:2px solid var(--blue);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-weight:700;color:var(--blue);margin-bottom:4px;">Process P1</div>
+              <div style="font-size:11.5px;color:var(--dkgray);">Memory: 0 → 100<br>✅ Can access 0–100 only</div>
+            </div>
+            <div style="flex:1;min-width:140px;background:var(--greenl);border:2px solid var(--green);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-weight:700;color:var(--green);margin-bottom:4px;">Process P2</div>
+              <div style="font-size:11.5px;color:var(--dkgray);">Memory: 101 → 200<br>✅ Can access 101–200 only</div>
+            </div>
+          </div>
+          <div style="background:var(--redl);border:2px solid var(--red);border-radius:8px;padding:12px;font-size:13px;color:#b71c1c;text-align:center;">
+            ❌ If P2 tries to access address 50 (inside P1's range) → OS <b>immediately blocks / terminates P2</b>
+          </div>
+        </div>
+        <div class="diagram-caption">Process isolation prevents data corruption, privacy breaches, and system crashes caused by rogue or buggy programs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--navy);color:#fff;font-size:13px;">1.6</div>
+    <h2 style="color:var(--navy);">How Users Access the OS — Two Paths</h2>
+  </div>
+  <p class="prose">Users interact with the OS through two main channels. In both cases, the OS ultimately processes the request using <b>system calls</b>.</p>
+
+  <div class="compare-grid">
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--blue);">📱 Path 1: Through Applications (GUI)</div>
+      <div class="cmp-card-body" style="background:var(--bluebg);">
+        <p style="font-size:13px;margin-bottom:10px;line-height:1.6;">Most users go through applications: Microsoft Word, VLC, games, browsers. The application provides a <b>Graphical User Interface (GUI)</b> — icons, menus, buttons.</p>
+        <p style="font-size:13px;line-height:1.6;color:var(--navy);">Example: Press Ctrl+P in Word → Word asks OS to print → OS triggers the <code>write()</code> or print system call → Printer gets the data.</p>
+        <p style="font-size:12.5px;color:var(--mdgray);margin-top:8px;font-style:italic;">The user doesn't even know which system call happened — the OS is completely transparent.</p>
+      </div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-head" style="background:var(--navy);">💻 Path 2: Through Shell (CLI)</div>
+      <div class="cmp-card-body" style="background:#e8eaf6;">
+        <p style="font-size:13px;margin-bottom:10px;line-height:1.6;">More technical users can bypass the application and talk to the OS directly via the <b>shell</b> (Command Line Interface).</p>
+        <ul class="pill-list">
+          <li>🖥️ <span><b>Windows:</b> Command Prompt (<code>cmd</code>)</span></li>
+          <li>🐧 <span><b>Linux/Mac:</b> Terminal (<code>bash</code>, <code>zsh</code>)</span></li>
+        </ul>
+        <p style="font-size:13px;line-height:1.6;margin-top:8px;color:var(--navy);">In the terminal, you type commands (which are essentially system calls) directly — like <code>open file.txt</code>, <code>rm file.txt</code>, etc.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--purple);color:#fff;font-size:13px;">1.7</div>
+    <h2 style="color:var(--navy);">System Calls — The OS Language</h2>
+  </div>
+  <p class="prose">Everything the OS does, it does via <b>system calls</b>. A system call is the programmatic way an application requests a service from the OS kernel. The user never sees them directly, but they happen constantly.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">🔧 Common System Calls &amp; When They Trigger</div>
+    <div class="syscall-flow">
+      <div class="sc-step">
+        <div class="sc-badge" style="background:var(--teal2);">open</div>
+        <div class="sc-content">
+          <h4>open() — File Opening</h4>
+          <p>When you double-click a file in Explorer/Finder, the OS internally calls <code>open("filename", flags)</code> to open the file and return a file descriptor (handle).</p>
+        </div>
+      </div>
+      <hr class="sc-divider">
+      <div class="sc-step">
+        <div class="sc-badge" style="background:var(--blue);">read</div>
+        <div class="sc-content">
+          <h4>read() — Reading Data</h4>
+          <p>When you open a document and its contents appear on screen, the OS uses <code>read(fd, buffer, count)</code> to read data from the file into memory.</p>
+        </div>
+      </div>
+      <hr class="sc-divider">
+      <div class="sc-step">
+        <div class="sc-badge" style="background:var(--green);">write</div>
+        <div class="sc-content">
+          <h4>write() — Writing Data / Print</h4>
+          <p>When you press Ctrl+S (save) or Ctrl+P (print), the OS calls <code>write(fd, buffer, count)</code> to write data to disk or send it to the printer device.</p>
+        </div>
+      </div>
+      <hr class="sc-divider">
+      <div class="sc-step">
+        <div class="sc-badge" style="background:var(--orange);">fork</div>
+        <div class="sc-content">
+          <h4>fork() — Create Child Process</h4>
+          <p>When a program spawns a new process (like a browser opening a new tab as a separate process), the OS uses <code>fork()</code> to create an identical copy (child) of the calling (parent) process.</p>
+        </div>
+      </div>
+      <hr class="sc-divider">
+      <div class="sc-step">
+        <div class="sc-badge" style="background:var(--purple);">close</div>
+        <div class="sc-content">
+          <h4>close() — Closing Resources</h4>
+          <p>When you close a file or application, the OS calls <code>close(fd)</code> to release the file descriptor and free up OS-level resources associated with the file.</p>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">System calls are the invisible backbone of every user interaction. Every click, keystroke, and button press eventually becomes one or more system calls.</div>
+  </div>
+
+  <div class="smart-card">
+    <h3>🔑 Key Takeaway — What to Remember for Exams</h3>
+    <p>OS = System Software = Interface between User and Hardware. It has <b>2 goals</b> (Convenience, Throughput) and <b>5 functionalities</b> (Resource Management, Process Management, Storage Management, Memory Management, Security). All OS actions happen through <b>System Calls</b>. Users access the OS either through <b>Applications (GUI)</b> or directly through the <b>Shell/Terminal (CLI)</b>.</p>
+  </div>
+
+</div><!-- /view-descriptive -->
+
+
+<!-- ═══════════════════ REVISION NOTES ═══════════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal2);">
+      <div class="rev-num">1</div>
+      Definition &amp; Interface Role
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">OS is</div><div class="rv">System software — NOT application software. It is the platform on which apps run.</div></div>
+      <div class="rev-kv"><div class="rk">Core role</div><div class="rv">Interface (intermediary) between USER and HARDWARE. No direct user ↔ hardware contact.</div></div>
+      <div class="rev-kv"><div class="rk">Analogy</div><div class="rv">Fan regulator, car steering wheel, microwave buttons — hides complexity, provides easy control.</div></div>
+      <div class="rev-kv"><div class="rk">Examples</div><div class="rv">Windows, Linux (Ubuntu, Fedora), macOS (Macintosh), Android, iOS.</div></div>
+      <div class="rev-kv"><div class="rk">4 Layers (bottom→top)</div><div class="rv">Hardware → OS → System/Application Programs → Users.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--blue);">
+      <div class="rev-num">2</div>
+      Hardware &amp; Why OS Is Needed
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Hardware components</div><div class="rv">CPU (brain), RAM (main memory, limited), Hard Disk (secondary memory, permanent), I/O devices (keyboard, mouse, printer, scanner).</div></div>
+      <div class="rev-kv"><div class="rk">Without OS</div><div class="rv">User must write a separate program for every device. No authority to take back hardware from a user. Extremely complex interaction.</div></div>
+      <div class="rev-kv"><div class="rk">With OS</div><div class="rv">Hides complexity, provides common services, coordinates multiple programs, enforces fair resource sharing.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--gold);color:#000;">
+      <div class="rev-num" style="color:#000;">3</div>
+      Two Major Goals
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">Convenience</div><div class="rv">Access hardware in the easiest possible way. Major reason Windows dominated ~95% of the desktop market.</div></div>
+      <div class="rev-kv"><div class="rk">Throughput</div><div class="rv">Number of tasks executed per unit time. More tasks in less time = higher throughput. Maximised by Linux (used in servers).</div></div>
+      <div class="rev-kv"><div class="rk">Windows (2018 approx.)</div><div class="rv">~82% market share (decreased from ~95% as throughput needs grew).</div></div>
+      <div class="rev-kv"><div class="rk">Linux trend</div><div class="rv">Growing share due to high throughput; dominates servers, cloud, and supercomputers.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal);">
+      <div class="rev-num">4</div>
+      5 Functionalities — Quick Reference
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">① Resource Manager</div><div class="rv">Controls CPU time, RAM, I/O devices, files among all users/programs. Critical in multi-user server environments.</div></div>
+      <div class="rev-kv"><div class="rk">② Process Management</div><div class="rv">Manages process execution via CPU scheduling algorithms (FCFS, SJF, Round Robin, Priority). Multi-tasking support.</div></div>
+      <div class="rev-kv"><div class="rk">③ Storage Management</div><div class="rv">Manages hard disk via file systems. Windows: NTFS, FAT32. Linux: ext4, NFS, CIFS. Organises data into files/directories.</div></div>
+      <div class="rev-kv"><div class="rk">④ Memory Management</div><div class="rv">Manages RAM (limited). Allocates memory to process → deallocates when done (swapping). Enables multi-programming.</div></div>
+      <div class="rev-kv"><div class="rk">⑤ Security &amp; Privacy</div><div class="rv">Login passwords (Windows uses Kerberos). Process isolation — if P2 accesses P1's memory → OS blocks P2 instantly.</div></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--purple);">
+      <div class="rev-num">5</div>
+      System Calls &amp; Access Methods
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><div class="rk">System call</div><div class="rv">The interface between a user program/application and the OS kernel. Every OS operation happens via a system call.</div></div>
+      <div class="rev-kv"><div class="rk">Path 1: GUI/App</div><div class="rv">User → Application (Word, VLC) → Application invokes system call → OS → Hardware. User sees none of this.</div></div>
+      <div class="rev-kv"><div class="rk">Path 2: Shell/CLI</div><div class="rv">Windows: cmd (Command Prompt). Linux/Mac: Terminal. User types commands directly; these map to system calls.</div></div>
+      <div class="rev-kv"><div class="rk">open()</div><div class="rv">Opens a file. Triggered when you double-click a file. Returns a file descriptor.</div></div>
+      <div class="rev-kv"><div class="rk">read()</div><div class="rv">Reads data from a file/device into memory. Triggered when file contents load on screen.</div></div>
+      <div class="rev-kv"><div class="rk">write()</div><div class="rv">Writes data to file/device. Triggered on Ctrl+S (save) or Ctrl+P (print).</div></div>
+      <div class="rev-kv"><div class="rk">fork()</div><div class="rv">Creates a child process — exact copy of parent. Used to spawn new processes.</div></div>
+      <div class="rev-kv"><div class="rk">close()</div><div class="rv">Closes a file descriptor. Frees OS resources held for that file.</div></div>
+    </div>
+  </div>
+
+</div><!-- /view-revision -->
+
+
+<!-- ═══════════════════ QUIZ VIEW ═══════════════════ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 10</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar">
+      <div class="quiz-progress-fill" id="q-progress-fill"></div>
+    </div>
+  </div>
+  <div id="quiz-container"></div>
+</div><!-- /view-quiz -->
+
+</div><!-- /main -->
+
+<script>
+// ── View switcher ──
+function switchView(id, e) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  (e.target || e).classList.add('active');
+  if (id === 'quiz' && !quizInitialised) initQuiz();
+}
+
+// ── Quiz Data ──
+const questions = [
+  {
+    q: "An Operating System is best classified as which type of software?",
+    options: ["Application Software (like MS Word or a Game)", "System Software (sits between hardware and user applications)", "Firmware (burned into ROM permanently)", "Middleware (connects two applications together)"],
+    answer: 1,
+    explanation: "An OS is System Software — it manages hardware resources and provides services to application programs. Application software (Word, games) runs ON TOP of the OS. Firmware is hardware-level code. The OS is NOT firmware."
+  },
+  {
+    q: "What is the PRIMARY reason a user cannot directly access computer hardware without an OS?",
+    options: ["Hardware is physically locked and requires a key", "Without OS, the user would need to write a separate low-level program for every single hardware device interaction — extremely complex and impractical", "Hardware only works when connected to the internet", "There is no reason — users CAN directly access hardware without an OS"],
+    answer: 1,
+    explanation: "Without an OS, to do something as simple as printing a document, you would have to write a machine-level program for the printer hardware. Then a separate program for the keyboard, another for the disk, etc. This is impossibly complex for normal users. The OS removes this burden entirely."
+  },
+  {
+    q: "Which of the following correctly defines 'Throughput' in the context of Operating Systems?",
+    options: ["The speed of the CPU in GHz", "The number of tasks (processes) completed per unit time", "The amount of RAM available in the system", "The speed of data transfer over a network"],
+    answer: 1,
+    explanation: "Throughput = Number of tasks executed per unit time. If an OS completes 100 processes per second, its throughput is 100 processes/second. Higher throughput means the OS is executing more work in the same time period. Linux maximises throughput which is why it dominates servers."
+  },
+  {
+    q: "Windows historically dominated ~95% of the desktop OS market primarily because of:",
+    options: ["Highest throughput among all operating systems", "Being completely free (open-source)", "Providing maximum convenience to the user", "Best security features in the industry"],
+    answer: 2,
+    explanation: "The lecture explicitly states: 'The major goal of OS is to provide convenience to the user, and Windows is providing convenience the most' — which is why it captured ~95% of the market. This is not about throughput (Linux is better there) or being free (Windows is paid software)."
+  },
+  {
+    q: "A process P2 is allocated memory addresses 101–200 in RAM. If an instruction in P2 tries to access memory address 50 (which belongs to P1), what does the OS do?",
+    options: ["Allows access — processes can read each other's memory freely", "Copies P1's data at address 50 to a shared buffer for P2 to use", "Immediately blocks / terminates process P2 — it is accessing outside its allocated segment", "Creates a new memory segment for P2 at address 50"],
+    answer: 2,
+    explanation: "This is OS Security — specifically Process Isolation. Every process is given a memory boundary. If any process accesses memory outside its boundary, the OS detects the violation and immediately blocks/terminates that process. This prevents data corruption and security breaches between processes."
+  },
+  {
+    q: "Which OS functionality is responsible for managing the Hard Disk and how data is permanently stored in files and directories?",
+    options: ["Memory Management", "Process Management", "Storage Management (via File System)", "Resource Governor"],
+    answer: 2,
+    explanation: "Storage Management deals with the Hard Disk (secondary memory) — managing how data is stored permanently. It is implemented via File Systems (NTFS, FAT32 in Windows; ext4, NFS in Linux). Memory Management is about RAM, which is separate. Don't confuse the two."
+  },
+  {
+    q: "What is the key difference between Memory Management and Storage Management in OS?",
+    options: ["Memory Management deals with CPU; Storage Management deals with RAM", "Memory Management deals with RAM (limited, volatile, temporary); Storage Management deals with Hard Disk (large, permanent)", "They are the same thing with different names", "Memory Management is for servers only; Storage Management is for desktops"],
+    answer: 1,
+    explanation: "Memory Management = RAM (Main Memory) — limited in size, volatile (data lost on power off), critical because all processes must pass through RAM before CPU execution. Storage Management = Hard Disk (Secondary Memory) — large capacity, permanent storage, managed via file systems. These are two completely different hardware components."
+  },
+  {
+    q: "When you double-click a file in Windows Explorer, which system call does the OS internally invoke to open that file?",
+    options: ["fork()", "exec()", "open()", "read()"],
+    answer: 2,
+    explanation: "The open() system call is used to open a file. It takes the filename and flags as parameters and returns a file descriptor (an integer ID). Once the file is open (using open()), you can then use read() to read its contents. The lecture specifically mentions: 'when you open a file with double-click, it goes through the open() system call.'"
+  },
+  {
+    q: "Windows uses which security protocol to securely store and verify login passwords?",
+    options: ["SSL/TLS", "OAuth 2.0", "Kerberos", "SHA-256 hashing only"],
+    answer: 2,
+    explanation: "The lecture states Windows uses the Kerberos security protocol for password authentication and secure storage. Kerberos uses ticket-based authentication and encrypts credentials so that even if an attacker accesses the password file, they cannot read the actual passwords. It is widely used in enterprise Windows environments (Active Directory uses Kerberos)."
+  },
+  {
+    q: "Which TWO methods can a user use to interact with and access the Operating System?",
+    options: ["Only through a graphical desktop interface — no other way exists", "Through Applications (GUI — like MS Word, browser) OR through the Shell/Terminal (CLI — like Command Prompt in Windows, Terminal in Linux)", "Only through programming languages like C or Python", "Only through hardware buttons on the computer case"],
+    answer: 1,
+    explanation: "The lecture explains both paths clearly: (1) Through Applications — user uses GUI apps (Word, browser), app invokes system calls, OS handles hardware. User is unaware of system calls. (2) Through Shell/Terminal — Windows: Command Prompt; Linux/Mac: Terminal. Here the user types commands directly, which map to system calls like open(), read(), write(). Both paths ultimately go through system calls to the OS kernel."
+  }
+];
+
+let quizInitialised = false;
+let current = 0, score = 0, answered = false;
+
+function initQuiz() {
+  quizInitialised = true;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const container = document.getElementById('quiz-container');
+  if (current >= questions.length) { renderResults(); return; }
+  const fill = (current / questions.length * 100).toFixed(0);
+  document.getElementById('q-progress-fill').style.width = fill + '%';
+  document.getElementById('q-progress-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+  const q = questions[current];
+  answered = false;
+  container.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-title-tag">OS INTRO — Q${current + 1}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options" id="options-wrap">
+        ${q.options.map((opt, i) => `
+          <div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+            <div class="quiz-option-marker">${String.fromCharCode(65+i)}</div>
+            ${opt}
+          </div>`).join('')}
+      </div>
+      <div id="explanation-wrap"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="current=0;score=0;renderQuestion();">↩ Restart</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  q.options.forEach((_, i) => {
+    const el = document.getElementById('opt-' + i);
+    if (i === q.answer)               el.classList.add('correct');
+    else if (i === idx && i !== q.answer) el.classList.add('incorrect');
+  });
+  if (idx === q.answer) score++;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+  document.getElementById('explanation-wrap').innerHTML = `
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">💡 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+
+function renderResults() {
+  const pct = Math.round(score / questions.length * 100);
+  let badge = 'review', label = 'Keep Practising!', fb = "Review the Revision Notes and try again — you'll get there!";
+  if (pct >= 90) { badge='master';    label='🏆 MASTER!';    fb="Outstanding! You have mastered OS Introduction perfectly."; }
+  else if (pct>=75){badge='excellent';label='🌟 Excellent!'; fb="Great score! A quick review of missed questions and you're exam-ready.";}
+  else if (pct>=55){badge='good';     label='👍 Good Job!';  fb="Good understanding. Focus on the Revision Notes for the parts you missed.";}
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="results-score-box">
+      <div style="position:relative;">
+        <div class="results-score-circle">
+          <div class="results-score-num">${score}</div>
+          <div class="results-score-total">out of ${questions.length}</div>
+        </div>
+        <div class="results-badge ${badge}">${label}</div>
+        <div class="results-feedback">${fb}<br><br>Score: ${pct}%</div>
+      </div>
+    </div>
+    <button class="quiz-btn primary" style="margin:0 auto 24px;display:block;" onclick="current=0;score=0;renderQuestion();">🔄 Try Again</button>`;
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Completed!';
+  document.getElementById('q-score-label').textContent = `Final Score: ${score}/${questions.length}`;
+}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round Robin &amp; Priority Scheduling — Topic 2.7-2.8 | OS Notes</title>
+<meta name="description" content="CPU Scheduling: Preemptive vs Non-Preemptive algorithms, scheduling categories (FCFS, SJF, SRTF, RR, Priority), and all scheduling times — Arrival, Burst, Completion, Turnaround, Waiting, Response for GATE &amp; UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:660px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  /* ── INFO BOXES ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.indigo { background:var(--indigol); border-color:var(--indigo);color:var(--dkgray); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── PREEMPTIVE / NON-PREEMPTIVE SPLIT ── */
+  .pnp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .pnp-card { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .pnp-head { padding:12px 18px; font-weight:700; font-size:14px; color:#fff; display:flex; align-items:center; gap:10px; }
+  .pnp-body { padding:14px 18px; font-size:13.5px; line-height:1.65; }
+  .pnp-algo-list { list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .pnp-algo-list li { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .algo-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── READY QUEUE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:120px; }
+  .flow-box h4 { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; }
+  .fa-line { width:36px; height:2px; }
+  .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+  .fa-tip-l { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right-width:8px; border-right-style:solid; }
+
+  /* ── TIMELINE DIAGRAM ── */
+  .timeline-wrap { padding:24px 20px; }
+  .tl-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+  .tl-label { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:80px; padding-top:12px; }
+  .tl-bar-area { flex:1; position:relative; }
+  .tl-bar { height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; position:relative; transition:all .3s; }
+  .tl-bar:hover { filter:brightness(1.1); }
+  .tl-tick-row { display:flex; margin-top:6px; }
+  .tl-tick { flex:1; text-align:left; font-family:'Space Mono',monospace; font-size:10px; color:var(--mdgray); font-weight:600; }
+
+  /* ── TIME CARDS ── */
+  .time-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:16px 0; }
+  .time-card { background:#fff; border-radius:12px; border:2px solid; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07); }
+  .time-card-head { padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .time-card-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .time-card-title { font-weight:700; font-size:14px; }
+  .time-card-subtitle { font-size:11px; font-weight:500; opacity:.7; }
+  .time-card-body { padding:12px 16px 14px; font-size:13px; line-height:1.65; }
+  .formula-chip { display:inline-block; background:#f8fafc; border:1.5px solid; border-radius:6px; padding:4px 12px; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; margin:6px 0 8px; }
+
+  /* ── BANK ANALOGY ── */
+  .analogy-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .analogy-cell { background:#fff; border-radius:10px; padding:14px 16px; border:1.5px solid; font-size:13px; line-height:1.65; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .analogy-cell .ah { font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+
+  /* ── FORMULA TABLE ── */
+  .formula-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .formula-table th { padding:10px 14px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .formula-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:middle; line-height:1.6; }
+  .formula-table tr:last-child td { border-bottom:none; }
+  .formula-table td:first-child { font-weight:700; color:var(--teal); font-size:13px; }
+  .formula-table td:nth-child(2) { background:#f8fafc; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy); font-weight:700; }
+  .formula-table td:nth-child(3) { color:var(--dkgray); }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+  .orange-text { color:var(--orange); font-weight:700; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#fce4ec22; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+
+  /* ── CRITERIA PILLS ── */
+  .criteria-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .crit-pill { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .crit-icon { font-size:18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:220px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+  .rev-kv code { background:#f1f5f9; border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:11.5px; color:var(--navy); }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .pnp-grid,.analogy-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+
+  /* ===== INJECTED COMPONENT STYLES (FCFS/SJF/SRTF pages) ===== */
+  :root { --indigo:#283593; --p1c:#1565C0; --p2c:#2E7D32; --p3c:#6A1B9A; --p4c:#C62828; }
+  .algo-card{border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 3px 14px rgba(0,0,0,.07);}
+  .algo-card-head{padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .algo-card-body{padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;}
+  .algo-pill{background:#fff;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;flex:1;min-width:150px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+  .pill-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px;}
+  .step-wrap{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+  .step-box{display:flex;gap:14px;align-items:flex-start;background:#fff;border-radius:10px;padding:13px 16px;border:1px solid #e2e8f0;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .step-text{font-size:13.5px;line-height:1.65;color:var(--dkgray);}
+  .step-text b{color:var(--navy);}
+  .step-text code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--teal);}
+  .gantt-wrap{padding:20px 20px 8px;overflow-x:auto;}
+  .gantt-row{display:flex;align-items:stretch;min-width:max-content;}
+  .gantt-cell{height:48px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:#fff;border-right:2px solid rgba(255,255,255,.3);flex-shrink:0;}
+  .gantt-cell:last-child{border-right:none;}
+  .gantt-cell.idle{background:repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0 5px,#f8fafc 5px,#f8fafc 10px);color:#757575;font-size:11px;}
+  .gantt-tick-row{display:flex;min-width:max-content;margin-top:2px;padding-bottom:4px;}
+  .gantt-tick{font-family:'Space Mono',monospace;font-size:10px;color:#757575;font-weight:700;flex-shrink:0;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin:36px 0 16px;}
+  .sec-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;flex-shrink:0;}
+  .sub-sec{width:32px;height:32px;font-size:13px;}
+  .sec-head h2{font-size:20px;font-weight:700;margin:0;}
+  .sec-head h2.sub{font-size:17px;}
+  .info-box{border-left:4px solid;border-radius:0 8px 8px 0;padding:13px 18px;margin:14px 0;font-size:14px;line-height:1.7;}
+  .info-box.blue{background:#E3F2FD;border-color:#1565C0;color:#0D1B4B;}
+  .info-box.orange{background:#FFF3E0;border-color:#E65100;color:#424242;}
+  .info-box.green{background:#E8F5E9;border-color:#2E7D32;color:#424242;}
+  .info-box.gold{background:#fff8e1;border-color:#F9A825;color:#5d4037;}
+  .diagram{background:#fff;border:1px solid #b2dfdb;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 2px 16px rgba(0,0,0,.06);}
+  .diagram-title{background:#006064;color:#fff;font-weight:700;font-size:12.5px;letter-spacing:.04em;padding:9px 16px;font-family:'Space Mono',monospace;}
+  .diagram-caption{text-align:center;font-size:11.5px;color:#757575;font-style:italic;padding:8px 16px;background:#f9fdfd;border-top:1px solid #e0f7fa;}
+  .proc-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .proc-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .proc-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;text-align:center;font-weight:500;}
+  .proc-table tr:last-child td{border-bottom:none;}
+  .proc-table td.label{font-weight:700;color:#0D1B4B;text-align:left;}
+  .proc-table tfoot td{font-weight:700;background:#f0fafa;}
+  .tie-box{background:#fff8e1;border:2px dashed #F9A825;border-radius:10px;padding:14px 18px;margin:14px 0;font-size:13.5px;line-height:1.7;}
+  .tie-title{font-weight:700;color:#b7791f;font-size:14px;margin-bottom:6px;}
+  .rq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .rq-lbl{font-size:11px;font-weight:700;color:#757575;text-transform:uppercase;}
+  .rq-p{border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-arr{color:#757575;font-size:18px;}
+  .rq-cpu{background:#00838f;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+  .rq-idle{background:#e2e8f0;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:#757575;}
+  .rev-card{background:#fff;border-radius:12px;margin-bottom:18px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,.08);border:1px solid #b2dfdb;}
+  .rev-head{display:flex;align-items:center;gap:14px;padding:14px 20px;color:#fff;font-weight:700;font-size:15px;}
+  .rev-num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;}
+  .rev-body{padding:16px 20px;}
+  .rv{display:flex;gap:8px;margin-bottom:9px;font-size:13px;align-items:flex-start;}
+  .rv .k{font-weight:700;color:#006064;min-width:210px;flex-shrink:0;}
+  .rv .v{color:#424242;line-height:1.55;}
+  .rv code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-family:'Space Mono',monospace;font-size:11.5px;color:#0D1B4B;}
+  .cmp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cmp-table th{padding:10px 14px;text-align:center;font-weight:700;font-size:12px;}
+  .cmp-table td{padding:10px 14px;border-bottom:1px solid #b2ebf2;vertical-align:top;line-height:1.6;}
+  .cmp-table tr:last-child td{border-bottom:none;}
+  .cmp-table td:first-child{font-weight:700;color:#0D1B4B;background:#f8fafc;}
+  .g{color:#2E7D32;font-weight:700;} .r{color:#C62828;font-weight:700;}
+  @media(max-width:640px){.algo-card-body{flex-direction:column;}.rv .k{min-width:120px;}}
+
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 2.7/2.8</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>Round Robin &amp; Priority</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 2.7-2.8: Round Robin &amp; Priority</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 2.7-2.8 • ROUND ROBIN &amp; PRIORITY</div>
+    <h1>Round Robin &amp; Priority &mdash; <span>Solved Numericals</span></h1>
+    <p class="hero-sub">Round Robin (RR) with Time Quantum and Preemptive Priority scheduling &mdash; step-by-step solved numericals, Ready Queue snapshot logs, Gantt charts, context switch counting, and handling tie cases in priority.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐⭐</span><span class="badge">UGC NET ⭐⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Heavy Numericals</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESCRIPTIVE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+<!-- 2.7 ROUND ROBIN -->
+<div class="sec-head">
+  <div class="sec-num" style="background:var(--blue);color:#fff;">2.7</div>
+  <h2>Round Robin (RR) Scheduling</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--blue);">&#128309; Round Robin &mdash; Algorithm at a Glance</div>
+  <div class="algo-card-body" style="background:#e3f2fd;">
+    <div class="algo-pill"><span class="pill-label" style="color:#1565C0;">Selection Criteria</span><b style="color:var(--navy);">Ready Queue FIFO</b> &mdash; processes served in arrival sequence</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#1565C0;">Parameters</span><b style="color:var(--navy);">Time Quantum (TQ)</b> &mdash; maximum continuous CPU time slice</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#1565C0;">Mode</span><b style="color:var(--navy);">Preemptive</b> &mdash; preempted automatically when TQ expires</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#1565C0;">Starvation</span><b>No</b> &mdash; fair sharing, every process gets a turn in cycles</div>
+    <div class="algo-pill"><span class="pill-label" style="color:#1565C0;">Context Switch</span><b>High</b> &mdash; frequent switching causes overhead</div>
+  </div>
+</div>
+
+<div class="info-box blue">&#128161; <b>Why Ready Queue is Critical in RR:</b> You MUST draw a separate Ready Queue. When a process finishes its time slice, two things happen at that exact timestamp: (1) New processes arrive in the queue, (2) The preempted process goes back to the queue. **Always place new arrivals first, then the preempted process.**</div>
+
+<div class="sec-head" style="margin-top:28px;">
+  <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">A</div>
+  <h2 class="sub">Round Robin &mdash; Solved Numerical (TQ = 2)</h2>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.7-A &mdash; Given Data: P1(AT=0,BT=5), P2(AT=1,BT=4), P3(AT=2,BT=2), P4(AT=4,BT=1)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#1565C0;color:#fff;">Arrival Time (AT)</th>
+        <th style="background:var(--green);color:#fff;">Burst Time (BT)</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>2</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">Round Robin with TQ = 2. Keep track of remaining burst times and the Ready Queue order.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">1</div>
+    <div class="step-text"><b>At t=0:</b> Only P1 arrived. Ready Queue = <code>[P1]</code>. Extract P1 &rarr; runs <code>0 &rarr; 2</code>. Remaining BT of P1 = 3.<br>
+      <div class="rq"><span class="rq-lbl">Ready Queue t=0:</span><span class="rq-p" style="background:var(--p1c);">P1</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">2</div>
+    <div class="step-text"><b>At t=2:</b> P1 slice expires. Check new arrivals from t=0 to t=2: P2 (AT=1) and P3 (AT=2) have arrived. Add them first: <code>[P2, P3]</code>. Then append preempted P1 to the end. Ready Queue = <code>[P2, P3, P1]</code>.<br>
+      Extract P2 &rarr; runs <code>2 &rarr; 4</code>. Remaining BT of P2 = 2.
+      <div class="rq"><span class="rq-lbl">Ready Queue t=2:</span><span class="rq-p" style="background:var(--p2c);">P2</span><span class="rq-p" style="background:var(--p3c);">P3</span><span class="rq-p" style="background:var(--p1c);">P1</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">3</div>
+    <div class="step-text"><b>At t=4:</b> P2 slice expires. Check new arrivals: P4 (AT=4) just arrived. Add P4: <code>[P3, P1, P4]</code>. Then append preempted P2 to the end. Ready Queue = <code>[P3, P1, P4, P2]</code>.<br>
+      Extract P3 &rarr; runs <code>4 &rarr; 6</code>. Remaining BT of P3 = 0. <b>P3 completes at t=6.</b>
+      <div class="rq"><span class="rq-lbl">Ready Queue t=4:</span><span class="rq-p" style="background:var(--p3c);">P3</span><span class="rq-p" style="background:var(--p1c);">P1</span><span class="rq-p" style="background:var(--p4c);">P4</span><span class="rq-p" style="background:var(--p2c);">P2</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">4</div>
+    <div class="step-text"><b>At t=6:</b> P3 completed. No new arrivals. Ready Queue = <code>[P1, P4, P2]</code>. P3 is not appended since BT=0.<br>
+      Extract P1 &rarr; runs <code>6 &rarr; 8</code>. Remaining BT of P1 = 1. Append preempted P1. Ready Queue = <code>[P4, P2, P1]</code>.
+      <div class="rq"><span class="rq-lbl">Ready Queue t=6:</span><span class="rq-p" style="background:var(--p1c);">P1</span><span class="rq-p" style="background:var(--p4c);">P4</span><span class="rq-p" style="background:var(--p2c);">P2</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">5</div>
+    <div class="step-text"><b>At t=8:</b> P1 slice expires. Ready Queue = <code>[P4, P2, P1]</code>.<br>
+      Extract P4 &rarr; P4 only needs 1 unit! Run P4 <code>8 &rarr; 9</code>. **Do not run P4 for 2 units.** P4 remaining = 0. <b>P4 completes at t=9.</b> Ready Queue = <code>[P2, P1]</code>.
+      <div class="rq"><span class="rq-lbl">Ready Queue t=8:</span><span class="rq-p" style="background:var(--p4c);">P4</span><span class="rq-p" style="background:var(--p2c);">P2</span><span class="rq-p" style="background:var(--p1c);">P1</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">6</div>
+    <div class="step-text"><b>At t=9:</b> Extract P2 &rarr; needs 2 units. Run P2 <code>9 &rarr; 11</code>. P2 remaining = 0. <b>P2 completes at t=11.</b> Ready Queue = <code>[P1]</code>.
+      <div class="rq"><span class="rq-lbl">Ready Queue t=9:</span><span class="rq-p" style="background:var(--p2c);">P2</span><span class="rq-p" style="background:var(--p1c);">P1</span></div>
+    </div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--blue);">7</div>
+    <div class="step-text"><b>At t=11:</b> Extract P1 &rarr; needs 1 unit. Run P1 <code>11 &rarr; 12</code>. P1 remaining = 0. <b>P1 completes at t=12.</b> Queue empty.
+      <div class="rq"><span class="rq-lbl">Ready Queue t=11:</span><span class="rq-p" style="background:var(--p1c);">P1</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.7-B &mdash; Round Robin Gantt Chart</div>
+  <div class="gantt-wrap">
+    <div class="gantt-row">
+      <div class="gantt-cell" style="background:#1565C0;width:80px;">P1</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:80px;">P2</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:80px;">P3</div>
+      <div class="gantt-cell" style="background:#1565C0;width:80px;">P1</div>
+      <div class="gantt-cell" style="background:#C62828;width:40px;">P4</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:80px;">P2</div>
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+    </div>
+    <div class="gantt-tick-row">
+      <div class="gantt-tick" style="width:80px;">0</div>
+      <div class="gantt-tick" style="width:80px;">2</div>
+      <div class="gantt-tick" style="width:80px;">4</div>
+      <div class="gantt-tick" style="width:80px;">6</div>
+      <div class="gantt-tick" style="width:40px;">8</div>
+      <div class="gantt-tick" style="width:80px;">9</div>
+      <div class="gantt-tick" style="width:40px;">11</div>
+      <div class="gantt-tick">12</div>
+    </div>
+  </div>
+  <div class="diagram-caption">Note the context switches. P4 runs for only 1 unit (8 to 9) and P1 runs for only 1 unit (11 to 12) to finish.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.7-C &mdash; Round Robin Complete Results</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#3949ab;color:#fff;">AT</th>
+        <th style="background:var(--teal2);color:#fff;">BT</th>
+        <th style="background:var(--green);color:#fff;">CT</th>
+        <th style="background:var(--orange);color:#fff;">TAT=CT&minus;AT</th>
+        <th style="background:var(--red);color:#fff;">WT=TAT&minus;BT</th>
+        <th style="background:var(--purple);color:#fff;">RT=1st CPU&minus;AT</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">12</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">12&minus;0=<b>12</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">12&minus;5=<b>7</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">0&minus;0=<b>0</b></td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">11</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">11&minus;1=<b>10</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">10&minus;4=<b>6</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">2&minus;1=<b>1</b></td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>2</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">6</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">6&minus;2=<b>4</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">4&minus;2=<b>2</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">4&minus;2=<b>2</b></td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">9</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">9&minus;4=<b>5</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">5&minus;1=<b>4</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">8&minus;4=<b>4</b></td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td colspan="4" style="text-align:right;color:var(--teal);">Averages &rarr;</td>
+        <td style="background:#fff3e0;color:var(--orange);font-weight:700;">Avg TAT=31/4=<b>7.75</b></td>
+        <td style="background:#ffebee;color:var(--red);font-weight:700;">Avg WT=19/4=<b>4.75</b></td>
+        <td style="background:#f3e5f5;color:var(--purple);font-weight:700;">Avg RT=7/4=<b>1.75</b></td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="diagram-caption">Avg TAT = 7.75, Avg WT = 4.75, Avg RT = 1.75. Response Time in RR is generally very low.</div>
+</div>
+
+<div class="info-box gold">&#11088; <b>Counting Context Switches:</b> A context switch is the process of saving one state and loading another. Count the vertical partitions inside the Gantt chart (excluding start at 0 and end at 12). Here, switches happen at t=2, 4, 6, 8, 9, 11 &rarr; <b>6 Context Switches total</b>.</div>
+
+<!-- 2.8 PREEMPTIVE PRIORITY -->
+<div class="sec-head" style="margin-top:52px;">
+  <div class="sec-num" style="background:var(--purple);color:#fff;">2.8</div>
+  <h2>Preemptive Priority Scheduling</h2>
+</div>
+<div class="algo-card">
+  <div class="algo-card-head" style="background:var(--purple);">&#128126; Preemptive Priority &mdash; Algorithm at a Glance</div>
+  <div class="algo-card-body" style="background:#f3e5f5;">
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Selection Criteria</span><b style="color:var(--navy);">Priority Value</b> &mdash; highest priority gets CPU first</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Priority Order</span>Specified in question (e.g., Higher number = Higher priority)</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Mode</span><b style="color:var(--navy);">Preemptive</b> &mdash; preempt immediately if a higher priority process arrives</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Starvation</span><b style="color:var(--red);">Yes</b> &mdash; low priority processes may starve indefinitely</div>
+    <div class="algo-pill"><span class="pill-label" style="color:var(--purple);">Solution to Starvation</span><b style="color:var(--green);">Aging</b> &mdash; gradually increase priority of waiting processes</div>
+  </div>
+</div>
+
+<div class="sec-head" style="margin-top:28px;">
+  <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">B</div>
+  <h2 class="sub">Preemptive Priority &mdash; Solved Numerical</h2>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.8-A &mdash; Given Data: P1(AT=0,BT=5,Pri=10), P2(AT=1,BT=4,Pri=20), P3(AT=2,BT=2,Pri=30), P4(AT=4,BT=1,Pri=40)</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#1565C0;color:#fff;">Arrival Time (AT)</th>
+        <th style="background:var(--green);color:#fff;">Burst Time (BT)</th>
+        <th style="background:var(--purple);color:#fff;">Priority (Higher = Higher)</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td><td>10 (Lowest)</td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td><td>20</td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>2</td><td>30</td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td><td>40 (Highest)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="diagram-caption">Rule: Higher priority value means higher priority. Preemptive: compare priorities at every new arrival.</div>
+</div>
+
+<div class="step-wrap">
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">1</div>
+    <div class="step-text"><b>At t=0:</b> Only P1 arrived. Run P1 for 1 unit. P1 remaining BT = 4.</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">2</div>
+    <div class="step-text"><b>At t=1:</b> P2 (Pri=20) arrives. Compare P1 (Pri=10) vs P2 (Pri=20). P2 has higher priority &rarr; <b>Preempt P1, run P2.</b> Run P2 for 1 unit. P2 remaining BT = 3.</div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">3</div>
+    <div class="step-text"><b>At t=2:</b> P3 (Pri=30) arrives. Compare ready: P1(10), P2(20), P3(30). P3 has highest priority &rarr; <b>Preempt P2, run P3.</b> Run P3. No arrivals on t=3. P3 runs <code>2 &rarr; 4</code>. <b>P3 completes at t=4.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">4</div>
+    <div class="step-text"><b>At t=4:</b> P4 (Pri=40) arrives. Ready: P1(10), P2(20), P4(40). P4 has highest priority &rarr; <b>Run P4.</b> BT=1 &rarr; runs <code>4 &rarr; 5</code>. <b>P4 completes at t=5.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">5</div>
+    <div class="step-text"><b>At t=5:</b> All processes have arrived. Remaining: P1(Pri=10, rem=4), P2(Pri=20, rem=3). P2 has higher priority &rarr; <b>Run P2 to completion.</b> Runs <code>5 &rarr; 8</code>. <b>P2 completes at t=8.</b></div>
+  </div>
+  <div class="step-box">
+    <div class="step-num" style="background:var(--purple);">6</div>
+    <div class="step-text"><b>At t=8:</b> Only P1 remains. <b>Run P1 to completion.</b> Runs <code>8 &rarr; 12</code>. <b>P1 completes at t=12.</b></div>
+  </div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; DIAGRAM 2.8-B &mdash; Preemptive Priority Gantt Chart</div>
+  <div class="gantt-wrap">
+    <div class="gantt-row">
+      <div class="gantt-cell" style="background:#1565C0;width:40px;">P1</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:40px;">P2</div>
+      <div class="gantt-cell" style="background:#6A1B9A;width:80px;">P3</div>
+      <div class="gantt-cell" style="background:#C62828;width:40px;">P4</div>
+      <div class="gantt-cell" style="background:#2E7D32;width:120px;">P2</div>
+      <div class="gantt-cell" style="background:#1565C0;width:160px;">P1</div>
+    </div>
+    <div class="gantt-tick-row">
+      <div class="gantt-tick" style="width:40px;">0</div>
+      <div class="gantt-tick" style="width:40px;">1</div>
+      <div class="gantt-tick" style="width:80px;">2</div>
+      <div class="gantt-tick" style="width:40px;">4</div>
+      <div class="gantt-tick" style="width:120px;">5</div>
+      <div class="gantt-tick" style="width:160px;">8</div>
+      <div class="gantt-tick">12</div>
+    </div>
+  </div>
+  <div class="diagram-caption">CT of P3 is 4. CT of P4 is 5. CT of P2 is 8 (ends here). CT of P1 is 12.</div>
+</div>
+
+<div class="diagram">
+  <div class="diagram-title">&#9654; TABLE 2.8-C &mdash; Preemptive Priority Results</div>
+  <div style="padding:16px;">
+    <table class="proc-table">
+      <thead><tr>
+        <th style="background:var(--navy);color:#fff;text-align:left;">Process</th>
+        <th style="background:#3949ab;color:#fff;">AT</th>
+        <th style="background:var(--teal2);color:#fff;">BT</th>
+        <th style="background:var(--green);color:#fff;">CT</th>
+        <th style="background:var(--orange);color:#fff;">TAT=CT&minus;AT</th>
+        <th style="background:var(--red);color:#fff;">WT=TAT&minus;BT</th>
+        <th style="background:var(--purple);color:#fff;">RT=1st CPU&minus;AT</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#e3f2fd44;"><td class="label">P1</td><td>0</td><td>5</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">12</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">12&minus;0=<b>12</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">12&minus;5=<b>7</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">0&minus;0=<b>0</b></td></tr>
+        <tr style="background:#e8f5e944;"><td class="label">P2</td><td>1</td><td>4</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">8</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">8&minus;1=<b>7</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">7&minus;4=<b>3</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">1&minus;1=<b>0</b></td></tr>
+        <tr style="background:#f3e5f544;"><td class="label">P3</td><td>2</td><td>2</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">4</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">4&minus;2=<b>2</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">2&minus;2=<b>0</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">2&minus;2=<b>0</b></td></tr>
+        <tr style="background:#ffebee44;"><td class="label">P4</td><td>4</td><td>1</td><td style="background:#e8f5e9;color:var(--green);font-weight:700;">5</td><td style="background:#fff3e0;color:var(--orange);font-weight:700;">5&minus;4=<b>1</b></td><td style="background:#ffebee;color:var(--red);font-weight:700;">1&minus;1=<b>0</b></td><td style="background:#f3e5f5;color:var(--purple);font-weight:700;">4&minus;4=<b>0</b></td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td colspan="4" style="text-align:right;color:var(--teal);">Averages &rarr;</td>
+        <td style="background:#fff3e0;color:var(--orange);font-weight:700;">Avg TAT=22/4=<b>5.5</b></td>
+        <td style="background:#ffebee;color:var(--red);font-weight:700;">Avg WT=10/4=<b>2.5</b></td>
+        <td style="background:#f3e5f5;color:var(--purple);font-weight:700;">Avg RT=0/4=<b>0</b></td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="diagram-caption">Preemptive Priority results. Avg TAT = 5.5, Avg WT = 2.5, Avg RT = 0. All got CPU immediately upon arrival!</div>
+</div>
+
+<div class="info-box gold">&#128279; <b>Priority Tie-Breaking Rules:</b> If priorities are equal: (1) check arrival times (who came first gets CPU), (2) if arrival times also equal: check Process ID (lower ID gets CPU first, e.g., P1 before P2).</div>
+
+</div>
+
+<div id="view-revision" class="view">
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--blue);"><div class="rev-num">2.7</div> Round Robin (RR) &mdash; Key Takeaways</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Algorithm type</span><span class="v">Preemptive</span></div>
+      <div class="rv"><span class="k">Main Parameter</span><span class="v">Time Quantum (TQ) &mdash; max CPU time slice given in one go</span></div>
+      <div class="rv"><span class="k">Ready Queue rule</span><span class="v">New arrivals go into the queue first, then the preempted process</span></div>
+      <div class="rv"><span class="k">Starvation?</span><span class="v">No &mdash; every process gets CPU in cycles</span></div>
+      <div class="rv"><span class="k">Context Switch</span><span class="v">High context switches. Switch Count = Gantt boundaries minus start/end</span></div>
+      <div class="rv"><span class="k">RR Numerical Answers</span><span class="v">CT: P1=12, P2=11, P3=6, P4=9 \| Avg TAT = 7.75 \| Avg WT = 4.75 \| Switches = 6</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--purple);"><div class="rev-num">2.8</div> Preemptive Priority &mdash; Key Takeaways</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">Algorithm type</span><span class="v">Preemptive Priority</span></div>
+      <div class="rv"><span class="k">Selection criterion</span><span class="v">Process with highest Priority value in Ready Queue</span></div>
+      <div class="rv"><span class="k">When to preempt</span><span class="v">Immediately when a process with higher priority arrives</span></div>
+      <div class="rv"><span class="k">Starvation?</span><span class="v">Yes &mdash; lower priority processes may wait forever</span></div>
+      <div class="rv"><span class="k">Starvation Solution</span><span class="v"><b>Aging</b> &mdash; gradually increase priority of waiting processes over time</span></div>
+      <div class="rv"><span class="k">Priority Tie-Break</span><span class="v">Priority equal &rarr; pick earlier AT (FCFS) &rarr; pick lower Process ID</span></div>
+      <div class="rv"><span class="k">Priority Answers</span><span class="v">CT: P1=12, P2=8, P3=4, P4=5 \| Avg TAT = 5.5 \| Avg WT = 2.5 \| Avg RT = 0</span></div>
+    </div>
+  </div>
+  <div class="rev-card">
+    <div class="rev-head" style="background:var(--teal2);"><div class="rev-num">&#9733;</div> Formulas &amp; Tips</div>
+    <div class="rev-body">
+      <div class="rv"><span class="k">CT (Completion Time)</span><span class="v">Right edge of the LAST Gantt block for that process</span></div>
+      <div class="rv"><span class="k">TAT</span><span class="v"><code>CT &minus; AT</code></span></div>
+      <div class="rv"><span class="k">WT</span><span class="v"><code>TAT &minus; BT</code></span></div>
+      <div class="rv"><span class="k">RT</span><span class="v"><code>First CPU allocation &minus; AT</code></span></div>
+      <div class="rv"><span class="k">Context Switch Cost</span><span class="v">Saves state of preempted process (PCB) and loads new process state</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 2.7-2.8)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+</div><!-- end main -->
+
+<script>
+function switchView(name, e) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+  var el = document.getElementById('view-' + name);
+  if (el) el.classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
+  if (name === 'quiz' && !quizStarted) { quizStarted = true; renderQuestion(); }
+}
+
+const questions=[
+  {q:"What is the primary selection criterion for Round Robin scheduling?",options:["Burst Time","Remaining Burst Time","Ready Queue FIFO order (Arrival Time)","Priority"],answer:2,explanation:"Round Robin uses a FIFO ready queue. The process at the head of the queue gets the CPU next, but only for a maximum of one Time Quantum."},
+  {q:"Round Robin is which type of scheduling?",options:["Strictly Preemptive","Strictly Non-Preemptive","Preemptive only when TQ > 5","Non-preemptive if AT is 0"],answer:0,explanation:"Round Robin is always Preemptive. If a process does not complete within the given Time Quantum, it is forcibly preempted and placed back in the Ready Queue."},
+  {q:"In Round Robin, why is a separate Ready Queue log critical when solving numericals?",options:["To keep track of burst time averages","To track the exact order of new arrivals and preempted processes at the same timestamp","To avoid context switches","To calculate response times directly"],answer:1,explanation:"At any preemption timestamp (e.g. t=2), new processes may arrive, and the current process is preempted. Placing new arrivals BEFORE the preempted process is the standard scheduling rule. A separate Ready Queue prevents sequencing mistakes."},
+  {q:"If a process has BT=1 and Time Quantum is 2, how long does it run on the CPU?",options:["It runs for 2 units (remaining 1 unit is idle)","It runs for 1 unit and releases the CPU immediately","It runs for 2 units and loops the process","CPU goes idle for the entire quantum"],answer:1,explanation:"If a process needs less than the Time Quantum, it runs for its required burst time (1 unit) and then terminates/yields. The scheduler immediately selects the next process. Do not keep the CPU idle for the remainder of the quantum!"},
+  {q:"In Round Robin (P1:AT=0,BT=5 | P2:AT=1,BT=4 | P3:AT=2,BT=2 | P4:AT=4,BT=1 | TQ=2), what is the Completion Time of P2?",options:["4","9","11","12"],answer:2,explanation:"Gantt: P1(0-2), P2(2-4), P3(4-6), P1(6-8), P4(8-9), P2(9-11), P1(11-12). P2 finishes its last execution block at 11, so CT = 11."},
+  {q:"In the same Round Robin numerical, how many context switches occur?",options:["4","5","6","7"],answer:2,explanation:"Context switches occur at t=2, 4, 6, 8, 9, 11 (where the running process changes). The boundaries inside the Gantt chart sum to 6. Do not count the initial load at t=0 and final unload at t=12 as context switches."},
+  {q:"In Preemptive Priority scheduling, what happens when a higher priority process arrives?",options:["It waits until the current process completes its burst","It preempts the current process immediately","It gets executed only if Time Quantum expires","It is placed at the tail of Ready Queue"],answer:1,explanation:"In Preemptive Priority, the moment a process with higher priority than the running process enters the Ready Queue, the CPU is immediately taken away (preempted) and given to the higher priority process."},
+  {q:"What is the default tie-breaking rule if two processes have equal priority?",options:["Run the one with shorter burst time","Run the one that arrived first (FCFS); if equal, check Process ID","Run the one with longer remaining burst time","OS selects randomly"],answer:1,explanation:"Priority tie-break: First check Arrival Time (who came first). If arrival times are also equal, use Process ID (lower ID wins, e.g. P1 before P2)."},
+  {q:"In Preemptive Priority (P1:AT=0,BT=5,Pri=10 | P2:AT=1,BT=4,Pri=20 | P3:AT=2,BT=2,Pri=30 | P4:AT=4,BT=1,Pri=40; Higher number = Higher Priority), what is the Waiting Time of P3?",options:["0","2","4","7"],answer:0,explanation:"P3 arrives at t=2 and immediately gets the CPU because its priority (30) is higher than P2's (20). It runs from t=2 to t=4 uninterrupted (BT=2). TAT = 4-2=2. WT = TAT-BT = 2-2 = 0. RT is also 0."},
+  {q:"In the same Preemptive Priority numerical, what is the Completion Time of P1?",options:["5","8","10","12"],answer:3,explanation:"Gantt: P1(0-1), P2(1-2), P3(2-4), P4(4-5), P2(5-8), P1(8-12). P1 is preempted early and runs last. Its last block completes at t=12. So CT = 12."},
+  {q:"What is Starvation in Priority Scheduling, and how is it resolved?",options:["High-priority processes run out of CPU; solved by Round Robin","Low-priority processes wait indefinitely; solved by Aging","Ready queue memory overflows; solved by page replacement","Context switches take too long; solved by hardware registers"],answer:1,explanation:"Starvation: Low-priority processes may never get CPU if high-priority processes keep arriving. Solution: Aging, which gradually increases the priority of processes waiting in the Ready Queue over time."},
+  {q:"What is the average Turnaround Time for the Preemptive Priority numerical?",options:["2.5","4.75","5.5","7.75"],answer:2,explanation:"TAT values: P1=12, P2=7, P3=2, P4=1. Sum = 22. Avg TAT = 22/4 = 5.5."}
+];
+let current=0,score=0,answered=false,quizStarted=false;
+function renderQuestion(){
+  const c=document.getElementById('quiz-container');
+  if(current>=questions.length){renderResults();return;}
+  document.getElementById('q-progress-fill').style.width=(current/questions.length*100).toFixed(0)+'%';
+  document.getElementById('q-progress-label').textContent='Question '+(current+1)+' of '+questions.length+' (Topics 2.7-2.8)';
+  document.getElementById('q-score-label').textContent='Score: '+score;
+  const q=questions[current];answered=false;
+  c.innerHTML='<div class="quiz-card"><div class="quiz-title-tag">Question '+(current+1)+' of '+questions.length+'</div><h3>'+q.q+'</h3><div class="quiz-options">'+q.options.map((opt,i)=>'<div class="quiz-option" id="opt-'+i+'" onclick="selectOption('+i+')"><div class="quiz-option-marker">'+String.fromCharCode(65+i)+'</div>'+opt+'</div>').join('')+'</div><div id="explanation-box"></div><div class="quiz-controls"><button class="quiz-btn secondary" onclick="skipQuestion()">Skip</button><button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next</button></div></div>';
+}
+function selectOption(i){
+  if(answered)return;answered=true;
+  const q=questions[current];
+  document.querySelectorAll('.quiz-option').forEach((el,idx)=>{if(idx===q.answer)el.classList.add('correct');else if(idx===i&&i!==q.answer)el.classList.add('incorrect');});
+  if(i===q.answer)score++;
+  document.getElementById('explanation-box').innerHTML='<div class="quiz-explanation"><div class="quiz-explanation-title">Explanation</div><div class="quiz-explanation-text">'+q.explanation+'</div></div>';
+  document.getElementById('next-btn').disabled=false;
+  document.getElementById('q-score-label').textContent='Score: '+score;
+}
+function nextQuestion(){current++;renderQuestion();}
+function skipQuestion(){current++;renderQuestion();}
+function renderResults(){
+  const pct=Math.round(score/questions.length*100);
+  let bc,bt,fb;
+  if(pct===100){bc='master';bt='MASTER';fb='Superb! You mastered Round Robin ready queue sequencing and Priority preemption. You are fully prepared for scheduling exams!';}
+  else if(pct>=80){bc='excellent';bt='EXCELLENT';fb='Great job! Review any missed questions on context switches or tie-breakers.';}
+  else if(pct>=60){bc='good';bt='GOOD';fb='Good effort. Re-trace the Ready Queue sequence for Round Robin carefully.';}
+  else{bc='review';bt='REVIEW';fb='Revisit the Descriptive tab, trace both Gantt charts manually, then retry.';}
+  document.getElementById('q-progress-fill').style.width='100%';
+  document.getElementById('q-progress-label').textContent='Quiz Complete!';
+  document.getElementById('q-score-label').textContent='Final Score: '+score+'/'+questions.length;
+  document.getElementById('quiz-container').innerHTML='<div class="results-score-box"><div class="results-score-circle"><div class="results-score-num">'+score+'</div><div class="results-score-total">/ '+questions.length+'</div></div><span class="results-badge '+bc+'">'+bt+'</span><p class="results-feedback">'+fb+'</p></div><div style="text-align:center;margin-top:8px;"><button class="quiz-btn primary" onclick="restartQuiz()">Restart Quiz</button></div>';
+}
+function restartQuiz(){current=0;score=0;answered=false;renderQuestion();}
+</script>
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>

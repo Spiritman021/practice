@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU Scheduling — Intro &amp; Times — Topic 2.1-2.2 | OS Notes</title>
+<meta name="description" content="CPU Scheduling: Preemptive vs Non-Preemptive algorithms, scheduling categories (FCFS, SJF, SRTF, RR, Priority), and all scheduling times — Arrival, Burst, Completion, Turnaround, Waiting, Response for GATE &amp; UGC NET.">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #006064; --teal2: #00838f; --teal3: #4dd0e1; --tealb: #e0f7fa;
+    --navy:   #0D1B4B; --blue:  #1565C0; --lblue: #42A5F5; --bluebg:#E3F2FD;
+    --red:    #C62828; --redl:  #FFEBEE;
+    --green:  #2E7D32; --greenl:#E8F5E9;
+    --orange: #E65100; --orangel:#FFF3E0;
+    --purple: #6A1B9A; --purplel:#F3E5F5;
+    --text:   #1A1A1A; --white: #ffffff;
+    --dkgray: #424242; --mdgray:#757575;
+    --gold:   #F9A825; --brown: #5D4037; --brownl:#EFEBE9;
+    --indigo: #283593; --indigol:#E8EAF6;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f0fafa; color:var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background:#fff; padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:56px; border-bottom:3px solid var(--teal3); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.08); }
+  .topbar-left { display:flex; align-items:center; gap:14px; }
+  .chapter-tag { background:var(--teal2); color:#fff; font-family:'Space Mono',monospace; font-size:10px; font-weight:700; padding:3px 10px; border-radius:3px; letter-spacing:.08em; }
+  .topbar-title { color:var(--navy); font-size:14px; font-weight:600; }
+  .topbar-title span { color:var(--teal2); }
+  .toggle-wrap { display:flex; background:var(--tealb); border-radius:8px; padding:4px; gap:4px; }
+  .toggle-btn { padding:7px 18px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; transition:all .25s; color:var(--dkgray); background:transparent; }
+  .toggle-btn.active { background:var(--teal2); color:#fff; box-shadow:0 2px 12px rgba(0,131,143,.35); }
+
+  /* ── BREADCRUMB ── */
+  .ph-breadcrumb { background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:8px 32px; display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:500; flex-wrap:wrap; }
+  .ph-breadcrumb a { color:#2563eb; text-decoration:none; }
+  .ph-breadcrumb a:hover { text-decoration:underline; }
+  .ph-breadcrumb .sep { color:#94a3b8; }
+  .ph-breadcrumb .current { color:#64748b; font-weight:600; }
+  .ph-breadcrumb .back-btn { margin-left:auto; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:6px; padding:4px 12px; color:#334155; font-weight:600; text-decoration:none; white-space:nowrap; }
+  .ph-breadcrumb .back-btn:hover { background:#e2e8f0; }
+
+  /* ── HERO ── */
+  .hero { background:linear-gradient(135deg,#004d40 0%,#00695c 55%,#00838f 100%); padding:48px 40px 36px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 80% 50%,rgba(77,208,225,.2) 0%,transparent 60%); }
+  .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .hero-content { position:relative; max-width:820px; }
+  .hero-tag { display:inline-block; background:var(--teal3); color:#003d41; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.1em; padding:4px 12px; border-radius:3px; margin-bottom:16px; font-weight:700; }
+  .hero h1 { font-family:'Bebas Neue',cursive; font-size:clamp(30px,5vw,52px); color:#fff; letter-spacing:.04em; line-height:1.05; margin-bottom:10px; }
+  .hero h1 span { color:var(--teal3); }
+  .hero-sub { color:rgba(255,255,255,.65); font-size:14px; max-width:660px; line-height:1.6; }
+  .hero-badges { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .badge { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); color:rgba(255,255,255,.8); font-size:11px; font-weight:600; padding:4px 12px; border-radius:20px; }
+
+  /* ── MAIN ── */
+  .main { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .view { display:none; animation:fadeUp .35s ease forwards; }
+  .view.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+  /* ── SECTION HEADERS ── */
+  .sec-head { display:flex; align-items:center; gap:14px; margin:36px 0 16px; }
+  .sec-num { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:15px; flex-shrink:0; }
+  .sub-sec { width:32px; height:32px; font-size:13px; }
+  .sec-head h2 { font-size:19px; font-weight:700; }
+  .sec-head h2.sub { font-size:17px; }
+
+  /* ── PROSE ── */
+  .prose { font-size:14.5px; line-height:1.75; color:#2a2a2a; margin-bottom:12px; }
+  .prose b { color:var(--navy); }
+
+  /* ── INFO BOXES ── */
+  .info-box { border-left:4px solid; border-radius:0 8px 8px 0; padding:13px 18px; margin:14px 0; font-size:14px; line-height:1.7; }
+  .info-box.teal   { background:var(--tealb);   border-color:var(--teal2); color:#003d41; }
+  .info-box.blue   { background:var(--bluebg);  border-color:var(--blue);  color:var(--navy); }
+  .info-box.orange { background:var(--orangel); border-color:var(--orange);color:var(--dkgray); }
+  .info-box.green  { background:var(--greenl);  border-color:var(--green); color:var(--dkgray); }
+  .info-box.red    { background:var(--redl);    border-color:var(--red);   color:#7f0000; }
+  .info-box.gold   { background:#fff8e1;        border-color:var(--gold);  color:#5d4037; }
+  .info-box.purple { background:var(--purplel); border-color:var(--purple);color:var(--dkgray); }
+  .info-box.indigo { background:var(--indigol); border-color:var(--indigo);color:var(--dkgray); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background:#fff; border:1px solid #b2dfdb; border-radius:12px; overflow:hidden; margin:16px 0; box-shadow:0 2px 16px rgba(0,0,0,.06); }
+  .diagram-title { background:var(--teal); color:#fff; font-weight:700; font-size:12.5px; letter-spacing:.04em; padding:9px 16px; font-family:'Space Mono',monospace; }
+  .diagram-caption { text-align:center; font-size:11.5px; color:var(--mdgray); font-style:italic; padding:8px 16px; background:#f9fdfd; border-top:1px solid #e0f7fa; }
+
+  /* ── PREEMPTIVE / NON-PREEMPTIVE SPLIT ── */
+  .pnp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+  .pnp-card { border-radius:12px; overflow:hidden; box-shadow:0 3px 14px rgba(0,0,0,.08); }
+  .pnp-head { padding:12px 18px; font-weight:700; font-size:14px; color:#fff; display:flex; align-items:center; gap:10px; }
+  .pnp-body { padding:14px 18px; font-size:13.5px; line-height:1.65; }
+  .pnp-algo-list { list-style:none; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .pnp-algo-list li { display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; }
+  .algo-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+  /* ── READY QUEUE FLOW ── */
+  .flow-wrap { padding:20px; overflow-x:auto; }
+  .flow-row  { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:nowrap; }
+  .flow-box  { border-radius:12px; padding:14px 18px; text-align:center; flex-shrink:0; min-width:120px; }
+  .flow-box h4 { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .flow-box p  { font-size:11px; line-height:1.5; }
+  .flow-arrow { display:flex; flex-direction:column; align-items:center; gap:3px; padding:0 10px; flex-shrink:0; }
+  .fa-line { width:36px; height:2px; }
+  .fa-tip-r { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-left-width:8px; border-left-style:solid; }
+  .fa-label { font-size:10px; font-weight:700; text-align:center; white-space:nowrap; }
+  .fa-tip-l { width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right-width:8px; border-right-style:solid; }
+
+  /* ── TIMELINE DIAGRAM ── */
+  .timeline-wrap { padding:24px 20px; }
+  .tl-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:20px; }
+  .tl-label { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:80px; padding-top:12px; }
+  .tl-bar-area { flex:1; position:relative; }
+  .tl-bar { height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; position:relative; transition:all .3s; }
+  .tl-bar:hover { filter:brightness(1.1); }
+  .tl-tick-row { display:flex; margin-top:6px; }
+  .tl-tick { flex:1; text-align:left; font-family:'Space Mono',monospace; font-size:10px; color:var(--mdgray); font-weight:600; }
+
+  /* ── TIME CARDS ── */
+  .time-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:16px 0; }
+  .time-card { background:#fff; border-radius:12px; border:2px solid; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07); }
+  .time-card-head { padding:12px 16px; display:flex; align-items:center; gap:12px; }
+  .time-card-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .time-card-title { font-weight:700; font-size:14px; }
+  .time-card-subtitle { font-size:11px; font-weight:500; opacity:.7; }
+  .time-card-body { padding:12px 16px 14px; font-size:13px; line-height:1.65; }
+  .formula-chip { display:inline-block; background:#f8fafc; border:1.5px solid; border-radius:6px; padding:4px 12px; font-family:'Space Mono',monospace; font-size:12px; font-weight:700; margin:6px 0 8px; }
+
+  /* ── BANK ANALOGY ── */
+  .analogy-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .analogy-cell { background:#fff; border-radius:10px; padding:14px 16px; border:1.5px solid; font-size:13px; line-height:1.65; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .analogy-cell .ah { font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+
+  /* ── FORMULA TABLE ── */
+  .formula-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .formula-table th { padding:10px 14px; text-align:left; font-weight:700; font-size:12px; letter-spacing:.04em; }
+  .formula-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:middle; line-height:1.6; }
+  .formula-table tr:last-child td { border-bottom:none; }
+  .formula-table td:first-child { font-weight:700; color:var(--teal); font-size:13px; }
+  .formula-table td:nth-child(2) { background:#f8fafc; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy); font-weight:700; }
+  .formula-table td:nth-child(3) { color:var(--dkgray); }
+  .green-text { color:var(--green); font-weight:700; }
+  .red-text   { color:var(--red);   font-weight:700; }
+  .blue-text  { color:var(--blue);  font-weight:700; }
+  .orange-text { color:var(--orange); font-weight:700; }
+
+  /* ── COMPARE TABLE ── */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .cmp-table th { padding:10px 14px; text-align:center; font-weight:700; font-size:12px; letter-spacing:.03em; }
+  .cmp-table td { padding:10px 14px; border-bottom:1px solid #b2ebf2; vertical-align:top; line-height:1.6; }
+  .cmp-table tr:last-child td { border-bottom:none; }
+  .cmp-table td:first-child { font-weight:700; color:var(--navy); font-size:13px; background:#f8fafc; }
+  .cmp-table td:nth-child(2) { background:#fce4ec22; }
+  .cmp-table td:nth-child(3) { background:#e8f5e944; }
+
+  /* ── CRITERIA PILLS ── */
+  .criteria-row { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }
+  .crit-pill { display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .crit-icon { font-size:18px; }
+
+  /* ── REVISION ── */
+  .rev-card { background:#fff; border-radius:12px; margin-bottom:18px; overflow:hidden; box-shadow:0 3px 16px rgba(0,0,0,.08); border:1px solid #b2dfdb; }
+  .rev-card-head { display:flex; align-items:center; gap:14px; padding:14px 20px; color:#fff; font-weight:700; font-size:15px; }
+  .rev-num { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; }
+  .rev-card-body { padding:16px 20px; }
+  .rev-kv { display:flex; gap:8px; margin-bottom:9px; font-size:13px; align-items:flex-start; }
+  .rev-kv .rk { font-weight:700; color:var(--teal); min-width:220px; flex-shrink:0; }
+  .rev-kv .rv { color:var(--dkgray); line-height:1.55; }
+  .rev-kv code { background:#f1f5f9; border-radius:4px; padding:1px 6px; font-family:'Space Mono',monospace; font-size:11.5px; color:var(--navy); }
+
+  /* ── QUIZ ── */
+  .quiz-card { background:#fff; border-radius:16px; border:1px solid #b2dfdb; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,.06); margin-bottom:24px; }
+  .quiz-title-tag { display:inline-block; background:var(--tealb); color:var(--teal2); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:4px 12px; border-radius:20px; margin-bottom:16px; }
+  .quiz-card h3 { font-size:16px; font-weight:700; color:var(--navy); line-height:1.55; margin-bottom:18px; }
+  .quiz-options { display:flex; flex-direction:column; gap:11px; margin-bottom:22px; }
+  .quiz-option { display:flex; align-items:center; padding:13px 17px; background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:500; transition:all .2s; }
+  .quiz-option:hover { border-color:var(--teal3); background:#f0fdfa; transform:translateY(-1px); }
+  .quiz-option.selected  { border-color:var(--teal2); background:var(--tealb); color:#003d41; font-weight:600; }
+  .quiz-option.correct   { border-color:var(--green); background:var(--greenl); color:#1b5e20; font-weight:600; }
+  .quiz-option.incorrect { border-color:var(--red);   background:var(--redl);   color:#b71c1c; font-weight:600; }
+  .quiz-option-marker { width:24px; height:24px; border-radius:50%; border:2px solid #cbd5e1; display:flex; align-items:center; justify-content:center; margin-right:13px; font-size:12px; font-weight:700; color:var(--mdgray); flex-shrink:0; background:#fff; transition:all .2s; }
+  .quiz-option:hover .quiz-option-marker { border-color:var(--teal3); color:var(--teal2); }
+  .quiz-option.selected  .quiz-option-marker { border-color:var(--teal2); background:var(--teal2); color:#fff; }
+  .quiz-option.correct   .quiz-option-marker { border-color:var(--green); background:var(--green); color:#fff; }
+  .quiz-option.incorrect .quiz-option-marker { border-color:var(--red);   background:var(--red);   color:#fff; }
+  .quiz-explanation { background:#fff8e1; border-left:4px solid var(--gold); border-radius:0 12px 12px 0; padding:14px 18px; margin-bottom:22px; animation:slideDown .3s ease-out; }
+  .quiz-explanation-title { font-size:12px; font-weight:700; color:#b7791f; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .quiz-explanation-text { font-size:13px; line-height:1.6; color:#744210; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);} }
+  .quiz-controls { display:flex; justify-content:space-between; margin-top:22px; }
+  .quiz-btn { padding:11px 26px; font-size:13.5px; font-weight:700; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .quiz-btn.primary { background:var(--teal2); color:#fff; box-shadow:0 4px 14px rgba(0,131,143,.3); }
+  .quiz-btn.primary:hover:not(:disabled) { background:var(--teal); transform:translateY(-1px); }
+  .quiz-btn.primary:disabled { opacity:.5; cursor:not-allowed; }
+  .quiz-btn.secondary { background:#f1f5f9; color:var(--navy); border:1px solid #cbd5e1; }
+  .quiz-progress-wrap { margin-bottom:24px; }
+  .quiz-progress-text { display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:var(--mdgray); margin-bottom:8px; }
+  .quiz-progress-bar  { height:6px; background:#e2e8f0; border-radius:3px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:var(--teal2); border-radius:3px; width:0%; transition:width .3s ease; }
+  .results-score-box { text-align:center; padding:40px 20px; background:linear-gradient(135deg,#004d40 0%,#00838f 100%); border-radius:16px; color:#fff; margin-bottom:32px; }
+  .results-score-circle { width:130px; height:130px; border-radius:50%; border:8px solid rgba(255,255,255,.1); border-top-color:var(--teal3); margin:0 auto 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,255,255,.05); }
+  .results-score-num   { font-size:38px; font-weight:800; }
+  .results-score-total { font-size:14px; opacity:.7; margin-top:4px; font-weight:600; }
+  .results-badge { display:inline-block; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; }
+  .results-badge.master    { background:var(--gold); color:#000; }
+  .results-badge.excellent { background:var(--teal2);color:#fff; }
+  .results-badge.good      { background:var(--blue); color:#fff; }
+  .results-badge.review    { background:var(--orange);color:#fff; }
+  .results-feedback { font-size:14.5px; line-height:1.6; max-width:480px; margin:0 auto; color:#e0f7fa; }
+
+  @media(max-width:640px){
+    .pnp-grid,.analogy-row { grid-template-columns:1fr; }
+    .topbar-title { display:none; }
+    .toggle-btn { padding:7px 10px; font-size:12px; }
+    .hero h1 { font-size:26px; }
+    .hero { padding:28px 18px 22px; }
+    .main { padding:24px 14px 60px; }
+    .flow-row { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <span class="chapter-tag">OS — 2.1/2.2</span>
+    <span class="topbar-title">Operating System &nbsp;/&nbsp; <span>CPU Scheduling — Intro &amp; Times</span></span>
+  </div>
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="switchView('descriptive',event)">📖 Descriptive</button>
+    <button class="toggle-btn" onclick="switchView('revision',event)">⚡ Revision Notes</button>
+    <button class="toggle-btn" onclick="switchView('quiz',event)">🧠 Practice Quiz</button>
+  </div>
+</nav>
+<nav class="ph-breadcrumb">
+  <a href="../../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="computer.html">Computer</a><span class="sep">›</span>
+  <a href="os.html">Operating System</a><span class="sep">›</span>
+  <span class="current">Topic 2.1-2.2: CPU Scheduling — Intro &amp; Times</span>
+  <a class="back-btn" href="os.html">← Back</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">OS • TOPICS 2.1-2.2 • CPU SCHEDULING</div>
+    <h1>CPU Scheduling — <span>Intro &amp; Times</span></h1>
+    <p class="hero-sub">What scheduling algorithms do, Preemptive vs Non-Preemptive explained with examples, all scheduling algorithms by category — plus every scheduling time (Arrival, Burst, Completion, Turnaround, Waiting, Response) with formulas and the Bank analogy.</p>
+    <div class="hero-badges">
+      <span class="badge">GATE ⭐⭐⭐</span><span class="badge">UGC NET ⭐⭐⭐</span>
+      <span class="badge">B.Tech / BCA</span><span class="badge">Heavy Numericals</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESCRIPTIVE VIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="main">
+<div id="view-descriptive" class="view active">
+
+  <!-- ─── TOPIC 2.1 HEADER ─── -->
+  <div class="sec-head">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;">2.1</div>
+    <h2>Scheduling Algorithms — Introduction</h2>
+  </div>
+
+  <p class="prose">
+    <b>What is a Scheduling Algorithm?</b> It is a method (policy) used by the OS to <b>select a process from the Ready Queue</b> and assign it to the CPU for execution. In a <b>uni-processor system</b> (single CPU), only one process can run at a time — the scheduler decides <em>which process</em>, <em>for how long</em>, and <em>in what order</em>.
+  </p>
+
+  <div class="info-box teal">
+    📌 <b>Ready Queue</b> lies in <b>RAM</b>. The goal of multiprogramming is to keep as many processes as possible in the Ready Queue so that the CPU is never idle. Scheduling Algorithms choose which of these waiting processes gets the CPU next.
+  </div>
+
+  <!-- Ready Queue → CPU Flow Diagram -->
+  <div class="diagram">
+    <div class="diagram-title">▶ DIAGRAM 2.1-A — From New Process to CPU Execution</div>
+    <div class="flow-wrap">
+      <div class="flow-row">
+        <!-- New -->
+        <div class="flow-box" style="background:#e8eaf6; border:2px solid #3949ab; min-width:100px;">
+          <h4 style="color:#283593;">🆕 New</h4>
+          <p style="color:#283593; font-size:10.5px;">Process created</p>
+        </div>
+        <div class="flow-arrow">
+          <div class="fa-line" style="background:#3949ab;"></div>
+          <div class="fa-tip-r" style="border-left-color:#3949ab;"></div>
+          <div class="fa-label" style="color:#3949ab;">Admitted</div>
+        </div>
+        <!-- Ready Queue -->
+        <div class="flow-box" style="background:#e0f7fa; border:2px solid var(--teal2); min-width:130px;">
+          <h4 style="color:var(--teal);">📋 Ready Queue</h4>
+          <p style="color:var(--teal); font-size:10.5px;">In RAM<br>Waiting for CPU</p>
+        </div>
+        <div class="flow-arrow">
+          <div class="fa-line" style="background:var(--teal2);"></div>
+          <div class="fa-tip-r" style="border-left-color:var(--teal2);"></div>
+          <div class="fa-label" style="color:var(--teal2);">Scheduling<br>Algorithm</div>
+        </div>
+        <!-- CPU -->
+        <div class="flow-box" style="background:#e8f5e9; border:2px solid var(--green); min-width:110px;">
+          <h4 style="color:var(--green);">⚙️ CPU</h4>
+          <p style="color:var(--green); font-size:10.5px;">Running<br>State</p>
+        </div>
+        <div class="flow-arrow">
+          <div class="fa-line" style="background:var(--green);"></div>
+          <div class="fa-tip-r" style="border-left-color:var(--green);"></div>
+          <div class="fa-label" style="color:var(--green);">Completes</div>
+        </div>
+        <!-- Terminated -->
+        <div class="flow-box" style="background:#fce4ec; border:2px solid #c2185b; min-width:100px;">
+          <h4 style="color:#c2185b;">✅ Terminated</h4>
+          <p style="color:#c2185b; font-size:10.5px;">Process exits</p>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The Scheduling Algorithm sits between the Ready Queue and the CPU — it picks which process goes next.</div>
+  </div>
+
+  <!-- ─── PREEMPTIVE VS NON-PREEMPTIVE ─── -->
+  <div class="sec-head" style="margin-top:32px;">
+    <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">A</div>
+    <h2 class="sub">Preemptive vs Non-Preemptive Scheduling</h2>
+  </div>
+
+  <div class="pnp-grid">
+    <!-- NON-PREEMPTIVE -->
+    <div class="pnp-card">
+      <div class="pnp-head" style="background:#1565C0;">
+        🔵 Non-Preemptive
+      </div>
+      <div class="pnp-body" style="background:#e3f2fd;">
+        <p style="color:var(--navy); font-size:13.5px; margin-bottom:10px;">Once a process is given the CPU, it <b>runs to completion</b> (until its full Burst Time is done). It <b>cannot be forcibly removed</b> from the CPU while it is running.</p>
+        <p style="color:var(--navy); font-size:12.5px;"><b>Analogy:</b> Teacher answers all 5 questions of Student 1 completely, then moves to Student 2.</p>
+        <ul class="pnp-algo-list" style="margin-top:12px;">
+          <li><span class="algo-dot" style="background:#1565C0;"></span> FCFS — First Come First Serve</li>
+          <li><span class="algo-dot" style="background:#1565C0;"></span> SJF — Shortest Job First</li>
+          <li><span class="algo-dot" style="background:#1565C0;"></span> LJF — Longest Job First</li>
+          <li><span class="algo-dot" style="background:#1565C0;"></span> HRRN — Highest Response Ratio Next</li>
+        </ul>
+      </div>
+    </div>
+    <!-- PREEMPTIVE -->
+    <div class="pnp-card">
+      <div class="pnp-head" style="background:#2E7D32;">
+        🟢 Preemptive
+      </div>
+      <div class="pnp-body" style="background:#e8f5e9;">
+        <p style="color:#1b5e20; font-size:13.5px; margin-bottom:10px;">A running process <b>can be stopped mid-way</b> and placed back in the Ready Queue. Another process then gets the CPU. The preempted process resumes later.</p>
+        <p style="color:#1b5e20; font-size:12.5px;"><b>Analogy:</b> Teacher takes 2 questions from Student 1, then switches to Student 2 for 2 questions, and so on — round-robin style.</p>
+        <ul class="pnp-algo-list" style="margin-top:12px;">
+          <li><span class="algo-dot" style="background:#2E7D32;"></span> SRTF — Shortest Remaining Time First</li>
+          <li><span class="algo-dot" style="background:#2E7D32;"></span> LRTF — Longest Remaining Time First</li>
+          <li><span class="algo-dot" style="background:#2E7D32;"></span> Round Robin (Time Quantum)</li>
+          <li><span class="algo-dot" style="background:#2E7D32;"></span> Priority (mostly Preemptive)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY PREEMPT? Diagram -->
+  <div class="diagram">
+    <div class="diagram-title">▶ DIAGRAM 2.1-B — Why Does Preemption Happen? (3 Reasons)</div>
+    <div style="padding:20px;">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+
+        <!-- Reason 1 -->
+        <div style="display:flex; align-items:flex-start; gap:14px; background:#e3f2fd; border-radius:10px; padding:14px 18px; border-left:4px solid var(--blue);">
+          <div style="width:36px; height:36px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; flex-shrink:0;">1</div>
+          <div>
+            <div style="font-weight:700; font-size:14px; color:var(--navy); margin-bottom:4px;">⏱ Time Quantum Expired</div>
+            <div style="font-size:13px; color:var(--dkgray); line-height:1.6;">CPU is set to execute each process for a fixed time slice (e.g., 2 ms). When the timer fires, the running process is preempted and placed back in the Ready Queue — even if it has remaining burst time. Used in <b>Round Robin</b>.</div>
+          </div>
+        </div>
+
+        <!-- Reason 2 -->
+        <div style="display:flex; align-items:flex-start; gap:14px; background:#fce4ec; border-radius:10px; padding:14px 18px; border-left:4px solid #c2185b;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#c2185b; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; flex-shrink:0;">2</div>
+          <div>
+            <div style="font-weight:700; font-size:14px; color:#880e4f; margin-bottom:4px;">⭐ Higher Priority Process Arrives</div>
+            <div style="font-size:13px; color:var(--dkgray); line-height:1.6;">A process with higher priority arrives while a lower-priority process is running. The CPU immediately switches to the high-priority process, preempting the current one. Used in <b>Priority Scheduling (Preemptive)</b>.</div>
+          </div>
+        </div>
+
+        <!-- Reason 3 -->
+        <div style="display:flex; align-items:flex-start; gap:14px; background:#fff3e0; border-radius:10px; padding:14px 18px; border-left:4px solid var(--orange);">
+          <div style="width:36px; height:36px; border-radius:50%; background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; flex-shrink:0;">3</div>
+          <div>
+            <div style="font-weight:700; font-size:14px; color:#bf360c; margin-bottom:4px;">⚡ Shorter Process Arrives</div>
+            <div style="font-size:13px; color:var(--dkgray); line-height:1.6;">A new process arrives whose remaining burst time is less than the current process's remaining time. CPU switches to the shorter one immediately. Used in <b>SRTF (Shortest Remaining Time First)</b>.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="diagram-caption">Any of these 3 events can trigger preemption — the running process returns to the Ready Queue.</div>
+  </div>
+
+  <!-- PREEMPTIVE vs NON-PREEMPTIVE Compare Table -->
+  <div class="diagram">
+    <div class="diagram-title">▶ TABLE 2.1-C — Preemptive vs Non-Preemptive Comparison</div>
+    <div style="padding:16px 0;">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th style="background:#f8fafc; color:var(--navy); text-align:left; padding-left:14px;">Parameter</th>
+            <th style="background:#e3f2fd; color:#1565C0;">🔵 Non-Preemptive</th>
+            <th style="background:#e8f5e9; color:#2E7D32;">🟢 Preemptive</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Process removal from CPU</td><td>Only when it completes or voluntarily leaves (I/O request)</td><td>Can be forced out even while running</td></tr>
+          <tr><td>CPU Utilization</td><td class="red-text">Lower (idle gaps possible)</td><td class="green-text">Higher (CPU always busy)</td></tr>
+          <tr><td>Response Time</td><td class="red-text">Higher (long processes hog CPU)</td><td class="green-text">Lower (short processes get turns)</td></tr>
+          <tr><td>Throughput</td><td>Moderate</td><td class="green-text">Higher in many cases</td></tr>
+          <tr><td>Overhead</td><td class="green-text">Low (no context switches mid-run)</td><td class="red-text">Higher (frequent context switching)</td></tr>
+          <tr><td>Starvation Risk</td><td class="red-text">Yes (long processes block short ones)</td><td>Yes (low-priority processes can starve)</td></tr>
+          <tr><td>Implementation</td><td class="green-text">Simpler</td><td class="red-text">More complex (timer hardware needed)</td></tr>
+          <tr><td>Examples</td><td>FCFS, SJF, LJF, HRRN</td><td>SRTF, LRTF, Round Robin, Priority</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ALL ALGORITHMS OVERVIEW -->
+  <div class="sec-head" style="margin-top:32px;">
+    <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">B</div>
+    <h2 class="sub">All Scheduling Algorithms — Quick Map</h2>
+  </div>
+
+  <div class="diagram">
+    <div class="diagram-title">▶ DIAGRAM 2.1-D — Scheduling Algorithm Categories</div>
+    <div style="padding:20px;">
+      <!-- Top Level -->
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="display:inline-block; background:var(--teal2); color:#fff; border-radius:10px; padding:10px 28px; font-weight:700; font-size:15px; letter-spacing:.02em;">📋 Scheduling Algorithms</div>
+      </div>
+      <!-- Branch line -->
+      <div style="display:flex; justify-content:center; gap:60px; margin-bottom:10px;">
+        <div style="width:2px; height:20px; background:var(--teal2); margin:0 auto;"></div>
+      </div>
+      <!-- Two columns -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <!-- Non-preemptive -->
+        <div style="border-radius:10px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07);">
+          <div style="background:#1565C0; color:#fff; padding:10px 16px; font-weight:700; font-size:13.5px; text-align:center;">🔵 NON-PREEMPTIVE</div>
+          <div style="background:#e3f2fd; padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #1565C0; font-size:13px; font-weight:600; color:var(--navy);">FCFS — First Come First Serve</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #1565C0; font-size:13px; font-weight:600; color:var(--navy);">SJF — Shortest Job First</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #1565C0; font-size:13px; font-weight:600; color:var(--navy);">LJF — Longest Job First</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #1565C0; font-size:13px; font-weight:600; color:var(--navy);">HRRN — Highest Response Ratio Next</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #6A1B9A; font-size:13px; font-weight:600; color:var(--purple);">Priority (Non-Preemptive variant)</div>
+          </div>
+        </div>
+        <!-- Preemptive -->
+        <div style="border-radius:10px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.07);">
+          <div style="background:#2E7D32; color:#fff; padding:10px 16px; font-weight:700; font-size:13.5px; text-align:center;">🟢 PREEMPTIVE</div>
+          <div style="background:#e8f5e9; padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #2E7D32; font-size:13px; font-weight:600; color:var(--navy);">SRTF — Shortest Remaining Time First ⭐</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #2E7D32; font-size:13px; font-weight:600; color:var(--navy);">LRTF — Longest Remaining Time First</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #2E7D32; font-size:13px; font-weight:600; color:var(--navy);">Round Robin (Time Quantum) ⭐⭐</div>
+            <div style="background:#fff; border-radius:8px; padding:9px 14px; border-left:3px solid #6A1B9A; font-size:13px; font-weight:600; color:var(--purple);">Priority (Preemptive variant)</div>
+            <div style="background:#fff3e0; border-radius:8px; padding:9px 14px; border-left:3px solid var(--orange); font-size:11.5px; font-weight:600; color:var(--orange);">Multi-Level Queue / Feedback Queue</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px; background:#fff8e1; border-radius:8px; padding:10px 16px; font-size:12.5px; color:#5d4037; border-left:4px solid var(--gold);">
+        ⭐ <b>Exam Hot Spots:</b> SRTF and Round Robin are the most frequently asked in GATE, UGC NET, college exams, and placement tests. Priority (Preemptive) also appears often. FCFS is the simplest but important for concept clarity.
+      </div>
+    </div>
+    <div class="diagram-caption">⭐ = high exam frequency | Priority can be Preemptive or Non-Preemptive depending on the problem.</div>
+  </div>
+
+  <!-- SCHEDULING CRITERIA -->
+  <div class="sec-head" style="margin-top:32px;">
+    <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">C</div>
+    <h2 class="sub">Scheduling Criteria (What We Optimise For)</h2>
+  </div>
+  <p class="prose">Different algorithms optimise for different goals. Here are the key criteria used to evaluate a scheduling algorithm:</p>
+
+  <div class="criteria-row">
+    <div class="crit-pill" style="border-color:var(--teal2); color:var(--teal);">
+      <span class="crit-icon">⚙️</span>
+      <div><b>CPU Utilization</b><br><span style="font-size:11.5px; font-weight:400; color:var(--dkgray);">Keep CPU as busy as possible (maximize)</span></div>
+    </div>
+    <div class="crit-pill" style="border-color:var(--blue); color:var(--blue);">
+      <span class="crit-icon">📦</span>
+      <div><b>Throughput</b><br><span style="font-size:11.5px; font-weight:400; color:var(--dkgray);">Processes completed per unit time (maximize)</span></div>
+    </div>
+    <div class="crit-pill" style="border-color:var(--green); color:var(--green);">
+      <span class="crit-icon">⏱</span>
+      <div><b>Turnaround Time</b><br><span style="font-size:11.5px; font-weight:400; color:var(--dkgray);">Total time from arrival to completion (minimize)</span></div>
+    </div>
+    <div class="crit-pill" style="border-color:var(--orange); color:var(--orange);">
+      <span class="crit-icon">⌛</span>
+      <div><b>Waiting Time</b><br><span style="font-size:11.5px; font-weight:400; color:var(--dkgray);">Time process waits in Ready Queue (minimize)</span></div>
+    </div>
+    <div class="crit-pill" style="border-color:var(--purple); color:var(--purple);">
+      <span class="crit-icon">💬</span>
+      <div><b>Response Time</b><br><span style="font-size:11.5px; font-weight:400; color:var(--dkgray);">Time until first CPU response (minimize)</span></div>
+    </div>
+  </div>
+
+  <div class="info-box orange">
+    📌 <b>Key Rule for Exams:</b> CPU Utilization and Throughput → <b>Maximise</b>. Turnaround Time, Waiting Time, Response Time → <b>Minimise</b>.
+  </div>
+
+  <!-- ═══════ TOPIC 2.2 ═══════ -->
+  <div class="sec-head" style="margin-top:48px;">
+    <div class="sec-num" style="background:var(--teal2);color:#fff;">2.2</div>
+    <h2>CPU Scheduling Times — All Formulas</h2>
+  </div>
+
+  <p class="prose">
+    Before solving <em>any</em> CPU scheduling numerical, you must know these 6 time concepts. Questions in GATE, UGC NET, and college exams always ask for Turnaround Time, Waiting Time, or Response Time — all derived from these definitions.
+  </p>
+
+  <!-- 6 TIME CARDS -->
+  <div class="time-grid">
+
+    <!-- Arrival Time -->
+    <div class="time-card" style="border-color:#3949ab;">
+      <div class="time-card-head" style="background:#e8eaf6;">
+        <div class="time-card-icon" style="background:#3949ab; color:#fff;">🚪</div>
+        <div>
+          <div class="time-card-title" style="color:#283593;">Arrival Time (AT)</div>
+          <div class="time-card-subtitle" style="color:#3949ab;">Point of time</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> The time at which a process <b>enters the Ready Queue</b> (arrives in RAM and is ready to run).<br><br>
+        <div class="formula-chip" style="border-color:#3949ab; color:#283593;">Given directly in problem</div><br>
+        <span style="color:#5c6bc0; font-size:12.5px;">📌 It is a <b>point of time</b>, not a duration.<br>Example: Process arrived at time 0, 2, 4…</span>
+      </div>
+    </div>
+
+    <!-- Burst Time -->
+    <div class="time-card" style="border-color:var(--teal2);">
+      <div class="time-card-head" style="background:var(--tealb);">
+        <div class="time-card-icon" style="background:var(--teal2); color:#fff;">⚙️</div>
+        <div>
+          <div class="time-card-title" style="color:var(--teal);">Burst Time (BT)</div>
+          <div class="time-card-subtitle" style="color:var(--teal2);">Duration</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> The time a process <b>needs on the CPU</b> to complete execution. Also called <em>CPU Time</em> or <em>Execution Time</em>.<br><br>
+        <div class="formula-chip" style="border-color:var(--teal2); color:var(--teal);">Given directly in problem</div><br>
+        <span style="color:var(--teal); font-size:12.5px;">📌 It is a <b>duration</b> (not a point of time).<br>Example: Process needs 5 ms of CPU time.</span>
+      </div>
+    </div>
+
+    <!-- Completion Time -->
+    <div class="time-card" style="border-color:var(--green);">
+      <div class="time-card-head" style="background:var(--greenl);">
+        <div class="time-card-icon" style="background:var(--green); color:#fff;">✅</div>
+        <div>
+          <div class="time-card-title" style="color:var(--green);">Completion Time (CT)</div>
+          <div class="time-card-subtitle" style="color:var(--green);">Point of time</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> The time at which a process <b>finishes execution</b> on the CPU.<br><br>
+        <div class="formula-chip" style="border-color:var(--green); color:var(--green);">Derived from Gantt Chart</div><br>
+        <span style="color:var(--green); font-size:12.5px;">📌 It is a <b>point of time</b>, not a duration.<br>Example: Process finished at time 12 ms.</span>
+      </div>
+    </div>
+
+    <!-- Turnaround Time -->
+    <div class="time-card" style="border-color:var(--orange);">
+      <div class="time-card-head" style="background:var(--orangel);">
+        <div class="time-card-icon" style="background:var(--orange); color:#fff;">🔄</div>
+        <div>
+          <div class="time-card-title" style="color:var(--orange);">Turnaround Time (TAT)</div>
+          <div class="time-card-subtitle" style="color:var(--orange);">Duration</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> Total time a process spends in the system — from arrival to completion.<br><br>
+        <div class="formula-chip" style="border-color:var(--orange); color:var(--orange);">TAT = CT − AT</div><br>
+        <span style="color:var(--orange); font-size:12.5px;">📌 It is a <b>duration</b>.<br>Includes waiting time + burst time.</span>
+      </div>
+    </div>
+
+    <!-- Waiting Time -->
+    <div class="time-card" style="border-color:var(--red);">
+      <div class="time-card-head" style="background:var(--redl);">
+        <div class="time-card-icon" style="background:var(--red); color:#fff;">⌛</div>
+        <div>
+          <div class="time-card-title" style="color:var(--red);">Waiting Time (WT)</div>
+          <div class="time-card-subtitle" style="color:var(--red);">Duration</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> Time a process spends <b>waiting in the Ready Queue</b> — time spent <em>not</em> being executed.<br><br>
+        <div class="formula-chip" style="border-color:var(--red); color:var(--red);">WT = TAT − BT</div><br>
+        <span style="color:var(--red); font-size:12.5px;">📌 Also: WT = CT − AT − BT<br>This is the "wasted" time inside the system.</span>
+      </div>
+    </div>
+
+    <!-- Response Time -->
+    <div class="time-card" style="border-color:var(--purple);">
+      <div class="time-card-head" style="background:var(--purplel);">
+        <div class="time-card-icon" style="background:var(--purple); color:#fff;">💬</div>
+        <div>
+          <div class="time-card-title" style="color:var(--purple);">Response Time (RT)</div>
+          <div class="time-card-subtitle" style="color:var(--purple);">Duration</div>
+        </div>
+      </div>
+      <div class="time-card-body">
+        <b>Definition:</b> Time from arrival until the process <b>gets the CPU for the very first time</b>.<br><br>
+        <div class="formula-chip" style="border-color:var(--purple); color:var(--purple);">RT = First CPU time − AT</div><br>
+        <span style="color:var(--purple); font-size:12.5px;">📌 For non-preemptive, RT = WT.<br>For preemptive (RR), RT &lt; WT (shorter wait for first slice).</span>
+      </div>
+    </div>
+
+  </div><!-- end time-grid -->
+
+  <!-- FORMULA QUICK REFERENCE -->
+  <div class="diagram">
+    <div class="diagram-title">▶ TABLE 2.2-A — All Formulas Quick Reference</div>
+    <div style="padding:8px 0;">
+      <table class="formula-table">
+        <thead>
+          <tr>
+            <th style="background:var(--teal2); color:#fff;">Time</th>
+            <th style="background:var(--teal); color:#fff;">Formula</th>
+            <th style="background:#004d40; color:#fff;">Key Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Arrival Time (AT)</td>
+            <td>—</td>
+            <td>Given in question. Point of time. When process enters Ready Queue.</td>
+          </tr>
+          <tr>
+            <td>Burst Time (BT)</td>
+            <td>—</td>
+            <td>Given in question. Duration. CPU time needed by the process.</td>
+          </tr>
+          <tr>
+            <td>Completion Time (CT)</td>
+            <td>From Gantt Chart</td>
+            <td>Point of time. When process finishes execution.</td>
+          </tr>
+          <tr>
+            <td>Turnaround Time (TAT)</td>
+            <td>CT − AT</td>
+            <td>Duration. Total time in system. TAT = WT + BT.</td>
+          </tr>
+          <tr>
+            <td>Waiting Time (WT)</td>
+            <td>TAT − BT</td>
+            <td>Duration. Time spent waiting (NOT executing). Also = CT − AT − BT.</td>
+          </tr>
+          <tr>
+            <td>Response Time (RT)</td>
+            <td>First CPU − AT</td>
+            <td>Duration. Until first CPU access. For FCFS: RT = WT.</td>
+          </tr>
+          <tr>
+            <td>Avg. Turnaround Time</td>
+            <td>Σ TAT / n</td>
+            <td>Sum of all TATs divided by number of processes.</td>
+          </tr>
+          <tr>
+            <td>Avg. Waiting Time</td>
+            <td>Σ WT / n</td>
+            <td>Most commonly asked in exams!</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BANK ANALOGY DIAGRAM -->
+  <div class="diagram">
+    <div class="diagram-title">▶ DIAGRAM 2.2-B — The Bank Analogy (Gate Smashers Example)</div>
+    <div style="padding:18px 20px;">
+      <div style="background:var(--tealb); border-radius:10px; padding:12px 16px; margin-bottom:14px; font-size:13.5px; color:var(--teal); font-weight:600;">
+        🏦 <b>Scenario:</b> You entered the bank at 11:00 AM. The clerk takes 15 minutes to deposit your money. You came out at 12:00 PM (due to queues, form-filling, interruptions).
+      </div>
+      <div class="analogy-row">
+        <div class="analogy-cell" style="border-color:#3949ab; background:#e8eaf6;">
+          <div class="ah" style="color:#283593;">🚪 Arrival Time = 11:00 AM</div>
+          When you <b>entered</b> the bank — the moment you joined the queue (Ready Queue). This is a point of time.
+        </div>
+        <div class="analogy-cell" style="border-color:var(--teal2); background:var(--tealb);">
+          <div class="ah" style="color:var(--teal);">⚙️ Burst Time = 15 minutes</div>
+          How long the clerk (CPU) takes to <b>actually process your work</b>. Depends on the CPU, not on you.
+        </div>
+        <div class="analogy-cell" style="border-color:var(--green); background:var(--greenl);">
+          <div class="ah" style="color:var(--green);">✅ Completion Time = 12:00 PM</div>
+          When you <b>walked out</b> of the bank — your process is done. Point of time.
+        </div>
+        <div class="analogy-cell" style="border-color:var(--orange); background:var(--orangel);">
+          <div class="ah" style="color:var(--orange);">🔄 Turnaround Time = 60 min</div>
+          CT − AT = 12:00 − 11:00 = <b>60 minutes</b>. Total time you spent "inside the bank system."
+        </div>
+        <div class="analogy-cell" style="border-color:var(--red); background:var(--redl);">
+          <div class="ah" style="color:var(--red);">⌛ Waiting Time = 45 min</div>
+          TAT − BT = 60 − 15 = <b>45 minutes</b>. Time spent waiting in queue, filling forms, interruptions — NOT being served by the clerk.
+        </div>
+        <div class="analogy-cell" style="border-color:var(--purple); background:var(--purplel);">
+          <div class="ah" style="color:var(--purple);">💬 Response Time</div>
+          From your arrival (11:00 AM) until the <b>clerk first attended to you</b>. You may have waited in the queue before first contact.
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">The bank analogy maps perfectly to OS scheduling: YOU = process, BANK = system, CLERK = CPU.</div>
+  </div>
+
+  <!-- TIMING DIAGRAM VISUAL -->
+  <div class="diagram">
+    <div class="diagram-title">▶ DIAGRAM 2.2-C — Visual Timeline: All Times for One Process</div>
+    <div style="padding:24px 24px 16px;">
+      <!-- SVG-like pure CSS timeline -->
+      <div style="position:relative; height:80px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:8px;">
+        <!-- AT marker -->
+        <div style="position:absolute; left:5%; top:0; bottom:0; display:flex; flex-direction:column; align-items:center;">
+          <div style="width:2px; height:100%; background:#3949ab; opacity:.6;"></div>
+        </div>
+        <!-- First CPU marker -->
+        <div style="position:absolute; left:28%; top:0; bottom:0; display:flex; flex-direction:column; align-items:center;">
+          <div style="width:2px; height:100%; background:#6A1B9A; opacity:.6; border-style:dashed;"></div>
+        </div>
+        <!-- CT marker -->
+        <div style="position:absolute; left:88%; top:0; bottom:0; display:flex; flex-direction:column; align-items:center;">
+          <div style="width:2px; height:100%; background:#2E7D32; opacity:.6;"></div>
+        </div>
+
+        <!-- Waiting bar -->
+        <div style="position:absolute; left:5%; width:23%; top:20px; height:18px; background:#ef9a9a; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#b71c1c;">Waiting</div>
+        <!-- Burst bar -->
+        <div style="position:absolute; left:28%; width:60%; top:20px; height:18px; background:#a5d6a7; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#1b5e20;">CPU Burst (Execution)</div>
+      </div>
+
+      <!-- Annotations -->
+      <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; margin-bottom:16px;">
+        <div style="color:#283593; margin-left:4%;">AT</div>
+        <div style="color:#6A1B9A; margin-left:12%;">First CPU</div>
+        <div style="color:#2E7D32;">CT</div>
+      </div>
+
+      <!-- Brace annotations -->
+      <div style="display:flex; flex-direction:column; gap:8px; font-size:12.5px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:#ef9a9a; flex-shrink:0;"></div>
+          <span><b>Response Time (RT)</b> = First CPU time − AT &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:var(--mdgray);">Time until first CPU access</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:#a5d6a7; flex-shrink:0;"></div>
+          <span><b>Burst Time (BT)</b> = Actual CPU execution duration</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:#ffcc80; flex-shrink:0;"></div>
+          <span><b>Turnaround Time (TAT)</b> = CT − AT &nbsp;=&nbsp; WT + BT &nbsp;&nbsp;|&nbsp;&nbsp; <span style="color:var(--mdgray);">Entire span: arrival to completion</span></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:12px; height:12px; border-radius:2px; background:#ef9a9a; flex-shrink:0;"></div>
+          <span><b>Waiting Time (WT)</b> = TAT − BT &nbsp;=&nbsp; CT − AT − BT</span>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-caption">For preemptive scheduling, a process may go in-and-out of CPU multiple times — BT is cumulative but waiting is split into multiple gaps.</div>
+  </div>
+
+  <!-- IO BOUND BONUS -->
+  <div class="sec-head" style="margin-top:32px;">
+    <div class="sec-num sub-sec" style="background:var(--teal3);color:var(--teal);">D</div>
+    <h2 class="sub">CPU Bound vs I/O Bound — Why Waiting Time &gt; 0</h2>
+  </div>
+
+  <div class="pnp-grid">
+    <div class="pnp-card">
+      <div class="pnp-head" style="background:var(--teal2);">⚙️ CPU Bound Process</div>
+      <div class="pnp-body" style="background:var(--tealb);">
+        <p style="font-size:13.5px; color:var(--teal);">Most of the time is spent <b>executing instructions on the CPU</b>. Very few I/O requests. High CPU demand — they contribute to high burst times.</p>
+        <p style="font-size:12.5px; color:var(--teal); margin-top:8px;">Example: Scientific simulation, video encoding, matrix multiplication.</p>
+      </div>
+    </div>
+    <div class="pnp-card">
+      <div class="pnp-head" style="background:var(--orange);">🖨️ I/O Bound Process</div>
+      <div class="pnp-body" style="background:var(--orangel);">
+        <p style="font-size:13.5px; color:#bf360c;">Frequently needs <b>Input/Output operations</b> (read file, print, use scanner). CPU gives it up to wait for I/O — goes to <b>Waiting State</b> — then comes back to Ready Queue.</p>
+        <p style="font-size:12.5px; color:#bf360c; margin-top:8px;">Example: Word processing, database queries, web server requests.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box gold">
+    💡 <b>Why is Waiting Time not just "queue time"?</b> For I/O Bound processes, the waiting time also includes time spent in the <b>Waiting State</b> (doing I/O). They come back to the Ready Queue after I/O completes — this extra time all contributes to their total Waiting Time = TAT − BT.
+  </div>
+
+</div><!-- end descriptive -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     REVISION VIEW
+═══════════════════════════════════════════════════════════ -->
+<div id="view-revision" class="view">
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--teal2);">
+      <div class="rev-num">2.1</div> Scheduling Algorithms — Core Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Definition</span><span class="rv">Method to select a process from Ready Queue and assign it to CPU. In uni-processor: one process at a time.</span></div>
+      <div class="rev-kv"><span class="rk">Ready Queue location</span><span class="rv">Lies in RAM. OS tries to keep as many processes as possible here (degree of multiprogramming).</span></div>
+      <div class="rev-kv"><span class="rk">Non-Preemptive rule</span><span class="rv">Once CPU is assigned, process runs to completion. Cannot be forcibly removed during execution.</span></div>
+      <div class="rev-kv"><span class="rk">Non-Preemptive algorithms</span><span class="rv">FCFS, SJF (Non-preemptive), LJF, HRRN, Priority (NP variant)</span></div>
+      <div class="rev-kv"><span class="rk">Preemptive rule</span><span class="rv">Running process can be stopped mid-execution and returned to Ready Queue; another process gets CPU.</span></div>
+      <div class="rev-kv"><span class="rk">Preemptive algorithms</span><span class="rv">SRTF, LRTF, Round Robin, Priority (Preemptive variant)</span></div>
+      <div class="rev-kv"><span class="rk">3 reasons to preempt</span><span class="rv">① Time Quantum expired (Round Robin) &nbsp;② Higher-priority process arrives &nbsp;③ Shorter process arrives (SRTF)</span></div>
+      <div class="rev-kv"><span class="rk">Preemptive advantage</span><span class="rv">Better responsiveness — even the last process gets CPU sooner (no one process hogs CPU)</span></div>
+      <div class="rev-kv"><span class="rk">Preemptive disadvantage</span><span class="rv">Higher overhead due to frequent context switches; more complex implementation</span></div>
+      <div class="rev-kv"><span class="rk">⭐ Exam Hot Algorithms</span><span class="rv">SRTF and Round Robin are asked the most in GATE / UGC NET. FCFS for concept questions. Priority for theory.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:#1565C0;">
+      <div class="rev-num">2.2</div> Scheduling Times — All Formulas
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">Arrival Time (AT)</span><span class="rv">When process enters Ready Queue. <b>Point of time.</b> Given in question.</span></div>
+      <div class="rev-kv"><span class="rk">Burst Time (BT)</span><span class="rv">CPU time needed by process. <b>Duration.</b> Given in question. Also called Execution Time.</span></div>
+      <div class="rev-kv"><span class="rk">Completion Time (CT)</span><span class="rv">When process finishes execution. <b>Point of time.</b> Read from Gantt chart.</span></div>
+      <div class="rev-kv"><span class="rk">Turnaround Time (TAT)</span><span class="rv"><code>TAT = CT − AT</code> &nbsp;also&nbsp; <code>TAT = WT + BT</code>. Duration. Total time in system.</span></div>
+      <div class="rev-kv"><span class="rk">Waiting Time (WT)</span><span class="rv"><code>WT = TAT − BT</code> &nbsp;also&nbsp; <code>WT = CT − AT − BT</code>. Duration. Time NOT executing.</span></div>
+      <div class="rev-kv"><span class="rk">Response Time (RT)</span><span class="rv"><code>RT = First CPU time − AT</code>. Time until process gets CPU for the first time.</span></div>
+      <div class="rev-kv"><span class="rk">Avg. Turnaround Time</span><span class="rv"><code>Σ TAT / n</code> — Sum of all TATs divided by number of processes.</span></div>
+      <div class="rev-kv"><span class="rk">Avg. Waiting Time</span><span class="rv"><code>Σ WT / n</code> — Most frequently asked in GATE exams!</span></div>
+      <div class="rev-kv"><span class="rk">BT vs AT/CT</span><span class="rv">Only Burst Time is a <b>duration</b>. Arrival Time and Completion Time are <b>points of time</b>.</span></div>
+      <div class="rev-kv"><span class="rk">RT vs WT (for RR)</span><span class="rv">In Round Robin, RT &lt; WT because process gets CPU slice early (first response fast) but waits longer overall.</span></div>
+      <div class="rev-kv"><span class="rk">CPU Bound vs I/O Bound</span><span class="rv">CPU Bound: high burst, few I/O. I/O Bound: frequent I/O breaks, goes to Waiting State, WT includes I/O time.</span></div>
+      <div class="rev-kv"><span class="rk">Why WT = TAT − BT works</span><span class="rv">TAT = all time in system. BT = useful time. So WT = wasted/idle time = TAT − BT.</span></div>
+    </div>
+  </div>
+
+  <div class="rev-card">
+    <div class="rev-card-head" style="background:var(--orange);">
+      <div class="rev-num">★</div> Star Exam Points
+    </div>
+    <div class="rev-card-body">
+      <div class="rev-kv"><span class="rk">★ Point 1 — Optimise direction</span><span class="rv">CPU Utilization &amp; Throughput → Maximize. TAT, WT, RT → Minimize.</span></div>
+      <div class="rev-kv"><span class="rk">★ Point 2 — Priority can be both</span><span class="rv">Priority scheduling is mostly preemptive, BUT it can also be non-preemptive. Read the question carefully.</span></div>
+      <div class="rev-kv"><span class="rk">★ Point 3 — SRTF = preemptive SJF</span><span class="rv">SRTF is the preemptive version of SJF. Chooses the process with the shortest REMAINING burst time.</span></div>
+      <div class="rev-kv"><span class="rk">★ Point 4 — RR Response Time</span><span class="rv">Round Robin gives best Response Time among all algorithms — every process gets a CPU slice quickly.</span></div>
+      <div class="rev-kv"><span class="rk">★ Point 5 — FCFS is non-preemptive only</span><span class="rv">FCFS cannot be preemptive (by definition — first arrived, executes fully). Never ask for preemptive FCFS.</span></div>
+      <div class="rev-kv"><span class="rk">★ Point 6 — Starvation</span><span class="rv">SJF/SRTF can cause starvation for long processes. HRRN and Aging fix starvation. Round Robin has NO starvation.</span></div>
+    </div>
+  </div>
+
+</div><!-- end revision -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     QUIZ VIEW
+═══════════════════════════════════════════════════════════ -->
+<div id="view-quiz" class="view">
+  <div class="quiz-progress-wrap">
+    <div class="quiz-progress-text">
+      <span id="q-progress-label">Question 1 of 12 (Topics 2.1-2.2)</span>
+      <span id="q-score-label">Score: 0</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="q-progress-fill"></div></div>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+function switchView(name, e) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (e && e.target) e.target.classList.add('active');
+  if (name === 'quiz' && !quizStarted) { quizStarted = true; renderQuestion(); }
+}
+
+/* ─── QUIZ DATA ─── */
+const questions = [
+  {
+    q:"What is the primary purpose of a CPU Scheduling Algorithm?",
+    options:["Allocate RAM to processes","Select a process from the Ready Queue and assign it to the CPU","Create new processes when the CPU is free","Move processes from disk to RAM"],
+    answer:1,
+    explanation:"A Scheduling Algorithm decides which process from the Ready Queue gets the CPU next — it determines which process runs, for how long, and in what order."
+  },
+  {
+    q:"In which storage does the Ready Queue reside?",
+    options:["Hard Disk (Secondary Storage)","CPU Cache","RAM (Primary Memory)","Virtual Memory"],
+    answer:2,
+    explanation:"The Ready Queue lies in RAM. Multiprogramming aims to keep as many processes as possible in the Ready Queue (in RAM) so the CPU stays busy."
+  },
+  {
+    q:"Which statement correctly defines Non-Preemptive Scheduling?",
+    options:["A process can be removed from CPU at any time by the OS","Once a process is given the CPU, it runs until it voluntarily leaves or completes","The CPU is shared equally among all processes using time slices","Processes are executed in reverse order of arrival"],
+    answer:1,
+    explanation:"Non-Preemptive: once CPU is assigned, the process runs until it finishes its burst time or voluntarily relinquishes (e.g., for I/O). It cannot be forcibly removed."
+  },
+  {
+    q:"Which of the following is a NON-PREEMPTIVE scheduling algorithm?",
+    options:["Round Robin","SRTF (Shortest Remaining Time First)","FCFS (First Come First Serve)","LRTF (Longest Remaining Time First)"],
+    answer:2,
+    explanation:"FCFS is non-preemptive — processes run to completion in arrival order. Round Robin, SRTF, and LRTF are all preemptive algorithms."
+  },
+  {
+    q:"Which of the following is a PREEMPTIVE scheduling algorithm?",
+    options:["FCFS","SJF (non-preemptive)","HRRN","Round Robin"],
+    answer:3,
+    explanation:"Round Robin is preemptive — each process gets a fixed time quantum, and if it doesn't complete in that time, it is preempted and placed back in the Ready Queue."
+  },
+  {
+    q:"★ STAR POINT: In Round Robin scheduling, why is preemption used?",
+    options:["A higher-priority process arrives","A shorter process arrives and needs the CPU immediately","The time quantum expires — every process gets equal CPU time slices","The process requests an I/O operation"],
+    answer:2,
+    explanation:"Round Robin preempts because the Time Quantum expires. Each process gets exactly its quantum of CPU time; if it's not done, it's preempted and goes to the back of the Ready Queue. This ensures fairness and good response time for all."
+  },
+  {
+    q:"Burst Time is best described as:",
+    options:["The point of time when a process arrives in the Ready Queue","The time duration a process needs on the CPU to complete execution","The time at which the process finishes execution","The time a process waits in the Ready Queue"],
+    answer:1,
+    explanation:"Burst Time is a DURATION — the amount of CPU time the process needs. Arrival Time and Completion Time are points of time, not durations."
+  },
+  {
+    q:"A process arrives at time 2, its Completion Time is 14, and its Burst Time is 5. What is its Turnaround Time?",
+    options:["7","9","12","5"],
+    answer:2,
+    explanation:"TAT = CT − AT = 14 − 2 = 12. Turnaround Time is the total time a process spends in the system from arrival to completion."
+  },
+  {
+    q:"Using the same process from Q8 (AT=2, CT=14, BT=5), what is the Waiting Time?",
+    options:["5","7","9","12"],
+    answer:1,
+    explanation:"WT = TAT − BT = 12 − 5 = 7. Or directly: WT = CT − AT − BT = 14 − 2 − 5 = 7. Waiting Time is the time spent NOT being executed (idle in queue)."
+  },
+  {
+    q:"★ STAR POINT: What is the difference between Waiting Time and Response Time?",
+    options:["They are the same thing — both measure time in the Ready Queue","Response Time is time until the FIRST CPU access; Waiting Time is total idle time throughout the process lifecycle","Waiting Time is always shorter than Response Time","Response Time = CT − AT, while Waiting Time = TAT − BT"],
+    answer:1,
+    explanation:"Response Time = First CPU time − AT (measures how quickly the process FIRST gets CPU). Waiting Time = TAT − BT (total idle time, including ALL waits across multiple CPU allocations). In Round Robin, RT < WT because the process gets its first CPU slice early."
+  },
+  {
+    q:"Which scheduling goal should be MINIMIZED (not maximized)?",
+    options:["CPU Utilization","Throughput","Turnaround Time","None — all should be maximized"],
+    answer:2,
+    explanation:"CPU Utilization and Throughput should be MAXIMIZED. Turnaround Time, Waiting Time, and Response Time should all be MINIMIZED. This is a common exam trap."
+  },
+  {
+    q:"★ STAR POINT: Which algorithm is most well-known for causing STARVATION of long processes?",
+    options:["Round Robin — because it uses time slices","FCFS — because short processes never get CPU","SJF / SRTF — because long processes keep waiting as shorter ones keep arriving","Priority Non-Preemptive — because processes run to completion"],
+    answer:2,
+    explanation:"SJF and SRTF can cause STARVATION — if short processes keep arriving, long processes may wait indefinitely. Round Robin has NO starvation (time quantum ensures everyone gets a turn). HRRN and Aging techniques are used to fix SJF starvation."
+  }
+];
+
+let current = 0, score = 0, answered = false, quizStarted = false;
+
+function renderQuestion() {
+  const c = document.getElementById('quiz-container');
+  if (current >= questions.length) { renderResults(); return; }
+  document.getElementById('q-progress-fill').style.width = (current / questions.length * 100).toFixed(0) + '%';
+  document.getElementById('q-progress-label').textContent = `Question ${current+1} of ${questions.length} (Topics 2.1-2.2)`;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+  const q = questions[current];
+  answered = false;
+  c.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-title-tag">Question ${current+1} of ${questions.length}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options">
+        ${q.options.map((opt,i)=>`
+          <div class="quiz-option" id="opt-${i}" onclick="selectOption(${i})">
+            <div class="quiz-option-marker" id="marker-${i}">${String.fromCharCode(65+i)}</div>
+            ${opt}
+          </div>`).join('')}
+      </div>
+      <div id="explanation-box"></div>
+      <div class="quiz-controls">
+        <button class="quiz-btn secondary" onclick="skipQuestion()">Skip →</button>
+        <button class="quiz-btn primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+
+function selectOption(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.quiz-option').forEach((el,idx) => {
+    el.classList.remove('selected');
+    if (idx === q.answer) el.classList.add('correct');
+    else if (idx === i && i !== q.answer) el.classList.add('incorrect');
+  });
+  if (i === q.answer) score++;
+  document.getElementById('explanation-box').innerHTML = `
+    <div class="quiz-explanation">
+      <div class="quiz-explanation-title">📚 Explanation</div>
+      <div class="quiz-explanation-text">${q.explanation}</div>
+    </div>`;
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('q-score-label').textContent = `Score: ${score}`;
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+function skipQuestion() { current++; renderQuestion(); }
+
+function renderResults() {
+  const pct = Math.round(score / questions.length * 100);
+  let badgeClass, badgeText, feedback;
+  if (pct === 100)        { badgeClass='master';    badgeText='🏆 MASTER';    feedback="Perfect score! You have a solid grasp of CPU Scheduling fundamentals — ready to tackle numerical problems!"; }
+  else if (pct >= 80)     { badgeClass='excellent'; badgeText='🥇 EXCELLENT'; feedback="Great work! You understand the key concepts. Review any missed questions and you'll ace the numericals."; }
+  else if (pct >= 60)     { badgeClass='good';      badgeText='🥈 GOOD';      feedback="Good foundation! Focus on the formulas (TAT, WT, RT) and the Preemptive vs Non-Preemptive distinction."; }
+  else                    { badgeClass='review';    badgeText='📖 REVIEW';    feedback="Go back to the Descriptive and Revision tabs and revisit the time formulas and algorithm categories."; }
+  document.getElementById('q-progress-fill').style.width = '100%';
+  document.getElementById('q-progress-label').textContent = 'Quiz Complete!';
+  document.getElementById('q-score-label').textContent = `Final Score: ${score}/${questions.length}`;
+  document.getElementById('quiz-container').innerHTML = `
+    <div class="results-score-box">
+      <div class="results-score-circle">
+        <div class="results-score-num">${score}</div>
+        <div class="results-score-total">/ ${questions.length}</div>
+      </div>
+      <span class="results-badge ${badgeClass}">${badgeText}</span>
+      <p class="results-feedback">${feedback}</p>
+    </div>
+    <div style="text-align:center; margin-top:8px;">
+      <button class="quiz-btn primary" onclick="restartQuiz()">🔄 Restart Quiz</button>
+    </div>`;
+}
+
+function restartQuiz() {
+  current = 0; score = 0; answered = false;
+  renderQuestion();
+}
+</script>
+
+<script src="../../ask-ai.js" defer></script>
+</body>
+</html>
