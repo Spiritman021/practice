@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0f766e"><meta name="description" content="Short Handling Constraint Violations notes for IBPS SO covering insert, delete, update, transactions, ACID, commit and rollback."><title>2.E Handling Constraint Violations | DBMS Notes New</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet"><style>
+:root{--ink:#16302d;--muted:#64748b;--line:#cfe3df;--accent:#0f766e;--dark:#134e4a;--soft:#ccfbf1;--bg:#f4fbf9;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#ccfbf1,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.actions{margin-left:auto;display:flex;gap:8px}.actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}.layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,780px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.85)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}.crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#042f2e,#0f766e 62%,#14b8a6);box-shadow:0 18px 45px rgba(15,118,110,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#ccfbf1}.article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(15,118,110,.08)}h2,h3{scroll-margin-top:80px}.article h2{margin:42px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.75rem;line-height:1.25}.article h2:first-child{margin-top:0}.article h3{margin:27px 0 8px;color:var(--accent);font-size:1.18rem}.lead,.memory,.exam{padding:17px 19px;border-radius:13px}.lead{background:var(--soft);color:var(--dark);font-size:1.04rem}.memory{border-left:5px solid var(--accent);background:#f0fdfa}.exam{border:1px solid #fde68a;background:#fffbeb}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:9px;margin:18px 0;padding:18px;border-radius:14px;background:#042f2e;color:#fff;text-align:center;font-weight:700}.flow span:not(.arrow){padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08)}.arrow{color:#5eead4;font-size:1.4rem}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.card{padding:16px;border:1px solid var(--line);border-radius:13px;background:#fbfffe}.card h3{margin:0 0 6px}.card p{margin:0}.visual{margin:22px 0}.visual img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:16px}.visual figcaption{padding:8px 4px;color:var(--muted);font-size:12px;text-align:center}.table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}code{padding:2px 6px;border-radius:5px;background:var(--soft);font:500 .9em 'Source Code Pro',monospace}.article li{margin:7px 0}.footer{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}@media(max-width:900px){.layout{display:block;max-width:820px}.side{display:none}}@media(max-width:620px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.actions a:first-child{display:none}.article{padding:20px 17px}.hero{border-radius:17px}.cards{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+</style></head><body><header><div class="topbar"><a class="brand" href="dbms-notes-new.html">🗄️ DBMS Notes New</a><div class="actions"><a href="computer.html">Computer Hub</a><a href="dbms-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side"><strong>On this page</strong><a href="#operations">Operations</a><a href="#insert">Insert</a><a href="#delete">Delete</a><a href="#update">Update</a><a href="#transactions">Transactions</a><a href="#strategies">Combined strategies</a><a href="#revision">Quick revision</a></aside><main>
+<nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="dbms-notes-new.html">DBMS Notes New</a> / 2.E</nav>
+<section class="hero"><span class="badge">SECTION 2 · SUBTOPIC 2.E</span><h1>Handling Constraint Violations</h1><p>Safe insert, delete and update operations using constraints and transactions.</p></section>
+<nav class="footer" aria-label="Original tutorial navigation"><a href="https://www.tutorialspoint.com/dbms/dbms_relational_database_schemas.htm">← Previous</a><a href="https://www.tutorialspoint.com/dbms/quiz_on_dbms_handling_constraint_violations.htm">Quiz</a><a href="https://www.tutorialspoint.com/dbms/er_model_basic_concepts.htm">Next →</a></nav>
+<article class="article">
+<h2 id="operations">1. Database Operations</h2>
+<p class="lead">A DBMS must preserve integrity and consistency while data changes. Every operation is checked against key, entity, domain and referential constraints.</p>
+<ul><li><strong>INSERT:</strong> adds a new tuple.</li><li><strong>DELETE:</strong> removes a tuple.</li><li><strong>UPDATE / MODIFY:</strong> changes one or more attribute values in existing tuples.</li></ul>
+<p>The goal is always to leave the database in a valid state.</p>
+
+<figure class="visual"><img src="assets/dbms-notes-new/handling-constraint-violations.png" alt="Flowchart for handling insert delete and update constraint violations using commit rollback and ACID"><figcaption>All operations must pass constraint checks before COMMIT; otherwise the transaction rolls back.</figcaption></figure>
+
+<h2 id="insert">2. INSERT Violations</h2>
+<div class="table-wrap"><table><thead><tr><th>Constraint</th><th>Violation</th></tr></thead><tbody>
+<tr><td>Domain</td><td>Wrong data type, format or range.</td></tr>
+<tr><td>Key</td><td>New primary-key value duplicates an existing value.</td></tr>
+<tr><td>Entity integrity</td><td>Primary key is NULL.</td></tr>
+<tr><td>Referential integrity</td><td>Foreign key references a non-existent parent.</td></tr>
+</tbody></table></div>
+<p>Inserting Alicia Zelaya with SSN <code>999887777</code>, salary 28000 and Dno 4 fails if SSN 999887777 already exists:</p>
+<pre>&lt;'Alicia','J','Zelaya','999887777','1960-04-05',
+ '6357 Windy Lane, Katy, TX', F, 28000, '987654321', 4&gt;</pre>
+<h3>How INSERT violations are handled</h3>
+<ul><li><strong>Reject and notify:</strong> the normal DBMS response.</li><li><strong>Prompt valid data:</strong> request a non-NULL primary key or valid domain value.</li><li><strong>Insert referenced tuple first:</strong> if Dno has no department, create a valid DEPARTMENT row before the EMPLOYEE row.</li></ul>
+
+<h2 id="delete">3. DELETE Violations</h2>
+<p>Deleting a parent tuple may leave orphaned child records. Deleting EMPLOYEE Ssn <code>333445555</code> can affect DEPARTMENT, WORKS_ON and DEPENDENT rows that reference it.</p>
+<div class="cards">
+<section class="card"><h3>RESTRICT</h3><p>Reject deletion when related records exist.</p></section>
+<section class="card"><h3>CASCADE</h3><p>Automatically delete all dependent tuples.</p></section>
+<section class="card"><h3>SET NULL / DEFAULT</h3><p>Replace child foreign keys with NULL or a preset default.</p></section>
+</div>
+<p><strong>Example:</strong> deleting employee <code>123456789</code> may set matching WORKS_ON.Essn values to NULL when the schema permits it.</p>
+
+<h2 id="update">4. UPDATE Violations</h2>
+<p>Updating a primary key is treated like <strong>deleting the old tuple and inserting a new one</strong>. It may break uniqueness or existing foreign-key references.</p>
+<ul><li><strong>Primary-key update:</strong> changing Ssn 123456789 to 987654321 fails if 987654321 already exists.</li><li><strong>Foreign-key update:</strong> the new value must match a parent key or be permitted NULL.</li></ul>
+<pre>UPDATE EMPLOYEE
+SET Dno = 10
+WHERE Ssn = '999887777';</pre>
+<p>This fails if DEPARTMENT.Dnumber 10 does not exist.</p>
+
+<h2 id="transactions">5. Transactions and ACID</h2>
+<p>A <strong>transaction</strong> is an atomic sequence of read/update operations treated as one unit.</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Atomicity</td><td>All operations complete or none are applied.</td></tr>
+<tr><td>Consistency</td><td>The database moves between valid states.</td></tr>
+<tr><td>Isolation</td><td>Concurrent transactions do not interfere.</td></tr>
+<tr><td>Durability</td><td>Committed changes remain permanent.</td></tr>
+</tbody></table></div>
+<p><strong>Bank transfer:</strong> debit and credit must both complete or both revert.</p>
+<p><strong>Before COMMIT:</strong> DBMS verifies all constraints. If any step fails, the whole transaction <strong>ROLLBACKs</strong> to its earlier consistent state.</p>
+<p><strong>Order example:</strong> checking stock, reducing inventory and recording the sale form one transaction. If the inventory update violates a constraint, every step reverts.</p>
+
+<h2 id="strategies">6. Combining Strategies</h2>
+<ul><li><strong>CASCADE for deep deletion:</strong> deleting a department can remove associated employees and projects.</li><li><strong>SET NULL for non-critical links:</strong> preserve child rows but clear their removed reference.</li><li><strong>RESTRICT for critical data:</strong> prevent deletion when essential references, such as financial records, exist.</li></ul>
+
+<h2 id="revision">7. IBPS SO Quick Revision</h2>
+<ul><li>INSERT may violate domain, key, entity or referential integrity.</li><li>DELETE mainly threatens referential integrity.</li><li>Primary-key UPDATE behaves like DELETE + INSERT.</li><li>Foreign-key UPDATE must match a parent key or permitted NULL.</li><li>Delete actions: RESTRICT, CASCADE, SET NULL or SET DEFAULT.</li><li>Constraint failure normally causes rejection and notification.</li><li>Transaction = atomic unit of database work.</li><li>Valid transaction → COMMIT; violation → ROLLBACK.</li><li>ACID = Atomicity, Consistency, Isolation, Durability.</li></ul>
+<p class="exam"><strong>Most likely questions:</strong> Duplicate PK on insert—key violation. Dno 10 without department—referential violation. Delete dependent rows—CASCADE. Undo entire failed transaction—ROLLBACK.</p>
+</article><nav class="footer"><a href="dbms-notes-new-2d-relational-database-schemas.html">← Previous: 2.D</a><a href="dbms-notes-new.html">Section overview ↑</a></nav></main></div><script src="../../ask-ai.js" defer></script></body></html>
