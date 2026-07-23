@@ -128,6 +128,44 @@
       caption: 'A system call crosses the protection boundary with a trap, runs a validated kernel handler, and safely returns to user mode.'
     }
   };
+  const extraVisuals = {
+    'os-notes-new-1g-operating-system-structure.html': [{
+      heading: 'Monolithic vs Microkernel',
+      image: '1g-monolithic-vs-microkernel.png',
+      alt: 'Comparison of a monolithic kernel containing all services and a microkernel keeping drivers and services isolated in user space',
+      caption: 'Monolithic kernels favor direct-call speed; microkernels isolate services for reliability but add message-passing overhead.'
+    }],
+    'os-notes-new-1j-operating-system-properties.html': [{
+      heading: '5. Real-Time System',
+      image: '1j-time-sharing-vs-realtime.png',
+      alt: 'Comparison of fair rotating CPU slices in a time-sharing system and deadline-driven execution in real-time systems',
+      caption: 'Time sharing optimizes interactive response and fairness; real-time scheduling prioritizes predictable completion before deadlines.'
+    }],
+    'os-notes-new-2b-states-of-a-process.html': [{
+      heading: 'Seven-State Model',
+      image: '2b-seven-state.png',
+      alt: 'Seven-state process model adding ready-suspended and blocked-suspended states on disk to the five-state model in memory',
+      caption: 'The seven-state model adds suspended states for processes swapped from RAM to disk while preserving whether they are ready or blocked.'
+    }],
+    'os-notes-new-2h-inter-process-communication.html': [{
+      heading: 'Synchronization in IPC',
+      image: '2h-ipc-synchronization.png',
+      alt: 'Comparison of semaphore, mutex, barrier, and spinlock synchronization around a shared critical section',
+      caption: 'Synchronization primitives coordinate access: mutexes enforce ownership, semaphores count access, barriers align participants, and spinlocks busy-wait briefly.'
+    }],
+    'os-notes-new-2i-remote-procedure-call.html': [{
+      heading: 'Types of RPC',
+      image: '2i-rpc-sync-vs-async.png',
+      alt: 'Timelines comparing a synchronous RPC that blocks the client with an asynchronous RPC that lets the client continue working',
+      caption: 'A synchronous RPC waits for the response; an asynchronous RPC lets the client continue and delivers the result later.'
+    }],
+    'os-notes-new-2j-context-switching.html': [{
+      heading: 'Context Switching vs Mode Switching',
+      image: '2j-context-vs-mode-switch.png',
+      alt: 'Comparison of switching between two process contexts and changing between user and kernel mode within the same process',
+      caption: 'A context switch replaces the running process state; a mode switch changes privilege while the same process continues.'
+    }]
+  };
 
   const visual = visuals[page];
   if (!visual) return;
@@ -157,4 +195,22 @@
   caption.textContent = visual.caption;
   figure.append(image, caption);
   target.after(figure);
+
+  (extraVisuals[page] || []).forEach((extra) => {
+    const extraTarget = [...document.querySelectorAll('#article h1, #article h2')]
+      .find((heading) => heading.textContent.trim().startsWith(extra.heading));
+    if (!extraTarget) return;
+
+    const extraFigure = document.createElement('figure');
+    extraFigure.className = 'chapter-visual';
+    const extraImage = document.createElement('img');
+    extraImage.src = `assets/os-chapter-visuals/${extra.image}`;
+    extraImage.alt = extra.alt;
+    extraImage.loading = 'lazy';
+    extraImage.decoding = 'async';
+    const extraCaption = document.createElement('figcaption');
+    extraCaption.textContent = extra.caption;
+    extraFigure.append(extraImage, extraCaption);
+    extraTarget.after(extraFigure);
+  });
 })();
