@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#312e81">
+  <meta name="description" content="Operating System Scheduling Algorithms for IBPS SO IT Officer — timing formulas, FCFS, SJF, SRTF, Round Robin, Priority, HRRN and Gantt charts.">
+  <title>3.C Operating System Scheduling Algorithms | OS Notes New</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#172033;--muted:#64748b;--line:#dbe3f0;--accent:#4f46e5;--dark:#312e81;--soft:#eef2ff;--bg:#f7f8ff;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#e0e7ff,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.top-actions{margin-left:auto;display:flex;gap:8px}.top-actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}
+    .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
+    .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
+    #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .generated-diagram{margin:22px 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 12px 36px rgba(49,46,129,.08)}.generated-diagram img{display:block;width:100%;height:auto;border-radius:12px}.generated-diagram figcaption{padding:9px 8px 2px;color:var(--muted);font-size:13px;text-align:center}.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
+    @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
+  </style>
+</head>
+<body>
+<header><div class="topbar"><a class="brand" href="os-notes-new.html">📘 OS Notes New</a><div class="top-actions"><a href="computer.html">Computer Hub</a><a href="os-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side" id="toc"><strong>On this page</strong></aside><main><nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="os-notes-new.html">OS Notes New</a> / 3.C</nav><section class="hero"><span class="badge">SECTION 3 · SUBTOPIC 3.C</span><h1>Operating System Scheduling Algorithms</h1><p>Core timing formulas, algorithm rules, Gantt charts, advantages, disadvantages, and exam comparisons.</p></section><figure class="generated-diagram"><img src="assets/os-notes-new/cpu-scheduling-algorithms.png" alt="CPU Scheduling Algorithms roadmap" width="1693" height="929"><figcaption>Generated roadmap classifying major algorithms and summarizing their selection rules, exam traps, and core timing formulas.</figcaption></figure><article id="article"></article><nav class="footer-nav"><a href="os-notes-new.html">← Section overview</a><a href="#">Back to top ↑</a></nav></main></div>
+<script type="text/plain" id="source">
+# Operating System Scheduling Algorithms (IBPS SO IT)
+
+This is one of the **highest-weightage scheduling topics** for **IBPS SO IT**. Questions are frequently asked like:
+
+* Which scheduling algorithm gives minimum average waiting time?
+* Which scheduling algorithm uses Time Quantum?
+* Difference between SJF and SRTF?
+* Which algorithms are preemptive?
+* Which algorithm is best for interactive systems?
+* Numerical questions based on Gantt Charts.
+
+Let's understand **every algorithm from scratch**, including the images you uploaded.
+
+---
+
+# First Understand Some Important Terms
+
+Every scheduling numerical uses these terms.
+
+| Term                             | Meaning                                                  |
+| -------------------------------- | -------------------------------------------------------- |
+| Arrival Time (AT)                | Time when the process enters the Ready Queue.            |
+| Burst Time / Execution Time (BT) | CPU time required by the process.                        |
+| Service Time (ST)                | Time when the CPU actually starts executing the process. |
+| Completion Time (CT)             | Time when the process finishes execution.                |
+| Waiting Time (WT)                | Time spent waiting in the Ready Queue.                   |
+| Turnaround Time (TAT)            | Total time from arrival to completion.                   |
+
+---
+
+## Example
+
+Suppose
+
+| Process | Arrival | Burst |
+| ------- | ------- | ----- |
+| P1      | 2       | 5     |
+
+CPU starts it at time 7.
+
+Then
+
+```text
+Arrival = 2
+
+Service Time = 7
+
+Burst = 5
+
+Completion = 12
+```
+
+Waiting Time
+
+```
+WT = Service Time - Arrival Time
+
+= 7 - 2
+
+= 5
+```
+
+Turnaround Time
+
+```
+TAT = Completion - Arrival
+
+= 12 - 2
+
+= 10
+```
+
+---
+
+# 1. First Come First Serve (FCFS)
+
+**Type:** Non-Preemptive
+
+## Idea
+
+Whoever comes first,
+
+gets CPU first.
+
+Exactly like
+
+* Railway ticket counter
+* Bank queue
+* Hospital registration
+
+---
+
+## Image 1 (FCFS)
+
+From your first image
+
+Processes
+
+| Process | Arrival | Burst |
+| ------- | ------- | ----- |
+| P0      | 0       | 5     |
+| P1      | 1       | 3     |
+| P2      | 2       | 8     |
+| P3      | 3       | 6     |
+
+CPU Timeline
+
+```text
+0       5      8         16          22
+|---P0---|--P1--|----P2----|----P3----|
+```
+
+### Why?
+
+At time 0
+
+Only P0 has arrived.
+
+So CPU runs P0 completely.
+
+During that time
+
+P1
+
+P2
+
+P3
+
+all arrive.
+
+But FCFS says
+
+> Whoever came first waits first.
+
+So execution becomes
+
+```
+P0
+
+↓
+
+P1
+
+↓
+
+P2
+
+↓
+
+P3
+```
+
+Exactly same as your image.
+
+---
+
+## Waiting Time
+
+Formula
+
+```
+Waiting Time
+
+=
+
+Service Time
+
+-
+
+Arrival Time
+```
+
+For P1
+
+```
+5-1=4
+```
+
+For P2
+
+```
+8-2=6
+```
+
+For P3
+
+```
+16-3=13
+```
+
+Average
+
+```
+(0+4+6+13)/4
+
+=
+
+5.75
+```
+
+Exactly like your tutorial.
+
+---
+
+## Advantages
+
+✔ Simple
+
+✔ Easy
+
+✔ No starvation
+
+---
+
+## Disadvantages
+
+Large jobs delay small jobs.
+
+This is called
+
+**Convoy Effect.**
+
+Example
+
+```
+20 sec job
+
+↓
+
+1 sec job
+
+↓
+
+2 sec job
+```
+
+Small jobs wait unnecessarily.
+
+---
+
+# 2. Shortest Job First (SJF / SJN)
+
+**Type**
+
+Non-preemptive
+
+---
+
+## Idea
+
+CPU always selects
+
+the process having
+
+smallest Burst Time.
+
+---
+
+## Image 2 (SJF)
+
+Processes
+
+| Process | Burst |
+| ------- | ----- |
+| P0      | 5     |
+| P1      | 3     |
+| P2      | 8     |
+| P3      | 6     |
+
+Execution
+
+```text
+0      3       8         14         22
+
+|P1|----P0----|----P3----|-----P2-----|
+```
+
+Exactly like your second image.
+
+---
+
+### Why?
+
+Burst Times
+
+```
+P0 =5
+
+P1 =3
+
+P2 =8
+
+P3 =6
+```
+
+Shortest
+
+↓
+
+P1
+
+Remaining
+
+```
+5
+
+8
+
+6
+```
+
+Shortest
+
+↓
+
+P0
+
+Remaining
+
+```
+8
+
+6
+```
+
+Shortest
+
+↓
+
+P3
+
+Finally
+
+↓
+
+P2
+
+---
+
+## Waiting Time
+
+P3
+
+starts at
+
+8
+
+Arrival
+
+3
+
+Waiting
+
+```
+8-3=5
+```
+
+Exactly like tutorial.
+
+Average
+
+```
+5.25
+```
+
+Better than FCFS.
+
+---
+
+## Why is SJF Best?
+
+Short jobs finish first.
+
+Long jobs wait.
+
+Average waiting time becomes minimum.
+
+**IBPS Important**
+
+> SJF gives the **minimum average waiting time** among all non-preemptive algorithms (when burst times are known).
+
+---
+
+## Problem
+
+CPU must already know
+
+future Burst Time.
+
+Real OS usually doesn't know.
+
+Therefore difficult.
+
+---
+
+# 3. Priority Scheduling
+
+Type
+
+Usually Non-preemptive
+
+(Preemptive version also exists.)
+
+---
+
+## Idea
+
+Every process has a priority.
+
+Higher priority
+
+gets CPU first.
+
+---
+
+## Image 3
+
+Priority Table
+
+| Process | Priority |
+| ------- | -------- |
+| P0      | 1        |
+| P1      | 2        |
+| P2      | 1        |
+| P3      | 3        |
+
+Highest Priority
+
+↓
+
+P3
+
+Then
+
+P1
+
+Then
+
+P0
+
+Then
+
+P2
+
+Exactly shown
+
+```text
+0      6      9       14        22
+
+|P3|P1|P0|P2|
+```
+
+---
+
+### Why?
+
+Priority
+
+```
+3
+
+2
+
+1
+
+1
+```
+
+Highest executes first.
+
+Same priority
+
+↓
+
+FCFS.
+
+---
+
+## Advantages
+
+Very useful
+
+where urgent jobs exist.
+
+Example
+
+Hospital
+
+Emergency Patient
+
+↓
+
+Normal Patient
+
+---
+
+## Disadvantages
+
+Starvation
+
+Suppose
+
+Priority 100
+
+keeps arriving.
+
+Priority 1
+
+never executes.
+
+---
+
+## Solution
+
+**Aging**
+
+Increase waiting process priority gradually.
+
+Very important IBPS question.
+
+---
+
+# 4. Shortest Remaining Time First (SRTF)
+
+Type
+
+Preemptive
+
+---
+
+Think of SRTF as
+
+```
+SJF
+
++
+
+Interruptions
+```
+
+---
+
+Example
+
+```
+P1
+
+10 sec
+```
+
+After
+
+3 sec
+
+Remaining
+
+```
+7
+```
+
+Suddenly
+
+```
+P2
+
+2 sec
+```
+
+arrives.
+
+CPU immediately switches.
+
+Why?
+
+Remaining
+
+```
+P1=7
+
+P2=2
+```
+
+Shortest remaining time wins.
+
+---
+
+## IBPS Shortcut
+
+```
+SJF
+
+↓
+
+Non-preemptive
+
+SRTF
+
+↓
+
+Preemptive
+```
+
+---
+
+# 5. Round Robin (RR)
+
+Type
+
+Preemptive
+
+---
+
+## Idea
+
+Every process gets
+
+equal CPU time.
+
+This fixed time is called
+
+## Time Quantum
+
+---
+
+## Image 4
+
+Time Quantum
+
+```
+3
+```
+
+Timeline
+
+```text
+0 3 6 9 12 14 17 20 22
+
+P0
+
+P1
+
+P2
+
+P3
+
+P0
+
+P2
+
+P3
+
+P2
+```
+
+Exactly like your image.
+
+---
+
+### Let's Understand
+
+Burst
+
+```
+P0=5
+
+P1=3
+
+P2=8
+
+P3=6
+```
+
+Quantum
+
+```
+3
+```
+
+---
+
+### Round 1
+
+P0
+
+needs
+
+5
+
+Runs
+
+3
+
+Remaining
+
+2
+
+---
+
+P1
+
+Needs
+
+3
+
+Finishes.
+
+---
+
+P2
+
+Needs
+
+8
+
+Runs
+
+3
+
+Remaining
+
+5
+
+---
+
+P3
+
+Needs
+
+6
+
+Runs
+
+3
+
+Remaining
+
+3
+
+---
+
+Second Round
+
+P0
+
+Remaining
+
+2
+
+Finishes.
+
+---
+
+P2
+
+Remaining
+
+5
+
+Runs
+
+3
+
+Remaining
+
+2
+
+---
+
+P3
+
+Remaining
+
+3
+
+Finishes.
+
+---
+
+P2
+
+Remaining
+
+2
+
+Finishes.
+
+Exactly your image.
+
+---
+
+## Advantages
+
+Fair.
+
+Every process gets CPU.
+
+Excellent for
+
+Windows
+
+Linux
+
+Android
+
+Interactive systems.
+
+---
+
+## Disadvantages
+
+Too many
+
+Context Switches.
+
+---
+
+# 6. Multilevel Queue Scheduling
+
+This is different.
+
+It does not invent a new scheduling algorithm.
+
+Instead,
+
+it combines multiple scheduling algorithms.
+
+---
+
+Imagine
+
+```text
+Ready Queue
+
+↓
+
+Split into
+
+↓
+
+System Processes
+
+↓
+
+Interactive Processes
+
+↓
+
+Batch Processes
+```
+
+Each queue
+
+uses
+
+different scheduling algorithm.
+
+Example
+
+```text
+System Queue
+
+Priority Scheduling
+
+-------------------
+
+Interactive Queue
+
+Round Robin
+
+-------------------
+
+Batch Queue
+
+FCFS
+```
+
+CPU
+
+chooses among queues
+
+according to priority.
+
+---
+
+## Real Life Example
+
+Airport
+
+There are different queues.
+
+```
+VIP
+
+↓
+
+Business
+
+↓
+
+Economy
+```
+
+Each queue
+
+may follow
+
+different rules.
+
+Exactly Multilevel Queue Scheduling.
+
+---
+
+# Comparison of All Scheduling Algorithms
+
+| Algorithm        | Type                                | Selection Basis                         | Advantages                       | Disadvantages                                                                    |
+| ---------------- | ----------------------------------- | --------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------- |
+| FCFS             | Non-Preemptive                      | Arrival Time                            | Very simple                      | High waiting time, Convoy Effect                                                 |
+| SJF (SJN)        | Non-Preemptive                      | Shortest Burst Time                     | Minimum average waiting time     | Needs burst time in advance, long jobs may starve                                |
+| Priority         | Can be Preemptive or Non-Preemptive | Highest Priority                        | Urgent jobs execute first        | Starvation (fixed using Aging)                                                   |
+| SRTF             | Preemptive                          | Shortest Remaining Time                 | Better response than SJF         | Many context switches, needs remaining burst estimates                           |
+| Round Robin      | Preemptive                          | Time Quantum                            | Fair, good response time         | Too small quantum → many context switches; too large quantum → behaves like FCFS |
+| Multilevel Queue | Mixed                               | Separate queues with different policies | Flexible for different job types | Complex to design and configure                                                  |
+
+---
+
+# Which Algorithm is Best?
+
+There is **no single best algorithm** for every situation.
+
+| Situation                                             | Best Choice         |
+| ----------------------------------------------------- | ------------------- |
+| Simple Batch Processing                               | FCFS                |
+| Minimum Average Waiting Time                          | SJF                 |
+| Urgent Tasks                                          | Priority Scheduling |
+| Interactive Systems (Windows, Linux, Android)         | Round Robin         |
+| Mixed Workloads (System + User + Batch Jobs)          | Multilevel Queue    |
+| Better response than SJF while allowing interruptions | SRTF                |
+
+---
+
+# ⭐ IBPS SO IT Exam Points (Must Remember)
+
+### FCFS
+
+* First Come First Serve
+* Non-preemptive
+* Uses **FIFO Queue**
+* Suffers from **Convoy Effect**
+
+### SJF / SJN
+
+* Shortest Burst Time first
+* Non-preemptive
+* **Minimum Average Waiting Time**
+* May cause **starvation** of long processes
+
+### Priority Scheduling
+
+* Highest priority executes first
+* Can be **preemptive** or **non-preemptive**
+* **Aging** prevents starvation
+
+### SRTF
+
+* Preemptive version of **SJF**
+* Chooses process with **shortest remaining burst time**
+
+### Round Robin
+
+* Uses **Time Quantum**
+* Preemptive
+* Best for **time-sharing/interactive systems**
+* Too many context switches if quantum is very small
+
+### Multilevel Queue
+
+* Splits processes into different queues
+* Each queue can use its **own scheduling algorithm**
+* Suitable when different classes of processes (system, interactive, batch) need different scheduling policies
+
+These are the points from which IBPS SO IT most commonly asks both conceptual and numerical questions.
+</script>
+<script>
+(()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
+</script><script src="os-chapter-visuals.js"></script><script src="os-notes-progress.js"></script><script src="../../ask-ai.js" defer></script>
+</body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
