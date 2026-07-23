@@ -11,6 +11,7 @@
     .layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,760px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.8)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}
     .crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#1e1b4b,#4338ca 62%,#7c3aed);box-shadow:0 18px 45px rgba(49,46,129,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#e0e7ff}
     #article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(49,46,129,.08)}#article>p:first-child{margin-top:0;padding:17px 19px;border-radius:13px;background:var(--soft);color:var(--dark);font-size:1.04rem}h1,h2,h3{scroll-margin-top:80px}#article h1{margin:42px 0 16px;padding-bottom:11px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.85rem;line-height:1.2}#article h1:first-of-type{margin-top:28px}#article h2{margin:31px 0 11px;color:#3730a3;font-size:1.38rem;line-height:1.3}#article h3{margin:26px 0 9px;color:#4338ca;font-size:1.12rem}#article p{margin:10px 0}#article ul,#article ol{margin:10px 0;padding-left:24px}#article li{margin:6px 0}#article blockquote{margin:16px 0;padding:17px 20px;border-left:5px solid var(--accent);border-radius:0 12px 12px 0;background:var(--soft);color:var(--dark);font-size:1.08rem;font-weight:600}#article hr{height:1px;margin:30px 0;border:0;background:var(--line)}#article pre{overflow:auto;margin:15px 0;padding:18px;border-radius:13px;color:#e0e7ff;background:#1e1b4b;font:500 14px/1.7 'Source Code Pro',monospace}#article strong{color:#29256b}#article .table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.91rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}#article ol:last-child{padding:18px 18px 18px 42px;border:1px solid #fde68a;border-radius:13px;background:#fffbeb}
+    .chapter-visual{margin:24px 0 30px;padding:10px;border:1px solid var(--line);border-radius:16px;background:#f8faff;box-shadow:0 10px 28px rgba(49,46,129,.1)}.chapter-visual img{display:block;width:100%;height:auto;border-radius:11px}.chapter-visual figcaption{padding:10px 8px 3px;color:var(--muted);font-size:.86rem;line-height:1.5;text-align:center}
     .footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer-nav a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}
     @media(max-width:900px){.layout{display:block;max-width:800px}.side{display:none}}@media(max-width:600px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.top-actions a:first-child{display:none}#article{padding:20px 17px;border-radius:16px}.hero{border-radius:17px}#article h1{font-size:1.55rem}}
   </style>
@@ -883,8 +884,56 @@ For the exam, remember **both views**, because different books present the evolu
 </script>
 <script>
 (()=>{const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');const lines=document.getElementById('source').textContent.replace(/^\n|\n$/g,'').split('\n');let out='',i=0,ids=[];const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');while(i<lines.length){let l=lines[i];if(!l.trim()){i++;continue}if(l==='---'){out+='<hr>';i++;continue}if(l.startsWith('```')){let a=[];i++;while(i<lines.length&&!lines[i].startsWith('```'))a.push(lines[i++]);i++;out+='<pre>'+esc(a.join('\n'))+'</pre>';continue}let h=l.match(/^(#{1,3}) (.*)$/);if(h){let n=h[1].length,id=slug(h[2])+'-'+ids.length;ids.push([id,h[2],n]);out+=`<h${n} id="${id}">${inline(h[2])}</h${n}>`;i++;continue}if(l.startsWith('> ')){out+='<blockquote>'+inline(l.slice(2))+'</blockquote>';i++;continue}if(/^\|.*\|$/.test(l)&&i+1<lines.length&&/^\|[\s:-]+\|/.test(lines[i+1])){let rows=[];while(i<lines.length&&/^\|.*\|$/.test(lines[i]))rows.push(lines[i++].slice(1,-1).split('|').map(x=>x.trim()));rows.splice(1,1);out+='<div class="table-wrap"><table><thead><tr>'+rows[0].map(x=>'<th>'+inline(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(x=>'<td>'+inline(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';continue}if(/^\* /.test(l)){let a=[];while(i<lines.length&&/^\* /.test(lines[i]))a.push(lines[i++].slice(2));out+='<ul>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>';continue}if(/^\d+\. /.test(l)){let a=[];while(i<lines.length&&/^\d+\. /.test(lines[i]))a.push(lines[i++].replace(/^\d+\. /,''));out+='<ol>'+a.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ol>';continue}out+='<p>'+inline(l)+'</p>';i++}document.getElementById('article').innerHTML=out;document.getElementById('toc').insertAdjacentHTML('beforeend',ids.filter(x=>x[2]===1).map(x=>`<a href="#${x[0]}">${x[1].replace(/\*\*/g,'')}</a>`).join(''))})();
-</script><script src="os-notes-progress.js"></script><script src="../../ask-ai.js" defer></script>
-</body></html>
+</script>
+<script>
+(() => {
+  const visuals = [
+    {
+      heading: 'Complete Timeline',
+      src: 'assets/os-evolution/four-generations-overview.png',
+      alt: 'Four panels showing operating-system evolution from first-generation computers without an OS to modern microprocessor-based connected devices',
+      caption: 'Each generation solved the main limitation of the one before it: manual operation → batches → shared CPU resources → personal and connected computing.'
+    },
+    {
+      heading: 'Batch Processing System',
+      src: 'assets/os-evolution/batch-processing-workflow.png',
+      alt: 'Batch-processing workflow from submitted punch-card jobs through an operator and resident monitor to sequential execution and printed output',
+      caption: 'In batch processing, an operator grouped similar jobs and the resident monitor executed them sequentially without user interaction.'
+    },
+    {
+      heading: 'THIRD GENERATION (1965–1980)',
+      src: 'assets/os-evolution/third-generation-sharing.png',
+      alt: 'Third-generation operating system combining several programs in memory with short CPU time slices for interactive terminal users',
+      caption: 'Third-generation systems combined multiprogramming for CPU utilization with time sharing for interactive access.'
+    },
+    {
+      heading: 'FOURTH GENERATION (1980–Present)',
+      src: 'assets/os-evolution/fourth-generation-ecosystem.png',
+      alt: 'Fourth-generation operating-system ecosystem connecting personal computers, graphical interfaces, network servers, distributed systems, and smart devices',
+      caption: 'Microprocessors moved operating systems onto personal computers, then expanded them across networks, distributed systems, and smart devices.'
+    }
+  ];
 
+  const headings = [...document.querySelectorAll('#article h1, #article h2')];
+  visuals.forEach(({ heading, src, alt, caption }) => {
+    const target = headings.find((element) => element.textContent.trim() === heading);
+    if (!target) return;
+
+    const figure = document.createElement('figure');
+    figure.className = 'chapter-visual';
+    const image = document.createElement('img');
+    image.src = src;
+    image.alt = alt;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    const figureCaption = document.createElement('figcaption');
+    figureCaption.textContent = caption;
+    figure.append(image, figureCaption);
+    target.after(figure);
+  });
+})();
+</script>
+<script src="os-notes-progress.js"></script><script src="../../ask-ai.js" defer></script>
+</body></html>
 
 
