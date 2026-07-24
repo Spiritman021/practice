@@ -4,8 +4,8 @@ window.DBMS_QUIZ_FALLBACK = {
   "title": "DBMS System Environment",
   "exam": "IBPS SO IT Officer",
   "durationMinutes": 25,
-  "positiveMarks": 1,
-  "negativeMarks": 0.25,
+  "positiveMarks": 2,
+  "negativeMarks": 0.5,
   "questions": [
     {
       "id": "1g-001",
