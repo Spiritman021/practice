@@ -1,52 +1,538 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0f766e"><meta name="description" content="Short DBMS Data Models notes for IBPS SO: flat, ER and relational models, entities, domains and cardinalities."><title>1.D DBMS Data Models | DBMS Notes New</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet"><style>
 :root{--ink:#16302d;--muted:#64748b;--line:#cfe3df;--accent:#0f766e;--dark:#134e4a;--soft:#ccfbf1;--bg:#f4fbf9;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#ccfbf1,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.actions{margin-left:auto;display:flex;gap:8px}.actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}.layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,780px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.85)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}.crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#042f2e,#0f766e 62%,#14b8a6);box-shadow:0 18px 45px rgba(15,118,110,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#ccfbf1}.article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(15,118,110,.08)}h2,h3{scroll-margin-top:80px}.article h2{margin:42px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.75rem;line-height:1.25}.article h2:first-child{margin-top:0}.article h3{margin:27px 0 8px;color:var(--accent);font-size:1.18rem}.lead,.memory,.exam{padding:17px 19px;border-radius:13px}.lead{background:var(--soft);color:var(--dark);font-size:1.04rem}.memory{border-left:5px solid var(--accent);background:#f0fdfa}.exam{border:1px solid #fde68a;background:#fffbeb}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:9px;margin:18px 0;padding:18px;border-radius:14px;background:#042f2e;color:#fff;text-align:center;font-weight:700}.flow span:not(.arrow){padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08)}.arrow{color:#5eead4;font-size:1.4rem}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.card{padding:16px;border:1px solid var(--line);border-radius:13px;background:#fbfffe}.card h3{margin:0 0 6px}.card p{margin:0}.visual{margin:22px 0}.visual img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:16px}.visual figcaption{padding:8px 4px;color:var(--muted);font-size:12px;text-align:center}.table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}code{padding:2px 6px;border-radius:5px;background:var(--soft);font:500 .9em 'Source Code Pro',monospace}.article li{margin:7px 0}.footer{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}@media(max-width:900px){.layout{display:block;max-width:820px}.side{display:none}}@media(max-width:620px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.actions a:first-child{display:none}.article{padding:20px 17px}.hero{border-radius:17px}.cards{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
-</style></head><body><header><div class="topbar"><a class="brand" href="dbms-notes-new.html">🗄️ DBMS Notes New</a><div class="actions"><a href="computer.html">Computer Hub</a><a href="dbms-notes-new.html">← All sections</a></div></div></header>
-<div class="layout"><aside class="side"><strong>On this page</strong><a href="#meaning">Meaning</a><a href="#flat">Flat model</a><a href="#er">ER model</a><a href="#cardinality">Cardinality</a><a href="#relational">Relational model</a><a href="#compare">Comparison</a><a href="#revision">Quick revision</a></aside><main>
+</style><link rel="stylesheet" href="assets/dbms-notes-new/dbms-data-models-layout.css"></head><body><header><div class="topbar"><a class="brand" href="dbms-notes-new.html">🗄️ DBMS Notes New</a><div class="actions"><a href="computer.html">Computer Hub</a><a href="dbms-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side"><strong>On this page</strong><a href="#dbms-data-models">Data Models</a><a href="#flat-data-model">Flat model</a><a href="#er-model-entity-relationship-model">ER model</a><a href="#components-of-er-model">ER components</a><a href="#mapping-cardinality">Cardinality</a><a href="#relational-model">Relational model</a><a href="#normalization">Normalization</a><a href="#atomic-values">Atomic values</a><a href="#difference-between-er-model-and-relational-model">Comparison</a><a href="#ibps-so-it-quick-revision">Quick revision</a><a href="#ibps-so-it-frequently-asked-questions">IBPS questions</a></aside><main>
 <nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="dbms-notes-new.html">DBMS Notes New</a> / 1.D</nav>
 <section class="hero"><span class="badge">SECTION 1 · SUBTOPIC 1.D</span><h1>DBMS Data Models</h1><p>Flat, Entity–Relationship and Relational models—short and exam-focused.</p></section>
 <nav class="footer" aria-label="Original tutorial navigation"><a href="https://www.tutorialspoint.com/dbms/dbms_architecture.htm">← Previous</a><a href="https://www.tutorialspoint.com/dbms/quiz_on_dbms_data_models.htm">Quiz</a><a href="https://www.tutorialspoint.com/dbms/dbms_data_schemas.htm">Next →</a></nav>
-<article class="article">
-<h2 id="meaning">1. What is a Data Model?</h2>
-<p class="lead">A <strong>data model</strong> defines the logical structure of a database: how data is <strong>connected, processed and stored</strong>.</p>
-<p>Data models introduce <strong>abstraction</strong>—users can understand the database logically without knowing every physical storage detail.</p>
-<p class="memory"><strong>Memory line:</strong> Data model = rules and concepts used to organize data and relationships.</p>
+<article class="article data-models-article">
+<section class="intro-note">
+<p>Excellent! This chapter is <strong>one of the highest-weightage topics</strong> in <strong>IBPS SO IT DBMS</strong>. Questions are frequently asked on:</p>
+<ul><li>Data Models</li><li>ER Model</li><li>Entity</li><li>Attribute</li><li>Relationship</li><li>Cardinality</li><li>Relational Model</li><li>Atomic Values</li></ul>
+<p>I'll explain <strong>every line</strong> in simple language with examples and exam tricks.</p>
+</section>
+<section class="note-section overview-section"><h1 id="dbms-data-models">DBMS - Data Models</h1>
+<h2 id="what-is-a-data-model">What is a Data Model?</h2>
+<p class="micro-label">Book says:</p>
+<blockquote>Data models define how the logical structure of a database is modeled.</blockquote>
+<h3 id="simple-meaning">Simple Meaning</h3>
+<p>A <strong>Data Model</strong> is a <strong>blueprint (design)</strong> that tells us:</p>
+<ul><li>How data should be stored</li><li>How data should be connected</li><li>How data should be organized</li><li>How data should be retrieved</li></ul>
+<h3 id="real-life-example">Real-Life Example</h3>
+<p>Suppose you're building a new school.</p>
+<p>Before constructing it, you prepare a blueprint.</p>
+<p>It decides:</p>
+<ul><li>Where classrooms will be</li><li>Where the library will be</li><li>Where the playground will be</li></ul>
+<p>Similarly,</p>
+<p>Before creating a database, we decide</p>
+<ul><li>Which tables are needed?</li><li>Which columns?</li><li>How are tables related?</li></ul>
+<p>That plan is called the <strong>Data Model</strong>.</p>
+<h2 id="definition">Definition</h2>
+<blockquote>A Data Model defines the logical structure of a database.</blockquote>
+<p class="micro-label">Think of it as</p>
+<pre><code class="language-text">Data Model
+      ↓
+How data will be stored
+How data will be related
+How data will be processed</code></pre>
+</section>
+<section class="note-section"><h1 id="why-do-we-need-data-models">Why do we need Data Models?</h1>
+<p>Imagine you start creating tables randomly.</p>
+<pre><code class="language-text">Student
 
-<h2 id="flat">2. Flat Data Model</h2>
-<p>The earliest model kept all data on the <strong>same plane</strong>, usually in one flat file or table.</p>
-<ul><li>Simple to create and understand.</li><li>Not scientifically structured.</li><li>Repeats the same facts, causing <strong>duplication</strong>.</li><li>Repeated data produces <strong>update anomalies</strong>: one copy may be changed while another remains old.</li></ul>
-<p class="exam"><strong>Example:</strong> If every student-course row repeats the student's name and class, one name correction must be made in many rows.</p>
+Teacher
 
-<figure class="visual"><img src="assets/dbms-notes-new/dbms-data-models-comparison.png" alt="Comparison of flat, ER and relational database models with ER cardinalities"><figcaption>Flat data repeats facts; ER models the real world; the relational model stores normalized relations.</figcaption></figure>
+Course
 
-<h2 id="er">3. Entity–Relationship (ER) Model</h2>
-<p>The ER Model represents a real-world situation using <strong>entities, attributes, relationships and constraints</strong>. It is best suited to the <strong>conceptual design</strong> stage—before tables are implemented.</p>
-<div class="cards"><section class="card"><h3>Entity</h3><p>A distinguishable real-world object. Example: <strong>Student</strong>.</p></section><section class="card"><h3>Entity Set</h3><p>A collection of similar entities, such as all students.</p></section><section class="card"><h3>Attribute</h3><p>A property of an entity: Name, Age or Class.</p></section><section class="card"><h3>Domain</h3><p>The allowed set of values for an attribute. Age may allow valid integer ages.</p></section><section class="card"><h3>Relationship</h3><p>A logical association among entities. Example: Student <strong>enrolls in</strong> Course.</p></section><section class="card"><h3>Constraints</h3><p>Rules restricting valid data or associations.</p></section></div>
+Library
 
-<h2 id="cardinality">4. Mapping Cardinalities</h2>
-<p>Mapping cardinality tells how many entities of one set can be associated with entities of another set.</p>
-<div class="table-wrap"><table><thead><tr><th>Type</th><th>Meaning</th><th>Example</th></tr></thead><tbody>
-<tr><td><strong>One-to-One (1:1)</strong></td><td>One A relates to one B.</td><td>Person ↔ Passport</td></tr>
-<tr><td><strong>One-to-Many (1:N)</strong></td><td>One A relates to many B.</td><td>Department → Employees</td></tr>
-<tr><td><strong>Many-to-One (N:1)</strong></td><td>Many A relate to one B.</td><td>Employees → Department</td></tr>
-<tr><td><strong>Many-to-Many (M:N)</strong></td><td>Many A relate to many B.</td><td>Students ↔ Courses</td></tr>
-</tbody></table></div>
-<p class="exam"><strong>Exam trap:</strong> 1:N and N:1 describe the same association from opposite directions. Always check which entity is mentioned first.</p>
+Fees</code></pre>
+<p>No relationships.</p>
+<p>No planning.</p>
+<p>Everything becomes messy.</p>
+<p>A Data Model helps organize everything properly.</p>
+</section>
+<section class="note-section"><h1 id="book-says">Book says</h1>
+<blockquote>Data Models are fundamental entities to introduce abstraction.</blockquote>
+<h3 id="what-is-abstraction">What is Abstraction?</h3>
+<p class="micro-label">Abstraction means</p>
+<blockquote><strong>Hide unnecessary details and show only important details.</strong></blockquote>
+<h3 id="example">Example</h3>
+<p>When you use WhatsApp</p>
+<p>You only see</p>
+<ul><li>Chats</li><li>Buttons</li><li>Calls</li></ul>
+<p>You don't see</p>
+<ul><li>SQL Queries</li><li>Database Tables</li><li>Indexes</li></ul>
+<p>These technical details are hidden.</p>
+<p>This is called <strong>Abstraction</strong>.</p>
+</section>
+<section class="note-section overview-section"><h1 id="data-model-defines">Data Model defines</h1>
+<p class="micro-label">Book says</p>
+<p class="micro-label">Data Model tells</p>
+<ul><li>How data is connected</li><li>How data is processed</li><li>How data is stored</li></ul>
+<p>Let's understand.</p>
+<h2 id="1-how-data-is-connected">1. How data is connected</h2>
+<p class="micro-label">Example</p>
+<p>Student</p>
+<p class="arrow-line">↓</p>
+<p>Enrolls in</p>
+<p class="arrow-line">↓</p>
+<p>Course</p>
+<p>Student and Course are connected.</p>
+<h2 id="2-how-data-is-stored">2. How data is stored</h2>
+<p class="micro-label">Should we store</p>
+<pre><code class="language-text">Student Name</code></pre>
+<p>or</p>
+<pre><code class="language-text">Student ID</code></pre>
+<p class="micro-label">Should we make</p>
+<p>Separate tables?</p>
+<p>Same table?</p>
+<p>Data Model decides.</p>
+<h2 id="3-how-data-is-processed">3. How data is processed</h2>
+<p class="micro-label">Example</p>
+<p>When teacher searches</p>
+<pre><code class="language-text">Rahul</code></pre>
+<p>Data Model helps DBMS know</p>
+<p>where to search.</p>
+</section>
+<section class="note-section model-section flat-section"><h1 id="flat-data-model">Flat Data Model</h1>
+<p class="micro-label">Book says</p>
+<blockquote>The first data model was Flat Data Model.</blockquote>
+<h2 id="what-is-flat-data-model">What is Flat Data Model?</h2>
+<p>Everything was stored</p>
+<p>inside one single table.</p>
+<p class="micro-label">Example</p>
+<div class="table-wrap"><table><thead><tr><th>Roll</th><th>Name</th><th>Course</th><th>Teacher</th><th>Department</th></tr></thead><tbody><tr><td>1</td><td>Rahul</td><td>DBMS</td><td>Amit</td><td>IT</td></tr><tr><td>2</td><td>Aman</td><td>DBMS</td><td>Amit</td><td>IT</td></tr><tr><td>3</td><td>Neha</td><td>DBMS</td><td>Amit</td><td>IT</td></tr></tbody></table></div>
+<p>Everything in one place.</p>
+<h2 id="problem">Problem</h2>
+<p>Notice</p>
+<p>Teacher</p>
+<pre><code class="language-text">Amit
+Amit
+Amit</code></pre>
+<p>Department</p>
+<pre><code class="language-text">IT
+IT
+IT</code></pre>
+<p>Repeated many times.</p>
+<p>This is called</p>
+<p><strong>Redundancy</strong>.</p>
+<h2 id="book-says-2">Book says</h2>
+<p>Flat Model introduces</p>
+<p>Update Anomalies.</p>
+<p>What does that mean?</p>
+<p>Suppose</p>
+<p>Teacher changes</p>
+<p>from</p>
+<pre><code class="language-text">Amit</code></pre>
+<p>to</p>
+<pre><code class="language-text">Rohit</code></pre>
+<p>You must update</p>
+<p>every row.</p>
+<p>If one row is forgotten</p>
+<p>Database becomes inconsistent.</p>
+<p>This is called</p>
+<p><strong>Update Anomaly</strong>.</p>
+</section>
+<figure class="visual data-models-visual"><img src="assets/dbms-notes-new/dbms-data-models-comparison.png" alt="Comparison of flat, ER and relational database models with ER cardinalities"><figcaption>Flat data repeats facts; ER models the real world; the relational model stores normalized relations.</figcaption></figure>
+<section class="note-section model-section er-section"><h1 id="er-model-entity-relationship-model">ER Model (Entity-Relationship Model)</h1>
+<p>One of the most important topics.</p>
+<p>⭐⭐⭐⭐⭐</p>
+<p>IBPS Favorite.</p>
+<h2 id="what-is-er-model">What is ER Model?</h2>
+<p class="micro-label">Book says</p>
+<p>It is based on</p>
+<p>Real-world entities</p>
+<p>and</p>
+<p>Relationships.</p>
+<h3 id="simple-meaning-2">Simple Meaning</h3>
+<p>ER Model is a way of designing a database using</p>
+<ul><li>Entities</li><li>Attributes</li><li>Relationships</li></ul>
+<p>before actually creating tables.</p>
+<p>Think of it as a <strong>rough blueprint</strong> of the database.</p>
+<h2 id="why-use-er-model">Why use ER Model?</h2>
+<p>Suppose a college wants a database.</p>
+<p>Before creating tables,</p>
+<p>they first decide</p>
+<pre><code class="language-text">Student
 
-<h2 id="relational">5. Relational Model</h2>
-<p>The <strong>Relational Model</strong> is the most popular DBMS data model. It is more scientific and is based on <strong>first-order predicate logic</strong>. A table is mathematically treated as an <strong>n-ary relation</strong>.</p>
-<p><strong>n-ary</strong> means the relation has <strong>n attributes (columns)</strong>. A table with four columns is a 4-ary relation.</p>
-<h3>Main properties</h3>
-<ul><li>Data is stored in tables called <strong>relations</strong>.</li><li>Relations can be <strong>normalized</strong> to reduce redundancy and anomalies.</li><li>In normalized relations, stored values are <strong>atomic</strong>—one indivisible value per cell.</li><li>Each row is uniquely identifiable, normally through a key.</li><li>All values in a column come from the <strong>same domain</strong>.</li></ul>
-<p class="memory"><strong>Easy example:</strong> A STUDENT relation stores one student per row; StudentID uniquely identifies the row; Age contains only values from the permitted age domain.</p>
+Teacher
 
-<h2 id="compare">6. Quick Comparison</h2>
-<div class="table-wrap"><table><thead><tr><th>Model</th><th>Main idea</th><th>Best use / issue</th></tr></thead><tbody>
-<tr><td>Flat</td><td>All data in one plane</td><td>Simple, but duplicates data and causes anomalies</td></tr>
-<tr><td>ER</td><td>Entities, attributes and relationships</td><td>Conceptual database design</td></tr>
-<tr><td>Relational</td><td>Normalized tables (relations)</td><td>Practical storage and querying; most popular</td></tr>
-</tbody></table></div>
+Course
 
-<h2 id="revision">7. IBPS SO Quick Revision</h2>
-<ul><li>Data models define logical structure, connections, processing and storage.</li><li>They provide abstraction in DBMS.</li><li>Flat models cause duplication and update anomalies.</li><li>ER Model is best for conceptual design.</li><li>Entity = real-world object; attribute = property; domain = allowed values.</li><li>Relationship = logical association between entities.</li><li>Cardinalities: 1:1, 1:N, N:1 and M:N.</li><li>Relational Model is most popular and based on first-order predicate logic.</li><li>Relation = table; tuple = row; attribute = column.</li><li>Normalized values are atomic; rows are unique; each column has one domain.</li></ul>
-<p class="exam"><strong>Most likely questions:</strong> Best model for conceptual design—ER Model. Most popular model—Relational Model. Repeated flat-file data causes—redundancy and update anomalies. Allowed values of an attribute—domain.</p>
+Library</code></pre>
+<p>Then they connect them.</p>
+<p>This planning is done using the ER Model.</p>
+</section>
+<section class="note-section model-section er-section"><h1 id="er-model-is-used-for">ER Model is used for</h1>
+<p class="micro-label">Book says</p>
+<p>Conceptual Design.</p>
+<h2 id="what-is-conceptual-design">What is Conceptual Design?</h2>
+<p>Imagine building a house.</p>
+<p>First</p>
+<p>you draw</p>
+<pre><code class="language-text">Bedroom
+
+Kitchen
+
+Bathroom</code></pre>
+<p>Only after planning,</p>
+<p>construction begins.</p>
+<p>Similarly</p>
+<p>ER Model is used</p>
+<p>before database implementation.</p>
+</section>
+<section class="note-section"><h1 id="components-of-er-model">Components of ER Model</h1>
+<p>There are only <strong>3 main components</strong>.</p>
+<ol><li>Entity</li></ol>
+<ol><li>Attribute</li></ol>
+<ol><li>Relationship</li></ol>
+</section>
+<section class="note-section concept-section"><h1 id="1-entity">1. Entity</h1>
+<p class="micro-label">Book says</p>
+<p>Entity is a real-world object.</p>
+<h3 id="simple-meaning-3">Simple Meaning</h3>
+<p>Anything that exists independently</p>
+<p>can be an Entity.</p>
+<p class="micro-label">Examples</p>
+<p>Student</p>
+<p>Teacher</p>
+<p>Employee</p>
+<p>Car</p>
+<p>Book</p>
+<p>Customer</p>
+<p>Hospital</p>
+<p>Bank Account</p>
+<p>All are entities.</p>
+<h3 id="example-2">Example</h3>
+<p>College Database</p>
+<p>Entities</p>
+<pre><code class="language-text">Student
+
+Teacher
+
+Course</code></pre>
+<h3 id="remember">Remember</h3>
+<p>Entity = Noun</p>
+</section>
+<section class="note-section concept-section"><h1 id="2-attribute">2. Attribute</h1>
+<p class="micro-label">Book says</p>
+<p>Properties of Entity.</p>
+<p class="micro-label">Example</p>
+<p>Entity</p>
+<pre><code class="language-text">Student</code></pre>
+<p>Attributes</p>
+<pre><code class="language-text">Roll Number
+
+Name
+
+Age
+
+Phone Number
+
+Address</code></pre>
+<p>Diagram</p>
+<pre><code class="language-text">            Student
+        /      |      \
+      Name    Age    Roll No</code></pre>
+<h3 id="easy-trick">Easy Trick</h3>
+<p>Entity = Person</p>
+<p>Attributes = Details of person</p>
+</section>
+<section class="note-section concept-section"><h1 id="domain">Domain</h1>
+<p>Book mentions</p>
+<p>Every attribute has a Domain.</p>
+<h3 id="what-is-domain">What is Domain?</h3>
+<p class="micro-label">Domain means</p>
+<p>Allowed values.</p>
+<p class="micro-label">Example</p>
+<p>Age</p>
+<p>Allowed</p>
+<pre><code class="language-text">1
+
+2
+
+20
+
+35
+
+100</code></pre>
+<p>Not Allowed</p>
+<pre><code class="language-text">ABC
+
+Rahul</code></pre>
+<p>Because Age must be a number.</p>
+<p>Another Example</p>
+<p>Gender</p>
+<p>Allowed</p>
+<pre><code class="language-text">Male
+
+Female
+
+Other</code></pre>
+<p>These allowed values form the <strong>Domain</strong>.</p>
+</section>
+<section class="note-section concept-section"><h1 id="3-relationship">3. Relationship</h1>
+<p class="micro-label">Book says</p>
+<p>Logical association among entities.</p>
+<p>Simple Meaning</p>
+<p class="micro-label">Relationship means</p>
+<p>Connection between entities.</p>
+<p class="micro-label">Example</p>
+<p>Student</p>
+<p>Studies</p>
+<p>Course</p>
+<p>Diagram</p>
+<pre><code class="language-text">Student
+
+   |
+
+Studies
+
+   |
+
+Course</code></pre>
+<p>Another Example</p>
+<p>Employee</p>
+<p>Works For</p>
+<p>Company</p>
+<h3 id="easy-trick-2">Easy Trick</h3>
+<p>Relationship = Verb</p>
+<p class="micro-label">Examples</p>
+<p>Studies</p>
+<p>Works</p>
+<p>Teaches</p>
+<p>Owns</p>
+<p>Purchases</p>
+</section>
+<section class="note-section cardinality-section"><h1 id="mapping-cardinality">Mapping Cardinality</h1>
+<p>Very Important</p>
+<p>⭐⭐⭐⭐⭐</p>
+<p>IBPS asks this directly.</p>
+<h2 id="what-is-cardinality">What is Cardinality?</h2>
+<p>Cardinality tells</p>
+<p><strong>How many entities are connected with each other.</strong></p>
+<p>Think of it as answering the question:</p>
+<blockquote><strong>"How many?"</strong></blockquote>
+<p>There are four types.</p>
+</section>
+<section class="note-section cardinality-section"><h1 id="1-one-to-one-1-1">1. One-to-One (1:1)</h1>
+<p>One person</p>
+<p>has</p>
+<p>One Passport.</p>
+<p>Diagram</p>
+<pre><code class="language-text">Person  -------- Passport</code></pre>
+<p>One Person</p>
+<p class="arrow-line">↓</p>
+<p>One Passport</p>
+<p>One Passport</p>
+<p class="arrow-line">↓</p>
+<p>One Person</p>
+<p>Other Examples</p>
+<p>Person ↔ Aadhaar</p>
+<p>Employee ↔ Locker</p>
+</section>
+<section class="note-section cardinality-section"><h1 id="2-one-to-many-1-m">2. One-to-Many (1:M)</h1>
+<p>One Teacher</p>
+<p>teaches</p>
+<p>Many Students.</p>
+<p>Diagram</p>
+<pre><code class="language-text">Teacher
+
+    |
+
+-------------------
+
+Student
+
+Student
+
+Student</code></pre>
+<p class="micro-label">Examples</p>
+<p>One Department</p>
+<p class="arrow-line">↓</p>
+<p>Many Employees</p>
+<p>One Customer</p>
+<p class="arrow-line">↓</p>
+<p>Many Orders</p>
+</section>
+<section class="note-section cardinality-section"><h1 id="3-many-to-one-m-1">3. Many-to-One (M:1)</h1>
+<p>Opposite of previous.</p>
+<p>Many Students</p>
+<p>belong to</p>
+<p>One Class.</p>
+<p>Diagram</p>
+<pre><code class="language-text">Student
+
+Student
+
+Student
+
+   |
+
+Class</code></pre>
+<p>Many Employees</p>
+<p class="arrow-line">↓</p>
+<p>One Department</p>
+</section>
+<section class="note-section cardinality-section"><h1 id="4-many-to-many-m-n">4. Many-to-Many (M:N)</h1>
+<p>Most common.</p>
+<p>Many Students</p>
+<p>study</p>
+<p>Many Courses.</p>
+<p>Diagram</p>
+<pre><code class="language-text">Student A
+
+Student B
+
+Student C
+
+      |
+
+--------------------
+
+Course 1
+
+Course 2
+
+Course 3</code></pre>
+<p>One student</p>
+<p>studies many courses.</p>
+<p>One course</p>
+<p>has many students.</p>
+<h3 id="easy-trick-3">Easy Trick</h3>
+<div class="table-wrap"><table><thead><tr><th>Cardinality</th><th>Example</th></tr></thead><tbody><tr><td>1 : 1</td><td>Person → Passport</td></tr><tr><td>1 : M</td><td>Teacher → Students</td></tr><tr><td>M : 1</td><td>Students → Class</td></tr><tr><td>M : N</td><td>Students ↔ Courses</td></tr></tbody></table></div>
+</section>
+<section class="note-section model-section relational-section"><h1 id="relational-model">Relational Model</h1>
+<p>This is the <strong>most important Data Model</strong>.</p>
+<p>Almost every database today uses it.</p>
+<p class="micro-label">Examples</p>
+<ul><li>MySQL</li><li>Oracle</li><li>PostgreSQL</li><li>SQL Server</li></ul>
+<p>All are based on the <strong>Relational Model</strong>.</p>
+<h2 id="book-says-3">Book says</h2>
+<p>Most popular model.</p>
+<p class="micro-label">Why?</p>
+<p>Because</p>
+<p>Everything is stored as <strong>tables</strong>.</p>
+<p class="micro-label">Example</p>
+<p>Student Table</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Age</th></tr></thead><tbody><tr><td>1</td><td>Rahul</td><td>20</td></tr></tbody></table></div>
+<p>Course Table</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Course</th></tr></thead><tbody><tr><td>101</td><td>DBMS</td></tr></tbody></table></div>
+<h2 id="important-point">Important Point</h2>
+<p class="micro-label">Book says</p>
+<p>Tables are called</p>
+<p><strong>Relations</strong></p>
+<p>This is very important.</p>
+<h3 id="in-relational-model">In Relational Model</h3>
+<div class="table-wrap"><table><thead><tr><th>Word</th><th>Means</th></tr></thead><tbody><tr><td>Relation</td><td>Table</td></tr><tr><td>Tuple</td><td>Row</td></tr><tr><td>Attribute</td><td>Column</td></tr></tbody></table></div>
+<p>IBPS asks this.</p>
+</section>
+<section class="note-section relational-detail"><h1 id="normalization">Normalization</h1>
+<p class="micro-label">Book says</p>
+<p>Relations can be normalized.</p>
+<p>Meaning</p>
+<p>Duplicate data is removed.</p>
+<p class="micro-label">Example</p>
+<p>Before</p>
+<div class="table-wrap"><table><thead><tr><th>Student</th><th>Department</th></tr></thead><tbody><tr><td>Rahul</td><td>IT</td></tr><tr><td>Aman</td><td>IT</td></tr></tbody></table></div>
+<p>After Normalization</p>
+<p>Student Table</p>
+<div class="table-wrap"><table><thead><tr><th>Student</th><th>DeptID</th></tr></thead><tbody><tr><td>Rahul</td><td>1</td></tr></tbody></table></div>
+<p>Department Table</p>
+<div class="table-wrap"><table><thead><tr><th>DeptID</th><th>Department</th></tr></thead><tbody><tr><td>1</td><td>IT</td></tr></tbody></table></div>
+<p>Redundancy removed.</p>
+</section>
+<section class="note-section relational-detail"><h1 id="atomic-values">Atomic Values</h1>
+<p class="micro-label">Book says</p>
+<p>Each value must be atomic.</p>
+<h3 id="what-is-atomic">What is Atomic?</h3>
+<p>Atomic means</p>
+<p>Cannot be divided further.</p>
+<p>Correct</p>
+<div class="table-wrap"><table><thead><tr><th>Name</th></tr></thead><tbody><tr><td>Rahul</td></tr></tbody></table></div>
+<p>Wrong</p>
+<div class="table-wrap"><table><thead><tr><th>Phone</th></tr></thead><tbody><tr><td>9876543210, 9123456789</td></tr></tbody></table></div>
+<p>Two phone numbers in one column.</p>
+<p>Not atomic.</p>
+<p>Correct</p>
+<div class="table-wrap"><table><thead><tr><th>Phone</th></tr></thead><tbody><tr><td>9876543210</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Phone</th></tr></thead><tbody><tr><td>9123456789</td></tr></tbody></table></div>
+<h3 id="ibps-trick">IBPS Trick</h3>
+<p>Atomic = Single Value</p>
+</section>
+<section class="note-section relational-detail"><h1 id="each-row-contains-unique-value">Each Row Contains Unique Value</h1>
+<p class="micro-label">Book says</p>
+<p>Every row must be unique.</p>
+<p class="micro-label">Example</p>
+<p>Correct</p>
+<div class="table-wrap"><table><thead><tr><th>Roll</th><th>Name</th></tr></thead><tbody><tr><td>1</td><td>Rahul</td></tr><tr><td>2</td><td>Aman</td></tr></tbody></table></div>
+<p>Wrong</p>
+<div class="table-wrap"><table><thead><tr><th>Roll</th><th>Name</th></tr></thead><tbody><tr><td>1</td><td>Rahul</td></tr><tr><td>1</td><td>Aman</td></tr></tbody></table></div>
+<p>Roll Number repeated.</p>
+<p>Violation.</p>
+</section>
+<section class="note-section relational-detail"><h1 id="each-column-contains-same-domain">Each Column Contains Same Domain</h1>
+<p class="micro-label">Book says</p>
+<p>All values in one column should belong to the same domain (same type of allowed values).</p>
+<p>Correct</p>
+<div class="table-wrap"><table><thead><tr><th>Age</th></tr></thead><tbody><tr><td>20</td></tr><tr><td>21</td></tr><tr><td>19</td></tr></tbody></table></div>
+<p>Wrong</p>
+<div class="table-wrap"><table><thead><tr><th>Age</th></tr></thead><tbody><tr><td>20</td></tr><tr><td>Rahul</td></tr><tr><td>Delhi</td></tr></tbody></table></div>
+<p>Age column should contain only age values.</p>
+</section>
+<section class="note-section"><h1 id="complete-flow-of-er-model">Complete Flow of ER Model</h1>
+<pre><code class="language-text">Real World
+
+      ↓
+
+Identify Entities
+
+      ↓
+
+Identify Attributes
+
+      ↓
+
+Identify Relationships
+
+      ↓
+
+Create ER Diagram
+
+      ↓
+
+Convert into Tables
+
+      ↓
+
+Relational Database</code></pre>
+</section>
+<section class="note-section comparison-section"><h1 id="difference-between-er-model-and-relational-model">Difference Between ER Model and Relational Model</h1>
+<div class="table-wrap"><table><thead><tr><th>ER Model</th><th>Relational Model</th></tr></thead><tbody><tr><td>Used before database creation</td><td>Used after database design</td></tr><tr><td>Conceptual model</td><td>Logical model</td></tr><tr><td>Uses Entities &amp; Relationships</td><td>Uses Tables</td></tr><tr><td>Helps in planning</td><td>Stores actual data</td></tr><tr><td>Blueprint of database</td><td>Actual implementation</td></tr></tbody></table></div>
+</section>
+<section class="note-section revision-section"><h1 id="ibps-so-it-quick-revision">⭐ IBPS SO IT Quick Revision</h1>
+<div class="table-wrap"><table><thead><tr><th>Topic</th><th>Remember</th></tr></thead><tbody><tr><td>Data Model</td><td>Blueprint of database</td></tr><tr><td>Flat Data Model</td><td>Everything stored in one table; high redundancy</td></tr><tr><td>ER Model</td><td>Conceptual design using Entities, Attributes, Relationships</td></tr><tr><td>Entity</td><td>Real-world object</td></tr><tr><td>Attribute</td><td>Property of an entity</td></tr><tr><td>Domain</td><td>Allowed values of an attribute</td></tr><tr><td>Relationship</td><td>Connection between entities</td></tr><tr><td>Cardinality</td><td>Number of entities participating in a relationship</td></tr><tr><td>1:1</td><td>Person → Passport</td></tr><tr><td>1:M</td><td>Teacher → Students</td></tr><tr><td>M:1</td><td>Students → Department</td></tr><tr><td>M:N</td><td>Students ↔ Courses</td></tr><tr><td>Relational Model</td><td>Data stored in tables (relations)</td></tr><tr><td>Relation</td><td>Table</td></tr><tr><td>Tuple</td><td>Row</td></tr><tr><td>Attribute</td><td>Column</td></tr><tr><td>Atomic Value</td><td>Single indivisible value</td></tr><tr><td>Normalization</td><td>Removes redundancy</td></tr></tbody></table></div>
+</section>
+<section class="note-section exam-section"><h1 id="ibps-so-it-frequently-asked-questions">🎯 IBPS SO IT Frequently Asked Questions</h1>
+<ol><li><strong>What is the most popular data model?</strong></li></ol>
+<p>   ✅ Relational Model</p>
+<ol><li><strong>Which model is used for conceptual database design?</strong></li></ol>
+<p>   ✅ ER Model</p>
+<ol><li><strong>What is an Entity?</strong></li></ol>
+<p>   ✅ A real-world object.</p>
+<ol><li><strong>What is an Attribute?</strong></li></ol>
+<p>   ✅ A property of an entity.</p>
+<ol><li><strong>What is a Domain?</strong></li></ol>
+<p>   ✅ The set of allowed values for an attribute.</p>
+<ol><li><strong>What is Cardinality?</strong></li></ol>
+<p>   ✅ It defines how many entities can be associated in a relationship.</p>
+<ol><li><strong>What is a Relation in the Relational Model?</strong></li></ol>
+<p>   ✅ A Table.</p>
+<ol><li><strong>What is a Tuple?</strong></li></ol>
+<p>   ✅ A Row.</p>
+<ol><li><strong>What does Atomic mean in the Relational Model?</strong></li></ol>
+<p>   ✅ Each field contains a single, indivisible value.</p>
+<p>These concepts form the base for the next topics: <strong>ER Diagrams, Keys, Constraints, Functional Dependencies, and Normalization</strong>, which are all important for <strong>IBPS SO IT</strong>.</p>
+</section>
 </article><nav class="footer"><a href="dbms-notes-new-1c-architecture.html">← Previous: 1.C</a><a href="dbms-notes-new-1e-data-schemas.html">Next: 1.E →</a></nav></main></div><script src="../../ask-ai.js" defer></script></body></html>
