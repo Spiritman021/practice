@@ -1,0 +1,431 @@
+// Generated local-file fallback for 1i-classification.json.
+window.DBMS_QUIZ_FALLBACK = {
+  "section": "1.I",
+  "title": "DBMS Classification",
+  "exam": "IBPS SO IT Officer",
+  "durationMinutes": 25,
+  "positiveMarks": 1,
+  "negativeMarks": 0.25,
+  "questions": [
+    {
+      "id": "1i-001",
+      "topic": "Classification Basics",
+      "question": "Which set lists the major criteria used in this section to classify DBMSs?",
+      "options": [
+        "Data model, user support, distribution, cost and purpose",
+        "CPU speed, RAM size, monitor type, keyboard and mouse",
+        "Only table size and row count",
+        "Only programming language and operating system",
+        "Backup date, password length and screen resolution"
+      ],
+      "answer": 0,
+      "explanation": "DBMSs can be grouped by how data is modeled, how many users are supported, where data is distributed, licensing cost and intended purpose."
+    },
+    {
+      "id": "1i-002",
+      "topic": "Relational DBMS",
+      "question": "Which type of DBMS stores data primarily in tables containing rows and columns?",
+      "options": [
+        "Object-oriented DBMS",
+        "Relational DBMS",
+        "Hierarchical DBMS",
+        "Network DBMS",
+        "Graph database"
+      ],
+      "answer": 1,
+      "explanation": "An RDBMS represents data using relations or tables organized into rows and columns."
+    },
+    {
+      "id": "1i-003",
+      "topic": "Relational DBMS",
+      "question": "Which combination is most closely associated with an RDBMS?",
+      "options": [
+        "Objects, inheritance and methods only",
+        "Tree nodes with one parent only",
+        "SQL, keys, normalization and ACID transactions",
+        "Key-value pairs without relations",
+        "Records connected only by physical pointers"
+      ],
+      "answer": 2,
+      "explanation": "Relational systems commonly use SQL, primary and foreign keys, normalization and ACID transaction properties."
+    },
+    {
+      "id": "1i-004",
+      "topic": "Object-Oriented DBMS",
+      "question": "An Object-Oriented DBMS is most suitable when an application must store:",
+      "options": [
+        "Only simple key-value pairs",
+        "Only one-parent tree records",
+        "Only tabular bank transactions",
+        "Complex and nested objects directly",
+        "Only plain-text files"
+      ],
+      "answer": 3,
+      "explanation": "OODBMSs naturally store objects and support object-oriented concepts, making them useful for complex nested structures."
+    },
+    {
+      "id": "1i-005",
+      "topic": "Object-Oriented DBMS",
+      "question": "Which is an example of an Object-Oriented DBMS?",
+      "options": [
+        "Redis",
+        "IBM IMS",
+        "Cassandra",
+        "Neo4j",
+        "db4o"
+      ],
+      "answer": 4,
+      "explanation": "db4o is a commonly cited object-oriented database example."
+    },
+    {
+      "id": "1i-006",
+      "topic": "Hierarchical DBMS",
+      "question": "Which statement correctly describes a hierarchical DBMS?",
+      "options": [
+        "It organizes records as a tree in which a child normally has one parent",
+        "It stores only JSON documents",
+        "It requires every record to have multiple parents",
+        "It stores data only as key-value pairs",
+        "It is always a distributed NoSQL system"
+      ],
+      "answer": 0,
+      "explanation": "The hierarchical model uses a tree structure with one-to-many parent-child relationships and normally one parent per child."
+    },
+    {
+      "id": "1i-007",
+      "topic": "Hierarchical DBMS",
+      "question": "Which product is the classic example of a hierarchical DBMS?",
+      "options": [
+        "MongoDB",
+        "IBM IMS",
+        "PostgreSQL",
+        "Redis",
+        "Neo4j"
+      ],
+      "answer": 1,
+      "explanation": "IBM Information Management System (IMS) is a well-known hierarchical database system."
+    },
+    {
+      "id": "1i-008",
+      "topic": "Network DBMS",
+      "question": "What distinguishes a network DBMS from a hierarchical DBMS?",
+      "options": [
+        "It cannot represent relationships",
+        "It allows only one child in the database",
+        "A record may participate in multiple parent-child links",
+        "It always stores JSON documents",
+        "It permits only single-user access"
+      ],
+      "answer": 2,
+      "explanation": "The network model supports web-like structures and multiple parents, making many-to-many relationships possible."
+    },
+    {
+      "id": "1i-009",
+      "topic": "Network DBMS",
+      "question": "Which is an example of a traditional network DBMS?",
+      "options": [
+        "SQLite",
+        "MongoDB",
+        "IBM IMS",
+        "IDMS",
+        "Redis"
+      ],
+      "answer": 3,
+      "explanation": "IDMS is a classic example of the traditional network database model."
+    },
+    {
+      "id": "1i-010",
+      "topic": "Network versus Graph",
+      "question": "Which statement correctly distinguishes a traditional network DBMS from a modern NoSQL graph database?",
+      "options": [
+        "They are exactly the same model",
+        "A network DBMS stores only rows and columns",
+        "A graph database cannot represent relationships",
+        "A network DBMS is always newer than NoSQL",
+        "Network DBMS uses older record-pointer structures; graph DBMS is optimized for nodes and relationships"
+      ],
+      "answer": 4,
+      "explanation": "Both may look graph-like, but the network model is an older record-and-pointer model, while graph databases such as Neo4j focus on nodes and relationships."
+    },
+    {
+      "id": "1i-011",
+      "topic": "NoSQL",
+      "question": "The term NoSQL is commonly expanded as:",
+      "options": [
+        "Not Only SQL",
+        "No Structured Query Logic",
+        "New Object Storage Query Language",
+        "Network-Oriented SQL",
+        "Non-Operational System Query Layer"
+      ],
+      "answer": 0,
+      "explanation": "NoSQL commonly means Not Only SQL and covers flexible non-relational models designed for large or varied data."
+    },
+    {
+      "id": "1i-012",
+      "topic": "Document Database",
+      "question": "Which pairing correctly identifies a document-oriented database?",
+      "options": [
+        "Redis—document database",
+        "MongoDB—document database",
+        "Cassandra—graph database",
+        "Neo4j—column-family database",
+        "IBM IMS—document database"
+      ],
+      "answer": 1,
+      "explanation": "MongoDB stores flexible JSON-like documents and is a document-oriented NoSQL database."
+    },
+    {
+      "id": "1i-013",
+      "topic": "Key-Value Database",
+      "question": "Which NoSQL product is primarily classified as a key-value store?",
+      "options": [
+        "Neo4j",
+        "MongoDB",
+        "Redis",
+        "Cassandra",
+        "IBM IMS"
+      ],
+      "answer": 2,
+      "explanation": "Redis stores and retrieves data using keys mapped to values and is widely used for caching and sessions."
+    },
+    {
+      "id": "1i-014",
+      "topic": "Column-Family Database",
+      "question": "Which NoSQL database is associated with the column-family model?",
+      "options": [
+        "Neo4j",
+        "Redis",
+        "MongoDB",
+        "Cassandra",
+        "db4o"
+      ],
+      "answer": 3,
+      "explanation": "Cassandra is a distributed column-family database often used for large-scale data and analytics workloads."
+    },
+    {
+      "id": "1i-015",
+      "topic": "Graph Database",
+      "question": "Which database is designed for relationship-heavy data using nodes and edges?",
+      "options": [
+        "Redis",
+        "SQLite",
+        "Cassandra",
+        "MongoDB",
+        "Neo4j"
+      ],
+      "answer": 4,
+      "explanation": "Neo4j is a graph database optimized for connected data such as social networks, recommendations and routes."
+    },
+    {
+      "id": "1i-016",
+      "topic": "User Support",
+      "question": "Which pairing correctly represents a single-user DBMS example?",
+      "options": [
+        "SQLite—single-user or personal database use",
+        "Oracle—only one user at a time",
+        "PostgreSQL—single-user only",
+        "MySQL—never supports multiple users",
+        "SQL Server—personal notes only"
+      ],
+      "answer": 0,
+      "explanation": "SQLite is commonly used in personal and embedded applications and is cited as a single-user DBMS example in this classification."
+    },
+    {
+      "id": "1i-017",
+      "topic": "User Support",
+      "question": "A bank database used simultaneously by thousands of customers is classified as:",
+      "options": [
+        "Single-user DBMS",
+        "Multi-user DBMS",
+        "Special-purpose single-user file",
+        "Hierarchical terminal only",
+        "Diskless DBMS"
+      ],
+      "answer": 1,
+      "explanation": "A multi-user DBMS permits many users to access and work with the database concurrently."
+    },
+    {
+      "id": "1i-018",
+      "topic": "Distribution",
+      "question": "A DBMS in which all data is maintained at one main location is classified as:",
+      "options": [
+        "Heterogeneous",
+        "Distributed",
+        "Centralized",
+        "Object-oriented",
+        "Column-family"
+      ],
+      "answer": 2,
+      "explanation": "A centralized DBMS stores and manages data at one central site or server."
+    },
+    {
+      "id": "1i-019",
+      "topic": "Distributed DBMS",
+      "question": "Which statement best describes a distributed DBMS?",
+      "options": [
+        "It stores all data on one personal computer",
+        "It supports only one user",
+        "It cannot use a network",
+        "Data is stored at multiple connected locations that appear as one database",
+        "It must use different DBMS software at every site"
+      ],
+      "answer": 3,
+      "explanation": "A DDBMS coordinates data at multiple sites and presents the distributed collection as a unified database."
+    },
+    {
+      "id": "1i-020",
+      "topic": "Homogeneous DDBMS",
+      "question": "A distributed system in which every branch uses MySQL is:",
+      "options": [
+        "A centralized DBMS",
+        "A network DBMS only",
+        "A heterogeneous DDBMS",
+        "A special-purpose DBMS only",
+        "A homogeneous DDBMS"
+      ],
+      "answer": 4,
+      "explanation": "A homogeneous DDBMS uses the same DBMS software and generally compatible models at all sites."
+    },
+    {
+      "id": "1i-021",
+      "topic": "Heterogeneous DDBMS",
+      "question": "Delhi uses Oracle, Mumbai uses MySQL and Patna uses SQL Server, with middleware connecting them. This is:",
+      "options": [
+        "A heterogeneous distributed DBMS",
+        "A homogeneous distributed DBMS",
+        "A single-user system",
+        "A hierarchical tree only",
+        "A centralized database"
+      ],
+      "answer": 0,
+      "explanation": "Different DBMS products at different sites, integrated through middleware, form a heterogeneous DDBMS."
+    },
+    {
+      "id": "1i-022",
+      "topic": "Cost and Licensing",
+      "question": "Which statement correctly describes an open-source DBMS?",
+      "options": [
+        "It is always paid and its source is unavailable",
+        "Its source code is available and it commonly has community support",
+        "It can never be used by businesses",
+        "It supports only hierarchical data",
+        "It cannot be modified"
+      ],
+      "answer": 1,
+      "explanation": "Open-source DBMS software makes source code available and is commonly free to use, with community support and flexible licensing."
+    },
+    {
+      "id": "1i-023",
+      "topic": "Cost and Licensing",
+      "question": "Which product is the clearest example of a commercial DBMS in this section?",
+      "options": [
+        "SQLite",
+        "PostgreSQL",
+        "Oracle Database",
+        "MariaDB",
+        "MongoDB Community Edition"
+      ],
+      "answer": 2,
+      "explanation": "Oracle Database is a standard example of a paid commercial DBMS offering professional support and enterprise features."
+    },
+    {
+      "id": "1i-024",
+      "topic": "Purpose",
+      "question": "A DBMS used for banking, hospitals, schools and ERP systems is classified by purpose as:",
+      "options": [
+        "Only a real-time special-purpose DBMS",
+        "A telecom-only database",
+        "A single-user file",
+        "A general-purpose DBMS",
+        "A diskless client"
+      ],
+      "answer": 3,
+      "explanation": "A general-purpose DBMS supports many kinds of applications rather than one narrowly optimized task."
+    },
+    {
+      "id": "1i-025",
+      "topic": "Purpose",
+      "question": "A database optimized only for real-time telecom call recording is best classified as:",
+      "options": [
+        "A general-purpose DBMS",
+        "A relational DBMS by user support",
+        "An open-source DBMS by distribution",
+        "A homogeneous DDBMS necessarily",
+        "A special-purpose DBMS"
+      ],
+      "answer": 4,
+      "explanation": "A special-purpose DBMS is designed and optimized for one specific task or application domain."
+    },
+    {
+      "id": "1i-026",
+      "topic": "Classification Criteria",
+      "question": "The distinction between single-user and multi-user DBMS is based on:",
+      "options": [
+        "The number of users supported",
+        "The way records are physically linked",
+        "The licensing cost",
+        "The number of storage sites",
+        "The data model only"
+      ],
+      "answer": 0,
+      "explanation": "User-support classification asks how many users can access the database—one or many."
+    },
+    {
+      "id": "1i-027",
+      "topic": "Classification Criteria",
+      "question": "The distinction between centralized and distributed DBMS is based primarily on:",
+      "options": [
+        "Whether SQL is supported",
+        "Where the data is stored",
+        "Whether objects are used",
+        "Whether the software is paid",
+        "How many columns a table contains"
+      ],
+      "answer": 1,
+      "explanation": "Distribution classification focuses on whether data is located at one site or coordinated across multiple sites."
+    },
+    {
+      "id": "1i-028",
+      "topic": "Classification Criteria",
+      "question": "The open-source versus commercial distinction classifies DBMSs by:",
+      "options": [
+        "Data model",
+        "Number of users",
+        "Cost and licensing",
+        "Physical distribution",
+        "Tree depth"
+      ],
+      "answer": 2,
+      "explanation": "Open-source and commercial categories distinguish software by licensing, source availability, cost and support model."
+    },
+    {
+      "id": "1i-029",
+      "topic": "Classification Criteria",
+      "question": "The distinction between general-purpose and special-purpose DBMS is based on:",
+      "options": [
+        "The number of database servers",
+        "Whether a tree model is used",
+        "Whether the source code is public",
+        "The intended application or purpose",
+        "The number of concurrent transactions only"
+      ],
+      "answer": 3,
+      "explanation": "Purpose classification asks whether the system supports many application types or is optimized for one specialized task."
+    },
+    {
+      "id": "1i-030",
+      "topic": "Combined Classification",
+      "question": "Which set of model-to-example mappings is entirely correct?",
+      "options": [
+        "Document—Redis; Key-value—MongoDB; Graph—Cassandra",
+        "Hierarchical—Neo4j; Network—MongoDB; RDBMS—Redis",
+        "Object-oriented—IBM IMS; Column-family—db4o; Graph—MySQL",
+        "RDBMS—Neo4j; Document—Oracle; Key-value—PostgreSQL",
+        "RDBMS—MySQL; Document—MongoDB; Key-value—Redis; Column-family—Cassandra; Graph—Neo4j"
+      ],
+      "answer": 4,
+      "explanation": "MySQL is relational, MongoDB document-oriented, Redis key-value, Cassandra column-family and Neo4j graph-oriented."
+    }
+  ]
+};
