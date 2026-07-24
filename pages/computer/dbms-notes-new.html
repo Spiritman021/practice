@@ -7,6 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
   <style>
     :root{--ink:#16302d;--muted:#64748b;--line:#cfe3df;--accent:#0f766e;--dark:#134e4a;--soft:#ccfbf1;--bg:#f4fbf9}*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;background:radial-gradient(circle at 15% 8%,#ccfbf1 0,transparent 30rem),var(--bg);line-height:1.6}a{color:inherit;text-decoration:none}header{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);background:rgba(255,255,255,.88);backdrop-filter:blur(12px)}.topbar{max-width:1050px;margin:auto;padding:13px 22px;display:flex;align-items:center;gap:10px}.brand{font-weight:800;color:var(--dark)}.back{margin-left:auto;padding:7px 12px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:13px;font-weight:600;background:#fff}main{max-width:1050px;margin:auto;padding:30px 22px 80px}.crumb{margin-bottom:18px;color:var(--muted);font-size:13px}.hero{position:relative;overflow:hidden;padding:clamp(30px,7vw,62px);border-radius:26px;color:#fff;background:linear-gradient(135deg,#042f2e,#0f766e 60%,#14b8a6);box-shadow:0 22px 55px rgba(15,118,110,.22)}.hero:after{content:"DB";position:absolute;right:25px;bottom:-55px;font-size:170px;font-weight:800;color:rgba(255,255,255,.08)}.eyebrow{display:inline-block;padding:5px 12px;border:1px solid rgba(255,255,255,.28);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em}.hero h1{position:relative;margin:15px 0 10px;font-size:clamp(2.2rem,7vw,4rem);line-height:1}.hero p{position:relative;max-width:620px;margin:0;color:#ccfbf1;font-size:1.05rem}.section-head{margin:38px 0 16px;display:flex;align-items:end;justify-content:space-between;gap:18px}.section-kicker{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.section-head h2{margin:2px 0 0;font-size:clamp(1.45rem,4vw,2rem)}.count{white-space:nowrap;color:var(--muted);font-size:13px}.topic{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:22px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.92);box-shadow:0 8px 28px rgba(15,118,110,.08);transition:.2s}.topic:hover{transform:translateY(-3px);border-color:#5eead4}.code{width:58px;height:58px;display:grid;place-items:center;border-radius:15px;color:#fff;background:linear-gradient(135deg,var(--accent),#14b8a6);font-size:18px;font-weight:800}.topic h3{margin:0 0 4px;font-size:1.15rem}.topic p{margin:0;color:var(--muted);font-size:.94rem}.open{padding:9px 14px;border-radius:10px;color:var(--dark);background:var(--soft);font-size:13px;font-weight:700}.note{margin-top:18px;padding:16px 18px;border:1px dashed #5eead4;border-radius:13px;color:var(--muted);background:rgba(204,251,241,.55);font-size:14px}@media(max-width:620px){main{padding:22px 15px 55px}.hero{border-radius:19px}.hero:after{font-size:100px}.topic{grid-template-columns:auto 1fr;padding:17px;gap:13px}.open{grid-column:1/-1;text-align:center}.section-head{align-items:start;flex-direction:column;gap:3px}}
+    .topic{grid-template-columns:auto minmax(0,1fr) auto auto}.progress-checks{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:11px;background:#f8fffd}.progress-check{display:grid;justify-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;line-height:1.1;cursor:pointer;white-space:nowrap}.progress-check input{width:18px;height:18px;margin:0;accent-color:var(--accent);cursor:pointer}.open{white-space:nowrap}
+    @media(max-width:900px){.topic{grid-template-columns:auto minmax(0,1fr) auto}.progress-checks{grid-column:2/-1;justify-self:start}.open{grid-column:3;grid-row:1}}
+    @media(max-width:620px){.progress-checks{grid-column:1/-1;justify-self:stretch;justify-content:space-around}.open{grid-column:1/-1;grid-row:auto}}
   </style>
 </head>
 <body>
@@ -35,5 +38,53 @@
 <a class="topic" href="dbms-notes-new-2e-handling-constraint-violations.html"><span class="code">2.E</span><span><h3>Handling Constraint Violations</h3><p>Insert, delete and update violations, corrective actions, transactions, ACID, COMMIT, ROLLBACK, and exam cues.</p></span><span class="open">Read notes →</span></a>
 </div>
 <p class="note">More Relational Model subtopics can be added here as 2.F, 2.G, and so on.</p></section></main>
+<script>
+  (() => {
+    const storageKey = 'dbms-notes-new-progress';
+    const fields = [
+      { key: 'visited', label: 'Visited' },
+      { key: 'revision1', label: 'Revision 1' },
+      { key: 'revision2', label: 'Revision 2' }
+    ];
+    let savedProgress = {};
+
+    try {
+      savedProgress = JSON.parse(localStorage.getItem(storageKey)) || {};
+    } catch (error) {
+      savedProgress = {};
+    }
+
+    document.querySelectorAll('.topic').forEach((topic) => {
+      const topicKey = topic.getAttribute('href');
+      const checks = document.createElement('span');
+      checks.className = 'progress-checks';
+      checks.setAttribute('role', 'group');
+      checks.setAttribute('aria-label', `Progress for ${topic.querySelector('h3').textContent}`);
+
+      fields.forEach(({ key, label }) => {
+        const wrapper = document.createElement('label');
+        wrapper.className = 'progress-check';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = Boolean(savedProgress[topicKey]?.[key]);
+        checkbox.setAttribute('aria-label', label);
+
+        checkbox.addEventListener('click', (event) => event.stopPropagation());
+        checkbox.addEventListener('change', () => {
+          savedProgress[topicKey] = savedProgress[topicKey] || {};
+          savedProgress[topicKey][key] = checkbox.checked;
+          localStorage.setItem(storageKey, JSON.stringify(savedProgress));
+        });
+
+        wrapper.addEventListener('click', (event) => event.stopPropagation());
+        wrapper.append(checkbox, document.createTextNode(label));
+        checks.appendChild(wrapper);
+      });
+
+      checks.addEventListener('click', (event) => event.preventDefault());
+      topic.querySelector('.open').before(checks);
+    });
+  })();
+</script>
 <script src="../../ask-ai.js" defer></script>
 </body></html>
