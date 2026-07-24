@@ -1,67 +1,509 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0f766e"><meta name="description" content="Short centralized and client-server DBMS architecture notes for IBPS SO: centralized, two-tier, three-tier and n-tier."><title>1.H Centralized and Client-Server DBMS | DBMS Notes New</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Source+Code+Pro:wght@500&amp;display=swap" rel="stylesheet"><style>
 :root{--ink:#16302d;--muted:#64748b;--line:#cfe3df;--accent:#0f766e;--dark:#134e4a;--soft:#ccfbf1;--bg:#f4fbf9;--paper:#fff;--gold:#f59e0b}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font-family:Outfit,sans-serif;line-height:1.75;background:radial-gradient(circle at 10% 5%,#ccfbf1,transparent 32rem),var(--bg)}a{color:inherit;text-decoration:none}header{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--line);background:rgba(255,255,255,.9);backdrop-filter:blur(12px)}.topbar{max-width:1160px;margin:auto;padding:11px 22px;display:flex;align-items:center;gap:12px}.brand{font-weight:800;color:var(--dark)}.actions{margin-left:auto;display:flex;gap:8px}.actions a{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:var(--muted);background:#fff;font-size:12px;font-weight:700}.layout{max-width:1160px;margin:auto;padding:28px 22px 80px;display:grid;grid-template-columns:220px minmax(0,780px);justify-content:center;gap:30px}.side{position:sticky;top:78px;align-self:start;max-height:calc(100vh - 95px);overflow:auto;padding:17px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.85)}.side strong{display:block;margin-bottom:9px;color:var(--dark);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.side a{display:block;padding:6px 8px;border-radius:7px;color:var(--muted);font-size:12px}.side a:hover{color:var(--accent);background:var(--soft)}.crumb{margin-bottom:17px;color:var(--muted);font-size:13px}.hero{padding:clamp(26px,6vw,45px);border-radius:22px;color:#fff;background:linear-gradient(135deg,#042f2e,#0f766e 62%,#14b8a6);box-shadow:0 18px 45px rgba(15,118,110,.2)}.badge{display:inline-block;padding:4px 10px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700;letter-spacing:.08em}.hero h1{margin:13px 0 8px;font-size:clamp(2rem,6vw,3.2rem);line-height:1.08}.hero p{margin:0;color:#ccfbf1}.article{margin-top:22px;padding:clamp(22px,5vw,42px);border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 12px 36px rgba(15,118,110,.08)}h2,h3{scroll-margin-top:80px}.article h2{margin:42px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--soft);color:var(--dark);font-size:1.75rem;line-height:1.25}.article h2:first-child{margin-top:0}.article h3{margin:27px 0 8px;color:var(--accent);font-size:1.18rem}.lead,.memory,.exam{padding:17px 19px;border-radius:13px}.lead{background:var(--soft);color:var(--dark);font-size:1.04rem}.memory{border-left:5px solid var(--accent);background:#f0fdfa}.exam{border:1px solid #fde68a;background:#fffbeb}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:9px;margin:18px 0;padding:18px;border-radius:14px;background:#042f2e;color:#fff;text-align:center;font-weight:700}.flow span:not(.arrow){padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08)}.arrow{color:#5eead4;font-size:1.4rem}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.card{padding:16px;border:1px solid var(--line);border-radius:13px;background:#fbfffe}.card h3{margin:0 0 6px}.card p{margin:0}.visual{margin:22px 0}.visual img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:16px}.visual figcaption{padding:8px 4px;color:var(--muted);font-size:12px;text-align:center}.table-wrap{overflow:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:.92rem}th,td{padding:11px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--dark);background:var(--soft)}code{padding:2px 6px;border-radius:5px;background:var(--soft);font:500 .9em 'Source Code Pro',monospace}.article li{margin:7px 0}.footer{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.footer a{padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--dark);font-size:13px;font-weight:700}@media(max-width:900px){.layout{display:block;max-width:820px}.side{display:none}}@media(max-width:620px){.layout{padding:18px 13px 55px}.topbar{padding:10px 14px}.brand{font-size:14px}.actions a:first-child{display:none}.article{padding:20px 17px}.hero{border-radius:17px}.cards{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
-</style></head><body><header><div class="topbar"><a class="brand" href="dbms-notes-new.html">🗄️ DBMS Notes New</a><div class="actions"><a href="computer.html">Computer Hub</a><a href="dbms-notes-new.html">← All sections</a></div></div></header>
-<div class="layout"><aside class="side"><strong>On this page</strong><a href="#overview">Overview</a><a href="#centralized">Centralized</a><a href="#client-server">Client–server</a><a href="#two-tier">Two-tier</a><a href="#three-tier">Three-tier</a><a href="#n-tier">n-tier</a><a href="#compare">Comparison</a><a href="#revision">Quick revision</a></aside><main>
+</style><link rel="stylesheet" href="assets/dbms-notes-new/dbms-centralized-client-server-layout.css"></head><body><header><div class="topbar"><a class="brand" href="dbms-notes-new.html">🗄️ DBMS Notes New</a><div class="actions"><a href="computer.html">Computer Hub</a><a href="dbms-notes-new.html">← All sections</a></div></div></header>
+<div class="layout"><aside class="side"><strong>On this page</strong><a href="#dbms-centralized-and-client-server-architecture">Overview</a><a href="#centralized-dbms-architecture">Centralized</a><a href="#what-is-a-terminal">Terminal</a><a href="#client-server-architecture">Client–server</a><a href="#two-tier-client-server-architecture">Two-tier</a><a href="#three-tier-client-server-architecture">Three-tier</a><a href="#n-tier-architecture">n-tier</a><a href="#difference-between-two-tier-and-three-tier">2-tier vs 3-tier</a><a href="#centralized-vs-two-tier-vs-three-tier">Full comparison</a><a href="#ibps-so-it-quick-revision">Quick revision</a><a href="#ibps-so-it-frequently-asked-questions">IBPS questions</a></aside><main>
 <nav class="crumb"><a href="../../index.html">Practice Hub</a> / <a href="computer.html">Computer</a> / <a href="dbms-notes-new.html">DBMS Notes New</a> / 1.H</nav>
 <section class="hero"><span class="badge">SECTION 1 · SUBTOPIC 1.H</span><h1>Centralized and Client–Server Architecture</h1><p>How DBMS work moves from one mainframe to clients, servers and multiple tiers.</p></section>
 <nav class="footer" aria-label="Original tutorial navigation"><a href="https://www.tutorialspoint.com/dbms/dbms_system_environment.htm">← Previous</a><a href="https://www.tutorialspoint.com/dbms/quiz_on_dbms_centralized_and_client_server_architecture.htm">Quiz</a><a href="https://www.tutorialspoint.com/dbms/dbms_classification.htm">Next →</a></nav>
-<article class="article">
-<h2 id="overview">1. Architecture Overview</h2>
-<p class="lead">DBMS architecture decides <strong>where data is stored, where it is processed, and how users access it</strong>.</p>
-<p>A centralized DBMS puts almost everything on one central computer. Client–server architecture distributes work between user-facing clients and back-end servers.</p>
+<article class="article centralized-article">
+<section class="intro-note">
+<p>Excellent! This chapter is actually a <strong>continuation of DBMS Architecture (1-tier, 2-tier, 3-tier)</strong> that you studied earlier. Here, the focus is on <strong>where the database is located and how clients communicate with it</strong>.</p>
+<p>For <strong>IBPS SO IT</strong>, questions are usually asked on:</p>
+<ul><li>Centralized Architecture</li><li>Client-Server Architecture</li><li>2-Tier vs 3-Tier</li><li>Advantages and Disadvantages</li></ul>
+<p>I'll explain every concept in simple language.</p>
+</section>
+<section class="note-section overview-section"><h1 id="dbms-centralized-and-client-server-architecture">DBMS - Centralized and Client-Server Architecture</h1>
+</section>
+<section class="note-section overview-section"><h1 id="first-understand-why-different-architectures-exist">First Understand Why Different Architectures Exist</h1>
+<p>Imagine a school.</p>
+<p>There are two ways to maintain student records.</p>
+<h3 id="method-1">Method 1</h3>
+<p>One office stores everything.</p>
+<p>Every student goes there.</p>
+<pre><code class="language-text">Student 1
+          \
+Student 2 ---&gt; Office
+          /
+Student 3</code></pre>
+<p>This is <strong>Centralized Architecture</strong>.</p>
+<h3 id="method-2">Method 2</h3>
+<p>Students visit different counters.</p>
+<p>Each counter communicates with the main office.</p>
+<pre><code class="language-text">Student
 
-<figure class="visual"><img src="assets/dbms-notes-new/dbms-centralized-client-server-architectures.png" alt="Comparison of centralized, two-tier, three-tier and n-tier DBMS architectures"><figcaption>Evolution from one central mainframe to separated and specialized client–server tiers.</figcaption></figure>
+↓
 
-<h2 id="centralized">2. Centralized DBMS Architecture</h2>
-<p>All database operations, applications and interfaces are controlled by one powerful central computer—usually a mainframe or server.</p>
-<h3>How it works</h3>
-<ol><li>Users enter commands through low-processing terminals.</li><li>Terminals send commands to the mainframe.</li><li>The mainframe executes them and accesses the database.</li><li>Results return to terminals for display.</li></ol>
-<p>Early systems used this model because most processing power existed centrally.</p>
-<p class="memory"><strong>University example:</strong> Campus terminals send grade and registration requests to one mainframe, which processes them and returns results.</p>
-<div class="table-wrap"><table><thead><tr><th>Benefits</th><th>Drawbacks</th></tr></thead><tbody>
-<tr><td><strong>Centralized control:</strong> one place controls access, making security simpler.</td><td><strong>Scalability issue:</strong> more users can overload the mainframe.</td></tr>
-<tr><td><strong>Simple maintenance:</strong> updates are applied once, reducing administration.</td><td><strong>Single point of failure:</strong> mainframe failure stops the complete system.</td></tr>
-</tbody></table></div>
+Counter
 
-<h2 id="client-server">3. Client–Server DBMS</h2>
-<p>Client–server architecture evolved from centralized systems by dividing work:</p>
-<div class="cards"><section class="card"><h3>Client</h3><p>User-facing machine or application that accepts input, performs local work and displays results.</p></section><section class="card"><h3>Server</h3><p>Back-end system that stores the database and performs data processing.</p></section></div>
-<p>The client sends a query; the server processes it and returns information. Work distribution balances resources, reduces central load, enables remote access and allows clients and servers to be on different machines.</p>
-<p class="memory"><strong>Example:</strong> Customer-service desktops query a central customer database server.</p>
+↓
 
-<h2 id="two-tier">4. Two-Tier Client–Server</h2>
-<p>The client directly communicates with the database server.</p>
-<div class="flow"><span>Client: UI + Application Logic</span><span class="arrow">⇄</span><span>Server: Storage + Retrieval</span><span class="arrow"> </span><span>Direct connection</span></div>
-<p><strong>Bank example:</strong> Teller software requests an account balance from the database server and displays the returned value.</p>
-<div class="table-wrap"><table><thead><tr><th>Benefits</th><th>Drawbacks</th></tr></thead><tbody>
-<tr><td><strong>Simple:</strong> straightforward and easy to implement.</td><td><strong>Scalability limit:</strong> many clients can bottleneck the server.</td></tr>
-<tr><td><strong>Direct interaction:</strong> fast for simple tasks.</td><td><strong>Client maintenance:</strong> application changes may require updating every client.</td></tr>
-</tbody></table></div>
+Main Office</code></pre>
+<p>This is <strong>Client-Server Architecture</strong>.</p>
+</section>
+<figure class="visual centralized-visual"><img src="assets/dbms-notes-new/dbms-centralized-client-server-architectures.png" alt="Comparison of centralized, two-tier, three-tier and n-tier DBMS architectures"><figcaption>Evolution from one central mainframe to separated and specialized client–server tiers.</figcaption></figure>
+<section class="note-section architecture-type centralized-section"><h1 id="centralized-dbms-architecture">Centralized DBMS Architecture</h1>
+<h2 id="what-is-centralized-architecture">What is Centralized Architecture?</h2>
+<p class="micro-label">Book says</p>
+<blockquote>All database operations, applications, and user interfaces are managed by one central computer.</blockquote>
+<h3 id="simple-meaning">Simple Meaning</h3>
+<p>Everything happens on <strong>one powerful computer (Mainframe/Server).</strong></p>
+<p>Users don't process anything.</p>
+<p>They only send requests.</p>
+<h2 id="diagram">Diagram</h2>
+<pre><code class="language-text">Terminal 1
+            \
+Terminal 2 -----&gt; Central Server
+            /
+Terminal 3</code></pre>
+<p>Only one server.</p>
+<p>Everything happens there.</p>
+</section>
+<section class="note-section"><h1 id="real-life-example">Real-Life Example</h1>
+<p>Suppose a university has</p>
+<ul><li>100 computers</li><li>10 departments</li></ul>
+<p>Every computer connects to one main server.</p>
+<p>Student checks result.</p>
+<p class="arrow-line">↓</p>
+<p>Request goes to server.</p>
+<p class="arrow-line">↓</p>
+<p>Server processes it.</p>
+<p class="arrow-line">↓</p>
+<p>Server sends result back.</p>
+<p>The client computer does almost nothing.</p>
+</section>
+<section class="note-section"><h1 id="what-is-a-terminal">What is a Terminal?</h1>
+<p>The book repeatedly mentions <strong>Terminal</strong>.</p>
+<p>Many students get confused.</p>
+<p>A <strong>Terminal</strong> is simply</p>
+<blockquote>A device used only to send input and display output.</blockquote>
+<p>It has almost no processing power.</p>
+<p>Think of it as a <strong>monitor + keyboard</strong> connected to a main computer.</p>
+<h2 id="example">Example</h2>
+<p>Old railway reservation systems.</p>
+<pre><code class="language-text">Terminal
 
-<h2 id="three-tier">5. Three-Tier Client–Server</h2>
-<p>Three-tier architecture adds an <strong>application server</strong> between client and database.</p>
-<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Role</th></tr></thead><tbody>
-<tr><td><strong>Presentation Layer (Client)</strong></td><td>Displays data and collects user input.</td></tr>
-<tr><td><strong>Application Layer (Middle)</strong></td><td>Processes requests, business rules and database interaction.</td></tr>
-<tr><td><strong>Data Layer (Server)</strong></td><td>Stores and manages the database.</td></tr>
-</tbody></table></div>
-<p><strong>Restaurant example:</strong> Browser → application server processes the order → database server stores/retrieves order data.</p>
-<ul><li><strong>Better load management:</strong> middle tier processes requests before the database.</li><li><strong>Enhanced security:</strong> it validates users and acts as a gatekeeper.</li><li><strong>Complex logic:</strong> business rules stay in a dedicated tier.</li></ul>
-<p class="exam"><strong>Healthcare example:</strong> The application server authenticates users before allowing controlled access to patient data.</p>
+↓
 
-<h2 id="n-tier">6. Beyond Three Tiers: n-Tier</h2>
-<p>An n-tier system adds specialized layers such as <strong>authentication, data aggregation or application services</strong>. CRM and ERP systems commonly use this structure.</p>
-<ul><li><strong>Modularity:</strong> teams develop and manage layers independently.</li><li><strong>Resilience:</strong> a failure can be handled within one layer instead of stopping the entire system.</li><li>More layers also improve flexibility and scalability, though deployment becomes more complex.</li></ul>
+Mainframe
 
-<h2 id="compare">7. Quick Comparison</h2>
-<div class="table-wrap"><table><thead><tr><th>Architecture</th><th>Structure</th><th>Main point</th></tr></thead><tbody>
-<tr><td>Centralized</td><td>Terminals → one mainframe</td><td>Easy control; single failure point</td></tr>
-<tr><td>Two-tier</td><td>Client ↔ database server</td><td>Simple/direct; client maintenance and server bottleneck</td></tr>
-<tr><td>Three-tier</td><td>Client ↔ application server ↔ database</td><td>Better security, load distribution and business logic</td></tr>
-<tr><td>n-tier</td><td>Multiple specialized layers</td><td>Modularity, scalability and resilience</td></tr>
-</tbody></table></div>
+↓
 
-<h2 id="revision">8. IBPS SO Quick Revision</h2>
-<ul><li>Centralized terminals mainly perform input/output; mainframe performs processing.</li><li>Centralized advantage: control and simple maintenance.</li><li>Centralized weakness: poor scalability and single point of failure.</li><li>Client handles user interaction/local processing; server handles database work.</li><li>Two-tier has direct client–database-server communication.</li><li>Three-tier adds an application server for business logic and security.</li><li>Presentation → Application → Data is the three-tier order.</li><li>n-tier adds specialized services; major benefits are modularity and resilience.</li></ul>
-<p class="exam"><strong>Most likely questions:</strong> Central failure stops all—centralized. Direct client/database connection—two-tier. Gatekeeper/business logic—application tier. Independent specialized layers—n-tier.</p>
+Result</code></pre>
+<p>The terminal itself doesn't search the database.</p>
+</section>
+<section class="note-section"><h1 id="how-centralized-architecture-works">How Centralized Architecture Works</h1>
+<p>Step 1</p>
+<p>User enters request.</p>
+<p class="micro-label">Example</p>
+<pre><code class="language-text">Show Rahul's Marks</code></pre>
+<p class="arrow-line">↓</p>
+<p>Step 2</p>
+<p>Terminal sends request.</p>
+<p class="arrow-line">↓</p>
+<p>Step 3</p>
+<p>Main Server executes query.</p>
+<p class="arrow-line">↓</p>
+<p>Step 4</p>
+<p>Server returns result.</p>
+<p class="arrow-line">↓</p>
+<p>Step 5</p>
+<p>Terminal displays it.</p>
+<p class="micro-label">Simple flow:</p>
+<pre><code class="language-text">User
+
+↓
+
+Terminal
+
+↓
+
+Mainframe Server
+
+↓
+
+Database
+
+↓
+
+Result</code></pre>
+</section>
+<section class="note-section"><h1 id="example-2">Example</h1>
+<p>University Database</p>
+<p>Student wants</p>
+<p>Semester Result.</p>
+<p>Student</p>
+<p class="arrow-line">↓</p>
+<p>Department Computer (Terminal)</p>
+<p class="arrow-line">↓</p>
+<p>Central Server</p>
+<p class="arrow-line">↓</p>
+<p>Database</p>
+<p class="arrow-line">↓</p>
+<p>Marks Displayed</p>
+</section>
+<section class="note-section"><h1 id="advantages-of-centralized-architecture">Advantages of Centralized Architecture</h1>
+<h2 id="1-centralized-control">1. Centralized Control</h2>
+<p>Everything is managed from one place.</p>
+<p class="micro-label">Example</p>
+<p>If admin wants</p>
+<p>New Password Policy</p>
+<p>Only one server needs updating.</p>
+<h2 id="2-easy-maintenance">2. Easy Maintenance</h2>
+<p>Suppose software needs updating.</p>
+<p>Only one computer is updated.</p>
+<p>No need to update</p>
+<p>100 terminals.</p>
+<h2 id="3-better-security">3. Better Security</h2>
+<p>Since data exists in one place,</p>
+<p>security becomes easier.</p>
+<p>No copies are scattered across clients.</p>
+</section>
+<section class="note-section"><h1 id="disadvantages-of-centralized-architecture">Disadvantages of Centralized Architecture</h1>
+<h2 id="1-scalability-problem">1. Scalability Problem</h2>
+<p class="micro-label">Suppose</p>
+<p>10 users</p>
+<p class="arrow-line">↓</p>
+<p>Works fine.</p>
+<p>Now</p>
+<p>10 lakh users.</p>
+<p>One server becomes overloaded.</p>
+<p>Performance decreases.</p>
+<h2 id="2-single-point-of-failure">2. Single Point of Failure</h2>
+<p>⭐⭐⭐⭐⭐</p>
+<p>Very Important</p>
+<p>If the server crashes</p>
+<pre><code class="language-text">Server ❌</code></pre>
+<p>Everything stops.</p>
+<p>Nobody can access data.</p>
+<p>Entire system fails.</p>
+</section>
+<section class="note-section"><h1 id="ibps-question">IBPS Question</h1>
+<p>Biggest disadvantage?</p>
+<p>✅ Single Point of Failure.</p>
+</section>
+<section class="note-section architecture-type client-server-section"><h1 id="client-server-architecture">Client-Server Architecture</h1>
+<p>This architecture was developed to overcome the problems of centralized systems.</p>
+<h2 id="what-is-client-server-architecture">What is Client-Server Architecture?</h2>
+<p class="micro-label">Book says</p>
+<p>Workload is divided.</p>
+<p>Client</p>
+<p>handles</p>
+<ul><li>User Interface</li><li>Local Processing</li></ul>
+<p>Server</p>
+<p>handles</p>
+<ul><li>Database</li><li>Storage</li><li>Processing</li></ul>
+</section>
+<section class="note-section"><h1 id="simple-meaning-2">Simple Meaning</h1>
+<p>Instead of one computer doing everything,</p>
+<p>the work is shared.</p>
+</section>
+<section class="note-section"><h1 id="client">Client</h1>
+<p>Who is the Client?</p>
+<p>The computer or application used by the user.</p>
+<p class="micro-label">Examples</p>
+<ul><li>Mobile App</li><li>ATM Machine</li><li>Banking Software</li><li>Web Browser</li></ul>
+<p>Client's job</p>
+<ul><li>Take input</li><li>Show output</li><li>Send request</li></ul>
+</section>
+<section class="note-section"><h1 id="server">Server</h1>
+<p>Server stores</p>
+<ul><li>Database</li><li>Business Logic</li><li>Data Processing</li></ul>
+<p>Server is much more powerful.</p>
+</section>
+<section class="note-section"><h1 id="real-life-example-2">Real-Life Example</h1>
+<p>Suppose you use Flipkart.</p>
+<pre><code class="language-text">Mobile App
+
+↓
+
+Flipkart Server
+
+↓
+
+Database
+
+↓
+
+Result</code></pre>
+<p>Your phone</p>
+<p>is the Client.</p>
+<p>Flipkart Database</p>
+<p>is the Server.</p>
+</section>
+<section class="note-section"><h1 id="why-client-server-is-better">Why Client-Server is Better?</h1>
+<p>Because</p>
+<p>Client</p>
+<p>does UI work.</p>
+<p>Server</p>
+<p>does database work.</p>
+<p>Load gets divided.</p>
+</section>
+<section class="note-section tier-section two-tier-section"><h1 id="two-tier-client-server-architecture">Two-Tier Client-Server Architecture</h1>
+<p>⭐⭐⭐⭐⭐</p>
+<p>Very Important</p>
+<p class="micro-label">Diagram</p>
+<pre><code class="language-text">+------------------+
+|      CLIENT      |
+| UI + Application |
++------------------+
+         │
+         ▼
++------------------+
+|      SERVER      |
+|     Database     |
++------------------+</code></pre>
+<p>Only</p>
+<p>Client</p>
+<p>and</p>
+<p>Server.</p>
+<p>No middle layer.</p>
+</section>
+<section class="note-section"><h1 id="client-responsibilities">Client Responsibilities</h1>
+<ul><li>User Interface</li><li>Some Business Logic</li><li>Sending Queries</li></ul>
+</section>
+<section class="note-section"><h1 id="server-responsibilities">Server Responsibilities</h1>
+<ul><li>Store Data</li><li>Execute Queries</li><li>Return Results</li></ul>
+</section>
+<section class="note-section"><h1 id="example-3">Example</h1>
+<p>Bank Teller</p>
+<p class="arrow-line">↓</p>
+<p>Bank Software</p>
+<p class="arrow-line">↓</p>
+<p>Database Server</p>
+<p>Flow</p>
+<pre><code class="language-text">Teller
+
+↓
+
+Client Software
+
+↓
+
+Database Server
+
+↓
+
+Balance Displayed</code></pre>
+</section>
+<section class="note-section"><h1 id="advantages">Advantages</h1>
+<p>✔ Simple</p>
+<p>✔ Easy to Develop</p>
+<p>✔ Fast</p>
+</section>
+<section class="note-section"><h1 id="disadvantages">Disadvantages</h1>
+<p class="micro-label">Book says</p>
+<p>Maintenance.</p>
+<p class="micro-label">Suppose</p>
+<p>Software changes.</p>
+<p>Every client computer</p>
+<p>must be updated.</p>
+<p>Imagine</p>
+<p>5000 computers.</p>
+<p>Difficult.</p>
+<p>Another problem</p>
+<p>Too many clients</p>
+<p class="arrow-line">↓</p>
+<p>Server overloaded.</p>
+</section>
+<section class="note-section tier-section three-tier-section"><h1 id="three-tier-client-server-architecture">Three-Tier Client-Server Architecture</h1>
+<p>⭐⭐⭐⭐⭐</p>
+<p>Most Important</p>
+<p>Already studied in previous chapter.</p>
+<p>Here we'll revise.</p>
+<p class="micro-label">Diagram</p>
+<pre><code class="language-text">Client
+
+↓
+
+Application Server
+
+↓
+
+Database Server</code></pre>
+<p>Three layers.</p>
+<h2 id="layer-1">Layer 1</h2>
+<p>Presentation Layer</p>
+<p>(Client)</p>
+<p>Handles</p>
+<ul><li>Screens</li><li>Forms</li><li>Buttons</li></ul>
+<p class="micro-label">Example</p>
+<p>ATM Screen</p>
+<h2 id="layer-2">Layer 2</h2>
+<p>Application Layer</p>
+<p>(Middle Tier)</p>
+<p>Brain of system.</p>
+<p>Handles</p>
+<ul><li>Validation</li><li>Authentication</li><li>Business Rules</li></ul>
+<p class="micro-label">Example</p>
+<p>Checks</p>
+<p>Password Correct?</p>
+<p>Balance Available?</p>
+<h2 id="layer-3">Layer 3</h2>
+<p>Database Layer</p>
+<p>Stores</p>
+<p>Actual Data.</p>
+</section>
+<section class="note-section"><h1 id="example-4">Example</h1>
+<p>Restaurant Website</p>
+<p>Customer</p>
+<p class="arrow-line">↓</p>
+<p>Website</p>
+<p class="arrow-line">↓</p>
+<p>Application Server</p>
+<p class="arrow-line">↓</p>
+<p>Database</p>
+</section>
+<section class="note-section"><h1 id="why-middle-layer">Why Middle Layer?</h1>
+<p class="micro-label">Suppose</p>
+<p>1000 users</p>
+<p>send requests.</p>
+<p>Application Server</p>
+<p>filters</p>
+<p>valid requests.</p>
+<p>Only necessary requests</p>
+<p>reach database.</p>
+<p>Database load decreases.</p>
+</section>
+<section class="note-section"><h1 id="advantages-2">Advantages</h1>
+<h2 id="better-load-management">Better Load Management</h2>
+<p>Application Server</p>
+<p>handles</p>
+<p>many requests.</p>
+<p>Database becomes free.</p>
+<h2 id="better-security">Better Security</h2>
+<p>Users cannot directly access database.</p>
+<p>Everything passes through</p>
+<p>Application Server.</p>
+<p>Think of the application server as a <strong>security guard</strong>.</p>
+</section>
+<section class="note-section"><h1 id="real-life-example-3">Real-Life Example</h1>
+<p>Hospital</p>
+<p>Doctor wants</p>
+<p>Patient History.</p>
+<p>Doctor</p>
+<p class="arrow-line">↓</p>
+<p>Hospital Software</p>
+<p class="arrow-line">↓</p>
+<p>Application Server</p>
+<p class="arrow-line">↓</p>
+<p>Database</p>
+<p>Patient never directly accesses the database.</p>
+</section>
+<section class="note-section comparison-section"><h1 id="difference-between-two-tier-and-three-tier">Difference Between Two-Tier and Three-Tier</h1>
+<div class="table-wrap"><table><thead><tr><th>Two-Tier</th><th>Three-Tier</th></tr></thead><tbody><tr><td>Client directly talks to Database</td><td>Client talks to Application Server</td></tr><tr><td>Less Secure</td><td>More Secure</td></tr><tr><td>Simple</td><td>Better for large systems</td></tr><tr><td>Limited Scalability</td><td>Highly Scalable</td></tr><tr><td>Business Logic in Client</td><td>Business Logic in Middle Layer</td></tr></tbody></table></div>
+</section>
+<section class="note-section tier-section n-tier-section"><h1 id="n-tier-architecture">n-Tier Architecture</h1>
+<p class="micro-label">Book says</p>
+<p>Some systems have</p>
+<p>more than</p>
+<p>3 layers.</p>
+<h2 id="why">Why?</h2>
+<p>Large companies</p>
+<p>need separate services.</p>
+<p class="micro-label">Example</p>
+<p>Amazon</p>
+<pre><code class="language-text">Client
+
+↓
+
+Authentication Server
+
+↓
+
+Payment Server
+
+↓
+
+Recommendation Server
+
+↓
+
+Database</code></pre>
+<p>Each performs one job.</p>
+</section>
+<section class="note-section"><h1 id="benefits">Benefits</h1>
+<h2 id="modularity">Modularity</h2>
+<p>Each layer</p>
+<p>can be developed independently.</p>
+<p class="micro-label">Example</p>
+<p>Payment Team</p>
+<p>works separately.</p>
+<p>Authentication Team</p>
+<p>works separately.</p>
+<h2 id="resilience">Resilience</h2>
+<p class="micro-label">Suppose</p>
+<p>Recommendation Server</p>
+<p>fails.</p>
+<p>Payment still works.</p>
+<p>Entire system doesn't crash.</p>
+</section>
+<section class="note-section"><h1 id="understanding-the-second-diagram">Understanding the Second Diagram</h1>
+<p>The second image shows different types of clients connected through a communication network.</p>
+<p>Let's understand each one.</p>
+<h2 id="diskless-client">Diskless Client</h2>
+<pre><code class="language-text">Client
+
+(No Hard Disk)</code></pre>
+<p>Everything comes from the server.</p>
+<p class="micro-label">Example</p>
+<p>Thin Client in schools.</p>
+<h2 id="client-with-disk">Client with Disk</h2>
+<p>Has</p>
+<p>Hard Disk</p>
+<p>*</p>
+<p>Own Software.</p>
+<p>Still depends on server.</p>
+<h2 id="server-2">Server</h2>
+<p>Stores</p>
+<p>Database</p>
+<p>Services</p>
+<p>Resources.</p>
+<h2 id="server-client">Server + Client</h2>
+<p>One machine</p>
+<p>acts as</p>
+<p>both</p>
+<p>Client</p>
+<p>and</p>
+<p>Server.</p>
+<p class="micro-label">Example</p>
+<p>Branch Office</p>
+<p>It uses another central server,</p>
+<p>but also serves local users.</p>
+</section>
+<section class="note-section comparison-section"><h1 id="summary-of-centralized-vs-client-server">Summary of Centralized vs Client-Server</h1>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Centralized</th><th>Client-Server</th></tr></thead><tbody><tr><td>Processing</td><td>One central server</td><td>Shared between client and server</td></tr><tr><td>Client Processing</td><td>Almost none</td><td>Performs UI and some processing</td></tr><tr><td>Scalability</td><td>Poor</td><td>Better</td></tr><tr><td>Security</td><td>Good</td><td>Better (especially 3-tier)</td></tr><tr><td>Failure</td><td>One server failure stops everything</td><td>Better fault tolerance</td></tr><tr><td>Maintenance</td><td>Easy</td><td>Moderate</td></tr></tbody></table></div>
+</section>
+<section class="note-section comparison-section"><h1 id="centralized-vs-two-tier-vs-three-tier">Centralized vs Two-Tier vs Three-Tier</h1>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Centralized</th><th>Two-Tier</th><th>Three-Tier</th></tr></thead><tbody><tr><td>Client Processing</td><td>No</td><td>Yes</td><td>Yes</td></tr><tr><td>Application Server</td><td>No</td><td>No</td><td>Yes</td></tr><tr><td>Database Server</td><td>Yes</td><td>Yes</td><td>Yes</td></tr><tr><td>Security</td><td>Medium</td><td>Better</td><td>Best</td></tr><tr><td>Scalability</td><td>Low</td><td>Medium</td><td>High</td></tr><tr><td>Used Today</td><td>Rare</td><td>Desktop Apps</td><td>Banking, Amazon, Google, Flipkart</td></tr></tbody></table></div>
+</section>
+<section class="note-section revision-section"><h1 id="ibps-so-it-quick-revision">⭐ IBPS SO IT Quick Revision</h1>
+<div class="table-wrap"><table><thead><tr><th>Topic</th><th>Remember</th></tr></thead><tbody><tr><td>Centralized Architecture</td><td>One central server does everything</td></tr><tr><td>Terminal</td><td>Input/Output device with minimal processing</td></tr><tr><td>Biggest disadvantage of Centralized</td><td>Single Point of Failure</td></tr><tr><td>Client</td><td>User-facing machine/application</td></tr><tr><td>Server</td><td>Stores database and processes requests</td></tr><tr><td>Two-Tier</td><td>Client ↔ Database Server</td></tr><tr><td>Three-Tier</td><td>Client ↔ Application Server ↔ Database Server</td></tr><tr><td>Middle Tier</td><td>Business Logic + Security + Validation</td></tr><tr><td>n-Tier</td><td>More than three layers for large applications</td></tr><tr><td>Diskless Client</td><td>No local storage; depends entirely on the server</td></tr></tbody></table></div>
+</section>
+<section class="note-section exam-section"><h1 id="ibps-so-it-frequently-asked-questions">🎯 IBPS SO IT Frequently Asked Questions</h1>
+<h3 id="q1-what-is-a-centralized-dbms">Q1. What is a Centralized DBMS?</h3>
+<p>✅ A DBMS where all database operations are managed by a single central server.</p>
+<h3 id="q2-what-is-the-role-of-a-terminal-in-a-centralized-dbms">Q2. What is the role of a Terminal in a Centralized DBMS?</h3>
+<p>✅ It only sends user input to the server and displays the returned output; it performs little or no processing.</p>
+<h3 id="q3-what-is-the-biggest-drawback-of-a-centralized-architecture">Q3. What is the biggest drawback of a Centralized Architecture?</h3>
+<p>✅ <strong>Single Point of Failure</strong>.</p>
+<h3 id="q4-what-is-the-main-difference-between-a-client-and-a-server">Q4. What is the main difference between a Client and a Server?</h3>
+<p>✅ The <strong>Client</strong> handles user interaction (UI), while the <strong>Server</strong> stores data and processes database requests.</p>
+<h3 id="q5-in-a-two-tier-architecture-who-directly-communicates-with-the-database">Q5. In a Two-Tier Architecture, who directly communicates with the database?</h3>
+<p>✅ The <strong>Client</strong>.</p>
+<h3 id="q6-what-extra-layer-is-added-in-a-three-tier-architecture">Q6. What extra layer is added in a Three-Tier Architecture?</h3>
+<p>✅ The <strong>Application (Middle) Layer</strong>.</p>
+<h3 id="q7-why-is-a-three-tier-architecture-more-secure">Q7. Why is a Three-Tier Architecture more secure?</h3>
+<p>✅ Because users cannot directly access the database; every request is validated by the <strong>Application Server</strong>, which acts as a gatekeeper.</p>
+<h2 id="final-memory-trick">🧠 Final Memory Trick</h2>
+<p>Remember this progression:</p>
+<pre><code class="language-text">Centralized
+User → Main Server</code></pre>
+<pre><code class="language-text">Two-Tier
+Client → Database Server</code></pre>
+<pre><code class="language-text">Three-Tier
+Client → Application Server → Database Server</code></pre>
+<pre><code class="language-text">n-Tier
+Client → Multiple Service Layers → Database</code></pre>
+<p>As you move from <strong>Centralized → Two-Tier → Three-Tier → n-Tier</strong>, the system becomes <strong>more scalable, more secure, easier to maintain, and better suited for modern applications</strong>.</p>
+</section>
 </article><nav class="footer"><a href="dbms-notes-new-1g-system-environment.html">← Previous: 1.G</a><a href="dbms-notes-new-1i-classification.html">Next: 1.I →</a></nav></main></div><script src="../../ask-ai.js" defer></script></body></html>
