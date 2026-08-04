@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 13 – Flow Control & Multiple Access Protocols | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive notes on ARQ Flow Control (Stop-and-Wait, Go-Back-N, Selective Repeat) and Multiple Access Protocols (ALOHA, CSMA/CD, CSMA/CA, CDMA)." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .protocol-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 13</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 13 · Data Link Layer</div>
+    <h1 class="page-title">Flow Control &<br/>Multiple Access Protocols</h1>
+    <p class="page-subtitle">Master Sliding Window ARQ protocols (Stop-and-Wait, Go-Back-N, Selective Repeat) and MAC layer Medium Access Control protocols (Pure/Slotted ALOHA, CSMA/CD, CSMA/CA, CDMA).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#flow-overview"><span class="toc-num">13.1</span> Flow Control & ARQ Protocols Overview</a></li>
+      <li><a href="#stop-and-wait"><span class="toc-num">13.2</span> Stop-and-Wait ARQ</a></li>
+      <li><a href="#gobackn"><span class="toc-num">13.3</span> Go-Back-N (GBN) ARQ</a></li>
+      <li><a href="#selective-repeat"><span class="toc-num">13.4</span> Selective Repeat (SR) ARQ</a></li>
+      <li><a href="#arq-compare"><span class="toc-num">13.5</span> ARQ Protocols Comparison Table</a></li>
+      <li><a href="#mac-overview"><span class="toc-num">13.6</span> Multiple Access Protocols Overview</a></li>
+      <li><a href="#aloha"><span class="toc-num">13.7</span> Pure ALOHA vs Slotted ALOHA</a></li>
+      <li><a href="#csma"><span class="toc-num">13.8</span> CSMA, CSMA/CD & CSMA/CA</a></li>
+      <li><a href="#controlled-channelization"><span class="toc-num">13.9</span> Controlled Access & Channelization (CDMA)</a></li>
+    </ul>
+  </div>
+
+  <!-- 13.1 Flow Overview -->
+  <div class="section" id="flow-overview">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 13.1</div>
+        <h2 class="section-title">Flow Control & ARQ Protocols Overview</h2>
+      </div>
+    </div>
+    <p><span class="hl">Flow control</span> prevents a fast sender from overwhelming a slow receiver with data. **ARQ (Automatic Repeat Request)** protocols combine flow control with error control by retransmitting lost or corrupted frames.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.2 Stop and Wait -->
+  <div class="section" id="stop-and-wait">
+    <div class="protocol-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">13.2 Stop-and-Wait ARQ</h3>
+      <p>The sender transmits **one frame** and stops, waiting for an Acknowledgement (ACK) before sending the next frame. If an ACK doesn't arrive before the timer expires, the sender retransmits the frame.</p>
+
+      <ul class="note-list" style="margin-top:10px;">
+      <ul class="note-list" style="margin-top:10px;">
+        <li><strong>Sender Window Size (W<sub>s</sub>):</strong> 1</li>
+        <li><strong>Receiver Window Size (W<sub>r</sub>):</strong> 1</li>
+        <li><strong>Sequence Numbers Needed:</strong> 0 and 1 (1-bit sequence number).</li>
+      </ul>
+
+      <div class="callout note">
+        <div class="callout-icon">📐</div>
+        <div class="callout-body">
+          <div class="callout-title">Efficiency Formula</div>
+          <div class="callout-text">
+            <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:6px 0;">&eta; = T<sub>t</sub> / (T<sub>t</sub> + 2T<sub>p</sub>) = 1 / (1 + 2a)</div>
+            where T<sub>t</sub> = Frame Size / Bandwidth (Transmission Time), T<sub>p</sub> = Distance / Speed (Propagation Delay), and <em>a</em> = T<sub>p</sub> / T<sub>t</sub>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13.3 Go-Back-N -->
+  <div class="section" id="gobackn">
+    <div class="protocol-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">13.3 Go-Back-N (GBN) ARQ</h3>
+      <p>The sender can transmit **multiple frames** (up to window size W<sub>s</sub>) without waiting for an ACK. The receiver accepts frames **in strict order only**. If a frame is lost or corrupted, the receiver discards all subsequent out-of-order frames, and the sender must **go back and retransmit all frames** starting from the lost frame.</p>
+
+      <ul class="note-list" style="margin-top:10px;">
+        <li><strong>Sender Window Size (W<sub>s</sub>):</strong> 2<sup>m</sup> - 1 (for <em>m</em>-bit sequence number).</li>
+        <li><strong>Receiver Window Size (W<sub>r</sub>):</strong> 1</li>
+        <li><strong>ACK Type:</strong> Cumulative ACK (ACK N acknowledges all frames up to N-1).</li>
+        <li><strong>Efficiency:</strong> &eta; = W<sub>s</sub> / (1 + 2a) (for W<sub>s</sub> ≤ 1 + 2a).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 13.4 Selective Repeat -->
+  <div class="section" id="selective-repeat">
+    <div class="protocol-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">13.4 Selective Repeat (SR) ARQ</h3>
+      <p>The sender transmits multiple frames. The receiver maintains a window size W<sub>r</sub> > 1 and **buffers out-of-order frames**. The sender **retransmits ONLY the specific frame** that was lost or corrupted (using negative ACK or timeout).</p>
+
+      <ul class="note-list" style="margin-top:10px;">
+        <li><strong>Sender Window Size (W<sub>s</sub>):</strong> 2<sup>m-1</sup></li>
+        <li><strong>Receiver Window Size (W<sub>r</sub>):</strong> 2<sup>m-1</sup></li>
+        <li><strong>ACK Type:</strong> Independent / Selective ACK (ACKs individual frames).</li>
+        <li><strong>Efficiency:</strong> Highest among ARQ protocols (&eta; = W<sub>s</sub> / (1 + 2a)).</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.5 ARQ Comparison -->
+  <div class="section" id="arq-compare">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 13.5</div>
+        <h2 class="section-title">ARQ Protocols Comparison Table</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic for ARQ Protocols -->
+    <div class="diagram-box">
+      <img src="images/arq_protocols.jpg" alt="ARQ Protocols Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 13.1 – Comparison of Stop-and-Wait, Go-Back-N, and Selective Repeat ARQ Protocols</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Stop-and-Wait ARQ</th><th>Go-Back-N ARQ</th><th>Selective Repeat ARQ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sender Window (W<sub>s</sub>)</td><td>1</td><td>2<sup>m</sup> - 1</td><td>2<sup>m-1</sup></td></tr>
+          <tr><td>Receiver Window (W<sub>r</sub>)</td><td>1</td><td>1</td><td>2<sup>m-1</sup></td></tr>
+          <tr><td>Out-of-Order Frames</td><td>N/A (Disallowed)</td><td>Discarded</td><td>Buffered</td></tr>
+          <tr><td>Retransmission</td><td>Single frame</td><td>Entire window from lost frame</td><td>Only lost frame</td></tr>
+          <tr><td>ACK Type</td><td>Individual ACK</td><td>Cumulative ACK</td><td>Selective / Individual ACK</td></tr>
+          <tr><td>Complexity</td><td>Lowest</td><td>Moderate</td><td>High (buffers at both ends)</td></tr>
+          <tr><td>Max Efficiency</td><td>1 / (1 + 2a)</td><td>min(1, W<sub>s</sub> / (1 + 2a))</td><td>min(1, W<sub>s</sub> / (1 + 2a))</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.6 MAC Overview -->
+  <div class="section" id="mac-overview">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 13.6</div>
+        <h2 class="section-title">Multiple Access Protocols Overview</h2>
+      </div>
+    </div>
+    <p>When multiple nodes share a single broadcast link (e.g. Wi-Fi, Ethernet bus), a **Medium Access Control (MAC)** protocol is needed to coordinate access and avoid collisions.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">Random Access</div>
+        <div class="info-card-desc">Nodes contend for channel; no central control. Collisions can occur. (ALOHA, CSMA, CSMA/CD, CSMA/CA).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">Controlled Access</div>
+        <div class="info-card-desc">Nodes consult each other or a master node to find who has right to send. Collision-free. (Reservation, Polling, Token Passing).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 3</div>
+        <div class="info-card-title">Channelization</div>
+        <div class="info-card-desc">Available bandwidth is divided by frequency, time, or code. (FDMA, TDMA, CDMA).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.7 ALOHA -->
+  <div class="section" id="aloha">
+    <div class="section-header">
+      <div class="section-icon">🌺</div>
+      <div>
+        <div class="section-num">Section 13.7</div>
+        <h2 class="section-title">Pure ALOHA vs Slotted ALOHA</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Pure ALOHA</th><th>Slotted ALOHA</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Transmission Time</td><td>Any time a frame is ready</td><td>Only at beginning of discrete time slots</td></tr>
+          <tr><td>Vulnerable Time</td><td>2 × T<sub>fr</sub></td><td>1 × T<sub>fr</sub></td></tr>
+          <tr><td>Maximum Throughput (S<sub>max</sub>)</td><td><strong>18.4%</strong> (G = 0.5 ⇒ S = 1/2e)</td><td><strong>36.8%</strong> (G = 1.0 ⇒ S = 1/e)</td></tr>
+          <tr><td>Synchronization Needed</td><td>No</td><td>Yes (Global slot clock)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.8 CSMA -->
+  <div class="section" id="csma">
+    <div class="section-header">
+      <div class="section-icon">👂</div>
+      <div>
+        <div class="section-num">Section 13.8</div>
+        <h2 class="section-title">CSMA, CSMA/CD & CSMA/CA</h2>
+      </div>
+    </div>
+    <p><span class="hl">CSMA (Carrier Sense Multiple Access)</span> operates on the principle: **"Listen Before Talk"**. A node senses the channel before transmitting.</p>
+
+    <h4 class="mini-title">1. CSMA Persistence Modes</h4>
+    <ul class="note-list">
+      <li><strong>1-Persistent:</strong> Senses channel; if idle, transmits immediately with 100% probability. If busy, continuously senses until idle.</li>
+      <li><strong>Non-Persistent:</strong> Senses channel; if idle, transmits. If busy, waits a random amount of time and senses again. (Reduces collisions).</li>
+      <li><strong>p-Persistent:</strong> Used in slotted channels. If idle, transmits with probability <em>p</em>; defers to next slot with probability 1 - <em>p</em>.</li>
+    </ul>
+
+    <h4 class="mini-title">2. CSMA/CD (Collision Detection - Ethernet 802.3)</h4>
+    <p>Operates on: **"Listen While Talk"**. Used in wired Ethernet. If a collision is detected during transmission, the node sends a high-frequency **Jamming Signal** (32 bits), stops transmission, and executes **Binary Exponential Backoff algorithm** (0 ≤ K ≤ 2<sup>n</sup> - 1) to pick a random wait time.</p>
+
+    <div class="callout key">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <div class="callout-title">Minimum Frame Size Formula for CSMA/CD</div>
+        <div class="callout-text">
+          To ensure a node detects a collision before it finishes transmitting the frame:
+          <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:6px 0;">T<sub>t</sub> ≥ 2 × T<sub>p</sub> &nbsp;⇒&nbsp; Frame Size (bits) / Bandwidth (bps) ≥ 2 × T<sub>p</sub></div>
+          <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent3); margin-bottom:6px;">Minimum Frame Size = 2 × T<sub>p</sub> × Bandwidth</div>
+          In standard Ethernet (10 Mbps, 51.2 µs RTT), Minimum Frame Size = 64 Bytes (512 bits).
+        </div>
+      </div>
+    </div>
+
+    <h4 class="mini-title">3. CSMA/CA (Collision Avoidance - Wi-Fi 802.11)</h4>
+    <p>Used in wireless networks where collision detection is impossible (hidden station problem). Operates on: **"Listen Before Talk + Reservation"**.</p>
+    <ul class="note-list">
+      <li>Uses **IFS (Inter-Frame Space)**: SIFS (Short IFS) for ACKs, DIFS (Distributed IFS) for data frames.</li>
+      <li>Uses **RTS / CTS Handshake**: Sender transmits Request to Send (RTS); Receiver responds with Clear to Send (CTS). All other nodes freeze their transmission.</li>
+    </ul>
+
+    <!-- Generated Infographic for MAC Protocols -->
+    <div class="diagram-box">
+      <img src="images/mac_protocols.jpg" alt="Multiple Access Protocols Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 13.2 – Visual Overview of Pure/Slotted ALOHA, CSMA/CD Flowchart, and CSMA/CA Handshake</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 13.9 Controlled Access & CDMA -->
+  <div class="section" id="controlled-channelization">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div>
+        <div class="section-num">Section 13.9</div>
+        <h2 class="section-title">Controlled Access & Channelization (CDMA)</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Controlled Access</h3>
+    <ul class="note-list">
+      <li><strong>Reservation:</strong> Nodes reserve time slots in a reservation frame before transmitting.</li>
+      <li><strong>Polling:</strong> A Master primary node polls each Secondary node sequentially ("Do you have data to send?").</li>
+      <li><strong>Token Passing:</strong> A special control frame called a **Token** circulates around a logical ring. Only the node holding the token can transmit data. (No collisions).</li>
+    </ul>
+
+    <h3 class="sub-title">2. CDMA (Code Division Multiple Access)</h3>
+    <p>Each station is assigned a unique **orthogonal chip sequence** (Walsh Code). All stations transmit over the same frequency band at the same time. The receiver extracts a specific station's data by calculating the **dot product (inner product)** of the combined signal with that station's unique code vector.</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="12-framing-error-detection-correction.html">← Ch 12: Framing & Errors</a>
+      <a href="index.html">Home</a>
+      <a href="14-mac-addressing-ethernet-switches-vlans.html">Ch 14: MAC, Ethernet & VLANs →</a>
+    </div>
+    Network Fundamentals · Chapter 13 · Flow Control & Multiple Access Protocols
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 3 – Network Topologies | Network Fundamentals</title>
+  <meta name="description" content="Detailed notes on Bus, Star, Ring, Mesh, Tree, and Hybrid network topologies with SVG diagrams." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .topo-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 0; margin-bottom: 40px;
+      overflow: hidden;
+    }
+    .topo-head {
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .topo-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: 2px;
+      padding: 5px 14px; border-radius: 100px; text-transform: uppercase;
+    }
+    .topo-name { font-size: 21px; font-weight: 800; }
+    .topo-body { padding: 28px; }
+    .topo-meta { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+    .topo-meta-item .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 3px; }
+    .topo-meta-item .val { font-size: 14px; color: var(--text); font-weight: 600; }
+
+    /* Topology-specific colors */
+    .bus .topo-badge { background:rgba(79,142,247,0.15); color:#4f8ef7; }
+    .bus .topo-head { background: rgba(79,142,247,0.04); }
+    .star .topo-badge { background:rgba(0,212,170,0.15); color:#00d4aa; }
+    .star .topo-head { background: rgba(0,212,170,0.04); }
+    .ring .topo-badge { background:rgba(124,92,240,0.15); color:#7c5cf0; }
+    .ring .topo-head { background: rgba(124,92,240,0.04); }
+    .mesh .topo-badge { background:rgba(247,163,79,0.15); color:#f7a34f; }
+    .mesh .topo-head { background: rgba(247,163,79,0.04); }
+    .tree .topo-badge { background:rgba(240,92,136,0.15); color:#f05c88; }
+    .tree .topo-head { background: rgba(240,92,136,0.04); }
+    .hybrid .topo-badge { background:rgba(79,142,247,0.12); color:#a0c4ff; }
+    .hybrid .topo-head { background: rgba(79,142,247,0.04); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 03</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 03 · Network Fundamentals</div>
+    <h1 class="page-title">Network Topologies</h1>
+    <p class="page-subtitle">Topology refers to the physical or logical arrangement of nodes and connections in a network. Each topology has unique characteristics, advantages, and trade-offs. Learn all six major topologies in depth.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">3.1</span> Introduction to Topology</a></li>
+      <li><a href="#bus"><span class="toc-num">3.2</span> Bus Topology</a></li>
+      <li><a href="#star"><span class="toc-num">3.3</span> Star Topology</a></li>
+      <li><a href="#ring"><span class="toc-num">3.4</span> Ring Topology</a></li>
+      <li><a href="#mesh"><span class="toc-num">3.5</span> Mesh Topology</a></li>
+      <li><a href="#tree"><span class="toc-num">3.6</span> Tree Topology</a></li>
+      <li><a href="#hybrid"><span class="toc-num">3.7</span> Hybrid Topology</a></li>
+      <li><a href="#comparison"><span class="toc-num">3.8</span> Comparison Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 3.1 Introduction -->
+  <div class="section" id="intro">
+    <div class="section-header">
+      <div class="section-icon">🔗</div>
+      <div>
+        <div class="section-num">Section 3.1</div>
+        <h2 class="section-title">Introduction to Topology</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">network topology</span> defines the arrangement or layout of elements (nodes, links) of a computer network. It is a critical design decision that affects performance, fault tolerance, scalability, and cost.</p>
+
+    <h3 class="sub-title">Types of Topology</h3>
+    <ul class="note-list">
+      <li><strong>Physical Topology:</strong> The actual physical layout — how cables, devices, and connections are physically arranged in space.</li>
+      <li><strong>Logical Topology:</strong> How data flows through the network, regardless of physical layout. (e.g., a network can be physically a star but logically a bus.)</li>
+    </ul>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Key Concept</div>
+        <div class="callout-text">The topology affects: <strong>cost of cabling</strong>, <strong>ease of installation</strong>, <strong>fault isolation</strong>, <strong>scalability</strong>, and <strong>performance under load</strong>. Choosing the right topology is essential for efficient network design.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 3.2 Bus -->
+  <div class="section" id="bus">
+    <div class="topo-card bus">
+      <div class="topo-head">
+        <span class="topo-badge">Bus</span>
+        <span class="topo-name">Bus Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Cable</div><div class="val">Single coaxial (backbone)</div></div>
+          <div class="topo-meta-item"><div class="label">Standard</div><div class="val">IEEE 802.3 (10BASE2, 10BASE5)</div></div>
+          <div class="topo-meta-item"><div class="label">Status</div><div class="val">Obsolete (historical)</div></div>
+        </div>
+
+        <p>In a <span class="hl">Bus Topology</span>, all devices are connected to a single central cable called the <strong>backbone</strong> or <strong>bus</strong>. Data transmitted by any device travels along the entire bus in both directions and is received by all devices. Only the intended recipient accepts the data; others ignore it.</p>
+        <p>Terminators are placed at both ends of the bus to prevent signal reflection. If the bus cable breaks, the entire network fails.</p>
+
+        <!-- Bus SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 600 130" width="100%" style="max-width:580px">
+            <!-- Bus cable -->
+            <line x1="40" y1="65" x2="560" y2="65" stroke="#4f8ef7" stroke-width="4" stroke-linecap="round"/>
+            <!-- Terminators -->
+            <rect x="22" y="55" width="18" height="20" rx="4" fill="#4f8ef7" opacity="0.7"/>
+            <rect x="560" y="55" width="18" height="20" rx="4" fill="#4f8ef7" opacity="0.7"/>
+            <text x="31" y="45" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">T</text>
+            <text x="569" y="45" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">T</text>
+
+            <!-- Nodes -->
+            <g id="b1">
+              <line x1="120" y1="65" x2="120" y2="30" stroke="#4f8ef7" stroke-width="1.5" opacity="0.6"/>
+              <rect x="90" y="10" width="60" height="36" rx="8" fill="#1a2545" stroke="#4f8ef7" stroke-width="1.5"/>
+              <rect x="97" y="16" width="46" height="22" rx="4" fill="#0f1626"/>
+              <text x="120" y="60" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">PC 1</text>
+            </g>
+            <g id="b2">
+              <line x1="220" y1="65" x2="220" y2="30" stroke="#4f8ef7" stroke-width="1.5" opacity="0.6"/>
+              <rect x="190" y="10" width="60" height="36" rx="8" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+              <rect x="197" y="16" width="46" height="22" rx="4" fill="#0f1626"/>
+              <text x="220" y="60" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">PC 2</text>
+            </g>
+            <g id="b3">
+              <line x1="320" y1="65" x2="320" y2="30" stroke="#4f8ef7" stroke-width="1.5" opacity="0.6"/>
+              <rect x="290" y="10" width="60" height="36" rx="8" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+              <rect x="297" y="16" width="46" height="22" rx="4" fill="#0f1626"/>
+              <text x="320" y="60" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">PC 3</text>
+            </g>
+            <g id="b4">
+              <line x1="420" y1="65" x2="420" y2="30" stroke="#4f8ef7" stroke-width="1.5" opacity="0.6"/>
+              <rect x="390" y="10" width="60" height="36" rx="8" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+              <rect x="397" y="16" width="46" height="22" rx="4" fill="#0f1626"/>
+              <text x="420" y="60" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">PC 4</text>
+            </g>
+            <g id="b5">
+              <line x1="510" y1="65" x2="510" y2="30" stroke="#4f8ef7" stroke-width="1.5" opacity="0.6"/>
+              <rect x="480" y="10" width="60" height="36" rx="8" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/>
+              <rect x="487" y="16" width="46" height="22" rx="4" fill="#0f1626"/>
+              <text x="510" y="60" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">PC 5</text>
+            </g>
+
+            <!-- Data signal animation indicator -->
+            <text x="300" y="92" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter" opacity="0.7">← Data travels along backbone →</text>
+            <text x="300" y="120" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 3.1 – Bus Topology: all devices on a single backbone cable</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">How it Works</h4>
+        <ul class="note-list">
+          <li>All devices share the same medium (bus). Only <strong>one device can transmit at a time</strong>.</li>
+          <li>CSMA/CD (Carrier Sense Multiple Access with Collision Detection) is used to manage access.</li>
+          <li>Data travels in both directions from the sender along the bus.</li>
+          <li>Each NIC reads all packets but only processes packets addressed to it.</li>
+        </ul>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>Simple and inexpensive to install</li>
+              <li>Requires less cable than star/mesh</li>
+              <li>Easy to connect new devices</li>
+              <li>Well-suited for small networks</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Single point of failure (bus breaks → network fails)</li>
+              <li>Performance degrades with more devices</li>
+              <li>Difficult to troubleshoot</li>
+              <li>Limited cable length and number of nodes</li>
+              <li>Not scalable</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.3 Star -->
+  <div class="section" id="star">
+    <div class="topo-card star">
+      <div class="topo-head">
+        <span class="topo-badge">Star</span>
+        <span class="topo-name">Star Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Central Device</div><div class="val">Hub or Switch</div></div>
+          <div class="topo-meta-item"><div class="label">Cable</div><div class="val">Twisted pair / Fiber per device</div></div>
+          <div class="topo-meta-item"><div class="label">Status</div><div class="val">Most widely used today</div></div>
+        </div>
+
+        <p>In a <span class="hl">Star Topology</span>, all devices are connected individually to a <strong>central hub, switch, or access point</strong>. Every communication between devices goes through this central device. The central node manages traffic and provides dedicated connections.</p>
+        <p>This is the <strong>most popular topology</strong> used in modern LANs — from home Wi-Fi routers to office Ethernet networks.</p>
+
+        <!-- Star SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 400 340" width="100%" style="max-width:380px">
+            <defs><filter id="gStar"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <!-- Central switch -->
+            <rect x="160" y="140" width="80" height="50" rx="12" fill="#1a2545" stroke="#00d4aa" stroke-width="2.5" filter="url(#gStar)"/>
+            <text x="200" y="168" text-anchor="middle" fill="#00d4aa" font-size="12" font-weight="700" font-family="Inter">Switch</text>
+
+            <!-- PC top -->
+            <rect x="165" y="30" width="70" height="48" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <rect x="172" y="37" width="56" height="32" rx="5" fill="#0f1626"/>
+            <text x="200" y="92" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 1</text>
+            <line x1="200" y1="78" x2="200" y2="140" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- PC bottom -->
+            <rect x="165" y="250" width="70" height="48" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <rect x="172" y="258" width="56" height="32" rx="5" fill="#0f1626"/>
+            <text x="200" y="242" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 2</text>
+            <line x1="200" y1="250" x2="200" y2="190" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- PC left -->
+            <rect x="30" y="148" width="70" height="48" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <rect x="37" y="155" width="56" height="32" rx="5" fill="#0f1626"/>
+            <text x="65" y="210" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Printer</text>
+            <line x1="100" y1="172" x2="160" y2="165" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- PC right -->
+            <rect x="300" y="148" width="70" height="48" rx="10" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/>
+            <rect x="307" y="155" width="56" height="32" rx="5" fill="#0f1626"/>
+            <text x="335" y="210" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Server</text>
+            <line x1="300" y1="172" x2="240" y2="165" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- PC top-left -->
+            <rect x="60" y="55" width="62" height="44" rx="10" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/>
+            <rect x="66" y="62" width="50" height="28" rx="5" fill="#0f1626"/>
+            <text x="91" y="114" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Laptop</text>
+            <line x1="122" y1="80" x2="168" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- PC top-right -->
+            <rect x="280" y="55" width="62" height="44" rx="10" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/>
+            <rect x="286" y="62" width="50" height="28" rx="5" fill="#0f1626"/>
+            <text x="311" y="114" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 5</text>
+            <line x1="286" y1="80" x2="232" y2="148" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+
+            <text x="200" y="325" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 3.2 – Star Topology: all devices connect to central switch</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">How it Works</h4>
+        <ul class="note-list">
+          <li>Each device has a <strong>dedicated point-to-point link</strong> to the central hub/switch.</li>
+          <li>With a <strong>hub:</strong> Data received is broadcast to all ports (collision domain shared).</li>
+          <li>With a <strong>switch:</strong> Data is forwarded only to the destination port (each port is its own collision domain).</li>
+          <li>Failure of one device does not affect others — only the link between that device and the center is lost.</li>
+        </ul>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>Easy to install and manage</li>
+              <li>Fault isolation — one failure doesn't affect others</li>
+              <li>Easy to add/remove devices</li>
+              <li>High performance with switch (dedicated bandwidth)</li>
+              <li>Centralised monitoring</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Central hub/switch failure = entire network down</li>
+              <li>More cable required than bus</li>
+              <li>Cost increases with the number of devices</li>
+              <li>Performance limited by central device capacity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.4 Ring -->
+  <div class="section" id="ring">
+    <div class="topo-card ring">
+      <div class="topo-head">
+        <span class="topo-badge">Ring</span>
+        <span class="topo-name">Ring Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Direction</div><div class="val">Unidirectional (usually)</div></div>
+          <div class="topo-meta-item"><div class="label">Access Method</div><div class="val">Token Passing</div></div>
+          <div class="topo-meta-item"><div class="label">Standard</div><div class="val">IEEE 802.5 (Token Ring), FDDI</div></div>
+        </div>
+
+        <p>In a <span class="hl">Ring Topology</span>, each device is connected to exactly two other devices, forming a closed loop (ring). Data travels in <strong>one direction</strong> (unidirectional) around the ring from node to node. Each device acts as a <strong>repeater</strong> to boost the signal before passing it to the next device.</p>
+        <p>Access is controlled by a <strong>token</strong> — a special signal that circulates around the ring. Only the device holding the token can transmit data (Token Ring protocol).</p>
+
+        <!-- Ring SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 380 340" width="100%" style="max-width:360px">
+            <defs>
+              <marker id="arrR" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#7c5cf0" opacity="0.8"/>
+              </marker>
+            </defs>
+            <!-- Ring circle -->
+            <circle cx="190" cy="160" r="110" fill="none" stroke="#7c5cf0" stroke-width="2.5" stroke-dasharray="8,4" opacity="0.4"/>
+
+            <!-- Nodes at ring positions -->
+            <!-- Top -->
+            <rect x="155" y="22" width="70" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <rect x="162" y="29" width="56" height="28" rx="5" fill="#0f1626"/>
+            <text x="190" y="80" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 1</text>
+
+            <!-- Right -->
+            <rect x="283" y="105" width="70" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <rect x="290" y="112" width="56" height="28" rx="5" fill="#0f1626"/>
+            <text x="318" y="163" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 2</text>
+
+            <!-- Bottom-right -->
+            <rect x="240" y="220" width="70" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <rect x="247" y="227" width="56" height="28" rx="5" fill="#0f1626"/>
+            <text x="275" y="277" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 3</text>
+
+            <!-- Bottom-left -->
+            <rect x="70" y="220" width="70" height="44" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <rect x="77" y="227" width="56" height="28" rx="5" fill="#0f1626"/>
+            <text x="105" y="277" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 4</text>
+
+            <!-- Left -->
+            <rect x="27" y="105" width="70" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <rect x="34" y="112" width="56" height="28" rx="5" fill="#0f1626"/>
+            <text x="62" y="163" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">PC 5</text>
+
+            <!-- Ring connections with arrows -->
+            <path d="M190 66 A110 110 0 0 1 283 127" fill="none" stroke="#7c5cf0" stroke-width="2" marker-end="url(#arrR)" opacity="0.7"/>
+            <path d="M290 148 A110 110 0 0 1 255 225" fill="none" stroke="#7c5cf0" stroke-width="2" marker-end="url(#arrR)" opacity="0.7"/>
+            <path d="M240 248 A110 110 0 0 1 105 265" fill="none" stroke="#7c5cf0" stroke-width="2" marker-end="url(#arrR)" opacity="0.7"/>
+            <path d="M97 243 A110 110 0 0 1 62 148" fill="none" stroke="#7c5cf0" stroke-width="2" marker-end="url(#arrR)" opacity="0.7"/>
+            <path d="M97 127 A110 110 0 0 1 162 42" fill="none" stroke="#7c5cf0" stroke-width="2" marker-end="url(#arrR)" opacity="0.7"/>
+
+            <!-- Token indicator -->
+            <circle cx="247" cy="96" r="10" fill="rgba(124,92,240,0.3)" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="247" y="100" text-anchor="middle" fill="#7c5cf0" font-size="8" font-weight="700" font-family="Inter">🔑</text>
+            <text x="275" y="90" fill="#5a6a8a" font-size="10" font-family="Inter">Token</text>
+
+            <text x="190" y="325" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 3.3 – Ring Topology: token passes in one direction</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">Dual Ring</h4>
+        <p>A <strong>Dual Ring</strong> (used in FDDI) has two rings — one for primary data flow and one as a backup. If the primary ring fails, the backup ring takes over, providing fault tolerance.</p>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>No collisions (token controls access)</li>
+              <li>Performance is predictable under load</li>
+              <li>Equal access for all devices</li>
+              <li>Dual ring provides fault tolerance</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Single node failure can disrupt entire ring</li>
+              <li>Difficult to add/remove devices</li>
+              <li>Slow for large networks (token must circle)</li>
+              <li>Troubleshooting is complex</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.5 Mesh -->
+  <div class="section" id="mesh">
+    <div class="topo-card mesh">
+      <div class="topo-head">
+        <span class="topo-badge">Mesh</span>
+        <span class="topo-name">Mesh Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Links (Full Mesh)</div><div class="val">n(n-1)/2 for n nodes</div></div>
+          <div class="topo-meta-item"><div class="label">Types</div><div class="val">Full Mesh, Partial Mesh</div></div>
+          <div class="topo-meta-item"><div class="label">Used In</div><div class="val">WAN, critical infrastructure</div></div>
+        </div>
+
+        <p>In a <span class="hl">Mesh Topology</span>, every device is connected to every other device in the network. This provides multiple paths between any two devices, ensuring maximum redundancy and fault tolerance. There are two types:</p>
+        <ul class="note-list">
+          <li><strong>Full Mesh:</strong> Every node connects to every other node. For <em>n</em> nodes: links = n(n-1)/2. Extremely redundant but very expensive.</li>
+          <li><strong>Partial Mesh:</strong> Some nodes are fully connected; others connect to only some nodes. Balances cost and redundancy.</li>
+        </ul>
+
+        <!-- Mesh SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 420 300" width="100%" style="max-width:400px">
+            <defs><filter id="gMesh"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+
+            <!-- All connections first (background) -->
+            <!-- A-B, A-C, A-D, A-E, B-C, B-D, B-E, C-D, C-E, D-E -->
+            <!-- Positions: A(210,50), B(340,140), C(270,250), D(150,250), E(80,140) -->
+            <line x1="210" y1="50" x2="340" y2="140" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="210" y1="50" x2="270" y2="250" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="210" y1="50" x2="150" y2="250" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="210" y1="50" x2="80" y2="140" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="340" y1="140" x2="270" y2="250" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="340" y1="140" x2="150" y2="250" stroke="#f7a34f" stroke-width="1.5" opacity="0.3"/>
+            <line x1="340" y1="140" x2="80" y2="140" stroke="#f7a34f" stroke-width="1.5" opacity="0.3"/>
+            <line x1="270" y1="250" x2="150" y2="250" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+            <line x1="270" y1="250" x2="80" y2="140" stroke="#f7a34f" stroke-width="1.5" opacity="0.3"/>
+            <line x1="150" y1="250" x2="80" y2="140" stroke="#f7a34f" stroke-width="1.5" opacity="0.45"/>
+
+            <!-- Nodes -->
+            <circle cx="210" cy="50" r="22" fill="#1a2545" stroke="#f7a34f" stroke-width="2" filter="url(#gMesh)"/>
+            <text x="210" y="54" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">A</text>
+            <text x="210" y="30" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">Router A</text>
+
+            <circle cx="340" cy="140" r="22" fill="#1a2545" stroke="#f7a34f" stroke-width="2" filter="url(#gMesh)"/>
+            <text x="340" y="144" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">B</text>
+            <text x="376" y="140" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">Router B</text>
+
+            <circle cx="270" cy="250" r="22" fill="#1a2545" stroke="#f7a34f" stroke-width="2" filter="url(#gMesh)"/>
+            <text x="270" y="254" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">C</text>
+            <text x="310" y="275" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">Router C</text>
+
+            <circle cx="150" cy="250" r="22" fill="#1a2545" stroke="#4f8ef7" stroke-width="2" filter="url(#gMesh)"/>
+            <text x="150" y="254" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">D</text>
+            <text x="118" y="275" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">Router D</text>
+
+            <circle cx="80" cy="140" r="22" fill="#1a2545" stroke="#f7a34f" stroke-width="2" filter="url(#gMesh)"/>
+            <text x="80" y="144" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">E</text>
+            <text x="44" y="140" text-anchor="middle" fill="#9aa5c4" font-size="10" font-family="Inter">Router E</text>
+
+            <!-- Formula -->
+            <text x="210" y="292" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter">Links = n(n-1)/2 = 5×4/2 = 10 links for 5 nodes</text>
+          </svg>
+        </div>
+
+        <div class="callout note">
+          <div class="callout-icon">📐</div>
+          <div class="callout-body">
+            <div class="callout-title">Formula</div>
+            <div class="callout-text">For a <strong>Full Mesh</strong> with n nodes: <br/> • Number of links = <strong>n(n-1)/2</strong> <br/> • Input/output ports per device = <strong>(n-1)</strong> <br/>Example: 5 nodes → 10 links; 10 nodes → 45 links!</div>
+          </div>
+        </div>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>Maximum redundancy and fault tolerance</li>
+              <li>Multiple paths between nodes</li>
+              <li>Traffic can be distributed (load balanced)</li>
+              <li>Failure of one link doesn't affect network</li>
+              <li>Privacy (dedicated links)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Extremely expensive — huge cabling cost</li>
+              <li>Complex installation and management</li>
+              <li>Each device needs many ports</li>
+              <li>Impractical for large networks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.6 Tree -->
+  <div class="section" id="tree">
+    <div class="topo-card tree">
+      <div class="topo-head">
+        <span class="topo-badge">Tree</span>
+        <span class="topo-name">Tree Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Structure</div><div class="val">Hierarchical (Star of Stars)</div></div>
+          <div class="topo-meta-item"><div class="label">Root Node</div><div class="val">Central backbone switch/router</div></div>
+          <div class="topo-meta-item"><div class="label">Used In</div><div class="val">Enterprise, campus networks</div></div>
+        </div>
+
+        <p>A <span class="hl">Tree Topology</span> (also called Hierarchical Topology) combines characteristics of Bus and Star topologies. It has a <strong>root node</strong> (the top-level device), which connects to intermediate nodes (secondary hubs/switches), which in turn connect to leaf nodes (end devices). It looks like an inverted tree.</p>
+
+        <!-- Tree SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 560 300" width="100%" style="max-width:540px">
+            <!-- Root -->
+            <rect x="220" y="20" width="120" height="44" rx="12" fill="#1a2545" stroke="#f05c88" stroke-width="2"/>
+            <text x="280" y="46" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">Root Switch</text>
+
+            <!-- Level 2 -->
+            <rect x="60" y="110" width="100" height="40" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="110" y="134" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="600" font-family="Inter">Switch A</text>
+
+            <rect x="400" y="110" width="100" height="40" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="450" y="134" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="600" font-family="Inter">Switch B</text>
+
+            <!-- Level 2 connections -->
+            <line x1="230" y1="64" x2="155" y2="110" stroke="#f05c88" stroke-width="2" opacity="0.6"/>
+            <line x1="330" y1="64" x2="405" y2="110" stroke="#f05c88" stroke-width="2" opacity="0.6"/>
+
+            <!-- Level 3 – left branch -->
+            <rect x="20" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="52" y="228" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">PC 1</text>
+            <line x1="52" y1="205" x2="90" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <rect x="100" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="132" y="228" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">PC 2</text>
+            <line x1="130" y1="205" x2="120" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <rect x="180" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="212" y="228" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">PC 3</text>
+            <line x1="210" y1="205" x2="145" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <!-- Level 3 – right branch -->
+            <rect x="310" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="342" y="228" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">PC 4</text>
+            <line x1="342" y1="205" x2="418" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <rect x="390" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="422" y="228" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">PC 5</text>
+            <line x1="422" y1="205" x2="445" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <rect x="470" y="205" width="65" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="502" y="228" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">PC 6</text>
+            <line x1="502" y1="205" x2="472" y2="150" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <!-- Labels -->
+            <text x="280" y="100" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Level 1: Root</text>
+            <text x="110" y="175" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Level 2</text>
+            <text x="450" y="175" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Level 2</text>
+            <text x="280" y="265" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Level 3: End devices</text>
+
+            <text x="280" y="290" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 3.5 – Tree Topology: hierarchical structure</text>
+          </svg>
+        </div>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>Scalable — easy to add branches</li>
+              <li>Fault isolation at segment level</li>
+              <li>Hierarchical management</li>
+              <li>Suitable for large organisations</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Root node failure affects all</li>
+              <li>Heavy dependency on trunk cable</li>
+              <li>Complex cabling</li>
+              <li>More expensive than bus</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.7 Hybrid -->
+  <div class="section" id="hybrid">
+    <div class="topo-card hybrid">
+      <div class="topo-head">
+        <span class="topo-badge">Hybrid</span>
+        <span class="topo-name">Hybrid Topology</span>
+      </div>
+      <div class="topo-body">
+        <div class="topo-meta">
+          <div class="topo-meta-item"><div class="label">Composition</div><div class="val">Combination of 2+ topologies</div></div>
+          <div class="topo-meta-item"><div class="label">Flexibility</div><div class="val">Very High</div></div>
+          <div class="topo-meta-item"><div class="label">Used In</div><div class="val">Real-world enterprise networks</div></div>
+        </div>
+
+        <p>A <span class="hl">Hybrid Topology</span> is a combination of two or more different types of topologies. Most <strong>real-world networks</strong> use hybrid topologies because no single topology perfectly fits all requirements. For example, a large enterprise might use a star topology within each department (floor) and connect departments using a ring or mesh backbone.</p>
+
+        <!-- Hybrid SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 600 300" width="100%" style="max-width:580px">
+            <!-- Left: Star cluster -->
+            <rect x="20" y="100" width="65" height="40" rx="10" fill="#1a2545" stroke="#4f8ef7" stroke-width="2"/>
+            <text x="52" y="124" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Switch</text>
+            <text x="52" y="92" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Star LAN 1</text>
+
+            <!-- Star LAN 1 devices -->
+            <circle cx="52" cy="55" r="12" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><line x1="52" y1="67" x2="52" y2="100" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+            <circle cx="22" cy="170" r="12" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><line x1="30" y1="165" x2="40" y2="140" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+            <circle cx="82" cy="170" r="12" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><line x1="74" y1="165" x2="66" y2="140" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+            <text x="52" y="55" text-anchor="middle" fill="#4f8ef7" font-size="8" font-family="Inter">PC</text>
+            <text x="22" y="170" text-anchor="middle" fill="#4f8ef7" font-size="8" font-family="Inter">PC</text>
+            <text x="82" y="170" text-anchor="middle" fill="#4f8ef7" font-size="8" font-family="Inter">PC</text>
+
+            <!-- Right: Star cluster -->
+            <rect x="515" y="100" width="65" height="40" rx="10" fill="#1a2545" stroke="#00d4aa" stroke-width="2"/>
+            <text x="548" y="124" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Switch</text>
+            <text x="548" y="92" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Star LAN 2</text>
+
+            <circle cx="548" cy="55" r="12" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><line x1="548" y1="67" x2="548" y2="100" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <circle cx="518" cy="170" r="12" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><line x1="526" y1="165" x2="535" y2="140" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <circle cx="578" cy="170" r="12" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><line x1="570" y1="165" x2="561" y2="140" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <text x="548" y="55" text-anchor="middle" fill="#00d4aa" font-size="8" font-family="Inter">PC</text>
+            <text x="518" y="170" text-anchor="middle" fill="#00d4aa" font-size="8" font-family="Inter">PC</text>
+            <text x="578" y="170" text-anchor="middle" fill="#00d4aa" font-size="8" font-family="Inter">PC</text>
+
+            <!-- Center: Ring backbone connecting the stars -->
+            <circle cx="300" cy="150" r="80" fill="none" stroke="#7c5cf0" stroke-width="2" stroke-dasharray="7,4" opacity="0.4"/>
+
+            <!-- Ring nodes -->
+            <circle cx="300" cy="70" r="20" fill="#1a2545" stroke="#7c5cf0" stroke-width="2"/>
+            <text x="300" y="74" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">R1</text>
+            <circle cx="380" cy="150" r="20" fill="#1a2545" stroke="#7c5cf0" stroke-width="2"/>
+            <text x="380" y="154" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">R2</text>
+            <circle cx="300" cy="230" r="20" fill="#1a2545" stroke="#7c5cf0" stroke-width="2"/>
+            <text x="300" y="234" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">R3</text>
+            <circle cx="220" cy="150" r="20" fill="#1a2545" stroke="#7c5cf0" stroke-width="2"/>
+            <text x="220" y="154" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">R4</text>
+
+            <!-- Ring links -->
+            <line x1="300" y1="90" x2="366" y2="137" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="376" y1="168" x2="314" y2="218" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="283" y1="222" x2="232" y2="168" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+            <line x1="222" y1="132" x2="287" y2="76" stroke="#7c5cf0" stroke-width="1.5" opacity="0.5"/>
+
+            <!-- Connect stars to ring -->
+            <line x1="85" y1="120" x2="200" y2="150" stroke="#f7a34f" stroke-width="2" opacity="0.7" stroke-dasharray="6,4"/>
+            <line x1="515" y1="120" x2="400" y2="150" stroke="#f7a34f" stroke-width="2" opacity="0.7" stroke-dasharray="6,4"/>
+
+            <text x="145" y="108" fill="#f7a34f" font-size="10" font-family="Inter">WAN link</text>
+            <text x="420" y="108" fill="#f7a34f" font-size="10" font-family="Inter">WAN link</text>
+            <text x="300" y="150" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Ring</text>
+            <text x="300" y="163" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Backbone</text>
+
+            <text x="300" y="286" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 3.6 – Hybrid: Star LANs connected via Ring backbone</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">Common Hybrid Combinations</h4>
+        <ul class="note-list">
+          <li><strong>Star-Bus:</strong> Multiple star networks connected to a bus backbone.</li>
+          <li><strong>Star-Ring:</strong> Star clusters connected via a ring backbone (common in enterprise).</li>
+          <li><strong>Star-Mesh:</strong> Star LANs at branches connected via mesh WAN for redundancy.</li>
+        </ul>
+
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Advantages</h4>
+            <ul>
+              <li>Highly flexible and scalable</li>
+              <li>Combines best features of each topology</li>
+              <li>Suitable for large, complex networks</li>
+              <li>Fault isolation at topology boundaries</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Disadvantages</h4>
+            <ul>
+              <li>Complex design and management</li>
+              <li>Higher cost</li>
+              <li>Difficult to troubleshoot</li>
+              <li>Requires skilled network engineers</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.8 Comparison -->
+  <div class="section" id="comparison">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 3.8</div>
+        <h2 class="section-title">Topology Comparison Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Bus</th><th>Star</th><th>Ring</th><th>Mesh</th><th>Tree</th><th>Hybrid</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cable needed</td><td>Least</td><td>Medium</td><td>Medium</td><td>Most</td><td>Medium</td><td>Varies</td></tr>
+          <tr><td>Single pt of failure</td><td>Bus cable</td><td>Hub/switch</td><td>Any node</td><td>None</td><td>Root/trunk</td><td>Depends</td></tr>
+          <tr><td>Scalability</td><td>Poor</td><td>Good</td><td>Fair</td><td>Poor</td><td>Very Good</td><td>Excellent</td></tr>
+          <tr><td>Fault tolerance</td><td>Low</td><td>Medium</td><td>Low</td><td>High</td><td>Medium</td><td>High</td></tr>
+          <tr><td>Cost</td><td>Lowest</td><td>Medium</td><td>Medium</td><td>Highest</td><td>Medium-High</td><td>High</td></tr>
+          <tr><td>Performance</td><td>Degrades</td><td>Good</td><td>Consistent</td><td>Excellent</td><td>Good</td><td>Good</td></tr>
+          <tr><td>Installation</td><td>Easy</td><td>Easy</td><td>Moderate</td><td>Complex</td><td>Moderate</td><td>Complex</td></tr>
+          <tr><td>Troubleshooting</td><td>Difficult</td><td>Easy</td><td>Difficult</td><td>Complex</td><td>Moderate</td><td>Complex</td></tr>
+          <tr><td>Best for</td><td>Small temp networks</td><td>Home/office LAN</td><td>Token ring LAN</td><td>WAN backbone</td><td>Enterprise</td><td>Real-world nets</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Exam Quick Reference</div>
+        <div class="callout-text">
+          <strong>Most common today:</strong> Star (office LANs)<br/>
+          <strong>Most fault tolerant:</strong> Mesh (WAN backbones)<br/>
+          <strong>Cheapest:</strong> Bus<br/>
+          <strong>Most scalable:</strong> Tree / Hybrid<br/>
+          <strong>Token-based access:</strong> Ring
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="02-network-types.html">← Ch 02: Network Types</a>
+      <a href="index.html">Home</a>
+      <a href="04-client-server-p2p.html">Ch 04: Architectures →</a>
+    </div>
+    Network Fundamentals · Chapter 03 · Network Topologies
+  </div>
+</footer>
+
+</body>
+</html>

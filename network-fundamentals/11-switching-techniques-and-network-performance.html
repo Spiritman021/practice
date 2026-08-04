@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 11 – Switching Techniques & Network Performance | Network Fundamentals</title>
+  <meta name="description" content="Detailed notes on Circuit, Packet, and Message Switching techniques, plus Bandwidth, Throughput, Latency, BDP, and Jitter." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .switch-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+    }
+    .metric-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; transition: transform 0.2s ease;
+    }
+    .metric-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 11</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 11 · Physical Layer</div>
+    <h1 class="page-title">Switching Techniques &<br/>Network Performance</h1>
+    <p class="page-subtitle">Understand Circuit, Packet, and Message switching techniques, and master core network performance metrics: Bandwidth, Throughput, Latency, Bandwidth-Delay Product (BDP), and Jitter.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#switching"><span class="toc-num">11.1</span> Switching Techniques Overview</a></li>
+      <li><a href="#circuit"><span class="toc-num">11.2</span> Circuit Switching</a></li>
+      <li><a href="#packet"><span class="toc-num">11.3</span> Packet Switching (Datagram vs Virtual Circuit)</a></li>
+      <li><a href="#message"><span class="toc-num">11.4</span> Message Switching</a></li>
+      <li><a href="#switch-compare"><span class="toc-num">11.5</span> Switching Techniques Comparison Table</a></li>
+      <li><a href="#performance"><span class="toc-num">11.6</span> Performance Metrics: Bandwidth & Throughput</a></li>
+      <li><a href="#latency"><span class="toc-num">11.7</span> Latency Components (The 4 Delays)</a></li>
+      <li><a href="#bdp-jitter"><span class="toc-num">11.8</span> Bandwidth-Delay Product (BDP) & Jitter</a></li>
+    </ul>
+  </div>
+
+  <!-- 11.1 Overview -->
+  <div class="section" id="switching">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 11.1</div>
+        <h2 class="section-title">Switching Techniques Overview</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">switched network</span> consists of a series of interconnected nodes called **switches**. Switching is the mechanism of forwarding data from an input port to an output port toward its ultimate destination. The three traditional switching techniques are:</p>
+    <ul class="note-list">
+      <li><strong>Circuit Switching:</strong> A dedicated physical connection path is set up before data transfer begins.</li>
+      <li><strong>Packet Switching:</strong> Data is broken into small packets and routed independently through the network.</li>
+      <li><strong>Message Switching:</strong> The entire message is forwarded from node to node using store-and-forward.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 11.2 Circuit Switching -->
+  <div class="section" id="circuit">
+    <div class="switch-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">11.2 Circuit Switching</h3>
+      <p>In <span class="hl">Circuit Switching</span>, a dedicated physical communication path is established between the sender and receiver for the entire duration of the connection. The connection goes through three distinct phases:</p>
+
+      <ol class="note-list" style="margin-left:20px; margin-top:10px;">
+        <li><strong>Circuit Setup:</strong> Dedicated link resources (channels/time slots) are reserved along the route.</li>
+        <li><strong>Data Transfer:</strong> Continuous data transmission occurs over the dedicated path.</li>
+        <li><strong>Circuit Teardown:</strong> Dedicated resources are released after communication ends.</li>
+      </ol>
+
+      <h4 class="mini-title">Key Characteristics</h4>
+      <ul class="note-list">
+        <li>Guaranteed bandwidth and constant delay (zero queuing delay once setup).</li>
+        <li>Resources are reserved and unavailable to others, leading to inefficient channel utilization if idle.</li>
+        <li>Primary Example: Traditional Landline Telephone Network (PSTN).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 11.3 Packet Switching -->
+  <div class="section" id="packet">
+    <div class="switch-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">11.3 Packet Switching</h3>
+      <p>In <span class="hl2">Packet Switching</span>, messages are divided into smaller pieces called **packets**. Each packet contains data payload plus control headers (Source/Destination IP, sequence numbers). Packets travel independently through intermediate switches using store-and-forward.</p>
+
+      <h4 class="mini-title">Two Approaches to Packet Switching</h4>
+      <ul class="note-list">
+        <li><strong>Datagram Approach (Connectionless):</strong> Each packet is treated independently. Packets may take different paths and arrive out-of-order at the receiver. Reassembly occurs at destination. (e.g., The Internet / IP).</li>
+        <li><strong>Virtual Circuit Approach (Connection-oriented):</strong> A logical path is established before sending packets. All packets follow the same path in order, but resources are shared dynamically. (e.g., MPLS, X.25, Frame Relay).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 11.4 Message Switching -->
+  <div class="section" id="message">
+    <div class="switch-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">11.4 Message Switching</h3>
+      <p>In <span class="hl3">Message Switching</span>, data is sent as an entire complete message (not broken into packets). Each intermediate switch receives the entire message, stores it on disk/memory, and forwards it to the next switch when the outgoing line becomes free (**Store-and-Forward**).</p>
+      <p>Historical usage: Telegraph systems, paper tape switching. Obsolete in modern high-speed IP networks due to huge memory requirements at intermediate switches.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 11.5 Switching Comparison -->
+  <div class="section" id="switch-compare">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 11.5</div>
+        <h2 class="section-title">Switching Techniques Comparison Table</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic for Circuit vs Packet Switching -->
+    <div class="diagram-box">
+      <img src="images/switching.jpg" alt="Circuit Switching vs Packet Switching Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 11.1 – Architectural Comparison of Circuit Switching vs Packet Switching</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Circuit Switching</th><th>Packet Switching</th><th>Message Switching</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dedicated Path</td><td>Yes (Reserved beforehand)</td><td>No (Dynamic / Shared)</td><td>No (Store-and-forward)</td></tr>
+          <tr><td>Data Division</td><td>Continuous bitstream</td><td>Divided into Packets</td><td>Entire Message</td></tr>
+          <tr><td>Setup Delay</td><td>Required (Call setup time)</td><td>None (Datagram mode)</td><td>None</td></tr>
+          <tr><td>Bandwidth Utilization</td><td>Inefficient (Reserved even if idle)</td><td>Highly Efficient (Dynamic sharing)</td><td>Moderate</td></tr>
+          <tr><td>Store-and-Forward</td><td>No</td><td>Yes (at packet level)</td><td>Yes (at message level)</td></tr>
+          <tr><td>Primary Usage</td><td>Voice calls (PSTN)</td><td>Internet data, Web, VoIP</td><td>Telegraph (Historical)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 11.6 Performance Metrics -->
+  <div class="section" id="performance">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 11.6</div>
+        <h2 class="section-title">Performance Metrics: Bandwidth & Throughput</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="metric-card">
+        <div class="info-card-label">Theoretical Limit</div>
+        <div class="info-card-title">Bandwidth</div>
+        <div class="info-card-desc">
+          1. <strong>In Hertz (Hz):</strong> Range of frequencies a medium can pass (Analog).<br/>
+          2. <strong>In Bits per second (bps):</strong> Maximum theoretical data transfer rate of a channel (Digital). E.g., 1 Gbps.
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="info-card-label">Actual Speed</div>
+        <div class="info-card-title">Throughput</div>
+        <div class="info-card-desc">
+          The actual rate at which data is successfully transferred through a network in practice. <br/>
+          <em>Formula:</em> Throughput ≤ Bandwidth. Always lower due to overhead, congestion, and errors.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 11.7 Latency Components -->
+  <div class="section" id="latency">
+    <div class="section-header">
+      <div class="section-icon">⏱️</div>
+      <div>
+        <div class="section-num">Section 11.7</div>
+        <h2 class="section-title">Latency Components (The 4 Delays)</h2>
+      </div>
+    </div>
+    <p><span class="hl">Latency (Total Delay)</span> is the total time it takes for a message to travel from the sender to the receiver. It is the sum of four individual delay components:</p>
+
+    <div class="callout key">
+      <div class="callout-icon">🧮</div>
+      <div class="callout-body">
+        <div class="callout-title">Total Latency Formula</div>
+        <div class="callout-text" style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent);">
+          Latency = Propagation Delay + Transmission Delay + Queuing Delay + Processing Delay
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Delay Component</th><th>Definition</th><th>Formula</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Propagation Delay</strong></td>
+            <td>Time taken for a bit to travel from sender to receiver over the medium distance.</td>
+            <td>Distance / Propagation Speed</td>
+          </tr>
+          <tr>
+            <td><strong>Transmission Delay</strong></td>
+            <td>Time required to push all bits of a packet onto the physical wire.</td>
+            <td>Packet Size (bits) / Bandwidth (bps)</td>
+          </tr>
+          <tr>
+            <td><strong>Queuing Delay</strong></td>
+            <td>Time spent by a packet waiting in router queues before being processed.</td>
+            <td>Varies with network congestion</td>
+          </tr>
+          <tr>
+            <td><strong>Processing Delay</strong></td>
+            <td>Time taken by a router to inspect packet header, check errors, and determine route.</td>
+            <td>Hardware dependent (microseconds)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 11.8 BDP & Jitter -->
+  <div class="section" id="bdp-jitter">
+    <div class="section-header">
+      <div class="section-icon">📉</div>
+      <div>
+        <div class="section-num">Section 11.8</div>
+        <h2 class="section-title">Bandwidth-Delay Product (BDP) & Jitter</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Bandwidth-Delay Product (BDP)</h3>
+    <p>BDP defines the maximum number of bits that can be "in-flight" in the network pipe at any given moment (filling the pipe).</p>
+    <div class="callout note">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <div class="callout-title">BDP Formula</div>
+        <div class="callout-text" style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent3);">
+          BDP (bits) = Bandwidth (bps) × Propagation Delay (seconds)
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">2. Jitter</h3>
+    <p><span class="hl4">Jitter</span> is the variation or fluctuation in packet arrival delays. If packet 1 arrives in 20 ms, packet 2 in 40 ms, and packet 3 in 25 ms, the variation is jitter.</p>
+    <p>High jitter degrades real-time communication like <strong>VoIP calls</strong> and <strong>video conferencing</strong>, causing distortion or jerky playback. Equalizing buffers are used to smooth out jitter.</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="10-transmission-modes-signals-multiplexing.html">← Ch 10: Modes & Multiplexing</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 11 · Switching Techniques & Network Performance
+  </div>
+</footer>
+
+</body>
+</html>

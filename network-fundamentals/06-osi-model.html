@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 6 – OSI Model & 7 Layers | Network Fundamentals</title>
+  <meta name="description" content="Detailed notes on the 7-Layer OSI Reference Model, functions of each layer, PDUs, and data encapsulation." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .layer-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .layer-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .layer-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+    }
+    .layer-title-group { display: flex; align-items: center; gap: 14px; }
+    .layer-num-badge {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; font-family: 'JetBrains Mono', monospace;
+    }
+    .layer-7 .layer-num-badge { background: rgba(240,92,136,0.2); color: #f05c88; border: 1px solid #f05c88; }
+    .layer-6 .layer-num-badge { background: rgba(124,92,240,0.2); color: #7c5cf0; border: 1px solid #7c5cf0; }
+    .layer-5 .layer-num-badge { background: rgba(79,142,247,0.2); color: #4f8ef7; border: 1px solid #4f8ef7; }
+    .layer-4 .layer-num-badge { background: rgba(0,212,170,0.2); color: #00d4aa; border: 1px solid #00d4aa; }
+    .layer-3 .layer-num-badge { background: rgba(247,163,79,0.2); color: #f7a34f; border: 1px solid #f7a34f; }
+    .layer-2 .layer-num-badge { background: rgba(124,92,240,0.2); color: #a0c4ff; border: 1px solid #a0c4ff; }
+    .layer-1 .layer-num-badge { background: rgba(240,92,136,0.2); color: #ff85a2; border: 1px solid #ff85a2; }
+
+    .layer-name { font-size: 20px; font-weight: 800; }
+    .layer-pdu {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; padding: 4px 12px; border-radius: 100px;
+      background: var(--card2); border: 1px solid var(--border); color: var(--text2);
+    }
+    .layer-body { padding: 22px 24px; }
+
+    .pdu-flow-box {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; margin: 24px 0; text-align: center;
+    }
+
+    .mnemonic-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.1), rgba(79,142,247,0.1));
+      border: 1px solid rgba(124,92,240,0.3); border-radius: 16px; padding: 20px; margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 06</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 06 · Reference Models</div>
+    <h1 class="page-title">The OSI 7-Layer Reference Model</h1>
+    <p class="page-subtitle">Created by ISO in 1984, the Open Systems Interconnection (OSI) model provides a universal 7-layer architectural framework for understanding network communication, data encapsulation, and layer responsibilities.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">6.1</span> Introduction & Need for Layering</a></li>
+      <li><a href="#mnemonic"><span class="toc-num">6.2</span> Memory Tricks (Mnemonics)</a></li>
+      <li><a href="#pdu"><span class="toc-num">6.3</span> PDUs & Data Encapsulation Process</a></li>
+      <li><a href="#layer7"><span class="toc-num">6.4</span> Layer 7 – Application Layer</a></li>
+      <li><a href="#layer6"><span class="toc-num">6.5</span> Layer 6 – Presentation Layer</a></li>
+      <li><a href="#layer5"><span class="toc-num">6.6</span> Layer 5 – Session Layer</a></li>
+      <li><a href="#layer4"><span class="toc-num">6.7</span> Layer 4 – Transport Layer</a></li>
+      <li><a href="#layer3"><span class="toc-num">6.8</span> Layer 3 – Network Layer</a></li>
+      <li><a href="#layer2"><span class="toc-num">6.9</span> Layer 2 – Data Link Layer</a></li>
+      <li><a href="#layer1"><span class="toc-num">6.10</span> Layer 1 – Physical Layer</a></li>
+      <li><a href="#summary"><span class="toc-num">6.11</span> Summary Table of 7 Layers</a></li>
+    </ul>
+  </div>
+
+  <!-- 6.1 Intro -->
+  <div class="section" id="intro">
+    <div class="section-header">
+      <div class="section-icon">📐</div>
+      <div>
+        <div class="section-num">Section 6.1</div>
+        <h2 class="section-title">Introduction & Need for Layering</h2>
+      </div>
+    </div>
+    <p>The <span class="hl">OSI (Open Systems Interconnection) Model</span> was developed by the <strong>International Organization for Standardization (ISO)</strong> in 1984. It is a conceptual framework that divides network communications into seven distinct layers.</p>
+
+    <h3 class="sub-title">Why a Layered Architecture?</h3>
+    <ul class="note-list">
+      <li><strong>Modularity & Interoperability:</strong> Enables hardware and software from different vendors to work together seamlessly.</li>
+      <li><strong>Simplifies Design:</strong> Complex networking problems are broken down into smaller, manageable sub-problems.</li>
+      <li><strong>Flexibility:</strong> Changes made at one layer do not affect other layers (e.g., changing from Wi-Fi to Ethernet does not break your browser).</li>
+      <li><strong>Standardization:</strong> Defines clear interfaces and boundaries between network components.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 6.2 Mnemonics -->
+  <div class="section" id="mnemonic">
+    <div class="section-header">
+      <div class="section-icon">💡</div>
+      <div>
+        <div class="section-num">Section 6.2</div>
+        <h2 class="section-title">Memory Tricks (Mnemonics)</h2>
+      </div>
+    </div>
+
+    <div class="mnemonic-box">
+      <h3 style="color:var(--accent2); margin-bottom:12px; font-size:16px;">Top-to-Bottom (Layer 7 → Layer 1)</h3>
+      <p style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:8px;">
+        <span class="hl">A</span>ll <span class="hl">P</span>eople <span class="hl">S</span>eem <span class="hl">T</span>o <span class="hl">N</span>eed <span class="hl">D</span>ata <span class="hl">P</span>rocessing
+      </p>
+      <p style="font-size:13px; color:var(--text2);">
+        <strong>A</strong>pplication → <strong>P</strong>resentation → <strong>S</strong>ession → <strong>T</strong>ransport → <strong>N</strong>etwork → <strong>D</strong>ata Link → <strong>P</strong>hysical
+      </p>
+
+      <hr style="border:none; border-top:1px dashed var(--border); margin:16px 0;" />
+
+      <h3 style="color:var(--accent3); margin-bottom:12px; font-size:16px;">Bottom-to-Top (Layer 1 → Layer 7)</h3>
+      <p style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:8px;">
+        <span class="hl2">P</span>lease <span class="hl2">D</span>o <span class="hl2">N</span>ot <span class="hl2">T</span>hrow <span class="hl2">S</span>ausage <span class="hl2">P</span>izza <span class="hl2">A</span>way
+      </p>
+      <p style="font-size:13px; color:var(--text2);">
+        <strong>P</strong>hysical → <strong>D</strong>ata Link → <strong>N</strong>etwork → <strong>T</strong>ransport → <strong>S</strong>ession → <strong>P</strong>resentation → <strong>A</strong>pplication
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 6.3 Encapsulation & PDUs -->
+  <div class="section" id="pdu">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 6.3</div>
+        <h2 class="section-title">PDUs & Data Encapsulation Process</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">Protocol Data Unit (PDU)</span> is the single unit of information transmitted among peer entities of a computer network. As data moves down the OSI layers on the sender side, each layer attaches its own <strong>Header (H)</strong> (and Trailer at Layer 2) — a process called <strong>Encapsulation</strong>.</p>
+    <p>On the receiver side, as data moves up through the layers, headers are stripped off — a process called <strong>Decapsulation</strong>.</p>
+
+    <!-- Encapsulation SVG Diagram -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 760 380" width="100%" style="max-width:740px">
+        <defs>
+          <marker id="arrEnc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/>
+          </marker>
+        </defs>
+
+        <!-- Sender Column -->
+        <text x="140" y="24" text-anchor="middle" fill="#4f8ef7" font-size="14" font-weight="800" font-family="Inter">SENDER (Encapsulation)</text>
+
+        <!-- L7-5 Data -->
+        <rect x="30" y="40" width="220" height="34" rx="6" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="140" y="62" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">Application Data (Message)</text>
+
+        <!-- L4 Segment -->
+        <rect x="30" y="95" width="220" height="34" rx="6" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <rect x="34" y="99" width="45" height="26" rx="4" fill="#00d4aa" opacity="0.3"/>
+        <text x="56" y="116" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="800" font-family="Inter">L4 H</text>
+        <text x="155" y="116" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="600" font-family="Inter">Data (Segment)</text>
+
+        <!-- L3 Packet -->
+        <rect x="30" y="150" width="220" height="34" rx="6" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+        <rect x="34" y="154" width="45" height="26" rx="4" fill="#f7a34f" opacity="0.3"/>
+        <text x="56" y="171" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="800" font-family="Inter">L3 H</text>
+        <rect x="83" y="154" width="35" height="26" rx="4" fill="#00d4aa" opacity="0.2"/>
+        <text x="100" y="171" text-anchor="middle" fill="#00d4aa" font-size="9" font-family="Inter">L4 H</text>
+        <text x="165" y="171" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Data (Packet)</text>
+
+        <!-- L2 Frame -->
+        <rect x="30" y="205" width="220" height="34" rx="6" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+        <rect x="34" y="209" width="40" height="26" rx="4" fill="#7c5cf0" opacity="0.3"/>
+        <text x="54" y="226" text-anchor="middle" fill="#7c5cf0" font-size="9" font-weight="800" font-family="Inter">L2 H</text>
+        <rect x="200" y="209" width="46" height="26" rx="4" fill="#7c5cf0" opacity="0.3"/>
+        <text x="223" y="226" text-anchor="middle" fill="#7c5cf0" font-size="9" font-weight="800" font-family="Inter">L2 T</text>
+        <text x="135" y="226" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Payload (Frame)</text>
+
+        <!-- L1 Bits -->
+        <rect x="30" y="260" width="220" height="30" rx="6" fill="rgba(240,92,136,0.15)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="140" y="279" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="JetBrains Mono">10110100101011 (Bits)</text>
+
+        <!-- Arrows down -->
+        <line x1="140" y1="74" x2="140" y2="92" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="140" y1="129" x2="140" y2="147" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="140" y1="184" x2="140" y2="202" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="140" y1="239" x2="140" y2="257" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrEnc)"/>
+
+        <!-- Middle Transmission -->
+        <path d="M 250 275 L 510 275" stroke="#00d4aa" stroke-width="3" stroke-dasharray="6,4"/>
+        <text x="380" y="265" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Physical Medium (Cable / Air)</text>
+
+        <!-- Receiver Column -->
+        <text x="620" y="24" text-anchor="middle" fill="#00d4aa" font-size="14" font-weight="800" font-family="Inter">RECEIVER (Decapsulation)</text>
+
+        <!-- Receiver L1-L7 -->
+        <rect x="510" y="260" width="220" height="30" rx="6" fill="rgba(240,92,136,0.15)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="620" y="279" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="JetBrains Mono">10110100101011 (Bits)</text>
+
+        <rect x="510" y="205" width="220" height="34" rx="6" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+        <text x="620" y="226" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="600" font-family="Inter">Frame → Strip L2 H/T</text>
+
+        <rect x="510" y="150" width="220" height="34" rx="6" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="620" y="171" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="600" font-family="Inter">Packet → Strip L3 H</text>
+
+        <rect x="510" y="95" width="220" height="34" rx="6" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="620" y="116" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="600" font-family="Inter">Segment → Reassemble</text>
+
+        <rect x="510" y="40" width="220" height="34" rx="6" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="620" y="62" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">Original Application Data</text>
+
+        <!-- Arrows up -->
+        <line x1="620" y1="260" x2="620" y2="242" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="620" y1="205" x2="620" y2="187" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="620" y1="150" x2="620" y2="132" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrEnc)"/>
+        <line x1="620" y1="95" x2="620" y2="77" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrEnc)"/>
+
+        <text x="380" y="345" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 6.1 – Data Encapsulation (Sender) and Decapsulation (Receiver)</text>
+      </svg>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Layer #</th>
+            <th>Layer Name</th>
+            <th>PDU Name</th>
+            <th>Addressing / Identifier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>7</td><td>Application</td><td>Data / Message</td><td>User / Application Process</td></tr>
+          <tr><td>6</td><td>Presentation</td><td>Data</td><td>Format Specs / Syntax</td></tr>
+          <tr><td>5</td><td>Session</td><td>Data</td><td>Session ID / Port</td></tr>
+          <tr><td>4</td><td>Transport</td><td>Segment (TCP) / Datagram (UDP)</td><td>Port Address (16-bit)</td></tr>
+          <tr><td>3</td><td>Network</td><td>Packet</td><td>IP Address (Logical)</td></tr>
+          <tr><td>2</td><td>Data Link</td><td>Frame</td><td>MAC Address (Physical)</td></tr>
+          <tr><td>1</td><td>Physical</td><td>Bits</td><td>Signals / Pins / Channels</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 6.4 Layer 7 -->
+  <div class="section" id="layer7">
+    <div class="layer-card layer-7">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">7</div>
+          <div class="layer-name">Application Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Data / Message</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Application Layer</span> is the topmost layer of the OSI model. It serves as the interface between software applications and the underlying network. It directly interacts with application programs (browsers, email clients) to provide network services.</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Network Services Interface:</strong> Provides protocols that allow software to send and receive data over a network.</li>
+          <li><strong>File Transfer & Management:</strong> Facilitates remote file access and operations (FTP, SFTP).</li>
+          <li><strong>Email Services:</strong> Handles mail routing and store-and-forward capabilities (SMTP, IMAP, POP3).</li>
+          <li><strong>Web Browsing:</strong> Transfers hypermedia documents (HTTP, HTTPS).</li>
+          <li><strong>Directory Services:</strong> Provides distributed database sources for global object lookup (DNS, LDAP).</li>
+        </ul>
+
+        <h4 class="mini-title">Key Protocols</h4>
+        <p><code>HTTP</code>, <code>HTTPS</code>, <code>FTP</code>, <code>SMTP</code>, <code>DNS</code>, <code>DHCP</code>, <code>Telnet</code>, <code>SSH</code>, <code>SNMP</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.5 Layer 6 -->
+  <div class="section" id="layer6">
+    <div class="layer-card layer-6">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">6</div>
+          <div class="layer-name">Presentation Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Data</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Presentation Layer</span> acts as the "translator" for the network. It ensures that data sent from the application layer of one system is readable by the application layer of another system.</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Data Translation / Formatting:</strong> Converts data between vendor-dependent formats (e.g., ASCII to EBCDIC or Unicode).</li>
+          <li><strong>Encryption & Decryption:</strong> Handles privacy and security formatting (SSL/TLS encryption happens here conceptually).</li>
+          <li><strong>Compression & Decompression:</strong> Reduces data size to increase transmission efficiency (JPEG, MPEG, ZIP).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.6 Layer 5 -->
+  <div class="section" id="layer5">
+    <div class="layer-card layer-5">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">5</div>
+          <div class="layer-name">Session Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Data</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Session Layer</span> is responsible for establishing, managing, maintaining, and terminating sessions (connections) between applications on different devices.</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Session Establishment & Termination:</strong> Starts, maintains, and cleanly closes communication dialogues.</li>
+          <li><strong>Dialog Control:</strong> Determines which device transmits when (Simplex, Half-Duplex, or Full-Duplex).</li>
+          <li><strong>Synchronization & Checkpointing:</strong> Inserts checkpoints into long data streams so that if a failure occurs, transmission resumes from the last checkpoint rather than starting over.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.7 Layer 4 -->
+  <div class="section" id="layer4">
+    <div class="layer-card layer-4">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">4</div>
+          <div class="layer-name">Transport Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Segment / Datagram</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Transport Layer</span> provides end-to-end communication services for applications. It ensures reliable, transparent, and error-free data transfer between process-to-process (host-to-host).</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Service Point (Port) Addressing:</strong> Uses 16-bit Port numbers (e.g., Port 80 for HTTP) to ensure data reaches the correct application process on a host.</li>
+          <li><strong>Segmentation & Reassembly:</strong> Divides large messages into smaller segments at sender; reassembles them in correct sequence at receiver using sequence numbers.</li>
+          <li><strong>Connection Control:</strong> Can be connection-oriented (TCP with 3-way handshake) or connectionless (UDP).</li>
+          <li><strong>Flow Control:</strong> Prevents a fast sender from overwhelming a slow receiver (Sliding Window Protocol).</li>
+          <li><strong>Error Control:</strong> Ensures entire message arrives without error or loss through sequence numbering, checksums, and ACKs.</li>
+        </ul>
+
+        <h4 class="mini-title">Key Protocols</h4>
+        <p><code>TCP (Transmission Control Protocol)</code>, <code>UDP (User Datagram Protocol)</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.8 Layer 3 -->
+  <div class="section" id="layer3">
+    <div class="layer-card layer-3">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">3</div>
+          <div class="layer-name">Network Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Packet</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Network Layer</span> is responsible for the source-to-destination (host-to-host) delivery of packets across multiple intermediate network links/routers.</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Logical Addressing:</strong> Adds logical IP addresses (source & destination IP) to packet headers.</li>
+          <li><strong>Routing:</strong> Determines the optimal physical path for packets to travel across interconnected networks using routing algorithms and routing tables.</li>
+          <li><strong>Packet Fragmentation & Reassembly:</strong> Breaks packets into smaller fragments if the underlying network's MTU (Maximum Transmission Unit) is smaller than the packet size.</li>
+        </ul>
+
+        <h4 class="mini-title">Key Hardware & Protocols</h4>
+        <p>Hardware: <code>Routers</code>, <code>Layer 3 Switches</code> | Protocols: <code>IP (IPv4, IPv6)</code>, <code>ICMP</code>, <code>ARP</code>, <code>OSPF</code>, <code>BGP</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.9 Layer 2 -->
+  <div class="section" id="layer2">
+    <div class="layer-card layer-2">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">2</div>
+          <div class="layer-name">Data Link Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Frame</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Data Link Layer</span> transforms a raw physical transmission facility into a reliable link. It is responsible for node-to-node (hop-to-hop) delivery of data frames on the same local network.</p>
+
+        <h4 class="mini-title">Sublayers</h4>
+        <ul class="note-list">
+          <li><strong>LLC (Logical Link Control - IEEE 802.2):</strong> Interfaces with the Network layer above, handles flow control, and manages error checking.</li>
+          <li><strong>MAC (Media Access Control - IEEE 802.3/802.11):</strong> Manages physical media access, framing, and hardware MAC addressing.</li>
+        </ul>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Framing:</strong> Divides stream of bits into manageable data units called Frames with headers and trailers.</li>
+          <li><strong>Physical Addressing:</strong> Adds 48-bit MAC addresses (Source MAC and Destination MAC) to the frame.</li>
+          <li><strong>Flow & Error Control:</strong> Performs error detection using CRC (Cyclic Redundancy Check) in the trailer (FCS).</li>
+          <li><strong>Access Control:</strong> Determines which device has control over the shared transmission medium at any given time (CSMA/CD, CSMA/CA).</li>
+        </ul>
+
+        <h4 class="mini-title">Key Hardware & Protocols</h4>
+        <p>Hardware: <code>Switches</code>, <code>Bridges</code>, <code>NICs</code> | Protocols: <code>Ethernet (802.3)</code>, <code>Wi-Fi (802.11)</code>, <code>PPP</code>, <code>HDLC</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.10 Layer 1 -->
+  <div class="section" id="layer1">
+    <div class="layer-card layer-1">
+      <div class="layer-header">
+        <div class="layer-title-group">
+          <div class="layer-num-badge">1</div>
+          <div class="layer-name">Physical Layer</div>
+        </div>
+        <span class="layer-pdu">PDU: Bits</span>
+      </div>
+      <div class="layer-body">
+        <p>The <span class="hl">Physical Layer</span> is the lowest layer of the OSI model. It is responsible for transmitting raw, unstructured bitstreams over a physical medium.</p>
+
+        <h4 class="mini-title">Core Functions</h4>
+        <ul class="note-list">
+          <li><strong>Representation of Bits:</strong> Defines how 0s and 1s are converted into electrical voltages, light pulses, or radio signals.</li>
+          <li><strong>Data Rate (Transmission Speed):</strong> Defines the duration of a bit and number of bits sent per second (bps).</li>
+          <li><strong>Synchronization of Bits:</strong> Ensures sender and receiver clocks are synchronized.</li>
+          <li><strong>Physical Topologies & Line Configuration:</strong> Defines topology (Star, Bus, Ring) and connection type (Point-to-Point, Multipoint).</li>
+          <li><strong>Transmission Mode:</strong> Defines direction of signal flow (Simplex, Half-Duplex, Full-Duplex).</li>
+        </ul>
+
+        <h4 class="mini-title">Key Hardware & Media</h4>
+        <p>Hardware: <code>Repeaters</code>, <code>Hubs</code>, <code>Modems</code>, <code>Cables (Cat6, Fiber Optic)</code>, <code>Connectors (RJ-45)</code></p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 6.11 Summary Table -->
+  <div class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 6.11</div>
+        <h2 class="section-title">Summary Table of 7 Layers</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Name</th>
+            <th>Primary Function</th>
+            <th>PDU</th>
+            <th>Addressing</th>
+            <th>Key Hardware</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>7</td><td>Application</td><td>Network services to applications</td><td>Data</td><td>Process / User</td><td>Gateway / Proxy</td>
+          </tr>
+          <tr>
+            <td>6</td><td>Presentation</td><td>Formatting, Encryption, Compression</td><td>Data</td><td>Syntax Specs</td><td>Gateway</td>
+          </tr>
+          <tr>
+            <td>5</td><td>Session</td><td>Establish/manage/terminate sessions</td><td>Data</td><td>Session ID</td><td>Gateway</td>
+          </tr>
+          <tr>
+            <td>4</td><td>Transport</td><td>End-to-end reliable process delivery</td><td>Segment / Datagram</td><td>Port Number (16-bit)</td><td>Firewall / L4 Switch</td>
+          </tr>
+          <tr>
+            <td>3</td><td>Network</td><td>Routing packets across networks</td><td>Packet</td><td>IP Address (32/128-bit)</td><td>Router / L3 Switch</td>
+          </tr>
+          <tr>
+            <td>2</td><td>Data Link</td><td>Node-to-node framing & MAC access</td><td>Frame</td><td>MAC Address (48-bit)</td><td>Switch / Bridge / NIC</td>
+          </tr>
+          <tr>
+            <td>1</td><td>Physical</td><td>Transmission of raw bits over medium</td><td>Bits</td><td>None (Physical signal)</td><td>Hub / Repeater / Cable</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="05-network-components.html">← Ch 05: Components</a>
+      <a href="index.html">Home</a>
+      <a href="07-tcpip-model.html">Ch 07: TCP/IP Model →</a>
+    </div>
+    Network Fundamentals · Chapter 06 · OSI Model & 7 Layers
+  </div>
+</footer>
+
+</body>
+</html>

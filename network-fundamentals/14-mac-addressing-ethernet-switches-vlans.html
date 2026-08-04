@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 14 – MAC Addressing, Ethernet, Switches & VLANs | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive guide on MAC addressing, IEEE 802.3 Ethernet frame structure, Switch MAC learning tables, and 802.1Q VLAN concepts." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .frame-box {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin: 20px 0; overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 14</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 14 · Data Link Layer</div>
+    <h1 class="page-title">MAC Addressing, Ethernet,<br/>Switches & VLANs</h1>
+    <p class="page-subtitle">Learn the 48-bit MAC address structure, IEEE 802.3 Ethernet frame format, how Switches learn MAC addresses in CAM tables, and VLAN 802.1Q trunking concepts.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#mac"><span class="toc-num">14.1</span> MAC Addressing Structure</a></li>
+      <li><a href="#ethernet"><span class="toc-num">14.2</span> IEEE 802.3 Ethernet Frame Format</a></li>
+      <li><a href="#ethernet-standards"><span class="toc-num">14.3</span> Ethernet Standards (Fast, Gigabit, 10G)</a></li>
+      <li><a href="#switch-working"><span class="toc-num">14.4</span> Switches & Learning Bridge Operation</a></li>
+      <li><a href="#vlan-intro"><span class="toc-num">14.5</span> VLAN Concepts & Benefits</a></li>
+      <li><a href="#vlan-tagging"><span class="toc-num">14.6</span> IEEE 802.1Q Tagging & Trunking</a></li>
+      <li><a href="#inter-vlan"><span class="toc-num">14.7</span> Inter-VLAN Routing</a></li>
+    </ul>
+  </div>
+
+  <!-- 14.1 MAC -->
+  <div class="section" id="mac">
+    <div class="section-header">
+      <div class="section-icon">🆔</div>
+      <div>
+        <div class="section-num">Section 14.1</div>
+        <h2 class="section-title">MAC Addressing Structure</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">MAC (Media Access Control) Address</span> is a unique <strong>48-bit (6-byte) physical hardware address</strong> burned into the ROM of a Network Interface Card (NIC).</p>
+    <p>Written in hexadecimal format: <code>00:1A:2B:3C:4D:5E</code> or <code>00-1A-2B-3C-4D-5E</code>.</p>
+
+    <!-- MAC Diagram -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 140" width="100%" style="max-width:580px">
+        <!-- Outer Box -->
+        <rect x="40" y="30" width="520" height="70" rx="10" fill="#1a2545" stroke="#4f8ef7" stroke-width="2"/>
+
+        <!-- OUI Left -->
+        <rect x="44" y="34" width="250" height="62" rx="8" fill="rgba(79,142,247,0.2)"/>
+        <text x="169" y="60" text-anchor="middle" fill="#4f8ef7" font-size="14" font-weight="800" font-family="'JetBrains Mono', monospace">00 : 1A : 2B</text>
+        <text x="169" y="82" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">First 24 Bits: OUI (Vendor ID assigned by IEEE)</text>
+
+        <!-- NIC Right -->
+        <rect x="306" y="34" width="250" height="62" rx="8" fill="rgba(0,212,170,0.2)"/>
+        <text x="431" y="60" text-anchor="middle" fill="#00d4aa" font-size="14" font-weight="800" font-family="'JetBrains Mono', monospace">3C : 4D : 5E</text>
+        <text x="431" y="82" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Last 24 Bits: NIC Extension (Unique Serial)</text>
+
+        <text x="300" y="122" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter" font-style="italic">Fig 14.1 – 48-bit MAC Address Structure (OUI + Vendor Serial)</text>
+      </svg>
+    </div>
+
+    <h3 class="sub-title">Types of MAC Addresses</h3>
+    <ul class="note-list">
+      <li><strong>Unicast MAC:</strong> Addresses a specific single NIC. LSB of 1st byte = 0 (e.g. <code>00:1A...</code>).</li>
+      <li><strong>Multicast MAC:</strong> Addresses a group of NICs. LSB of 1st byte = 1 (e.g. <code>01:00:5E:xx:xx:xx</code> for IPv4 multicast).</li>
+      <li><strong>Broadcast MAC:</strong> Addresses ALL NICs on the local LAN. All 48 bits set to 1s: <code>FF:FF:FF:FF:FF:FF</code>.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.2 Ethernet Frame -->
+  <div class="section" id="ethernet">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 14.2</div>
+        <h2 class="section-title">IEEE 802.3 Ethernet Frame Format</h2>
+      </div>
+    </div>
+
+    <!-- Ethernet Frame SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 720 160" width="100%" style="max-width:700px">
+        <!-- Preamble -->
+        <rect x="20" y="40" width="80" height="50" rx="4" fill="#131d35" stroke="#5a6a8a" stroke-width="1.5"/>
+        <text x="60" y="62" text-anchor="middle" fill="#5a6a8a" font-size="10" font-weight="700" font-family="Inter">Preamble</text>
+        <text x="60" y="78" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">7 Bytes</text>
+
+        <!-- SFD -->
+        <rect x="100" y="40" width="40" height="50" rx="4" fill="#131d35" stroke="#5a6a8a" stroke-width="1.5"/>
+        <text x="120" y="62" text-anchor="middle" fill="#5a6a8a" font-size="9" font-weight="700" font-family="Inter">SFD</text>
+        <text x="120" y="78" text-anchor="middle" fill="#5a6a8a" font-size="8" font-family="Inter">1B</text>
+
+        <!-- Dest MAC -->
+        <rect x="140" y="40" width="100" height="50" rx="4" fill="#1a2545" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="190" y="62" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="800" font-family="Inter">Dest MAC</text>
+        <text x="190" y="78" text-anchor="middle" fill="#9aa5c4" font-size="9" font-family="Inter">6 Bytes</text>
+
+        <!-- Src MAC -->
+        <rect x="240" y="40" width="100" height="50" rx="4" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="290" y="62" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="800" font-family="Inter">Src MAC</text>
+        <text x="290" y="78" text-anchor="middle" fill="#9aa5c4" font-size="9" font-family="Inter">6 Bytes</text>
+
+        <!-- Type/Length -->
+        <rect x="340" y="40" width="70" height="50" rx="4" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="375" y="62" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="700" font-family="Inter">EtherType</text>
+        <text x="375" y="78" text-anchor="middle" fill="#9aa5c4" font-size="9" font-family="Inter">2 Bytes</text>
+
+        <!-- Payload -->
+        <rect x="410" y="40" width="210" height="50" rx="4" fill="rgba(124,92,240,0.15)" stroke="#7c5cf0" stroke-width="2"/>
+        <text x="515" y="62" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="800" font-family="Inter">Data Payload (IP Packet)</text>
+        <text x="515" y="78" text-anchor="middle" fill="#7c5cf0" font-size="9" font-family="Inter">46 to 1500 Bytes (MTU)</text>
+
+        <!-- FCS / CRC -->
+        <rect x="620" y="40" width="80" height="50" rx="4" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="660" y="62" text-anchor="middle" fill="#f05c88" font-size="10" font-weight="700" font-family="Inter">FCS (CRC)</text>
+        <text x="660" y="78" text-anchor="middle" fill="#9aa5c4" font-size="9" font-family="Inter">4 Bytes</text>
+
+        <text x="360" y="118" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter">Min Frame Size = 64 Bytes | Max Frame Size = 1518 Bytes (excluding Preamble)</text>
+        <text x="360" y="145" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter" font-style="italic">Fig 14.2 – Standard IEEE 802.3 Ethernet Frame Structure</text>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.3 Standards -->
+  <div class="section" id="ethernet-standards">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 14.3</div>
+        <h2 class="section-title">Ethernet Standards Evolution</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Standard</th><th>IEEE Spec</th><th>Speed</th><th>Cable & Distance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Standard Ethernet</td><td>IEEE 802.3</td><td>10 Mbps</td><td>Cat 3 / Cat 5 UTP (100m)</td></tr>
+          <tr><td>Fast Ethernet</td><td>IEEE 802.3u</td><td>100 Mbps</td><td>Cat 5e UTP (100m) / Fiber (2km)</td></tr>
+          <tr><td>Gigabit Ethernet</td><td>IEEE 802.3ab / 802.3z</td><td>1 Gbps (1000 Mbps)</td><td>Cat 5e/6 UTP (100m) / Fiber (5km)</td></tr>
+          <tr><td>10-Gigabit Ethernet</td><td>IEEE 802.3ae / 802.3an</td><td>10 Gbps</td><td>Cat 6a UTP (100m) / Fiber (40km)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.4 Switches & CAM -->
+  <div class="section" id="switch-working">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 14.4</div>
+        <h2 class="section-title">Switches & Learning Bridge Operation</h2>
+      </div>
+    </div>
+    <p>A Layer 2 Switch maintains a **CAM (Content Addressable Memory) Table** (also called Switching Table or MAC Address Table) that maps connected MAC addresses to physical switch ports.</p>
+
+    <h4 class="mini-title">Switch Forwarding Logic (The 3 Rules)</h4>
+    <ol class="note-list" style="margin-left:20px;">
+      <li><strong>Learning:</strong> When a frame arrives, the switch examines the <strong>Source MAC address</strong> and records `[Source MAC → Ingress Port]` in its CAM table with an aging timer (default 300s).</li>
+      <li><strong>Filtering:</strong> If the <strong>Destination MAC</strong> is already in the CAM table and located on the SAME port it arrived on, the switch drops (filters) the frame.</li>
+      <li><strong>Forwarding / Flooding:</strong>
+        <br/>• If Destination MAC is in CAM table on a DIFFERENT port → <strong>Forward</strong> to that specific port only.
+        <br/>• If Destination MAC is NOT in CAM table (Unknown Unicast) OR is Broadcast (FF:FF:FF:FF:FF:FF) → <strong>Flood</strong> to all ports except the ingress port.
+      </li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.5 VLAN Intro -->
+  <div class="section" id="vlan-intro">
+    <div class="section-header">
+      <div class="section-icon">🏢</div>
+      <div>
+        <div class="section-num">Section 14.5</div>
+        <h2 class="section-title">VLAN Concepts & Benefits</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">VLAN (Virtual Local Area Network)</span> is a logical grouping of network devices on one or more physical switches, configured so that they communicate as if they were connected to the same physical switch wire, regardless of physical location.</p>
+
+    <h4 class="mini-title">Why Use VLANs?</h4>
+    <ul class="note-list">
+      <li><strong>Broadcast Control:</strong> Segments large physical broadcast domains into smaller logical domains (reduces broadcast traffic).</li>
+      <li><strong>Enhanced Security:</strong> Users on VLAN 10 (HR) cannot access traffic on VLAN 20 (Finance) without passing through a Layer 3 router/firewall.</li>
+      <li><strong>Cost & Flexibility:</strong> Devices can be grouped by department or function rather than physical location.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.6 802.1Q -->
+  <div class="section" id="vlan-tagging">
+    <div class="section-header">
+      <div class="section-icon">🏷️</div>
+      <div>
+        <div class="section-num">Section 14.6</div>
+        <h2 class="section-title">IEEE 802.1Q Tagging & Trunking</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Access Ports vs Trunk Ports</h3>
+    <ul class="note-list">
+      <li><strong>Access Port:</strong> Belongs to a single VLAN. Carries standard **untagged** Ethernet frames (for end devices like PCs, printers).</li>
+      <li><strong>Trunk Port:</strong> Connects switch-to-switch or switch-to-router. Carries traffic for **multiple VLANs** simultaneously using **802.1Q frame tagging**.</li>
+    </ul>
+
+    <h3 class="sub-title">2. IEEE 802.1Q Frame Tag Structure</h3>
+    <p>802.1Q inserts a **4-byte VLAN Tag** into the standard Ethernet frame header right after the Source MAC address.</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">4-Byte 802.1Q Tag Breakdown</div>
+        <div class="callout-text">
+          • <strong>TPID (2 Bytes):</strong> Tag Protocol Identifier set to <code>0x8100</code> to identify 802.1Q tagged frame.<br/>
+          • <strong>TCI (2 Bytes):</strong> Tag Control Information containing:<br/>
+          &nbsp;&nbsp;- <em>PCP (3 bits):</em> Priority Code Point for QoS (CoS 0–7).<br/>
+          &nbsp;&nbsp;- <em>DEI (1 bit):</em> Drop Eligible Indicator.<br/>
+          &nbsp;&nbsp;- <em>VLAN ID / VID (12 bits):</em> Identifies the VLAN (Supports 2<sup>12</sup> = 4096 VLANs, IDs 1 to 4094).
+        </div>
+      </div>
+    </div>
+
+    <!-- Generated Infographic for Ethernet Frame and VLAN Tagging -->
+    <div class="diagram-box">
+      <img src="images/ethernet_vlan.jpg" alt="Ethernet Networking and VLAN Tagging Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 14.3 – Visual Breakdown of 802.3 Ethernet Frame, 802.1Q VLAN Tag, and Switch CAM Table</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 14.7 Inter-VLAN -->
+  <div class="section" id="inter-vlan">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 14.7</div>
+        <h2 class="section-title">Inter-VLAN Routing</h2>
+      </div>
+    </div>
+    <p>By default, devices on different VLANs **cannot communicate** at Layer 2. Routing at Layer 3 is required to forward packets between VLANs.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Method 1</div>
+        <div class="info-card-title">Router-on-a-Stick</div>
+        <div class="info-card-desc">A single physical link connects Layer 2 Switch to a Router. The router interface is divided into logical **subinterfaces** (e.g. <code>g0/0.10</code> for VLAN 10), each acting as the default gateway for a VLAN.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Method 2</div>
+        <div class="info-card-title">Layer 3 Switch (SVI)</div>
+        <div class="info-card-desc">Modern enterprise approach. A Layer 3 switch performs hardware wire-speed routing between VLANs using **SVI (Switch Virtual Interfaces)** (e.g. <code>interface vlan 10</code> with an IP address). Fast & highly scalable.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="13-flow-control-and-multiple-access-protocols.html">← Ch 13: Flow & Access</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 14 · MAC, Ethernet, Switches & VLANs
+  </div>
+</footer>
+
+</body>
+</html>

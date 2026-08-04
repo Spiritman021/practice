@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 10 – Transmission Modes, Signals & Multiplexing | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on Simplex/Half/Full-duplex transmission modes, Analog vs Digital signals, and Multiplexing (FDM, TDM, WDM, CDM)." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .mode-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px; margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 10</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 10 · Physical Layer</div>
+    <h1 class="page-title">Transmission Modes, Signals &<br/>Multiplexing</h1>
+    <p class="page-subtitle">Learn the directionality of communication channels, characteristics of analog and digital signals, and how multiple signals share a single channel via Multiplexing techniques (FDM, TDM, WDM, CDM).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#modes"><span class="toc-num">10.1</span> Transmission Modes (Simplex, Half, Full-Duplex)</a></li>
+      <li><a href="#signals"><span class="toc-num">10.2</span> Signal Types (Analog vs Digital)</a></li>
+      <li><a href="#signal-params"><span class="toc-num">10.3</span> Key Signal Parameters</a></li>
+      <li><a href="#multiplexing"><span class="toc-num">10.4</span> Multiplexing Overview</a></li>
+      <li><a href="#fdm"><span class="toc-num">10.5</span> Frequency Division Multiplexing (FDM)</a></li>
+      <li><a href="#tdm"><span class="toc-num">10.6</span> Time Division Multiplexing (TDM)</a></li>
+      <li><a href="#wdm"><span class="toc-num">10.7</span> Wavelength Division Multiplexing (WDM)</a></li>
+      <li><a href="#cdm"><span class="toc-num">10.8</span> Code Division Multiplexing (CDM / CDMA)</a></li>
+    </ul>
+  </div>
+
+  <!-- 10.1 Modes -->
+  <div class="section" id="modes">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 10.1</div>
+        <h2 class="section-title">Transmission Modes</h2>
+      </div>
+    </div>
+    <p><span class="hl">Transmission mode</span> (or directionality) defines the direction of signal flow between two connected devices.</p>
+
+    <!-- Transmission Modes SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 680 260" width="100%" style="max-width:660px">
+        <defs>
+          <marker id="arrMode" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/>
+          </marker>
+        </defs>
+
+        <!-- Simplex -->
+        <rect x="30" y="30" width="80" height="40" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="70" y="54" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Keyboard</text>
+        <line x1="110" y1="50" x2="230" y2="50" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrMode)"/>
+        <text x="170" y="42" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">One way only →</text>
+        <rect x="230" y="30" width="80" height="40" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="270" y="54" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Monitor</text>
+        <text x="170" y="85" text-anchor="middle" fill="#9aa5c4" font-size="12" font-weight="800" font-family="Inter">1. Simplex Mode</text>
+
+        <!-- Half-Duplex -->
+        <rect x="370" y="30" width="80" height="40" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="410" y="54" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Walkie A</text>
+        <line x1="450" y1="44" x2="570" y2="44" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arrMode)"/>
+        <line x1="570" y1="56" x2="450" y2="56" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arrMode)"/>
+        <text x="510" y="38" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">Both ways, but NOT at same time</text>
+        <rect x="570" y="30" width="80" height="40" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="610" y="54" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Walkie B</text>
+        <text x="510" y="85" text-anchor="middle" fill="#9aa5c4" font-size="12" font-weight="800" font-family="Inter">2. Half-Duplex Mode</text>
+
+        <!-- Full-Duplex -->
+        <rect x="200" y="140" width="90" height="44" rx="8" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="245" y="166" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Telephone A</text>
+
+        <line x1="290" y1="154" x2="410" y2="154" stroke="#f7a34f" stroke-width="2" marker-end="url(#arrMode)"/>
+        <line x1="410" y1="170" x2="290" y2="170" stroke="#f7a34f" stroke-width="2" marker-end="url(#arrMode)"/>
+        <text x="350" y="148" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Simultaneous bi-directional ⇄</text>
+
+        <rect x="410" y="140" width="90" height="44" rx="8" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="455" y="166" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Telephone B</text>
+
+        <text x="350" y="210" text-anchor="middle" fill="#9aa5c4" font-size="12" font-weight="800" font-family="Inter">3. Full-Duplex Mode</text>
+        <text x="350" y="245" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 10.1 – Transmission Modes: Simplex, Half-Duplex, and Full-Duplex</text>
+      </svg>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Mode</th><th>Direction</th><th>Simultaneous?</th><th>Capacity Utilization</th><th>Real-World Examples</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Simplex</td><td>Unidirectional (One-way)</td><td>No</td><td>Full bandwidth in 1 direction</td><td>Keyboard → CPU, Radio broadcast, TV</td></tr>
+          <tr><td>Half-Duplex</td><td>Bidirectional (Two-way)</td><td>No (One at a time)</td><td>Shared channel capacity</td><td>Walkie-Talkie, Legacy Ethernet (Hubs)</td></tr>
+          <tr><td>Full-Duplex</td><td>Bidirectional (Two-way)</td><td>Yes (Simultaneous)</td><td>Capacity split or dual channels</td><td>Telephone call, Modern Ethernet (Switches)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 10.2 Signals -->
+  <div class="section" id="signals">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 10.2</div>
+        <h2 class="section-title">Signal Types: Analog vs Digital</h2>
+      </div>
+    </div>
+    <p>Data is transmitted over physical media using electromagnetic signals, which can be either <span class="hl">Analog</span> or <span class="hl2">Digital</span>.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Analog Signal</th><th>Digital Signal</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Waveform</td><td>Continuous sine wave</td><td>Discrete square wave / pulses</td></tr>
+          <tr><td>Values</td><td>Infinite continuous values</td><td>Discrete binary values (0 and 1)</td></tr>
+          <tr><td>Representation</td><td>Voice, natural sound, temperature</td><td>Computer binary data, CPU states</td></tr>
+          <tr><td>Noise Susceptibility</td><td>High (noise causes permanent distortion)</td><td>Low (errors easily detected and corrected)</td></tr>
+          <tr><td>Amplification</td><td>Amplifier (amplifies both signal and noise)</td><td>Repeater (regenerates clean bits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 10.3 Signal Params -->
+  <div class="section" id="signal-params">
+    <div class="section-header">
+      <div class="section-icon">📏</div>
+      <div>
+        <div class="section-num">Section 10.3</div>
+        <h2 class="section-title">Key Signal Parameters</h2>
+      </div>
+    </div>
+    <ul class="note-list">
+      <li><strong>Amplitude (A):</strong> Peak value of the signal (volts or watts). Represents signal strength.</li>
+      <li><strong>Frequency (f):</strong> Number of complete cycles per second (Hz). <em>f</em> = 1 / <em>T</em>.</li>
+      <li><strong>Period (T):</strong> Time required to complete one cycle (seconds). <em>T</em> = 1 / <em>f</em>.</li>
+      <li><strong>Phase (&phi;):</strong> Position of the waveform relative to time zero (degrees or radians).</li>
+      <li><strong>Wavelength (&lambda;):</strong> Physical distance traveled by a wave in one period. <em>&lambda;</em> = <em>c</em> / <em>f</em>.</li>
+      <li><strong>Bit Rate:</strong> Number of bits transmitted per second (bps).</li>
+      <li><strong>Bit Interval:</strong> Time required to transmit a single bit. Bit Interval = 1 / Bit Rate.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 10.4 Multiplexing Overview -->
+  <div class="section" id="multiplexing">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 10.4</div>
+        <h2 class="section-title">Multiplexing Overview</h2>
+      </div>
+    </div>
+    <p><span class="hl">Multiplexing</span> is a technique allowing multiple signals to share a single physical transmission line simultaneously. A <strong>Multiplexer (MUX)</strong> combines streams into one; a <strong>Demultiplexer (DEMUX)</strong> separates them at the receiver.</p>
+
+    <!-- MUX/DEMUX Diagram -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 160" width="100%" style="max-width:580px">
+        <!-- Inputs -->
+        <rect x="20" y="20" width="60" height="25" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><text x="50" y="36" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">Ch 1</text>
+        <rect x="20" y="55" width="60" height="25" rx="4" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><text x="50" y="71" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">Ch 2</text>
+        <rect x="20" y="90" width="60" height="25" rx="4" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/><text x="50" y="106" text-anchor="middle" fill="#f7a34f" font-size="10" font-family="Inter">Ch 3</text>
+        <rect x="20" y="125" width="60" height="25" rx="4" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/><text x="50" y="141" text-anchor="middle" fill="#f05c88" font-size="10" font-family="Inter">Ch 4</text>
+
+        <!-- Lines to MUX -->
+        <line x1="80" y1="32" x2="160" y2="60" stroke="#4f8ef7" stroke-width="1.5"/>
+        <line x1="80" y1="67" x2="160" y2="75" stroke="#00d4aa" stroke-width="1.5"/>
+        <line x1="80" y1="102" x2="160" y2="90" stroke="#f7a34f" stroke-width="1.5"/>
+        <line x1="80" y1="137" x2="160" y2="105" stroke="#f05c88" stroke-width="1.5"/>
+
+        <!-- MUX -->
+        <polygon points="160,40 210,65 210,105 160,130" fill="#1a2545" stroke="#4f8ef7" stroke-width="2"/>
+        <text x="185" y="90" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="800" font-family="Inter">MUX</text>
+
+        <!-- Shared Channel -->
+        <line x1="210" y1="85" x2="390" y2="85" stroke="#4f8ef7" stroke-width="3"/>
+        <text x="300" y="75" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">High-Capacity Shared Link</text>
+
+        <!-- DEMUX -->
+        <polygon points="390,65 440,40 440,130 390,105" fill="#1a2545" stroke="#00d4aa" stroke-width="2"/>
+        <text x="415" y="90" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="800" font-family="Inter">DEMUX</text>
+
+        <!-- Outputs -->
+        <line x1="440" y1="60" x2="520" y2="32" stroke="#4f8ef7" stroke-width="1.5"/>
+        <line x1="440" y1="75" x2="520" y2="67" stroke="#00d4aa" stroke-width="1.5"/>
+        <line x1="440" y1="90" x2="520" y2="102" stroke="#f7a34f" stroke-width="1.5"/>
+        <line x1="440" y1="105" x2="520" y2="137" stroke="#f05c88" stroke-width="1.5"/>
+
+        <rect x="520" y="20" width="60" height="25" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><text x="550" y="36" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">Out 1</text>
+        <rect x="520" y="55" width="60" height="25" rx="4" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><text x="550" y="71" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">Out 2</text>
+        <rect x="520" y="90" width="60" height="25" rx="4" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/><text x="550" y="106" text-anchor="middle" fill="#f7a34f" font-size="10" font-family="Inter">Out 3</text>
+        <rect x="520" y="125" width="60" height="25" rx="4" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/><text x="550" y="141" text-anchor="middle" fill="#f05c88" font-size="10" font-family="Inter">Out 4</text>
+      </svg>
+    </div>
+
+    <!-- Generated Infographic for Multiplexing Techniques -->
+    <div class="diagram-box">
+      <img src="images/multiplexing.jpg" alt="Multiplexing Techniques Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 10.2 – Comparison of FDM, TDM, WDM, and CDM Multiplexing Techniques</div>
+    </div>
+  </div>
+
+  <!-- 10.5 FDM -->
+  <div class="section" id="fdm">
+    <div class="mode-card">
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent);">Frequency Division Multiplexing (FDM)</h3>
+      <p>Used for <strong>analog signals</strong>. The available total bandwidth of the medium is divided into distinct non-overlapping frequency channels. Guard bands are placed between channels to prevent interference.</p>
+      <p>Examples: Radio radio broadcasting (FM stations), Cable TV channels.</p>
+    </div>
+  </div>
+
+  <!-- 10.6 TDM -->
+  <div class="section" id="tdm">
+    <div class="mode-card">
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent3);">Time Division Multiplexing (TDM)</h3>
+      <p>Used for <strong>digital signals</strong>. Multiple connections share the same channel bandwidth by taking turns in dedicated time slots.</p>
+      <ul class="note-list">
+        <li><strong>Synchronous TDM:</strong> Each device is assigned a fixed time slot, even if it has no data to send (wastes slot capacity).</li>
+        <li><strong>Asynchronous / Statistical TDM:</strong> Time slots are allocated dynamically only to active devices that have data ready (maximizes channel efficiency).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10.7 WDM -->
+  <div class="section" id="wdm">
+    <div class="mode-card">
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent4);">Wavelength Division Multiplexing (WDM / DWDM)</h3>
+      <p>Used specifically in <strong>fiber optic networks</strong>. Multiple light signals of different wavelengths (colors) are multiplexed onto a single optical fiber strand. Dense WDM (DWDM) can combine over 80+ distinct channels on one fiber!</p>
+    </div>
+  </div>
+
+  <!-- 10.8 CDM -->
+  <div class="section" id="cdm">
+    <div class="mode-card">
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent2);">Code Division Multiplexing (CDM / CDMA)</h3>
+      <p>Allows multiple signals to occupy the <strong>same frequency band at the same time</strong>. Each transmitter is assigned a unique mathematical chip sequence (orthogonal code). Used in 3G mobile networks and GPS.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="09-transmission-media.html">← Ch 09: Media</a>
+      <a href="index.html">Home</a>
+      <a href="11-switching-techniques-and-network-performance.html">Ch 11: Switching & Performance →</a>
+    </div>
+    Network Fundamentals · Chapter 10 · Modes, Signals & Multiplexing
+  </div>
+</footer>
+
+</body>
+</html>

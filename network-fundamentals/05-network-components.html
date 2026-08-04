@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 5 – Network Components | Network Fundamentals</title>
+  <meta name="description" content="Detailed notes on NIC, hub, switch, bridge, router, gateway, repeater, and modem with OSI layer mapping and diagrams." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .component-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 22px; margin-bottom: 36px; overflow: hidden;
+    }
+    .component-head {
+      padding: 22px 28px 18px;
+      display: flex; align-items: center; gap: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-icon { font-size: 36px; }
+    .comp-title-area { flex: 1; }
+    .comp-title { font-size: 22px; font-weight: 800; }
+    .comp-sub { font-size: 13px; color: var(--text3); margin-top: 2px; }
+    .comp-osi {
+      padding: 5px 14px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .osi-1 { background: rgba(240,92,136,0.15); color: #f05c88; }
+    .osi-2 { background: rgba(124,92,240,0.15); color: #7c5cf0; }
+    .osi-3 { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+    .osi-34 { background: rgba(0,212,170,0.15); color: #00d4aa; }
+
+    .component-body { padding: 26px 28px; }
+
+    .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; margin: 16px 0; }
+    .spec-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+    .spec-label { font-size: 11px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .spec-val { font-size: 14px; color: var(--text); font-weight: 600; }
+
+    .osi-stack {
+      display: flex; flex-direction: column; gap: 4px; margin: 16px 0; max-width: 360px;
+    }
+    .osi-layer {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 14px; border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+      border: 1px solid transparent; transition: all 0.2s;
+    }
+    .osi-layer.active { border-color: var(--accent); background: rgba(79,142,247,0.1); font-weight: 700; color: var(--accent); }
+    .osi-layer.inactive { color: var(--text3); opacity: 0.6; }
+    .osi-layer-num { font-size: 11px; min-width: 16px; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 05</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 05 · Network Fundamentals</div>
+    <h1 class="page-title">Network Components</h1>
+    <p class="page-subtitle">The hardware and software components that make networks function — from the NIC in your laptop to the routers that run the global internet. Each component is mapped to its OSI layer and role.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">5.1</span> Introduction & OSI Layer Context</a></li>
+      <li><a href="#nic"><span class="toc-num">5.2</span> NIC – Network Interface Card</a></li>
+      <li><a href="#repeater"><span class="toc-num">5.3</span> Repeater</a></li>
+      <li><a href="#hub"><span class="toc-num">5.4</span> Hub</a></li>
+      <li><a href="#bridge"><span class="toc-num">5.5</span> Bridge</a></li>
+      <li><a href="#switch"><span class="toc-num">5.6</span> Switch</a></li>
+      <li><a href="#router"><span class="toc-num">5.7</span> Router</a></li>
+      <li><a href="#gateway"><span class="toc-num">5.8</span> Gateway</a></li>
+      <li><a href="#modem"><span class="toc-num">5.9</span> Modem</a></li>
+      <li><a href="#comparison"><span class="toc-num">5.10</span> Comparison Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 5.1 Intro -->
+  <div class="section" id="intro">
+    <div class="section-header">
+      <div class="section-icon">🧩</div>
+      <div>
+        <div class="section-num">Section 5.1</div>
+        <h2 class="section-title">Introduction & OSI Layer Context</h2>
+      </div>
+    </div>
+    <p>Every network component operates at a specific layer of the <span class="hl">OSI (Open Systems Interconnection) model</span>. Understanding which layer a device operates at tells you what intelligence it has — what information it can read and act upon in a packet.</p>
+
+    <!-- OSI Layers overview diagram -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 720 280" width="100%" style="max-width:700px">
+        <!-- OSI Layer boxes (left) -->
+        <rect x="20" y="20" width="160" height="34" rx="8" fill="rgba(240,92,136,0.15)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="100" y="41" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">7 – Application</text>
+        <rect x="20" y="58" width="160" height="34" rx="8" fill="rgba(240,92,136,0.12)" stroke="#f05c88" stroke-width="1"/>
+        <text x="100" y="79" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="600" font-family="Inter">6 – Presentation</text>
+        <rect x="20" y="96" width="160" height="34" rx="8" fill="rgba(240,92,136,0.10)" stroke="#f05c88" stroke-width="1"/>
+        <text x="100" y="117" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="600" font-family="Inter">5 – Session</text>
+        <rect x="20" y="134" width="160" height="34" rx="8" fill="rgba(79,142,247,0.12)" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="100" y="155" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="700" font-family="Inter">4 – Transport</text>
+        <rect x="20" y="172" width="160" height="34" rx="8" fill="rgba(79,142,247,0.15)" stroke="#4f8ef7" stroke-width="2"/>
+        <text x="100" y="193" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="800" font-family="Inter">3 – Network</text>
+        <rect x="20" y="210" width="160" height="34" rx="8" fill="rgba(124,92,240,0.15)" stroke="#7c5cf0" stroke-width="2"/>
+        <text x="100" y="231" text-anchor="middle" fill="#7c5cf0" font-size="12" font-weight="800" font-family="Inter">2 – Data Link</text>
+        <rect x="20" y="248" width="160" height="22" rx="8" fill="rgba(240,92,136,0.12)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="100" y="263" text-anchor="middle" fill="#f05c88" font-size="11" font-weight="700" font-family="Inter">1 – Physical</text>
+
+        <!-- Arrows from layers to devices -->
+        <!-- Gateway → L7 -->
+        <line x1="180" y1="37" x2="310" y2="37" stroke="#f05c88" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+        <!-- Router → L3 -->
+        <line x1="180" y1="189" x2="310" y2="189" stroke="#4f8ef7" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+        <!-- Switch/Bridge → L2 -->
+        <line x1="180" y1="227" x2="310" y2="227" stroke="#7c5cf0" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+        <!-- Hub/Repeater/NIC → L1 -->
+        <line x1="180" y1="259" x2="310" y2="259" stroke="#f05c88" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+
+        <!-- Device boxes (right) -->
+        <!-- L1 devices -->
+        <rect x="310" y="245" width="390" height="30" rx="8" fill="rgba(240,92,136,0.08)" stroke="#f05c88" stroke-width="1"/>
+        <text x="505" y="264" text-anchor="middle" fill="#f05c88" font-size="11" font-weight="700" font-family="Inter">Repeater · Hub · NIC · Modem (physical signal)</text>
+
+        <!-- L2 devices -->
+        <rect x="310" y="212" width="390" height="30" rx="8" fill="rgba(124,92,240,0.08)" stroke="#7c5cf0" stroke-width="1.5"/>
+        <text x="505" y="231" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="700" font-family="Inter">Switch · Bridge · NIC (MAC address)</text>
+
+        <!-- L3 devices -->
+        <rect x="310" y="175" width="390" height="30" rx="8" fill="rgba(79,142,247,0.08)" stroke="#4f8ef7" stroke-width="2"/>
+        <text x="505" y="194" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="700" font-family="Inter">Router (IP address / routing)</text>
+
+        <!-- L4+ -->
+        <rect x="310" y="20" width="390" height="150" rx="8" fill="rgba(240,92,136,0.04)" stroke="#f05c88" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="505" y="80" text-anchor="middle" fill="#f05c88" font-size="11" font-weight="700" font-family="Inter">Gateway</text>
+        <text x="505" y="100" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">(operates at all layers,</text>
+        <text x="505" y="116" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">translates protocols)</text>
+
+        <text x="360" y="278" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.1 – Network devices mapped to OSI layers</text>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 5.2 NIC -->
+  <div class="section" id="nic">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">🖱️</div>
+        <div class="comp-title-area">
+          <div class="comp-title">NIC – Network Interface Card</div>
+          <div class="comp-sub">Also called Network Adapter or LAN Card</div>
+        </div>
+        <span class="comp-osi osi-2">Layer 1 & 2</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Physical (1) & Data Link (2)</div></div>
+          <div class="spec-item"><div class="spec-label">Address</div><div class="spec-val">MAC Address (48-bit)</div></div>
+          <div class="spec-item"><div class="spec-label">Speed</div><div class="spec-val">10M / 100M / 1G / 10 Gbps</div></div>
+          <div class="spec-item"><div class="spec-label">Interface</div><div class="spec-val">RJ-45 (wired), antenna (wireless)</div></div>
+        </div>
+
+        <p>A <span class="hl">Network Interface Card (NIC)</span> is the hardware component that physically connects a computer to a network. Every device that can connect to a network must have a NIC. It operates at both Layer 1 (physical — handling electrical signals) and Layer 2 (data link — handling MAC addresses and framing).</p>
+
+        <h4 class="mini-title">Key Functions</h4>
+        <ul class="note-list">
+          <li><strong>MAC Address:</strong> Each NIC has a globally unique 48-bit MAC (Media Access Control) address burned into its ROM. Format: <code>00:1A:2B:3C:4D:5E</code>. First 24 bits = manufacturer OUI; last 24 bits = device ID.</li>
+          <li><strong>Data Encoding:</strong> Converts digital data into electrical signals (wired) or radio waves (wireless) for transmission.</li>
+          <li><strong>Framing:</strong> Assembles data into frames for transmission; receives and strips frame headers on receipt.</li>
+          <li><strong>Media Access Control:</strong> Implements CSMA/CD (Ethernet) or CSMA/CA (Wi-Fi) to manage who transmits when.</li>
+          <li><strong>Buffering:</strong> Temporarily stores incoming/outgoing data to handle speed mismatches.</li>
+        </ul>
+
+        <!-- NIC SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 560 180" width="100%" style="max-width:540px">
+            <!-- PC -->
+            <rect x="20" y="40" width="180" height="110" rx="12" fill="#0f1626" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="110" y="68" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="700" font-family="Inter">Computer</text>
+            <!-- NIC inside PC -->
+            <rect x="40" y="80" width="140" height="55" rx="8" fill="#1a2545" stroke="#7c5cf0" stroke-width="2"/>
+            <text x="110" y="105" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="700" font-family="Inter">NIC</text>
+            <text x="110" y="120" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">MAC: 00:1A:2B:3C:4D:5E</text>
+            <!-- RJ45 port -->
+            <rect x="178" y="95" width="20" height="25" rx="4" fill="#7c5cf0" opacity="0.8"/>
+
+            <!-- Cable -->
+            <line x1="198" y1="107" x2="270" y2="107" stroke="#4f8ef7" stroke-width="4" stroke-linecap="round"/>
+            <text x="234" y="98" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">Cat6 cable</text>
+
+            <!-- Switch -->
+            <rect x="270" y="80" width="130" height="55" rx="10" fill="#1a2545" stroke="#00d4aa" stroke-width="2"/>
+            <text x="335" y="110" text-anchor="middle" fill="#00d4aa" font-size="12" font-weight="700" font-family="Inter">Switch</text>
+            <!-- Switch ports -->
+            <rect x="272" y="92" width="12" height="18" rx="3" fill="#00d4aa" opacity="0.5"/>
+            <rect x="286" y="92" width="12" height="18" rx="3" fill="#00d4aa" opacity="0.3"/>
+            <rect x="300" y="92" width="12" height="18" rx="3" fill="#00d4aa" opacity="0.2"/>
+
+            <!-- Internet arrow -->
+            <line x1="400" y1="107" x2="470" y2="107" stroke="#f7a34f" stroke-width="2.5" stroke-dasharray="5,4"/>
+            <text x="435" y="98" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">to LAN</text>
+
+            <!-- Data flow labels -->
+            <text x="234" y="130" text-anchor="middle" fill="#7c5cf0" font-size="10" font-family="Inter">Electrical signal</text>
+            <text x="110" y="165" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.2 – NIC connecting a PC to the network via RJ-45 port</text>
+          </svg>
+        </div>
+
+        <div class="callout note">
+          <div class="callout-icon">📌</div>
+          <div class="callout-body">
+            <div class="callout-title">MAC vs IP Address</div>
+            <div class="callout-text">MAC address = permanent hardware address (Layer 2), used within the LAN. IP address = logical software address (Layer 3), used for internet routing. ARP (Address Resolution Protocol) maps IP → MAC within a LAN.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.3 Repeater -->
+  <div class="section" id="repeater">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">📶</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Repeater</div>
+          <div class="comp-sub">Signal amplifier / regenerator</div>
+        </div>
+        <span class="comp-osi osi-1">Layer 1</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Physical Layer 1</div></div>
+          <div class="spec-item"><div class="spec-label">Function</div><div class="spec-val">Signal regeneration</div></div>
+          <div class="spec-item"><div class="spec-label">Ports</div><div class="spec-val">2 (input and output)</div></div>
+          <div class="spec-item"><div class="spec-label">Address awareness</div><div class="spec-val">None</div></div>
+        </div>
+
+        <p>A <span class="hl">repeater</span> is the simplest networking device, operating at the <strong>Physical Layer (Layer 1)</strong>. Over long distances, electrical signals weaken (attenuation). A repeater receives the weakened signal, <strong>regenerates/amplifies it</strong> back to full strength, and retransmits it — extending the effective range of the cable.</p>
+
+        <h4 class="mini-title">Key Characteristics</h4>
+        <ul class="note-list">
+          <li><strong>No intelligence:</strong> Cannot read MAC or IP addresses. Simply boosts the signal bit-by-bit.</li>
+          <li><strong>No filtering:</strong> Forwards all signals including errors and broadcast storms.</li>
+          <li><strong>Single collision domain:</strong> Both segments connected by a repeater are in the same collision domain.</li>
+          <li><strong>Maximum usage:</strong> Ethernet 10BASE5 allows maximum 4 repeaters in a network segment (5-4-3 rule).</li>
+          <li><strong>Modern equivalence:</strong> Wi-Fi Range Extenders / Boosters are modern wireless repeaters.</li>
+        </ul>
+
+        <!-- Repeater SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 600 120" width="100%" style="max-width:580px">
+            <!-- PC left -->
+            <rect x="20" y="35" width="75" height="50" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="57" y="65" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">PC 1</text>
+            <!-- Signal line left (weakening) -->
+            <line x1="95" y1="60" x2="235" y2="60" stroke="#4f8ef7" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+            <!-- Signal weakening effect -->
+            <line x1="175" y1="60" x2="235" y2="60" stroke="#4f8ef7" stroke-width="2" opacity="0.4"/>
+            <text x="165" y="50" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">signal degrades →</text>
+
+            <!-- Repeater -->
+            <rect x="235" y="30" width="90" height="60" rx="12" fill="#1a2545" stroke="#f7a34f" stroke-width="2"/>
+            <text x="280" y="55" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Repeater</text>
+            <text x="280" y="70" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">regenerates signal</text>
+
+            <!-- Signal line right (full strength) -->
+            <line x1="325" y1="60" x2="475" y2="60" stroke="#00d4aa" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+            <text x="400" y="50" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">→ signal restored</text>
+
+            <!-- PC right -->
+            <rect x="475" y="35" width="75" height="50" rx="10" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="512" y="65" text-anchor="middle" fill="#00d4aa" font-size="11" font-family="Inter">PC 2</text>
+
+            <text x="300" y="108" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.3 – Repeater regenerates a weakened signal</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.4 Hub -->
+  <div class="section" id="hub">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">🔌</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Hub</div>
+          <div class="comp-sub">Multi-port repeater (shared medium)</div>
+        </div>
+        <span class="comp-osi osi-1">Layer 1</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Physical Layer 1</div></div>
+          <div class="spec-item"><div class="spec-label">Ports</div><div class="spec-val">4 / 8 / 16 / 24 ports</div></div>
+          <div class="spec-item"><div class="spec-label">Broadcast domain</div><div class="spec-val">All ports in one domain</div></div>
+          <div class="spec-item"><div class="spec-label">Types</div><div class="spec-val">Active, Passive, Intelligent</div></div>
+        </div>
+
+        <p>A <span class="hl">Hub</span> is a <strong>multi-port repeater</strong> — a central connecting device that takes input from one port and broadcasts it to <strong>all other ports</strong>. It has no intelligence — it cannot read MAC or IP addresses. All devices connected to a hub share the same collision domain and broadcast domain.</p>
+
+        <h4 class="mini-title">Types of Hubs</h4>
+        <ul class="note-list">
+          <li><strong>Passive Hub:</strong> Simply connects cables together; no signal amplification. Acts as a junction box.</li>
+          <li><strong>Active Hub:</strong> Amplifies the signal before broadcasting to all ports. More like a multiport repeater.</li>
+          <li><strong>Intelligent Hub:</strong> Has some management capability (port monitoring, traffic analysis) — a step toward switches.</li>
+        </ul>
+
+        <!-- Hub SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 500 260" width="100%" style="max-width:480px">
+            <!-- Central hub -->
+            <rect x="185" y="100" width="130" height="60" rx="14" fill="#1a2545" stroke="#f05c88" stroke-width="2"/>
+            <text x="250" y="132" text-anchor="middle" fill="#f05c88" font-size="13" font-weight="700" font-family="Inter">HUB</text>
+            <text x="250" y="148" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">Broadcasts to ALL ports</text>
+
+            <!-- Devices -->
+            <rect x="30" y="40" width="70" height="44" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="65" y="66" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">PC 1</text>
+            <line x1="100" y1="62" x2="185" y2="120" stroke="#f05c88" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+
+            <rect x="200" y="20" width="100" height="44" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="250" y="46" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">PC 2</text>
+            <line x1="250" y1="64" x2="250" y2="100" stroke="#f05c88" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+
+            <rect x="400" y="40" width="70" height="44" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="435" y="66" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">PC 3</text>
+            <line x1="400" y1="62" x2="315" y2="120" stroke="#f05c88" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+
+            <rect x="30" y="175" width="70" height="44" rx="8" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="65" y="201" text-anchor="middle" fill="#7c5cf0" font-size="11" font-family="Inter">PC 4</text>
+            <line x1="100" y1="197" x2="185" y2="145" stroke="#f05c88" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+
+            <rect x="400" y="175" width="70" height="44" rx="8" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="435" y="201" text-anchor="middle" fill="#7c5cf0" font-size="11" font-family="Inter">Printer</text>
+            <line x1="400" y1="197" x2="315" y2="145" stroke="#f05c88" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,3"/>
+
+            <!-- Broadcast label -->
+            <text x="250" y="240" text-anchor="middle" fill="#f05c88" font-size="11" font-weight="600" font-family="Inter">⚠ Data from PC1 goes to ALL devices</text>
+            <text x="250" y="255" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.4 – Hub broadcasts to every connected port</text>
+          </svg>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <div class="callout-title">Hub vs Switch</div>
+            <div class="callout-text">Hubs are largely <strong>obsolete</strong> — replaced by switches. The critical problem: when PC1 sends data to PC3, ALL devices (PC2, PC4, Printer) also receive and must process it, wasting bandwidth and creating security risks. Switches fix this by forwarding only to the intended port.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.5 Bridge -->
+  <div class="section" id="bridge">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">🌉</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Bridge</div>
+          <div class="comp-sub">Connects two LAN segments; learns MAC addresses</div>
+        </div>
+        <span class="comp-osi osi-2">Layer 2</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Data Link Layer 2</div></div>
+          <div class="spec-item"><div class="spec-label">Ports</div><div class="spec-val">2 (or a few)</div></div>
+          <div class="spec-item"><div class="spec-label">Address</div><div class="spec-val">MAC Address table</div></div>
+          <div class="spec-item"><div class="spec-label">Collision domains</div><div class="spec-val">Separates per port</div></div>
+        </div>
+
+        <p>A <span class="hl">Bridge</span> operates at <strong>Layer 2 (Data Link)</strong> and connects two or more network segments. Unlike a hub, a bridge <strong>learns MAC addresses</strong> by reading frames and building a MAC address table. It forwards frames only to the segment where the destination device is located, reducing unnecessary traffic.</p>
+
+        <h4 class="mini-title">How a Bridge Works</h4>
+        <ul class="note-list">
+          <li><strong>Learning:</strong> When a frame arrives, the bridge records the source MAC address and the port it arrived on in its MAC table.</li>
+          <li><strong>Filtering:</strong> If the destination MAC is on the same segment as the source, the bridge drops the frame (no need to forward).</li>
+          <li><strong>Forwarding:</strong> If the destination is on a different segment, the bridge forwards the frame to that segment only.</li>
+          <li><strong>Flooding:</strong> If the destination MAC is unknown, the bridge floods the frame to all ports (except the source port).</li>
+        </ul>
+
+        <h4 class="mini-title">Types of Bridges</h4>
+        <ul class="note-list">
+          <li><strong>Transparent Bridge (IEEE 802.1D):</strong> Standard Ethernet bridge — devices are unaware of its presence.</li>
+          <li><strong>Source Routing Bridge (IEEE 802.5):</strong> Used in Token Ring networks; source specifies the route.</li>
+          <li><strong>Translating Bridge:</strong> Connects different types of networks (e.g., Ethernet to Token Ring).</li>
+        </ul>
+
+        <div class="callout note">
+          <div class="callout-icon">📌</div>
+          <div class="callout-body">
+            <div class="callout-title">Bridge vs Switch</div>
+            <div class="callout-text">A switch is essentially a <strong>multi-port bridge</strong>. A traditional bridge has 2–4 ports; a switch has 24–48+ ports. Both operate at Layer 2 and use MAC address tables. Modern switches have made bridges largely redundant.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.6 Switch -->
+  <div class="section" id="switch">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">🔀</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Switch</div>
+          <div class="comp-sub">Multi-port bridge; intelligent frame forwarding</div>
+        </div>
+        <span class="comp-osi osi-2">Layer 2 (L3 for managed)</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Data Link Layer 2</div></div>
+          <div class="spec-item"><div class="spec-label">Ports</div><div class="spec-val">8 / 24 / 48 / 96 ports</div></div>
+          <div class="spec-item"><div class="spec-label">Table</div><div class="spec-val">MAC Address Table (CAM)</div></div>
+          <div class="spec-item"><div class="spec-label">Duplex</div><div class="spec-val">Full-duplex per port</div></div>
+        </div>
+
+        <p>A <span class="hl">Switch</span> is the most important device in a modern LAN. It is a <strong>multi-port bridge</strong> that maintains a <strong>MAC address table (CAM table)</strong> and forwards frames only to the specific port connected to the destination device. Each port is its own collision domain, and the switch provides dedicated bandwidth to each device.</p>
+
+        <h4 class="mini-title">Switch vs Hub – Critical Difference</h4>
+        <ul class="note-list">
+          <li><strong>Hub:</strong> Broadcasts to all ports. All devices in one collision domain. Half-duplex.</li>
+          <li><strong>Switch:</strong> Forwards to specific port only. Each port = separate collision domain. Full-duplex possible.</li>
+          <li>A 24-port switch with 100 Mbps per port provides 24 × 100 Mbps = 2.4 Gbps total capacity. A 24-port hub provides only 100 Mbps shared across all 24 devices!</li>
+        </ul>
+
+        <!-- Switch SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 580 250" width="100%" style="max-width:560px">
+            <defs>
+              <marker id="arrSw" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#00d4aa"/>
+              </marker>
+            </defs>
+            <!-- Switch -->
+            <rect x="195" y="95" width="190" height="60" rx="14" fill="#1a2545" stroke="#00d4aa" stroke-width="2.5"/>
+            <text x="290" y="121" text-anchor="middle" fill="#00d4aa" font-size="13" font-weight="800" font-family="Inter">SWITCH</text>
+            <text x="290" y="140" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">CAM Table | Dedicated bandwidth</text>
+
+            <!-- Port indicators on switch -->
+            <rect x="200" y="98" width="14" height="20" rx="3" fill="#00d4aa" opacity="0.4"/>
+            <rect x="216" y="98" width="14" height="20" rx="3" fill="#00d4aa" opacity="0.3"/>
+            <rect x="232" y="98" width="14" height="20" rx="3" fill="#00d4aa" opacity="0.2"/>
+            <rect x="248" y="98" width="14" height="20" rx="3" fill="#00d4aa" opacity="0.15"/>
+
+            <!-- PC 1 - left, only it should receive -->
+            <rect x="20" y="40" width="75" height="44" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="57" y="66" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">PC 1</text>
+            <!-- DATA goes from PC4 to PC1 -->
+            <line x1="195" y1="120" x2="95" y2="62" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrSw)" opacity="0.8"/>
+            <text x="140" y="82" fill="#00d4aa" font-size="10" font-family="Inter">Only to PC1!</text>
+
+            <!-- PC 2 -->
+            <rect x="20" y="170" width="75" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="57" y="196" text-anchor="middle" fill="#7c5cf0" font-size="11" font-family="Inter">PC 2</text>
+            <line x1="95" y1="192" x2="195" y2="150" stroke="#1e2d4d" stroke-width="1.5" opacity="0.5"/>
+            <text x="120" y="174" fill="#5a6a8a" font-size="9" font-family="Inter">blocked ✗</text>
+
+            <!-- Server -->
+            <rect x="220" y="185" width="80" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="260" y="211" text-anchor="middle" fill="#7c5cf0" font-size="11" font-family="Inter">Server</text>
+            <line x1="260" y1="185" x2="260" y2="155" stroke="#1e2d4d" stroke-width="1.5" opacity="0.5"/>
+            <text x="285" y="175" fill="#5a6a8a" font-size="9" font-family="Inter">blocked ✗</text>
+
+            <!-- Printer -->
+            <rect x="450" y="40" width="90" height="44" rx="10" fill="#131d35" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="495" y="66" text-anchor="middle" fill="#7c5cf0" font-size="11" font-family="Inter">Printer</text>
+            <line x1="450" y1="62" x2="385" y2="120" stroke="#1e2d4d" stroke-width="1.5" opacity="0.5"/>
+            <text x="430" y="82" fill="#5a6a8a" font-size="9" font-family="Inter">blocked ✗</text>
+
+            <!-- PC4 (sender) -->
+            <rect x="450" y="170" width="75" height="44" rx="10" fill="#131d35" stroke="#f7a34f" stroke-width="2"/>
+            <text x="487" y="196" text-anchor="middle" fill="#f7a34f" font-size="11" font-family="Inter">PC 4</text>
+            <text x="487" y="210" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">(sender)</text>
+            <line x1="450" y1="190" x2="385" y2="150" stroke="#f7a34f" stroke-width="2" opacity="0.7"/>
+
+            <text x="290" y="240" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.6 – Switch forwards frame only to PC1 (destination), not to all</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">Types of Switches</h4>
+        <ul class="note-list">
+          <li><strong>Unmanaged Switch:</strong> Plug-and-play, no configuration needed. For home/small office use.</li>
+          <li><strong>Managed Switch:</strong> Fully configurable — supports VLANs, QoS, port security, SNMP monitoring. For enterprise.</li>
+          <li><strong>Layer 3 Switch:</strong> Can perform routing (uses IP addresses) in addition to Layer 2 switching. Faster than a traditional router for intra-VLAN routing.</li>
+          <li><strong>PoE Switch:</strong> Power over Ethernet — provides electrical power to connected devices (IP phones, cameras) via Ethernet cable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.7 Router -->
+  <div class="section" id="router">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">📡</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Router</div>
+          <div class="comp-sub">Routes packets between networks using IP addresses</div>
+        </div>
+        <span class="comp-osi osi-3">Layer 3</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Network Layer 3</div></div>
+          <div class="spec-item"><div class="spec-label">Address</div><div class="spec-val">IP Address (32-bit IPv4 / 128-bit IPv6)</div></div>
+          <div class="spec-item"><div class="spec-label">Table</div><div class="spec-val">Routing Table</div></div>
+          <div class="spec-item"><div class="spec-label">Function</div><div class="spec-val">Packet forwarding, NAT, DHCP</div></div>
+        </div>
+
+        <p>A <span class="hl">Router</span> is the most intelligent standard networking device. It operates at <strong>Layer 3 (Network)</strong> and is responsible for <strong>routing packets between different networks</strong>. Routers use <strong>IP addresses</strong> and <strong>routing tables</strong> to determine the best path for each packet to travel from source to destination.</p>
+
+        <h4 class="mini-title">Core Functions of a Router</h4>
+        <ul class="note-list">
+          <li><strong>Packet Forwarding:</strong> Receives packets, examines the destination IP, looks up the routing table, and forwards to the next-hop router or destination network.</li>
+          <li><strong>Routing Table Maintenance:</strong> Builds and maintains a table of network prefixes and their next-hops using static routes or dynamic routing protocols (RIP, OSPF, BGP).</li>
+          <li><strong>NAT (Network Address Translation):</strong> Translates private IP addresses (192.168.x.x) to a public IP — allowing many devices to share one public IP.</li>
+          <li><strong>Broadcast Domain Separation:</strong> Routers do NOT forward broadcast frames — each network connected to a router is its own broadcast domain.</li>
+          <li><strong>DHCP Server:</strong> Home routers often include a DHCP server to automatically assign IP addresses to connected devices.</li>
+          <li><strong>Firewall:</strong> Modern routers include basic firewall functionality — packet filtering and NAT provide a degree of protection.</li>
+        </ul>
+
+        <!-- Router SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 680 260" width="100%" style="max-width:660px">
+            <defs>
+              <marker id="arrRT" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7"/>
+              </marker>
+              <filter id="gR"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+
+            <!-- LAN 1 (left) -->
+            <rect x="20" y="20" width="170" height="220" rx="14" fill="rgba(79,142,247,0.04)" stroke="rgba(79,142,247,0.2)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <text x="105" y="42" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">LAN 1 – 192.168.1.0/24</text>
+            <rect x="35" y="60" width="75" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="72" y="83" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">PC .10</text>
+            <rect x="35" y="115" width="75" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="72" y="138" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">PC .20</text>
+            <rect x="35" y="170" width="75" height="38" rx="8" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="72" y="193" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">Server .30</text>
+            <!-- Switch LAN 1 -->
+            <rect x="118" y="115" width="55" height="35" rx="8" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="145" y="136" text-anchor="middle" fill="#7c5cf0" font-size="9" font-family="Inter">Switch</text>
+            <line x1="110" y1="79" x2="130" y2="115" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+            <line x1="110" y1="134" x2="118" y2="132" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+            <line x1="110" y1="189" x2="130" y2="148" stroke="#4f8ef7" stroke-width="1" opacity="0.5"/>
+
+            <!-- Router center -->
+            <circle cx="340" cy="130" r="52" fill="#1a2545" stroke="#4f8ef7" stroke-width="2.5" filter="url(#gR)"/>
+            <text x="340" y="122" text-anchor="middle" fill="#4f8ef7" font-size="13" font-weight="800" font-family="Inter">ROUTER</text>
+            <text x="340" y="138" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">Routing Table</text>
+            <text x="340" y="152" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">IP: .1.1 | .2.1 | .3.1</text>
+
+            <!-- Connect switch to router -->
+            <line x1="173" y1="132" x2="288" y2="130" stroke="#4f8ef7" stroke-width="2" marker-end="url(#arrRT)" opacity="0.7"/>
+
+            <!-- LAN 2 (right) -->
+            <rect x="490" y="20" width="170" height="220" rx="14" fill="rgba(0,212,170,0.04)" stroke="rgba(0,212,170,0.2)" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <text x="575" y="42" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">LAN 2 – 192.168.2.0/24</text>
+            <rect x="555" y="60" width="75" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="592" y="83" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">PC .10</text>
+            <rect x="555" y="115" width="75" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="592" y="138" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">PC .20</text>
+            <rect x="555" y="170" width="75" height="38" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="592" y="193" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">Printer .30</text>
+            <!-- Switch LAN 2 -->
+            <rect x="503" y="115" width="55" height="35" rx="8" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+            <text x="530" y="136" text-anchor="middle" fill="#7c5cf0" font-size="9" font-family="Inter">Switch</text>
+            <line x1="555" y1="79" x2="540" y2="115" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <line x1="555" y1="134" x2="558" y2="132" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <line x1="555" y1="189" x2="540" y2="148" stroke="#00d4aa" stroke-width="1" opacity="0.5"/>
+            <line x1="503" y1="132" x2="392" y2="130" stroke="#00d4aa" stroke-width="2" marker-end="url(#arrRT)" opacity="0.7"/>
+
+            <!-- Internet cloud (top) -->
+            <ellipse cx="340" cy="40" rx="55" ry="25" fill="rgba(247,163,79,0.08)" stroke="#f7a34f" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <text x="340" y="44" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Internet</text>
+            <line x1="340" y1="65" x2="340" y2="78" stroke="#f7a34f" stroke-width="2" marker-end="url(#arrRT)" opacity="0.7"/>
+
+            <text x="340" y="248" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.7 – Router connects LAN 1, LAN 2, and the Internet</text>
+          </svg>
+        </div>
+
+        <h4 class="mini-title">Routing Protocols</h4>
+        <ul class="note-list">
+          <li><strong>Static Routing:</strong> Routes manually configured by admin. Simple but not scalable.</li>
+          <li><strong>RIP (Routing Information Protocol):</strong> Distance-vector protocol; uses hop count as metric. Simple, limited to 15 hops.</li>
+          <li><strong>OSPF (Open Shortest Path First):</strong> Link-state protocol; uses Dijkstra's algorithm. Scalable, fast convergence. Enterprise standard.</li>
+          <li><strong>BGP (Border Gateway Protocol):</strong> Path-vector protocol used between autonomous systems on the Internet. The backbone of internet routing.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.8 Gateway -->
+  <div class="section" id="gateway">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">🚪</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Gateway</div>
+          <div class="comp-sub">Protocol translator; connects different network architectures</div>
+        </div>
+        <span class="comp-osi osi-34">Layers 4–7</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Layer 4–7 (all upper layers)</div></div>
+          <div class="spec-item"><div class="spec-label">Function</div><div class="spec-val">Protocol conversion</div></div>
+          <div class="spec-item"><div class="spec-label">Examples</div><div class="spec-val">Email gateway, VoIP GW, API GW</div></div>
+          <div class="spec-item"><div class="spec-label">Complexity</div><div class="spec-val">Most complex device</div></div>
+        </div>
+
+        <p>A <span class="hl">Gateway</span> is the most intelligent and complex networking device. It operates at the <strong>upper layers (4–7)</strong> of the OSI model and acts as a <strong>protocol converter</strong> — it can connect networks that use completely different protocols and translate between them.</p>
+        <p>Note: In common usage, your home router is often called a "default gateway" — this means it is the router that provides access to networks outside your local LAN (typically the Internet).</p>
+
+        <h4 class="mini-title">Types of Gateways</h4>
+        <ul class="note-list">
+          <li><strong>Network Gateway (Default Gateway):</strong> The router/device that connects a LAN to the internet. In routing tables, this is the "gateway of last resort" — if no specific route matches, forward to the default gateway.</li>
+          <li><strong>Email Gateway:</strong> Converts between different email protocols (e.g., SMTP to X.400 used in older systems). Spam filters are email gateways.</li>
+          <li><strong>VoIP Gateway:</strong> Converts PSTN (analog telephone) signals to VoIP (digital) packets, enabling traditional phones to work with internet phone systems.</li>
+          <li><strong>API Gateway:</strong> In microservices architectures, an API gateway routes HTTP requests from clients to appropriate backend services, handling authentication, rate limiting, and load balancing.</li>
+          <li><strong>Cloud Storage Gateway:</strong> Bridges on-premise applications with cloud storage (e.g., AWS Storage Gateway translating SMB/NFS to S3).</li>
+        </ul>
+
+        <div class="callout note">
+          <div class="callout-icon">📌</div>
+          <div class="callout-body">
+            <div class="callout-title">Key Distinction</div>
+            <div class="callout-text">A <strong>router</strong> routes packets within the same protocol family (IP). A <strong>gateway</strong> translates between completely <em>different</em> protocols — it understands the application-level semantics of both networks. This makes gateways much more computationally expensive.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.9 Modem -->
+  <div class="section" id="modem">
+    <div class="component-card">
+      <div class="component-head">
+        <div class="comp-icon">📞</div>
+        <div class="comp-title-area">
+          <div class="comp-title">Modem</div>
+          <div class="comp-sub">Modulator-Demodulator; connects to ISP over telephone/cable lines</div>
+        </div>
+        <span class="comp-osi osi-1">Layer 1 (& 2)</span>
+      </div>
+      <div class="component-body">
+        <div class="spec-grid">
+          <div class="spec-item"><div class="spec-label">Full Name</div><div class="spec-val">Modulator-Demodulator</div></div>
+          <div class="spec-item"><div class="spec-label">OSI Layer</div><div class="spec-val">Physical Layer 1</div></div>
+          <div class="spec-item"><div class="spec-label">Types</div><div class="spec-val">DSL, Cable, Fiber, 4G/5G</div></div>
+          <div class="spec-item"><div class="spec-label">Function</div><div class="spec-val">Digital ↔ Analog conversion</div></div>
+        </div>
+
+        <p>A <span class="hl">Modem</span> (short for <strong>Modulator-Demodulator</strong>) converts digital data from your computer into signals that can travel over the medium used by your ISP (analog telephone lines, cable TV coax, fiber optic), and vice versa.</p>
+        <ul class="note-list">
+          <li><strong>Modulation (Transmit):</strong> Converts outgoing digital bits → analog/carrier signal suitable for the transmission medium.</li>
+          <li><strong>Demodulation (Receive):</strong> Converts incoming analog/carrier signal → digital bits for the computer.</li>
+        </ul>
+
+        <h4 class="mini-title">Types of Modems</h4>
+        <ul class="note-list">
+          <li><strong>Dial-up Modem:</strong> Uses standard telephone lines (PSTN). Speed: 56 Kbps maximum. Obsolete today.</li>
+          <li><strong>DSL Modem:</strong> Digital Subscriber Line — uses telephone lines but at higher frequencies. ADSL: ~8 Mbps down. VDSL2: up to 100 Mbps.</li>
+          <li><strong>Cable Modem:</strong> Uses cable TV coaxial infrastructure. DOCSIS 3.1 standard provides Gbps speeds.</li>
+          <li><strong>Fiber ONT (Optical Network Terminal):</strong> Technically not a modem (no analog conversion), but performs similar connection function for fiber-to-home.</li>
+          <li><strong>4G/5G Modem:</strong> Connects to mobile cellular networks. Used in MiFi/hotspot devices and home broadband in areas without wired infrastructure.</li>
+          <li><strong>Satellite Modem:</strong> Modulates/demodulates signals for satellite internet (e.g., Starlink uses a phased-array antenna + modem).</li>
+        </ul>
+
+        <!-- Modem SVG -->
+        <div class="diagram-box">
+          <svg viewBox="0 0 680 160" width="100%" style="max-width:660px">
+            <!-- PC -->
+            <rect x="20" y="50" width="90" height="60" rx="12" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+            <text x="65" y="84" text-anchor="middle" fill="#4f8ef7" font-size="11" font-family="Inter">Computer</text>
+            <text x="65" y="100" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">Digital data</text>
+
+            <!-- Digital signal visualization -->
+            <polyline points="110,80 130,80 130,60 150,60 150,80 170,80 170,60 190,60 190,80 200,80" fill="none" stroke="#4f8ef7" stroke-width="2" opacity="0.8"/>
+            <text x="155" y="52" text-anchor="middle" fill="#4f8ef7" font-size="10" font-family="Inter">Digital bits (0s and 1s)</text>
+
+            <!-- Modem -->
+            <rect x="200" y="45" width="110" height="70" rx="14" fill="#1a2545" stroke="#f7a34f" stroke-width="2"/>
+            <text x="255" y="78" text-anchor="middle" fill="#f7a34f" font-size="12" font-weight="700" font-family="Inter">MODEM</text>
+            <text x="255" y="94" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">Modulate/Demodulate</text>
+
+            <!-- Analog wave -->
+            <path d="M310,80 Q325,60 340,80 Q355,100 370,80 Q385,60 400,80 Q415,100 430,80 Q445,60 460,80" fill="none" stroke="#00d4aa" stroke-width="2" opacity="0.8"/>
+            <text x="385" y="52" text-anchor="middle" fill="#00d4aa" font-size="10" font-family="Inter">Analog/carrier signal</text>
+
+            <!-- ISP / Phone line -->
+            <rect x="460" y="50" width="90" height="60" rx="12" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+            <text x="505" y="82" text-anchor="middle" fill="#00d4aa" font-size="11" font-family="Inter">ISP</text>
+            <text x="505" y="98" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="Inter">DSL / Cable</text>
+
+            <!-- Internet -->
+            <line x1="550" y1="80" x2="600" y2="80" stroke="#f7a34f" stroke-width="2" stroke-dasharray="4,3" opacity="0.7"/>
+            <ellipse cx="635" cy="80" rx="40" ry="28" fill="rgba(247,163,79,0.08)" stroke="#f7a34f" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <text x="635" y="84" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Internet</text>
+
+            <text x="340" y="145" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 5.9 – Modem converts between digital data and analog/carrier signal</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.10 Comparison Table -->
+  <div class="section" id="comparison">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 5.10</div>
+        <h2 class="section-title">Network Components – Quick Reference</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Device</th><th>OSI Layer</th><th>Address Used</th><th>Function</th><th>Broadcast Domain</th><th>Collision Domain</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Repeater</td><td>Layer 1 (Physical)</td><td>None</td>
+            <td>Signal regeneration</td><td>Does NOT separate</td><td>Does NOT separate</td>
+          </tr>
+          <tr>
+            <td>Hub</td><td>Layer 1 (Physical)</td><td>None</td>
+            <td>Multi-port repeater, broadcasts all</td><td>Does NOT separate</td><td>Does NOT separate</td>
+          </tr>
+          <tr>
+            <td>Bridge</td><td>Layer 2 (Data Link)</td><td>MAC Address</td>
+            <td>Connects segments, filters by MAC</td><td>Does NOT separate</td><td>Separates per port</td>
+          </tr>
+          <tr>
+            <td>Switch</td><td>Layer 2 (Data Link)</td><td>MAC Address</td>
+            <td>Multi-port bridge, dedicated bandwidth</td><td>Does NOT separate*</td><td>Separates per port</td>
+          </tr>
+          <tr>
+            <td>Router</td><td>Layer 3 (Network)</td><td>IP Address</td>
+            <td>Routes packets between networks</td><td>Separates per interface</td><td>Separates per interface</td>
+          </tr>
+          <tr>
+            <td>Gateway</td><td>Layers 4–7</td><td>All addresses</td>
+            <td>Protocol translation between different networks</td><td>Separates</td><td>Separates</td>
+          </tr>
+          <tr>
+            <td>NIC</td><td>Layer 1 & 2</td><td>MAC Address</td>
+            <td>Connects device to network, encodes/decodes</td><td>N/A</td><td>N/A</td>
+          </tr>
+          <tr>
+            <td>Modem</td><td>Layer 1 (Physical)</td><td>None</td>
+            <td>Digital ↔ Analog signal conversion</td><td>N/A</td><td>N/A</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-top:8px;">* Switches separate broadcast domains when VLANs are configured (managed switches only).</p>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">OSI Layer Memory Aid</div>
+        <div class="callout-text">
+          Layer 1 → <strong>Repeater, Hub, Modem</strong> (bits &amp; signals)<br/>
+          Layer 2 → <strong>Switch, Bridge, NIC</strong> (MAC addresses &amp; frames)<br/>
+          Layer 3 → <strong>Router</strong> (IP addresses &amp; packets)<br/>
+          Layer 4–7 → <strong>Gateway</strong> (full protocol translation)
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="04-client-server-p2p.html">← Ch 04: Architectures</a>
+      <a href="index.html">🏠 Home</a>
+    </div>
+    Network Fundamentals · Chapter 05 · Network Components
+  </div>
+</footer>
+
+</body>
+</html>

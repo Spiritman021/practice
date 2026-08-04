@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 8 – OSI vs TCP/IP Comparison & Protocol Mapping | Network Fundamentals</title>
+  <meta name="description" content="Side-by-side comparison of OSI vs TCP/IP reference models, full protocol mapping matrix, and end-to-end packet flow." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .matrix-table-wrap {
+      overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); margin: 24px 0;
+    }
+    table.matrix-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    table.matrix-table th {
+      background: var(--card2); color: var(--text2);
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    table.matrix-table td {
+      padding: 12px 16px; color: var(--text2);
+      border-bottom: 1px solid rgba(30,45,77,0.5); vertical-align: middle;
+    }
+    table.matrix-table tr:hover td { background: rgba(79,142,247,0.04); }
+
+    .tag-l7 { background: rgba(240,92,136,0.15); color: #f05c88; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono'; font-size:11px; }
+    .tag-l4 { background: rgba(0,212,170,0.15); color: #00d4aa; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono'; font-size:11px; }
+    .tag-l3 { background: rgba(247,163,79,0.15); color: #f7a34f; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono'; font-size:11px; }
+    .tag-l2 { background: rgba(124,92,240,0.15); color: #7c5cf0; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono'; font-size:11px; }
+    .tag-l1 { background: rgba(240,92,136,0.15); color: #ff85a2; font-weight:700; padding:3px 8px; border-radius:6px; font-family:'JetBrains Mono'; font-size:11px; }
+
+    .flow-step {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 22px; margin-bottom: 14px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(79,142,247,0.15); border: 1px solid var(--accent);
+      color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 08</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 08 · Reference Models</div>
+    <h1 class="page-title">OSI vs TCP/IP Comparison &<br/>Protocol Mapping</h1>
+    <p class="page-subtitle">A comprehensive comparison between the theoretical OSI model and practical TCP/IP model, featuring complete protocol mapping, hardware mapping, and end-to-end packet flow walkthroughs.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#sidebyside"><span class="toc-num">8.1</span> Side-by-Side Architectural Comparison</a></li>
+      <li><a href="#mapping"><span class="toc-num">8.2</span> Full Protocol Mapping Matrix</a></li>
+      <li><a href="#mastertable"><span class="toc-num">8.3</span> Master Layer & Component Reference Table</a></li>
+      <li><a href="#packetflow"><span class="toc-num">8.4</span> End-to-End Packet Flow Walkthrough</a></li>
+      <li><a href="#cheatsheet"><span class="toc-num">8.5</span> Exam Cheat Sheet & Quick Summary</a></li>
+    </ul>
+  </div>
+
+  <!-- 8.1 Side by Side -->
+  <div class="section" id="sidebyside">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <div>
+        <div class="section-num">Section 8.1</div>
+        <h2 class="section-title">Side-by-Side Architectural Comparison</h2>
+      </div>
+    </div>
+
+    <!-- SVG Layer Mapping Diagram -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 760 340" width="100%" style="max-width:740px">
+        <!-- OSI Model (Left) -->
+        <text x="180" y="24" text-anchor="middle" fill="#f05c88" font-size="14" font-weight="800" font-family="Inter">OSI Model (7 Layers)</text>
+
+        <rect x="30" y="40" width="300" height="34" rx="6" fill="rgba(240,92,136,0.15)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="180" y="62" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">7. Application Layer</text>
+
+        <rect x="30" y="78" width="300" height="34" rx="6" fill="rgba(240,92,136,0.12)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="180" y="100" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">6. Presentation Layer</text>
+
+        <rect x="30" y="116" width="300" height="34" rx="6" fill="rgba(240,92,136,0.10)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="180" y="138" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">5. Session Layer</text>
+
+        <rect x="30" y="154" width="300" height="34" rx="6" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="180" y="176" text-anchor="middle" fill="#00d4aa" font-size="12" font-weight="700" font-family="Inter">4. Transport Layer</text>
+
+        <rect x="30" y="192" width="300" height="34" rx="6" fill="rgba(247,163,79,0.15)" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="180" y="214" text-anchor="middle" fill="#f7a34f" font-size="12" font-weight="700" font-family="Inter">3. Network Layer</text>
+
+        <rect x="30" y="230" width="300" height="34" rx="6" fill="rgba(124,92,240,0.15)" stroke="#7c5cf0" stroke-width="1.5"/>
+        <text x="180" y="252" text-anchor="middle" fill="#7c5cf0" font-size="12" font-weight="700" font-family="Inter">2. Data Link Layer</text>
+
+        <rect x="30" y="268" width="300" height="34" rx="6" fill="rgba(79,142,247,0.15)" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="180" y="290" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="700" font-family="Inter">1. Physical Layer</text>
+
+
+        <!-- Brackets & Connection Lines -->
+        <!-- App/Pres/Sess bracket -> TCP/IP App -->
+        <path d="M 340 57 L 380 57 L 380 93 L 420 93" fill="none" stroke="#f05c88" stroke-width="2" stroke-dasharray="4,3"/>
+        <path d="M 340 133 L 380 133 L 380 93" fill="none" stroke="#f05c88" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- Transport -> Transport -->
+        <line x1="340" y1="171" x2="420" y2="171" stroke="#00d4aa" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- Network -> Internet -->
+        <line x1="340" y1="209" x2="420" y2="209" stroke="#f7a34f" stroke-width="2" stroke-dasharray="4,3"/>
+
+        <!-- Data Link/Physical -> Network Access -->
+        <path d="M 340 247 L 380 247 L 380 268 L 420 268" fill="none" stroke="#7c5cf0" stroke-width="2" stroke-dasharray="4,3"/>
+        <path d="M 340 285 L 380 285 L 380 268" fill="none" stroke="#7c5cf0" stroke-width="2" stroke-dasharray="4,3"/>
+
+
+        <!-- TCP/IP Model (Right) -->
+        <text x="570" y="24" text-anchor="middle" fill="#00d4aa" font-size="14" font-weight="800" font-family="Inter">TCP/IP Model (4 Layers)</text>
+
+        <rect x="430" y="40" width="280" height="110" rx="8" fill="rgba(240,92,136,0.12)" stroke="#f05c88" stroke-width="2"/>
+        <text x="570" y="95" text-anchor="middle" fill="#f05c88" font-size="13" font-weight="800" font-family="Inter">Application Layer</text>
+        <text x="570" y="112" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">(App + Pres + Session)</text>
+
+        <rect x="430" y="154" width="280" height="34" rx="6" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="2"/>
+        <text x="570" y="176" text-anchor="middle" fill="#00d4aa" font-size="13" font-weight="800" font-family="Inter">Transport Layer</text>
+
+        <rect x="430" y="192" width="280" height="34" rx="6" fill="rgba(247,163,79,0.15)" stroke="#f7a34f" stroke-width="2"/>
+        <text x="570" y="214" text-anchor="middle" fill="#f7a34f" font-size="13" font-weight="800" font-family="Inter">Internet Layer</text>
+
+        <rect x="430" y="230" width="280" height="72" rx="8" fill="rgba(124,92,240,0.12)" stroke="#7c5cf0" stroke-width="2"/>
+        <text x="570" y="266" text-anchor="middle" fill="#7c5cf0" font-size="13" font-weight="800" font-family="Inter">Network Access Layer</text>
+        <text x="570" y="284" text-anchor="middle" fill="#5a6a8a" font-size="10" font-family="Inter">(Data Link + Physical)</text>
+
+        <text x="380" y="325" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 8.1 – Direct Mapping between OSI 7 Layers and TCP/IP 4 Layers</text>
+      </svg>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>OSI Model</th>
+            <th>TCP/IP Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Full Form</td><td>Open Systems Interconnection</td><td>Transmission Control Protocol / Internet Protocol</td></tr>
+          <tr><td>Developed By</td><td>ISO (International Organization for Standardization)</td><td>DARPA (US Department of Defense)</td></tr>
+          <tr><td>Development Era</td><td>1984 (Theoretical framework)</td><td>1970s (Practical protocol suite)</td></tr>
+          <tr><td>Number of Layers</td><td>7 Layers</td><td>4 Layers (or 5-layer modern variant)</td></tr>
+          <tr><td>Approach</td><td>Model was defined first, then protocols written</td><td>Protocols were written first, then model defined</td></tr>
+          <tr><td>Nature</td><td>Theoretical / Reference Model</td><td>Practical / Implementation Model</td></tr>
+          <tr><td>Layer Boundaries</td><td>Strict & rigid boundaries between layers</td><td>Loose & flexible boundaries</td></tr>
+          <tr><td>Services Support</td><td>Separate Services, Interfaces, and Protocols</td><td>Combines them into protocol suites</td></tr>
+          <tr><td>Transport Support</td><td>Connection-oriented and Connectionless</td><td>Connection-oriented (TCP) & Connectionless (UDP)</td></tr>
+          <tr><td>Network Layer Support</td><td>Connection-oriented and Connectionless</td><td>Connectionless only (IP)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 8.2 Protocol Mapping Matrix -->
+  <div class="section" id="mapping">
+    <div class="section-header">
+      <div class="section-icon">🗺️</div>
+      <div>
+        <div class="section-num">Section 8.2</div>
+        <h2 class="section-title">Full Protocol Mapping Matrix</h2>
+      </div>
+    </div>
+    <p>This matrix maps every major networking protocol to its corresponding layer in both the OSI and TCP/IP reference models.</p>
+
+    <div class="matrix-table-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>OSI Layer</th>
+            <th>TCP/IP Layer</th>
+            <th>Protocols Operating at Layer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag-l7">L7 Application</span></td>
+            <td rowspan="3" style="background:rgba(240,92,136,0.05); font-weight:700; color:#f05c88;">
+              Application Layer
+            </td>
+            <td><code>HTTP</code>, <code>HTTPS</code>, <code>FTP</code>, <code>SFTP</code>, <code>SMTP</code>, <code>POP3</code>, <code>IMAP</code>, <code>DNS</code>, <code>DHCP</code>, <code>SSH</code>, <code>Telnet</code>, <code>SNMP</code>, <code>NTP</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l7">L6 Presentation</span></td>
+            <td><code>SSL</code>, <code>TLS</code>, <code>JPEG</code>, <code>PNG</code>, <code>MPEG</code>, <code>ASCII</code>, <code>EBCDIC</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l7">L5 Session</span></td>
+            <td><code>RPC</code>, <code>NetBIOS</code>, <code>PPTP</code>, <code>SAP</code>, <code>Sockets API</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l4">L4 Transport</span></td>
+            <td style="background:rgba(0,212,170,0.05); font-weight:700; color:#00d4aa;">
+              Transport Layer
+            </td>
+            <td><code>TCP</code>, <code>UDP</code>, <code>SCTP</code>, <code>RTP</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l3">L3 Network</span></td>
+            <td style="background:rgba(247,163,79,0.05); font-weight:700; color:#f7a34f;">
+              Internet Layer
+            </td>
+            <td><code>IPv4</code>, <code>IPv6</code>, <code>ICMP</code>, <code>ICMPv6</code>, <code>ARP</code>, <code>RARP</code>, <code>IGMP</code>, <code>IPsec</code>, <code>OSPF</code>, <code>BGP</code>, <code>RIP</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l2">L2 Data Link</span></td>
+            <td rowspan="2" style="background:rgba(124,92,240,0.05); font-weight:700; color:#7c5cf0;">
+              Network Access Layer
+            </td>
+            <td><code>Ethernet (802.3)</code>, <code>Wi-Fi (802.11)</code>, <code>PPP</code>, <code>HDLC</code>, <code>Frame Relay</code>, <code>ATM</code>, <code>VLAN (802.1Q)</code>, <code>STP</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag-l1">L1 Physical</span></td>
+            <td><code>10BASE-T</code>, <code>100BASE-TX</code>, <code>1000BASE-T</code>, <code>Fiber Optics</code>, <code>Bluetooth (802.15.1)</code>, <code>DSL</code>, <code>RJ-45</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 8.3 Master Table -->
+  <div class="section" id="mastertable">
+    <div class="section-header">
+      <div class="section-icon">📑</div>
+      <div>
+        <div class="section-num">Section 8.3</div>
+        <h2 class="section-title">Master Layer & Component Reference Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Layer Name</th>
+            <th>OSI #</th>
+            <th>PDU</th>
+            <th>Addressing Type</th>
+            <th>Key Hardware</th>
+            <th>Core Responsibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Application</td><td>7</td><td>Data</td><td>User / Process</td><td>Application Gateway</td><td>Services to end-users</td>
+          </tr>
+          <tr>
+            <td>Presentation</td><td>6</td><td>Data</td><td>Syntax / Format</td><td>Gateway</td><td>Formatting, Encryption, Compression</td>
+          </tr>
+          <tr>
+            <td>Session</td><td>5</td><td>Data</td><td>Session ID</td><td>Gateway</td><td>Dialog & session control</td>
+          </tr>
+          <tr>
+            <td>Transport</td><td>4</td><td>Segment / Datagram</td><td>Port Number (16-bit)</td><td>L4 Firewall, L4 Switch</td><td>End-to-end process delivery</td>
+          </tr>
+          <tr>
+            <td>Network</td><td>3</td><td>Packet</td><td>IP Address (32/128-bit)</td><td>Router, L3 Switch</td><td>Routing packets across networks</td>
+          </tr>
+          <tr>
+            <td>Data Link</td><td>2</td><td>Frame</td><td>MAC Address (48-bit)</td><td>Switch, Bridge, NIC</td><td>Hop-to-hop framing & media access</td>
+          </tr>
+          <tr>
+            <td>Physical</td><td>1</td><td>Bits</td><td>Physical Signal</td><td>Hub, Repeater, Modem, Cables</td><td>Bit transmission over physical medium</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 8.4 End-to-End Packet Flow -->
+  <div class="section" id="packetflow">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 8.4</div>
+        <h2 class="section-title">End-to-End Packet Flow Walkthrough</h2>
+      </div>
+    </div>
+    <p>What actually happens when Host A sends a web request (HTTP) to Host B across a router?</p>
+
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent);">Application Layer (Host A)</h4>
+        <p>The web browser generates an HTTP GET request message.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent3);">Transport Layer (Host A)</h4>
+        <p>TCP encapsulates the data with a TCP header containing Source Port (e.g. 54321) and Destination Port (80). PDU = <strong>Segment</strong>.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent4);">Network Layer (Host A)</h4>
+        <p>IP encapsulates the segment with an IP header containing Source IP (192.168.1.10) and Destination IP (10.0.0.50). PDU = <strong>Packet</strong>.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent2);">Data Link Layer (Host A)</h4>
+        <p>Ethernet encapsulates packet with Frame Header containing Source MAC (Host A) and Destination MAC (Default Gateway / Router interface MAC). Adds CRC trailer. PDU = <strong>Frame</strong>.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent5);">Router Processing (Intermediate Node)</h4>
+        <p>Router receives bits at Layer 1, decapsulates L2 Frame, reads L3 IP Header. Checks routing table for Destination IP (10.0.0.50). Decrements TTL by 1. Re-encapsulates with NEW L2 Source MAC (Router interface) and NEW L2 Destination MAC (Host B).</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div>
+        <h4 style="font-size:15px; font-weight:700; color:var(--accent3);">Receiver Decapsulation (Host B)</h4>
+        <p>Host B receives bits → checks MAC (L2) → checks IP (L3) → checks Port 80 (L4) → delivers raw HTTP request data to Web Server software (L7).</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 8.5 Cheatsheet -->
+  <div class="section" id="cheatsheet">
+    <div class="section-header">
+      <div class="section-icon">💡</div>
+      <div>
+        <div class="section-num">Section 8.5</div>
+        <h2 class="section-title">Exam Cheat Sheet & Quick Summary</h2>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Golden Rules for Exam Questions</div>
+        <div class="callout-text">
+          • <strong>MAC address</strong> is used at Layer 2 (Data Link) for local hop-to-hop forwarding.<br/>
+          • <strong>IP address</strong> is used at Layer 3 (Network) for end-to-end routing across networks.<br/>
+          • <strong>Port number</strong> is used at Layer 4 (Transport) for process-to-process communication.<br/>
+          • <strong>Routers</strong> strip and change Layer 2 headers at every hop, but Layer 3 IP addresses stay unchanged end-to-end.<br/>
+          • <strong>Switches</strong> operate at Layer 2 and do NOT modify IP or MAC headers.<br/>
+          • <strong>TCP</strong> = Reliable, Connection-oriented, 3-way handshake, Flow control.<br/>
+          • <strong>UDP</strong> = Connectionless, Fast, Lightweight, Video/VoIP/DNS.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="07-tcpip-model.html">← Ch 07: TCP/IP Model</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 08 · OSI vs TCP/IP Comparison & Protocol Mapping
+  </div>
+</footer>
+
+</body>
+</html>

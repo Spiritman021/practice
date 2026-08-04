@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 12 – Framing & Error Control | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on Data Link Layer framing techniques (Bit/Byte stuffing), Error Detection (Parity, Checksum, CRC), and Error Correction (Hamming Code)." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .math-block {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px; font-family: 'JetBrains Mono', monospace;
+      color: var(--accent); margin: 16px 0; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 12</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 12 · Data Link Layer</div>
+    <h1 class="page-title">Framing & Error Control</h1>
+    <p class="page-subtitle">The Data Link Layer transforms raw physical bitstreams into discrete, manageable units called frames and ensures reliable transmission via Error Detection (Parity, Checksum, CRC) and Correction (Hamming Code).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#framing"><span class="toc-num">12.1</span> Framing Techniques</a></li>
+      <li><a href="#byte-stuffing"><span class="toc-num">12.2</span> Character / Byte Stuffing</a></li>
+      <li><a href="#bit-stuffing"><span class="toc-num">12.3</span> Bit Stuffing</a></li>
+      <li><a href="#error-overview"><span class="toc-num">12.4</span> Error Detection vs Correction Overview</a></li>
+      <li><a href="#parity"><span class="toc-num">12.5</span> Parity Check (1D & 2D)</a></li>
+      <li><a href="#checksum"><span class="toc-num">12.6</span> Checksum</a></li>
+      <li><a href="#crc"><span class="toc-num">12.7</span> Cyclic Redundancy Check (CRC)</a></li>
+      <li><a href="#hamming"><span class="toc-num">12.8</span> Hamming Code Error Correction</a></li>
+    </ul>
+  </div>
+
+  <!-- 12.1 Framing -->
+  <div class="section" id="framing">
+    <div class="section-header">
+      <div class="section-icon">🖼️</div>
+      <div>
+        <div class="section-num">Section 12.1</div>
+        <h2 class="section-title">Framing Techniques</h2>
+      </div>
+    </div>
+    <p>The Physical Layer delivers raw bits without structure. The Data Link Layer divides this bit stream into distinct **Frames**. Framing allows the receiver to detect where a frame begins and ends.</p>
+
+    <h3 class="sub-title">Major Framing Methods</h3>
+    <ul class="note-list">
+      <li><strong>Character Count:</strong> Header specifies the number of characters in the frame. (Disadvantage: If count byte is corrupted, synchronization is completely lost).</li>
+      <li><strong>Byte Stuffing:</strong> Delimits frames using special Flag Bytes (e.g., <code>FLAG</code> byte at start and end).</li>
+      <li><strong>Bit Stuffing:</strong> Delimits frames using special Bit Pattern (e.g., <code>01111110</code> flag).</li>
+      <li><strong>Physical Layer Coding Violations:</strong> Used in networks like Token Ring/LANs where signal encoding has unused states (e.g., Manchester encoding high-high or low-low pairs).</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.2 Byte Stuffing -->
+  <div class="section" id="byte-stuffing">
+    <div class="section-header">
+      <div class="section-icon">🔤</div>
+      <div>
+        <div class="section-num">Section 12.2</div>
+        <h2 class="section-title">Character / Byte Stuffing</h2>
+      </div>
+    </div>
+    <p>In <span class="hl">Byte Stuffing</span>, special delimiter bytes called <strong>FLAG</strong> mark the start and end of a frame. If the user data itself contains the <code>FLAG</code> byte, an <strong>Escape Byte (ESC)</strong> is inserted ("stuffed") before it so the receiver knows it is part of data, not a frame boundary.</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Byte Stuffing Rules</div>
+        <div class="callout-text">
+          • Data has <code>FLAG</code> → Transmitted as <code>ESC FLAG</code><br/>
+          • Data has <code>ESC</code> → Transmitted as <code>ESC ESC</code><br/>
+          • Receiver strips the first <code>ESC</code> byte upon arrival.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.3 Bit Stuffing -->
+  <div class="section" id="bit-stuffing">
+    <div class="section-header">
+      <div class="section-icon">0️⃣1️⃣</div>
+      <div>
+        <div class="section-num">Section 12.3</div>
+        <h2 class="section-title">Bit Stuffing</h2>
+      </div>
+    </div>
+    <p>In <span class="hl2">Bit Stuffing</span>, frames begin and end with a special 8-bit flag pattern: <code>01111110</code> (six consecutive 1s).</p>
+    <p><strong>Rule:</strong> Whenever the sender's data stream contains <strong>five consecutive 1s</strong>, the sender automatically stuffs a <code>0</code> bit immediately after them. The receiver automatically removes ("unstuffs") any <code>0</code> bit that immediately follows five consecutive 1s.</p>
+
+    <!-- Bit Stuffing SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 680 180" width="100%" style="max-width:660px">
+        <!-- Original Data -->
+        <text x="30" y="40" fill="#4f8ef7" font-size="12" font-weight="700" font-family="Inter">Original Data:</text>
+        <text x="150" y="40" fill="#e8eaf6" font-size="13" font-family="'JetBrains Mono', monospace">01101111111001</text>
+        <text x="195" y="60" fill="#f05c88" font-size="10" font-family="Inter">(7 consecutive 1s)</text>
+
+        <!-- Stuffed Data -->
+        <text x="30" y="100" fill="#00d4aa" font-size="12" font-weight="700" font-family="Inter">Stuffed Stream:</text>
+        <text x="150" y="100" fill="#5a6a8a" font-size="13" font-family="'JetBrains Mono', monospace">FLAG <tspan fill="#e8eaf6">011011111</tspan><tspan fill="#00d4aa" font-weight="800">0</tspan><tspan fill="#e8eaf6">11001</tspan> FLAG</text>
+        <text x="250" y="120" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">↑ 0 stuffed after 5th '1'</text>
+
+        <text x="340" y="160" text-anchor="middle" fill="#5a6a8a" font-size="11" font-family="Inter" font-style="italic">Fig 12.1 – Bit Stuffing: Inserting '0' after 5 consecutive '1's</text>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.4 Error Overview -->
+  <div class="section" id="error-overview">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div>
+        <div class="section-num">Section 12.4</div>
+        <h2 class="section-title">Error Detection vs Correction Overview</h2>
+      </div>
+    </div>
+    <p>Network signals suffer from noise, causing bits to flip (0 → 1 or 1 → 0).</p>
+    <ul class="note-list">
+      <li><strong>Single-Bit Error:</strong> Only one bit of a given data unit is altered.</li>
+      <li><strong>Burst Error:</strong> Two or more bits in the data unit are altered (common in wireless / impulse noise).</li>
+      <li><strong>Error Detection:</strong> Detecting that errors exist, then requesting retransmission (ARQ).</li>
+      <li><strong>Error Correction:</strong> Detecting errors and determining exact bit locations to fix them automatically without retransmission (Forward Error Correction - FEC).</li>
+    </ul>
+
+    <div class="math-block">
+      Hamming Distance d(x,y): Number of bit positions in which two codewords differ.<br/>
+      • To DETECT 's' errors: Min Hamming Distance <em>d</em><sub>min</sub> ≥ <em>s</em> + 1<br/>
+      • To CORRECT 't' errors: Min Hamming Distance <em>d</em><sub>min</sub> ≥ 2<em>t</em> + 1
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.5 Parity -->
+  <div class="section" id="parity">
+    <div class="section-header">
+      <div class="section-icon">🔢</div>
+      <div>
+        <div class="section-num">Section 12.5</div>
+        <h2 class="section-title">Parity Check (1D & 2D)</h2>
+      </div>
+    </div>
+    <p>In <strong>Simple Parity Check</strong>, a redundant parity bit is appended to the data unit so that the total number of 1s becomes even (Even Parity) or odd (Odd Parity). Can only detect odd numbers of bit errors (fails if 2 bits flip).</p>
+    <p>In <strong>2D (Two-Dimensional) Parity Check</strong>, data is arranged in a grid, and parity bits are calculated for every row AND every column. Can detect burst errors and correct single-bit errors.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.6 Checksum -->
+  <div class="section" id="checksum">
+    <div class="section-header">
+      <div class="section-icon">➕</div>
+      <div>
+        <div class="section-num">Section 12.6</div>
+        <h2 class="section-title">Checksum</h2>
+      </div>
+    </div>
+    <p>Used extensively in Internet protocols (IP, TCP, UDP). Data is divided into k segments of n bits each. The segments are added together using **1's complement addition**, and the 1's complement of the sum becomes the Checksum appended to the data.</p>
+    <p>At receiver: Add all received segments including checksum. If result is all 1s (0xFFFF), data is valid.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.7 CRC -->
+  <div class="section" id="crc">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 12.7</div>
+        <h2 class="section-title">Cyclic Redundancy Check (CRC)</h2>
+      </div>
+    </div>
+    <p><span class="hl">CRC</span> is a powerful error detection method based on **binary polynomial division** (using XOR operation without carry).</p>
+
+    <h4 class="mini-title">CRC Algorithm Steps</h4>
+    <ol class="note-list" style="margin-left:20px;">
+      <li>Given a Generator polynomial <em>G</em>(<em>x</em>) of degree <em>r</em>, append <em>r</em> zero bits to the original data <em>D</em>.</li>
+      <li>Divide the padded data (<em>D</em> · 2<sup><em>r</em></sup>) by the divisor <em>G</em> using modulo-2 (XOR) division.</li>
+      <li>The remainder of size <em>r</em> bits is the <strong>CRC Checksum</strong>.</li>
+      <li>Replace the <em>r</em> padded zero bits with the CRC remainder and transmit the frame.</li>
+      <li>Receiver divides received frame by <em>G</em>. If remainder is <strong>0</strong>, frame is error-free.</li>
+    </ol>
+
+    <!-- CRC Example Box -->
+    <div class="math-block">
+      Example: Data = 1010000, Divisor G = 1001 (degree r = 3)<br/>
+      Padded Data = 1010000 000<br/>
+      XOR Division Remainder = 011<br/>
+      Transmitted Frame = 1010000 011
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 12.8 Hamming Code -->
+  <div class="section" id="hamming">
+    <div class="section-header">
+      <div class="section-icon">🛠️</div>
+      <div>
+        <div class="section-num">Section 12.8</div>
+        <h2 class="section-title">Hamming Code Error Correction</h2>
+      </div>
+    </div>
+    <p><span class="hl2">Hamming Code</span> is a Forward Error Correction (FEC) technique invented by Richard Hamming. It can detect up to 2-bit errors and correct single-bit errors by adding redundant parity bits at positions that are powers of 2 (1, 2, 4, 8, 16...).</p>
+
+    <!-- Generated Infographic for Bit Stuffing, CRC & Hamming Code -->
+    <div class="diagram-box">
+      <img src="images/crc_error_control.jpg" alt="CRC and Hamming Code Error Control Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 12.2 – Visual Guide to Bit Stuffing, CRC Division, and Hamming (7,4) Code Matrix</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">🧮</div>
+      <div class="callout-body">
+        <div class="callout-title">Redundant Bits Formula</div>
+        <div class="callout-text">
+          If data has <em>m</em> bits and we add <em>r</em> redundant bits, the relationship is:
+          <div style="font-weight:700; font-size:15px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:8px 0;">2<sup>r</sup> ≥ m + r + 1</div>
+          <strong>Example:</strong> For 4 data bits (<em>m</em> = 4), we need <em>r</em> = 3 redundant bits (since 2<sup>3</sup> = 8 ≥ 4 + 3 + 1 = 8).<br/>
+          Total codeword length = 7 bits (Hamming 7,4 Code).
+        </div>
+      </div>
+    </div>
+
+    <h4 class="mini-title">Bit Placement for Hamming (7,4) Code</h4>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Bit Position</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Type</td><td>Data D<sub>4</sub></td><td>Data D<sub>3</sub></td><td>Data D<sub>2</sub></td><td>Redundant P<sub>4</sub></td><td>Data D<sub>1</sub></td><td>Redundant P<sub>2</sub></td><td>Redundant P<sub>1</sub></td></tr>
+          <tr><td>Binary Pos</td><td>111</td><td>110</td><td>101</td><td>100</td><td>011</td><td>010</td><td>001</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:14px;"><strong>Parity Bit Calculations:</strong></p>
+    <ul class="note-list">
+      <li>P<sub>1</sub> checks bits 1, 3, 5, 7 (positions with LSB bit 1)</li>
+      <li>P<sub>2</sub> checks bits 2, 3, 6, 7 (positions with 2nd bit 1)</li>
+      <li>P<sub>4</sub> checks bits 4, 5, 6, 7 (positions with 3rd bit 1)</li>
+    </ul>
+    <p>If error occurs, evaluating check bits yields a binary number (e.g. 101 = 5) which indicates the exact error bit position!</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="11-switching-techniques-and-network-performance.html">← Ch 11: Switching</a>
+      <a href="index.html">Home</a>
+      <a href="13-flow-control-and-multiple-access-protocols.html">Ch 13: Flow & Access Control →</a>
+    </div>
+    Network Fundamentals · Chapter 12 · Framing & Error Control
+  </div>
+</footer>
+
+</body>
+</html>
