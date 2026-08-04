@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 18 – Congestion Control: Leaky Bucket & Token Bucket | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on Network Layer Congestion Control, Open-loop vs Closed-loop, Leaky Bucket, Token Bucket, RED, and Choke Packets." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .bucket-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 18</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 18 · Network Layer</div>
+    <h1 class="page-title">Congestion Control:<br/>Leaky Bucket & Token Bucket</h1>
+    <p class="page-subtitle">Learn the principles of network congestion, Open-Loop vs Closed-Loop control, and traffic shaping algorithms (Leaky Bucket, Token Bucket, RED, and Choke Packets).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#congestion-intro"><span class="toc-num">18.1</span> What is Network Congestion?</a></li>
+      <li><a href="#open-vs-closed"><span class="toc-num">18.2</span> Open-Loop vs Closed-Loop Control</a></li>
+      <li><a href="#leaky-bucket"><span class="toc-num">18.3</span> Leaky Bucket Algorithm</a></li>
+      <li><a href="#token-bucket"><span class="toc-num">18.4</span> Token Bucket Algorithm</a></li>
+      <li><a href="#bucket-compare"><span class="toc-num">18.5</span> Leaky Bucket vs Token Bucket Comparison</a></li>
+      <li><a href="#router-choke"><span class="toc-num">18.6</span> Choke Packets & RED (Random Early Detection)</a></li>
+    </ul>
+  </div>
+
+  <!-- 18.1 Intro -->
+  <div class="section" id="congestion-intro">
+    <div class="section-header">
+      <div class="section-icon">🚦</div>
+      <div>
+        <div class="section-num">Section 18.1</div>
+        <h2 class="section-title">What is Network Congestion?</h2>
+      </div>
+    </div>
+    <p><span class="hl">Congestion</span> occurs when the amount of data injected into a network by source hosts exceeds the handling capacity of intermediate routers and links. When router buffers overflow, packets are dropped, leading to retransmissions which worsen congestion!</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📈</div>
+      <div class="callout-body">
+        <div class="callout-title">The Load vs Throughput Curve</div>
+        <div class="callout-text">
+          • <strong>Light Load:</strong> Throughput increases proportionally with offering load.<br/>
+          • <strong>Knee Point:</strong> Load reaches network capacity; delay increases rapidly.<br/>
+          • <strong>Cliff Point:</strong> Congestion collapse! Routers drop packets continuously, throughput drops toward zero.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 18.2 Open vs Closed -->
+  <div class="section" id="open-vs-closed">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 18.2</div>
+        <h2 class="section-title">Open-Loop vs Closed-Loop Control</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Prevention</div>
+        <div class="info-card-title">Open-Loop Congestion Control</div>
+        <div class="info-card-desc">Policies designed to **prevent** congestion before it happens. Takes action at sender or router design level. (Retransmission policy, Window policy, Traffic Shaping: Leaky/Token Bucket).</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Removal</div>
+        <div class="info-card-title">Closed-Loop Congestion Control</div>
+        <div class="info-card-desc">Mechanisms designed to **detect and remove** congestion after it occurs. (Choke packets, Implicit/Explicit Congestion Notification ECN, Backpressure).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 18.3 Leaky Bucket -->
+  <div class="section" id="leaky-bucket">
+    <div class="bucket-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">18.3 Leaky Bucket Algorithm</h3>
+      <p>The <span class="hl">Leaky Bucket Algorithm</span> shapes bursty traffic into a **smooth, constant-rate output stream**, like a bucket with a small hole at the bottom.</p>
+
+      <h4 class="mini-title">Working Mechanism</h4>
+      <ul class="note-list">
+        <li>A fixed-capacity FIFO queue (bucket) holds incoming packets.</li>
+        <li>Incoming traffic arrives at irregular/bursty rates.</li>
+        <li>Packets leak out of the bottom at a <strong>strictly constant rate</strong>.</li>
+        <li>If the bucket overflows (capacity exceeded), new incoming packets are <strong>dropped</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 18.4 Token Bucket -->
+  <div class="section" id="token-bucket">
+    <div class="bucket-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">18.4 Token Bucket Algorithm</h3>
+      <p>The <span class="hl2">Token Bucket Algorithm</span> allows **bursty traffic up to a maximum burst size**, providing flexibility while enforcing average rate limits.</p>
+
+      <h4 class="mini-title">Working Mechanism</h4>
+      <ul class="note-list">
+        <li>Tokens are generated at a <strong>constant rate <em>R</em></strong> and stored in a bucket with maximum capacity <em>B</em>.</li>
+        <li>To transmit a packet of size <em>N</em> bytes, the sender must remove <em>N</em> tokens from the bucket.</li>
+        <li>If enough tokens are available, the packet is sent immediately (allows full-speed burst).</li>
+        <li>If not enough tokens are available, the packet waits or is dropped.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 18.5 Comparison -->
+  <div class="section" id="bucket-compare">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 18.5</div>
+        <h2 class="section-title">Leaky Bucket vs Token Bucket Comparison</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/traffic_shaping.jpg" alt="Leaky Bucket vs Token Bucket Algorithm Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 18.1 – Leaky Bucket (Constant Rate Output) vs Token Bucket (Bursty Traffic with Rate Limit) Algorithms</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Leaky Bucket</th><th>Token Bucket</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Output Rate</td><td>Strictly constant rate (Smooths out bursts)</td><td>Allows bursty transmission up to token capacity</td></tr>
+          <tr><td>Packet Dropping</td><td>Drops packets if bucket overflows</td><td>Discards tokens if bucket is full (packets saved)</td></tr>
+          <tr><td>Storage Element</td><td>Stores Data Packets in queue</td><td>Stores Tokens in bucket</td></tr>
+          <tr><td>Flexibility</td><td>Rigid (no burst support)</td><td>Flexible (supports QoS for bursty web/video traffic)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 18.6 Router Choke & RED -->
+  <div class="section" id="router-choke">
+    <div class="section-header">
+      <div class="section-icon">🚨</div>
+      <div>
+        <div class="section-num">Section 18.6</div>
+        <h2 class="section-title">Choke Packets & RED (Random Early Detection)</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Choke Packets</h3>
+    <p>When a router experiences congestion, it sends a **Choke Packet** directly back to the source host instructing it to reduce its transmission rate.</p>
+
+    <h3 class="sub-title">2. RED (Random Early Detection)</h3>
+    <p>An active queue management algorithm implemented in routers. Before queue capacity is 100% full, the router randomly drops a small percentage of incoming packets. This triggers TCP sources to lower their window size early, preventing global synchronization and severe buffer overflow!</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="17-routing-algorithms-and-protocols.html">← Ch 17: Routing Protocols</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 18 · Congestion Control
+  </div>
+</footer>
+
+</body>
+</html>

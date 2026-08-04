@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 17 – Routing Algorithms & Protocols (RIP, OSPF, BGP, EIGRP) | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive guide on Static vs Dynamic routing, Distance Vector vs Link State algorithms (Bellman-Ford, Dijkstra), and RIP, OSPF, EIGRP, BGP protocols." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .algo-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 17</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 17 · Network Layer</div>
+    <h1 class="page-title">Routing Algorithms & Protocols:<br/>RIP, OSPF, EIGRP & BGP</h1>
+    <p class="page-subtitle">Master Static vs Dynamic routing, Distance Vector (Bellman-Ford) vs Link State (Dijkstra) algorithms, and interior & exterior routing protocols (RIP, OSPF, EIGRP, BGP).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#static-vs-dynamic"><span class="toc-num">17.1</span> Static vs Dynamic Routing</a></li>
+      <li><a href="#distance-vector"><span class="toc-num">17.2</span> Distance Vector Routing (Bellman-Ford)</a></li>
+      <li><a href="#link-state"><span class="toc-num">17.3</span> Link State Routing (Dijkstra SPF)</a></li>
+      <li><a href="#rip"><span class="toc-num">17.4</span> RIP (Routing Information Protocol)</a></li>
+      <li><a href="#ospf"><span class="toc-num">17.5</span> OSPF (Open Shortest Path First)</a></li>
+      <li><a href="#eigrp"><span class="toc-num">17.6</span> EIGRP (Enhanced Interior Gateway Routing Protocol)</a></li>
+      <li><a href="#bgp"><span class="toc-num">17.7</span> BGP (Border Gateway Protocol)</a></li>
+      <li><a href="#protocol-compare"><span class="toc-num">17.8</span> Routing Protocols Comparison Master Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 17.1 Static vs Dynamic -->
+  <div class="section" id="static-vs-dynamic">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 17.1</div>
+        <h2 class="section-title">Static vs Dynamic Routing</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Static Routing</th><th>Dynamic Routing</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Route Configuration</td><td>Manually entered by network administrator</td><td>Learned automatically via routing protocols</td></tr>
+          <tr><td>Network Changes</td><td>Does NOT adapt automatically to topology changes</td><td>Adapts automatically to link failures & topology changes</td></tr>
+          <tr><td>Overhead & CPU</td><td>Zero CPU/RAM overhead on routers</td><td>Consumes CPU, RAM, and bandwidth for protocol messages</td></tr>
+          <tr><td>Scalability</td><td>Suitable only for small networks</td><td>Highly scalable for large enterprises & Internet</td></tr>
+          <tr><td>Security</td><td>High (Routes cannot be spoofed by rogue routers)</td><td>Requires authentication to prevent rogue route injection</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 17.2 Distance Vector -->
+  <div class="section" id="distance-vector">
+    <div class="algo-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">17.2 Distance Vector Routing (Bellman-Ford)</h3>
+      <p>Each router maintains a table giving the **distance (metric)** and **vector (direction/next-hop)** to every destination. Routers periodically share their entire routing table only with **immediate neighbors** ("Routing by rumor").</p>
+
+      <div class="callout key">
+        <div class="callout-icon">🧮</div>
+        <div class="callout-body">
+          <div class="callout-title">Bellman-Ford Equation</div>
+          <div class="callout-text">
+            <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:8px 0;">D<sub>x</sub>(y) = min<sub>v</sub> { c(x,v) + D<sub>v</sub>(y) }</div>
+            where cost to reach destination <em>y</em> from router <em>x</em> is minimized across all direct neighbors <em>v</em>.
+          </div>
+        </div>
+      </div>
+
+      <h4 class="mini-title">Count-to-Infinity Problem & Solutions</h4>
+      <p>When a link fails, Distance Vector algorithms can take a long time to converge, causing routing loops where metric values count up to infinity (16).</p>
+      <ul class="note-list">
+        <li><strong>Split Horizon:</strong> A router does not advertise a route back out of the interface through which it learned it.</li>
+        <li><strong>Route Poisoning:</strong> When a link fails, set its metric immediately to 16 (unreachable).</li>
+        <li><strong>Poison Reverse:</strong> Combines Split Horizon with Route Poisoning.</li>
+        <li><strong>Holddown Timers:</strong> Ignores bad route updates for a period to let network stabilize.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 17.3 Link State -->
+  <div class="section" id="link-state">
+    <div class="algo-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">17.3 Link State Routing (Dijkstra SPF)</h3>
+      <p>Every router floods **Link State Advertisements (LSAs)** to ALL routers in the network. Each router builds a complete **Link State Database (LSDB)** representing the entire topology map, then independently runs **Dijkstra's Shortest Path First (SPF)** algorithm to compute the shortest path tree to all nodes.</p>
+
+      <h4 class="mini-title">Advantages over Distance Vector</h4>
+      <ul class="note-list">
+        <li>Fast convergence (no count-to-infinity problem).</li>
+        <li>Complete topology awareness at every node.</li>
+        <li>Uses event-triggered updates rather than periodic full-table dumps.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 17.4 RIP -->
+  <div class="section" id="rip">
+    <div class="section-header">
+      <div class="section-icon">🐢</div>
+      <div>
+        <div class="section-num">Section 17.4</div>
+        <h2 class="section-title">RIP (Routing Information Protocol)</h2>
+      </div>
+    </div>
+    <p>A classic Distance Vector IGP protocol. Uses **Hop Count** as metric (Max 15 hops; 16 = unreachable). Periodically broadcasts entire routing table every 30 seconds.</p>
+    <p>RIPv1 (classful, no subnet mask in updates) vs RIPv2 (classless, supports VLSM & CIDR, multicast 224.0.0.9).</p>
+  </div>
+
+  <!-- 17.5 OSPF -->
+  <div class="section" id="ospf">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 17.5</div>
+        <h2 class="section-title">OSPF (Open Shortest Path First)</h2>
+      </div>
+    </div>
+    <p>An open-standard Link State IGP protocol operating directly over IP (Protocol 89). Uses <strong>Cost</strong> as metric based on bandwidth: Cost = 10<sup>8</sup> / Bandwidth (bps).</p>
+
+    <h4 class="mini-title">Key OSPF Concepts</h4>
+    <ul class="note-list">
+      <li><strong>Hierarchical Areas:</strong> Divides large AS into Areas to reduce LSDB size. All areas must connect to **Backbone Area 0**.</li>
+      <li><strong>ABR (Area Border Router):</strong> Router connecting non-backbone area to Area 0.</li>
+      <li><strong>ASBR (Autonomous System Boundary Router):</strong> Router connecting OSPF network to external networks (e.g. BGP).</li>
+      <li><strong>DR / BDR (Designated Router / Backup DR):</strong> Elected on multiaccess Ethernet networks to minimize adjacencies (multicast 224.0.0.5 / 224.0.0.6).</li>
+    </ul>
+  </div>
+
+  <!-- 17.6 EIGRP -->
+  <div class="section" id="eigrp">
+    <div class="section-header">
+      <div class="section-icon">🚀</div>
+      <div>
+        <div class="section-num">Section 17.6</div>
+        <h2 class="section-title">EIGRP (Enhanced Interior Gateway Routing Protocol)</h2>
+      </div>
+    </div>
+    <p>Cisco's advanced Distance Vector protocol. Uses the **DUAL (Diffusing Update Algorithm)** for rapid, loop-free convergence. Calculates a composite metric based on **Bandwidth and Delay**.</p>
+  </div>
+
+  <!-- 17.7 BGP -->
+  <div class="section" id="bgp">
+    <div class="section-header">
+      <div class="section-icon">🌍</div>
+      <div>
+        <div class="section-num">Section 17.7</div>
+        <h2 class="section-title">BGP (Border Gateway Protocol)</h2>
+      </div>
+    </div>
+    <p>The standard **Exterior Gateway Protocol (EGP)** that powers the global Internet. Connects different **Autonomous Systems (AS)** using a **Path Vector** routing algorithm over reliable **TCP Port 179**.</p>
+    <p>Uses policy-based routing and BGP attributes like <strong>AS-PATH</strong> (list of AS numbers traversed, preventing loops) and <strong>NEXT-HOP</strong>.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 17.8 Comparison -->
+  <div class="section" id="protocol-compare">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 17.8</div>
+        <h2 class="section-title">Routing Protocols Comparison Master Table</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/routing_protocols.jpg" alt="Routing Algorithms and Protocols Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 17.1 – Distance Vector vs Link State Algorithms, OSPF Multi-Area Architecture & BGP Autonomous System Peering</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Protocol</th><th>Type</th><th>Algorithm</th><th>Metric</th><th>Transport</th><th>Ad administrative Dist (AD)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RIPv2</td><td>Distance Vector (IGP)</td><td>Bellman-Ford</td><td>Hop Count (Max 15)</td><td>UDP Port 520</td><td>120</td></tr>
+          <tr><td>OSPF</td><td>Link State (IGP)</td><td>Dijkstra SPF</td><td>Cost (10<sup>8</sup> / BW)</td><td>IP Protocol 89</td><td>110</td></tr>
+          <tr><td>EIGRP</td><td>Advanced Distance Vector</td><td>DUAL</td><td>Composite (BW + Delay)</td><td>IP Protocol 88</td><td>90 (Internal)</td></tr>
+          <tr><td>BGP</td><td>Path Vector (EGP)</td><td>Path Vector</td><td>BGP Path Attributes</td><td>TCP Port 179</td><td>20 (eBGP) / 200 (iBGP)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="16-ip-header-fragmentation-arp-icmp-nat.html">← Ch 16: IP Protocols</a>
+      <a href="index.html">Home</a>
+      <a href="18-network-layer-congestion-control.html">Ch 18: Congestion Control →</a>
+    </div>
+    Network Fundamentals · Chapter 17 · Routing Algorithms & Protocols
+  </div>
+</footer>
+
+</body>
+</html>

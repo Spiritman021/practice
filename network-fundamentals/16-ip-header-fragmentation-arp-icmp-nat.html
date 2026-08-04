@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 16 – IP Header, Fragmentation, ARP, ICMP & NAT | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on IPv4 Header fields, Packet Fragmentation, ARP/RARP, ICMP ping/traceroute mechanisms, and NAT/PAT." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .nat-table-wrap {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 16</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 16 · Network Layer</div>
+    <h1 class="page-title">IP Header, Fragmentation,<br/>ARP, ICMP & NAT</h1>
+    <p class="page-subtitle">Learn the 20-byte IPv4 Header structure, packet fragmentation & MTU offset calculations, ARP MAC resolution, ICMP ping & traceroute mechanisms, and NAT/PAT translation.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#ip-header"><span class="toc-num">16.1</span> IPv4 Header Structure</a></li>
+      <li><a href="#fragmentation"><span class="toc-num">16.2</span> IP Packet Fragmentation & Reassembly</a></li>
+      <li><a href="#arp"><span class="toc-num">16.3</span> ARP & RARP Protocols</a></li>
+      <li><a href="#icmp"><span class="toc-num">16.4</span> ICMP (Ping & Traceroute Mechanics)</a></li>
+      <li><a href="#nat"><span class="toc-num">16.5</span> NAT & PAT (Network Address Translation)</a></li>
+    </ul>
+  </div>
+
+  <!-- 16.1 Header -->
+  <div class="section" id="ip-header">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 16.1</div>
+        <h2 class="section-title">IPv4 Header Structure</h2>
+      </div>
+    </div>
+    <p>The standard IPv4 Datagram Header consists of <strong>20 fixed bytes</strong> (up to 60 bytes with optional fields).</p>
+
+    <!-- Header SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 720 220" width="100%" style="max-width:700px">
+        <!-- Row 1 -->
+        <rect x="20" y="30" width="80" height="34" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><text x="60" y="52" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="700" font-family="Inter">VER (4b)</text>
+        <rect x="100" y="30" width="80" height="34" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><text x="140" y="52" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="700" font-family="Inter">IHL (4b)</text>
+        <rect x="180" y="30" width="160" height="34" rx="4" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/><text x="260" y="52" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">TOS / DSCP (8b)</text>
+        <rect x="340" y="30" width="360" height="34" rx="4" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/><text x="520" y="52" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="700" font-family="Inter">Total Length (16 bits)</text>
+
+        <!-- Row 2 -->
+        <rect x="20" y="68" width="340" height="34" rx="4" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/><text x="190" y="90" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">Identification (16 bits)</text>
+        <rect x="360" y="68" width="80" height="34" rx="4" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/><text x="400" y="90" text-anchor="middle" fill="#f05c88" font-size="10" font-weight="700" font-family="Inter">Flags (3b)</text>
+        <rect x="440" y="68" width="260" height="34" rx="4" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/><text x="570" y="90" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">Fragment Offset (13 bits)</text>
+
+        <!-- Row 3 -->
+        <rect x="20" y="106" width="160" height="34" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/><text x="100" y="128" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="700" font-family="Inter">TTL (8 bits)</text>
+        <rect x="180" y="106" width="160" height="34" rx="4" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/><text x="260" y="128" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">Protocol (8 bits)</text>
+        <rect x="340" y="106" width="360" height="34" rx="4" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/><text x="520" y="128" text-anchor="middle" fill="#f05c88" font-size="10" font-weight="700" font-family="Inter">Header Checksum (16 bits)</text>
+
+        <!-- Row 4 & 5 -->
+        <rect x="20" y="144" width="680" height="30" rx="4" fill="rgba(79,142,247,0.15)" stroke="#4f8ef7" stroke-width="1.5"/><text x="360" y="164" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="800" font-family="Inter">Source IP Address (32 bits / 4 Bytes)</text>
+        <rect x="20" y="178" width="680" height="30" rx="4" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/><text x="360" y="198" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="800" font-family="Inter">Destination IP Address (32 bits / 4 Bytes)</text>
+      </svg>
+    </div>
+
+    <h4 class="mini-title">Key Field Definitions</h4>
+    <ul class="note-list">
+      <li><strong>IHL (Internet Header Length):</strong> Specifies header length in 32-bit words (Default = 5, i.e. 5 × 4 = 20 Bytes).</li>
+      <li><strong>TTL (Time to Live):</strong> Decremented by 1 at every router hop. Prevents packets from circulating indefinitely in routing loops (when TTL = 0, packet is dropped and ICMP Time Exceeded sent).</li>
+      <li><strong>Protocol:</strong> Identifies upper layer payload protocol (6 = TCP, 17 = UDP, 1 = ICMP).</li>
+      <li><strong>Flags:</strong> 3 bits — Bit 0: Reserved; Bit 1: DF (Don't Fragment); Bit 2: MF (More Fragments).</li>
+      <li><strong>Fragment Offset:</strong> Indicates relative position of fragment payload in 8-byte blocks.</li>
+    </ul>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/ip_header_nat.jpg" alt="IPv4 Header, ICMP Traceroute and NAT/PAT Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 16.1 – IPv4 Header Field Breakdown, ICMP Traceroute TTL Process & NAT/PAT Translation Table</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 16.2 Fragmentation -->
+  <div class="section" id="fragmentation">
+    <div class="section-header">
+      <div class="section-icon">✂️</div>
+      <div>
+        <div class="section-num">Section 16.2</div>
+        <h2 class="section-title">IP Packet Fragmentation & Reassembly</h2>
+      </div>
+    </div>
+    <p>When an IP datagram's total size exceeds the link layer's **MTU (Maximum Transmission Unit)** (e.g. 1500 bytes for Ethernet), intermediate routers divide the datagram into smaller **Fragments**.</p>
+    <p>Reassembly of fragments occurs ONLY at the ultimate destination host.</p>
+
+    <div class="callout key">
+      <div class="callout-icon">🧮</div>
+      <div class="callout-body">
+        <div class="callout-title">Fragment Offset Calculation Formula</div>
+        <div class="callout-text">
+            <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:8px 0;">Fragment Offset = Cumulative Data Bytes Before This Fragment / 8</div>
+            Note: Every fragment payload size (except last) MUST be a multiple of 8 bytes!
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 16.3 ARP -->
+  <div class="section" id="arp">
+    <div class="section-header">
+      <div class="section-icon">🔍</div>
+      <div>
+        <div class="section-num">Section 16.3</div>
+        <h2 class="section-title">ARP & RARP Protocols</h2>
+      </div>
+    </div>
+    <p><span class="hl">ARP (Address Resolution Protocol)</span> maps a known logical 32-bit IP address to an unknown physical 48-bit MAC address on the local network.</p>
+
+    <h4 class="mini-title">ARP Working Mechanism</h4>
+    <ol class="note-list" style="margin-left:20px;">
+      <li>Host A wants to send data to IP B on local LAN. It checks its local **ARP Cache Table**.</li>
+      <li>If IP B is not in cache, Host A broadcasts an **ARP Request** ("Who has IP 192.168.1.50? Tell 192.168.1.10") using Destination MAC <code>FF:FF:FF:FF:FF:FF</code>.</li>
+      <li>Host B recognizes its IP and replies with a unicast **ARP Reply** ("192.168.1.50 is at 00:1A:2B:3C:4D:5E").</li>
+      <li>Host A updates its ARP cache table and transmits data.</li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 16.4 ICMP -->
+  <div class="section" id="icmp">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 16.4</div>
+        <h2 class="section-title">ICMP (Ping & Traceroute Mechanics)</h2>
+      </div>
+    </div>
+    <p><span class="hl2">ICMP (Internet Control Message Protocol)</span> is used by network devices (routers, hosts) to communicate diagnostic error and control messages.</p>
+
+    <h4 class="mini-title">1. How PING Works</h4>
+    <p>Sends an **ICMP Echo Request (Type 8)** to a target IP. Target responds with an **ICMP Echo Reply (Type 0)**. Measures Round-Trip Time (RTT) and packet loss.</p>
+
+    <h4 class="mini-title">2. How TRACEROUTE Works</h4>
+    <p>Traceroute discovers the step-by-step router path to a destination using the **TTL field**:</p>
+    <ol class="note-list" style="margin-left:20px;">
+      <li>Sends 1st packet with <code>TTL = 1</code>. Router 1 decrements TTL to 0, drops packet, and sends back an **ICMP Time Exceeded (Type 11)** message. (Router 1 IP discovered!).</li>
+      <li>Sends 2nd packet with <code>TTL = 2</code>. Router 2 drops packet → ICMP Time Exceeded. (Router 2 IP discovered!).</li>
+      <li>Repeats with incrementing TTL until packet reaches target host and receives **Port Unreachable (Type 3)** response.</li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 16.5 NAT -->
+  <div class="section" id="nat">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 16.5</div>
+        <h2 class="section-title">NAT & PAT (Network Address Translation)</h2>
+      </div>
+    </div>
+    <p><span class="hl">NAT</span> translates private RFC 1918 IP addresses (e.g. 192.168.1.x) into a single public IP address when traffic crosses a router toward the Internet.</p>
+
+    <h4 class="mini-title">Types of NAT</h4>
+    <ul class="note-list">
+      <li><strong>Static NAT:</strong> 1-to-1 mapping between 1 private IP and 1 public IP. (Used for hosting public web servers).</li>
+      <li><strong>Dynamic NAT:</strong> Maps private IPs to a pool of public IPs on a first-come, first-served basis.</li>
+      <li><strong>PAT (Port Address Translation / NAT Overload):</strong> Maps thousands of private IPs to a <strong>SINGLE public IP</strong> by assigning a unique Source Port number to each private connection. (Used in home routers).</li>
+    </ul>
+
+    <div class="nat-table-wrap">
+      <h4 style="font-size:15px; font-weight:700; color:var(--accent); margin-bottom:10px;">PAT Translation Table Example</h4>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr><th>Inside Local (Private IP:Port)</th><th>Inside Global (Public IP:Port)</th><th>Outside Destination</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>192.168.1.10 : 54321</td><td>203.0.113.5 : 10001</td><td>142.250.1.1 : 443</td></tr>
+            <tr><td>192.168.1.11 : 54321</td><td>203.0.113.5 : 10002</td><td>142.250.1.1 : 443</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="15-ip-addressing-ipv4-subnetting-ipv6.html">← Ch 15: IP Addressing</a>
+      <a href="index.html">Home</a>
+      <a href="17-routing-algorithms-and-protocols.html">Ch 17: Routing Protocols →</a>
+    </div>
+    Network Fundamentals · Chapter 16 · IP Header, ARP, ICMP & NAT
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 15 – IP Addressing: IPv4, Subnetting, CIDR & IPv6 | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive notes on IPv4 addressing, Classful A-E, Subnetting FLSM/VLSM, CIDR, Private IPs, and 128-bit IPv6 structure." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .subnet-box {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin: 20px 0; font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 15</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 15 · Network Layer</div>
+    <h1 class="page-title">IP Addressing: IPv4, Subnetting,<br/>CIDR & IPv6</h1>
+    <p class="page-subtitle">Master 32-bit IPv4 addressing, Classful A–E ranges, FLSM & VLSM subnetting calculations, CIDR notation, Private IP RFC 1918 ranges, and 128-bit IPv6 address architecture.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#ipv4-intro"><span class="toc-num">15.1</span> IPv4 Address Basics</a></li>
+      <li><a href="#classful"><span class="toc-num">15.2</span> Classful Addressing (Classes A–E)</a></li>
+      <li><a href="#special-ip"><span class="toc-num">15.3</span> Special & Private IP Ranges (RFC 1918)</a></li>
+      <li><a href="#subnetting"><span class="toc-num">15.4</span> Subnetting (FLSM & VLSM)</a></li>
+      <li><a href="#cidr"><span class="toc-num">15.5</span> CIDR & Supernetting</a></li>
+      <li><a href="#ipv6"><span class="toc-num">15.6</span> IPv6 Architecture & Address Types</a></li>
+      <li><a href="#compare-ip"><span class="toc-num">15.7</span> IPv4 vs IPv6 Comparison Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 15.1 IPv4 Intro -->
+  <div class="section" id="ipv4-intro">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 15.1</div>
+        <h2 class="section-title">IPv4 Address Basics</h2>
+      </div>
+    </div>
+    <p>An <span class="hl">IPv4 Address</span> is a **32-bit (4-byte) logical address** that uniquely identifies a network interface on an IP network. Written in **dotted-decimal notation**: <code>192.168.1.100</code> (each octet ranges from 0 to 255).</p>
+    <p>Every IP address consists of two parts:</p>
+    <ul class="note-list">
+      <li><strong>Network ID (NetID):</strong> Identifies the specific network to which the host belongs.</li>
+      <li><strong>Host ID (HostID):</strong> Identifies the specific device on that network.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.2 Classful -->
+  <div class="section" id="classful">
+    <div class="section-header">
+      <div class="section-icon">📑</div>
+      <div>
+        <div class="section-num">Section 15.2</div>
+        <h2 class="section-title">Classful Addressing (Classes A–E)</h2>
+      </div>
+    </div>
+    <p>Originally, IPv4 addresses were divided into five fixed classes (Classes A through E) based on the leading bits of the first octet.</p>
+
+    <!-- Classful SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 700 240" width="100%" style="max-width:680px">
+        <!-- Class A -->
+        <rect x="30" y="30" width="100" height="34" rx="4" fill="rgba(79,142,247,0.2)" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="80" y="52" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="800" font-family="Inter">Net ID (8b)</text>
+        <rect x="130" y="30" width="300" height="34" rx="4" fill="#1a2545" stroke="#4f8ef7" stroke-width="1"/>
+        <text x="280" y="52" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Host ID (24 bits)</text>
+        <text x="445" y="52" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Class A (1–126) /8</text>
+
+        <!-- Class B -->
+        <rect x="30" y="75" width="200" height="34" rx="4" fill="rgba(0,212,170,0.2)" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="130" y="97" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="800" font-family="Inter">Net ID (16 bits)</text>
+        <rect x="230" y="75" width="200" height="34" rx="4" fill="#1a2545" stroke="#00d4aa" stroke-width="1"/>
+        <text x="330" y="97" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Host ID (16 bits)</text>
+        <text x="445" y="97" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Class B (128–191) /16</text>
+
+        <!-- Class C -->
+        <rect x="30" y="120" width="300" height="34" rx="4" fill="rgba(247,163,79,0.2)" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="180" y="142" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="800" font-family="Inter">Net ID (24 bits)</text>
+        <rect x="330" y="120" width="100" height="34" rx="4" fill="#1a2545" stroke="#f7a34f" stroke-width="1"/>
+        <text x="380" y="142" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">Host (8b)</text>
+        <text x="445" y="142" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Class C (192–223) /24</text>
+
+        <!-- Class D & E -->
+        <rect x="30" y="165" width="400" height="30" rx="4" fill="rgba(124,92,240,0.2)" stroke="#7c5cf0" stroke-width="1.5"/>
+        <text x="230" y="184" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="700" font-family="Inter">Multicast Group Addressing (224.0.0.0 – 239.255.255.255)</text>
+        <text x="445" y="184" fill="#7c5cf0" font-size="11" font-weight="700" font-family="Inter">Class D</text>
+
+        <rect x="30" y="200" width="400" height="30" rx="4" fill="rgba(240,92,136,0.2)" stroke="#f05c88" stroke-width="1.5"/>
+        <text x="230" y="219" text-anchor="middle" fill="#f05c88" font-size="11" font-weight="700" font-family="Inter">Experimental / Research Reserved (240.0.0.0 – 255.255.255.254)</text>
+        <text x="445" y="219" fill="#f05c88" font-size="11" font-weight="700" font-family="Inter">Class E</text>
+      </svg>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Class</th><th>First Octet Range</th><th>Leading Bits</th><th>Default Subnet Mask</th><th>Max Networks</th><th>Usable Hosts per Network</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Class A</td><td>1 – 126</td><td><code>0</code></td><td>255.0.0.0 (/8)</td><td>126 (2<sup>7</sup> - 2)</td><td>16,777,214 (2<sup>24</sup> - 2)</td></tr>
+          <tr><td>Class B</td><td>128 – 191</td><td><code>10</code></td><td>255.255.0.0 (/16)</td><td>16,384 (2<sup>14</sup>)</td><td>65,534 (2<sup>16</sup> - 2)</td></tr>
+          <tr><td>Class C</td><td>192 – 223</td><td><code>110</code></td><td>255.255.255.0 (/24)</td><td>2,097,152 (2<sup>21</sup>)</td><td>254 (2<sup>8</sup> - 2)</td></tr>
+          <tr><td>Class D</td><td>224 – 239</td><td><code>1110</code></td><td>N/A</td><td>Multicast</td><td>N/A</td></tr>
+          <tr><td>Class E</td><td>240 – 255</td><td><code>1111</code></td><td>N/A</td><td>Experimental</td><td>N/A</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/ipv4_subnetting_cidr.jpg" alt="IPv4 Addressing, Subnetting, CIDR and IPv6 Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 15.1 – IPv4 Classful Addressing, FLSM vs VLSM Subnetting, CIDR Notation & IPv6 Address Structure</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.3 Special & Private IP -->
+  <div class="section" id="special-ip">
+    <div class="section-header">
+      <div class="section-icon">🔒</div>
+      <div>
+        <div class="section-num">Section 15.3</div>
+        <h2 class="section-title">Special & Private IP Ranges (RFC 1918)</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. RFC 1918 Private IP Ranges (Non-routable on Internet)</h3>
+    <ul class="note-list">
+      <li><strong>Class A Private:</strong> <code>10.0.0.0</code> to <code>10.255.255.255</code> (10.0.0.0/8)</li>
+      <li><strong>Class B Private:</strong> <code>172.16.0.0</code> to <code>172.31.255.255</code> (172.16.0.0/12)</li>
+      <li><strong>Class C Private:</strong> <code>192.168.0.0</code> to <code>192.168.255.255</code> (192.168.0.0/16)</li>
+    </ul>
+
+    <h3 class="sub-title">2. Special Purpose IPv4 Addresses</h3>
+    <ul class="note-list">
+      <li><strong>Loopback Address:</strong> <code>127.0.0.1</code> (127.0.0.0/8 range) — used to test local host protocol stack.</li>
+      <li><strong>APIPA (Automatic Private IP):</strong> <code>169.254.0.0/16</code> — assigned automatically by Windows if DHCP server fails.</li>
+      <li><strong>Default Route:</strong> <code>0.0.0.0/0</code> — matches any network destination.</li>
+      <li><strong>Limited Broadcast:</strong> <code>255.255.255.255</code> — broadcasts to all hosts on local subnet (not routed).</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.4 Subnetting -->
+  <div class="section" id="subnetting">
+    <div class="section-header">
+      <div class="section-icon">✂️</div>
+      <div>
+        <div class="section-num">Section 15.4</div>
+        <h2 class="section-title">Subnetting (FLSM & VLSM)</h2>
+      </div>
+    </div>
+    <p><span class="hl">Subnetting</span> is the process of borrowing bits from the **Host ID** part to create smaller, logical sub-networks (subnets). This reduces broadcast domain size and conserves IP addresses.</p>
+
+    <div class="subnet-box">
+      <strong>Core Subnetting Formulas:</strong><br/>
+      • Number of Subnets created = 2<sup>s</sup> (where <em>s</em> = borrowed subnet bits)<br/>
+      • Number of Usable Hosts per Subnet = 2<sup>h</sup> - 2 (where <em>h</em> = remaining host bits)<br/>
+      • Block Size (Magic Number) = 256 - Subnet Octet Value
+    </div>
+
+    <h3 class="sub-title">FLSM vs VLSM</h3>
+    <ul class="note-list">
+      <li><strong>FLSM (Fixed-Length Subnet Mask):</strong> All subnets are equal in size (same subnet mask). Wastes IP addresses if subnets have different host requirements.</li>
+      <li><strong>VLSM (Variable-Length Subnet Mask):</strong> Subnets have different sizes tailored to exact host requirements. Minimizes wasted IP addresses.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.5 CIDR -->
+  <div class="section" id="cidr">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 15.5</div>
+        <h2 class="section-title">CIDR & Supernetting</h2>
+      </div>
+    </div>
+    <p><span class="hl2">CIDR (Classless Inter-Domain Routing)</span> replaced classful addressing in 1993. It eliminates A, B, C classes and allows custom prefix lengths using **Slash Notation** (e.g. <code>192.168.1.0/26</code>).</p>
+    <p><span class="hl2">Supernetting (Route Aggregation)</span> combines multiple contiguous smaller network prefixes into a single shorter prefix (e.g., combining four /24 routes into one /22 route), drastically reducing internet routing table sizes.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.6 IPv6 -->
+  <div class="section" id="ipv6">
+    <div class="section-header">
+      <div class="section-icon">🚀</div>
+      <div>
+        <div class="section-num">Section 15.6</div>
+        <h2 class="section-title">IPv6 Architecture & Address Types</h2>
+      </div>
+    </div>
+    <p>IPv6 was developed to replace exhausted 32-bit IPv4 addresses with a <strong>128-bit (16-byte) address space</strong> — providing 2<sup>128</sup> ≈ 3.4 × 10<sup>38</sup> unique addresses!</p>
+    <p>Written in **hexadecimal colon notation** divided into 8 groups of 4 hex digits: <code>2001:0db8:85a3:0000:0000:8a2e:0370:7334</code>.</p>
+
+    <h3 class="sub-title">IPv6 Address Abbreviation Rules</h3>
+    <ul class="note-list">
+      <li>Omit leading zeros in any 4-digit hex group (e.g., <code>:0db8:</code> → <code>:db8:</code>).</li>
+      <li>Replace consecutive groups of all-zero fields with a double colon <code>::</code> (allowed **only once** per address).</li>
+      <li>Example: <code>2001:db8:85a3::8a2e:370:7334</code>.</li>
+    </ul>
+
+    <h3 class="sub-title">IPv6 Address Types</h3>
+    <ul class="note-list">
+      <li><strong>Global Unicast Address (GUA):</strong> Publicly routable on internet (starts with <code>2000::/3</code>).</li>
+      <li><strong>Link-Local Address:</strong> Used for communication on the local link only (starts with <code>fe80::/10</code>). Automatically self-configured.</li>
+      <li><strong>Unique Local Address (ULA):</strong> Private IP equivalent (starts with <code>fc00::/7</code> or <code>fd00::/7</code>).</li>
+      <li><strong>Multicast Address:</strong> Replaces broadcast (starts with <code>ff00::/8</code>). E.g., <code>ff02::1</code> (all nodes), <code>ff02::2</code> (all routers).</li>
+      <li><strong>Anycast Address:</strong> Assigned to multiple interfaces; packets are delivered to the *nearest* interface.</li>
+      <li><strong>Loopback Address:</strong> <code>::1/128</code>.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 15.7 Comparison -->
+  <div class="section" id="compare-ip">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 15.7</div>
+        <h2 class="section-title">IPv4 vs IPv6 Comparison Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>IPv4</th><th>IPv6</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Address Length</td><td>32 bits (4 bytes)</td><td>128 bits (16 bytes)</td></tr>
+          <tr><td>Address Space</td><td>2<sup>32</sup> ≈ 4.3 billion</td><td>2<sup>128</sup> ≈ 3.4 × 10<sup>38</sup></td></tr>
+          <tr><td>Format</td><td>Dotted Decimal (<code>192.168.1.1</code>)</td><td>Hexadecimal Colon (<code>2001:db8::1</code>)</td></tr>
+          <tr><td>Header Size</td><td>Variable 20–60 Bytes</td><td>Fixed 40 Bytes (Simplified)</td></tr>
+          <tr><td>Checksum Field</td><td>Yes (recalculated at every router)</td><td>No (removed for faster routing)</td></tr>
+          <tr><td>Broadcast Support</td><td>Yes (Broadcast <code>255.255.255.255</code>)</td><td>No Broadcast (Replaced by Multicast)</td></tr>
+          <tr><td>Auto-Configuration</td><td>DHCP or Manual</td><td>SLAAC (Stateless) or DHCPv6</td></tr>
+          <tr><td>IPsec Security</td><td>Optional add-on</td><td>Built-in / Native support</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="14-mac-addressing-ethernet-switches-vlans.html">← Ch 14: MAC & VLANs</a>
+      <a href="index.html">Home</a>
+      <a href="16-ip-header-fragmentation-arp-icmp-nat.html">Ch 16: IP Header & Protocols →</a>
+    </div>
+    Network Fundamentals · Chapter 15 · IP Addressing & Subnetting
+  </div>
+</footer>
+
+</body>
+</html>
