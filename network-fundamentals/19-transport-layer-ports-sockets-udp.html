@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 19 – Ports, Sockets & UDP Protocol | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive study guide on Transport Layer Port addressing, Socket concept, UDP 8-byte header structure, and TCP vs UDP comparison table." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .port-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 19</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 19 · Transport Layer</div>
+    <h1 class="page-title">Ports, Sockets &<br/>UDP Protocol</h1>
+    <p class="page-subtitle">Understand process-to-process delivery, 16-bit Port numbers, Socket pairs, UDP's lightweight 8-byte header, and a comprehensive TCP vs UDP comparison.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#transport-role"><span class="toc-num">19.1</span> Role of the Transport Layer</a></li>
+      <li><a href="#ports-ranges"><span class="toc-num">19.2</span> Port Addressing & Port Ranges</a></li>
+      <li><a href="#socket-concept"><span class="toc-num">19.3</span> Socket Concept & Socket Pair</a></li>
+      <li><a href="#udp-protocol"><span class="toc-num">19.4</span> UDP (User Datagram Protocol)</a></li>
+      <li><a href="#udp-header"><span class="toc-num">19.5</span> UDP 8-Byte Header Structure</a></li>
+      <li><a href="#tcp-vs-udp"><span class="toc-num">19.6</span> TCP vs UDP Comparison Master Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 19.1 Transport Role -->
+  <div class="section" id="transport-role">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 19.1</div>
+        <h2 class="section-title">Role of the Transport Layer</h2>
+      </div>
+    </div>
+    <p>While the Network Layer delivers packets **Host-to-Host** (from source IP to destination IP), the Transport Layer is responsible for **Process-to-Process delivery** (delivering data to the specific application program running on that host).</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Network Layer</div>
+        <div class="info-card-title">Host-to-Host Delivery</div>
+        <div class="info-card-desc">Delivers packets across intermediate routers to the correct destination computer using IP addresses.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Transport Layer</div>
+        <div class="info-card-title">Process-to-Process Delivery</div>
+        <div class="info-card-desc">Delivers segments to the exact software application (e.g. Browser, Email client) using Port numbers.</div>
+      </div>
+    </div>
+
+    <!-- High-Yield MCQ Card Q85 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">Exam Question Q85</span>
+        <span class="mcq-topic-tag">Topic: Transport Layer Responsibilities</span>
+      </div>
+      <div class="mcq-question">The transport layer in the OSI model is responsible for end-to-end __________ and error recovery across the network.</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct"><span>A. ✅ flow control</span> <span>✓ Correct</span></li>
+        <li class="mcq-option"><span>B. encryption</span></li>
+        <li class="mcq-option"><span>C. routing</span></li>
+        <li class="mcq-option"><span>D. modulation</span></li>
+        <li class="mcq-option"><span>E. switching</span></li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Explanation:</strong> The Transport Layer (OSI Layer 4) provides process-to-process delivery, segment sequencing, <strong>flow control</strong> (using Sliding Window), and <strong>error recovery</strong> (ACKs & retransmissions).
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 19.2 Ports -->
+  <div class="section" id="ports-ranges">
+    <div class="section-header">
+      <div class="section-icon">🔌</div>
+      <div>
+        <div class="section-num">Section 19.2</div>
+        <h2 class="section-title">Port Addressing & Port Ranges</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">Port Number</span> is a <strong>16-bit integer</strong> (ranging from <code>0</code> to <code>65535</code>) used to identify a specific process/service on a network device.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Port Category</th><th>Range</th><th>Description & Well-Known Examples</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Well-Known Ports</strong></td>
+            <td>0 – 1023</td>
+            <td>Reserved for standard system protocols.<br/>HTTP (80), HTTPS (443), SSH (22), FTP (20/21), DNS (53), SMTP (25), DHCP (67/68).</td>
+          </tr>
+          <tr>
+            <td><strong>Registered Ports</strong></td>
+            <td>1024 – 49151</td>
+            <td>Assigned by IANA for specific vendor applications.<br/>MySQL (3306), PostgreSQL (5432), Redis (6379), RDP (3389).</td>
+          </tr>
+          <tr>
+            <td><strong>Dynamic / Ephemeral Ports</strong></td>
+            <td>49152 – 65535</td>
+            <td>Temporary ports assigned dynamically by client OS for outbound client connections.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 19.3 Sockets -->
+  <div class="section" id="socket-concept">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 19.3</div>
+        <h2 class="section-title">Socket Concept & Socket Pair</h2>
+      </div>
+    </div>
+    <p>A <span class="hl2">Socket</span> is an end-point for network communication, formed by combining an IP address and a Port number:</p>
+
+    <div class="callout key">
+      <div class="callout-icon">📍</div>
+      <div class="callout-body">
+        <div class="callout-title">Socket Definition & Socket Pair</div>
+        <div class="callout-text">
+          $$ \text{Socket} = \text{IP Address} : \text{Port Number} \quad (\text{Example: } 192.168.1.10 : 80) $$
+          A unique network connection is defined by a <strong>4-Tuple Socket Pair</strong>:<br/>
+          <code>(Source IP, Source Port, Destination IP, Destination Port)</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Socket Diagram SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 700 160" width="100%" style="max-width:680px">
+        <!-- Client -->
+        <rect x="30" y="30" width="180" height="100" rx="10" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="120" y="55" text-anchor="middle" fill="#4f8ef7" font-size="13" font-weight="700" font-family="Inter">Client Host</text>
+        <text x="120" y="80" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">IP: 192.168.1.50</text>
+        <rect x="50" y="92" width="140" height="26" rx="4" fill="rgba(79,142,247,0.15)" stroke="#4f8ef7" stroke-width="1"/>
+        <text x="120" y="109" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="700" font-family="JetBrains Mono">Socket: 192.168.1.50:52134</text>
+
+        <!-- Connection Arrow -->
+        <path d="M 220 80 L 470 80" stroke="#00d4aa" stroke-width="2" stroke-dasharray="6,4"/>
+        <polygon points="475,80 465,74 465,86" fill="#00d4aa"/>
+        <text x="348" y="70" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">Full-Duplex Socket Connection</text>
+        <text x="348" y="100" text-anchor="middle" fill="#5a6a8a" font-size="9" font-family="JetBrains Mono">(Src IP, Src Port, Dst IP, Dst Port)</text>
+
+        <!-- Server -->
+        <rect x="480" y="30" width="190" height="100" rx="10" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="575" y="55" text-anchor="middle" fill="#00d4aa" font-size="13" font-weight="700" font-family="Inter">Web Server</text>
+        <text x="575" y="80" text-anchor="middle" fill="#9aa5c4" font-size="11" font-family="Inter">IP: 203.0.113.10</text>
+        <rect x="500" y="92" width="150" height="26" rx="4" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1"/>
+        <text x="575" y="109" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="JetBrains Mono">Socket: 203.0.113.10:80</text>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 19.4 UDP -->
+  <div class="section" id="udp-protocol">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 19.4</div>
+        <h2 class="section-title">UDP (User Datagram Protocol)</h2>
+      </div>
+    </div>
+    <p><span class="hl">UDP (RFC 768)</span> is an unreliable, connectionless, lightweight Transport Layer protocol. It provides minimal process-to-process communication with almost zero protocol overhead.</p>
+
+    <h3 class="sub-title">UDP Characteristics</h3>
+    <ul class="note-list">
+      <li><strong>Connectionless:</strong> No handshake prior to transmission; sender just fires datagrams.</li>
+      <li><strong>Unreliable:</strong> No acknowledgements (ACKs), no retransmission of lost packets, no sequence ordering.</li>
+      <li><strong>Stateless:</strong> Neither sender nor receiver maintains connection state.</li>
+      <li><strong>Supports Unicast, Multicast & Broadcast:</strong> Unlike TCP (unicast only), UDP can send packets to multiple destinations.</li>
+      <li><strong>Low Latency / High Speed:</strong> Ideal for real-time applications where speed is preferred over reliability.</li>
+    </ul>
+
+    <h3 class="sub-title">Common UDP Applications</h3>
+    <p>DNS (Domain Name System), VoIP (Voice over IP), Video Streaming (IPTV, YouTube live), Online Gaming, DHCP, TFTP, SNMP.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 19.5 UDP Header -->
+  <div class="section" id="udp-header">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 19.5</div>
+        <h2 class="section-title">UDP 8-Byte Header Structure</h2>
+      </div>
+    </div>
+    <p>The UDP header consists of exactly <strong>8 bytes (64 bits)</strong> divided into four 16-bit fields:</p>
+
+    <!-- UDP Header SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 600 130" width="100%" style="max-width:560px">
+        <!-- Row 1 -->
+        <rect x="20" y="30" width="270" height="36" rx="6" fill="#1a2545" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="155" y="52" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Source Port (16 bits / 2 Bytes)</text>
+
+        <rect x="300" y="30" width="270" height="36" rx="6" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="435" y="52" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Destination Port (16 bits / 2 Bytes)</text>
+
+        <!-- Row 2 -->
+        <rect x="20" y="74" width="270" height="36" rx="6" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="155" y="96" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">Length (16 bits / 2 Bytes)</text>
+
+        <rect x="300" y="74" width="270" height="36" rx="6" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/>
+        <text x="435" y="96" text-anchor="middle" fill="#7c5cf0" font-size="11" font-weight="700" font-family="Inter">Checksum (16 bits / 2 Bytes)</text>
+      </svg>
+    </div>
+
+    <ul class="note-list">
+      <li><strong>Source Port (16 bits):</strong> Port of sending application (optional in UDP; set to 0 if unused).</li>
+      <li><strong>Destination Port (16 bits):</strong> Port of receiving application.</li>
+      <li><strong>Length (16 bits):</strong> Total length of UDP datagram (Header + Payload) in bytes. Minimum value = 8.</li>
+      <li><strong>Checksum (16 bits):</strong> Detects errors in UDP header, payload, and IP pseudo-header.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 19.6 TCP vs UDP -->
+  <div class="section" id="tcp-vs-udp">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 19.6</div>
+        <h2 class="section-title">TCP vs UDP Comparison Master Table</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/udp_vs_tcp_architecture.jpg" alt="TCP vs UDP Architecture, Port Ranges, and Socket Pair Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 19.1 – TCP vs UDP Header Architecture, 16-Bit Port Ranges & 4-Tuple Socket Pair</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>TCP (Transmission Control Protocol)</th><th>UDP (User Datagram Protocol)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Connection Type</td><td>Connection-Oriented (3-way handshake)</td><td>Connectionless (No handshake)</td></tr>
+          <tr><td>Reliability</td><td>Reliable (Guaranteed delivery via ACKs & Retransmission)</td><td>Unreliable (Best-effort delivery; packets can be lost)</td></tr>
+          <tr><td>Data Transfer Unit</td><td>Continuous Byte Stream</td><td>Independent Datagrams</td></tr>
+          <tr><td>Header Size</td><td>20 – 60 Bytes</td><td>Fixed 8 Bytes</td></tr>
+          <tr><td>Speed / Overhead</td><td>Slower due to handshake, ACKs & congestion control</td><td>Extremely Fast with minimal overhead</td></tr>
+          <tr><td>Flow & Congestion Control</td><td>Yes (Sliding Window & AIMD Congestion Control)</td><td>None</td></tr>
+          <tr><td>Ordering</td><td>Guaranteed in-order delivery (Sequence Numbers)</td><td>No ordering guarantees (Packets can arrive out-of-order)</td></tr>
+          <tr><td>Traffic Types</td><td>Unicast only (Point-to-Point)</td><td>Unicast, Multicast, and Broadcast</td></tr>
+          <tr><td>Typical Use Cases</td><td>Web (HTTP/S), Email (SMTP), File Transfer (FTP), SSH</td><td>DNS, VoIP, Live Streaming, Online Gaming, DHCP</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- High-Yield MCQ Card Q76 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">Exam Question Q76</span>
+        <span class="mcq-topic-tag">Topic: TCP vs UDP Protocol Characteristics</span>
+      </div>
+      <div class="mcq-question">Which of following given statement is /are correct?<br/>
+        <strong>P:</strong> TCP does not support multicasting and broadcasting.<br/>
+        <strong>Q:</strong> UDP only support broadcasting.<br/>
+        <strong>R:</strong> UDP is fast because it does not wait for any sequence.
+      </div>
+      <ul class="mcq-options">
+        <li class="mcq-option"><span>A. Only P</span></li>
+        <li class="mcq-option"><span>B. Only Q</span></li>
+        <li class="mcq-option"><span>C. Both P & Q</span></li>
+        <li class="mcq-option"><span>D. Only R</span></li>
+        <li class="mcq-option correct"><span>E. ✅ Both P & R</span> <span>✓ Correct</span></li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Explanation:</strong><br/>
+        • <strong>P is TRUE:</strong> TCP is strictly point-to-point (unicast only). It cannot perform multicast or broadcast.<br/>
+        • <strong>Q is FALSE:</strong> UDP supports unicast, multicast, and broadcast (not <em>only</em> broadcast).<br/>
+        • <strong>R is TRUE:</strong> UDP is fast because it is connectionless and doesn't wait for sequence ordering or ACKs.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="18-network-layer-congestion-control.html">← Ch 18: Congestion Control</a>
+      <a href="index.html">Home</a>
+      <a href="20-tcp-header-handshake-connection-management.html">Ch 20: TCP Header & Handshakes →</a>
+    </div>
+    Network Fundamentals · Chapter 19 · Ports, Sockets & UDP
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 22 – Session & Presentation Layers (OSI Layers 5 & 6) | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on OSI Session Layer (dialog control, synchronization points) and Presentation Layer (translation, ASCII, compression, encryption)." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .layer-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 22</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 22 · Session & Presentation Layers</div>
+    <h1 class="page-title">Session & Presentation<br/>Layers (OSI Layers 5 & 6)</h1>
+    <p class="page-subtitle">Learn the mechanisms of Session establishment, dialog control, and checkpointing (Layer 5), alongside Presentation data translation, ASCII encoding, compression, and encryption (Layer 6).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#session-layer"><span class="toc-num">22.1</span> Session Layer (OSI Layer 5) Overview</a></li>
+      <li><a href="#dialog-control"><span class="toc-num">22.2</span> Dialog Control & Token Management</a></li>
+      <li><a href="#synchronization"><span class="toc-num">22.3</span> Synchronization & Checkpointing</a></li>
+      <li><a href="#presentation-layer"><span class="toc-num">22.4</span> Presentation Layer (OSI Layer 6) Overview</a></li>
+      <li><a href="#data-translation"><span class="toc-num">22.5</span> Data Translation & Syntax Encoding</a></li>
+      <li><a href="#compression"><span class="toc-num">22.6</span> Data Compression Techniques</a></li>
+      <li><a href="#encryption"><span class="toc-num">22.7</span> Data Encryption & SSL/TLS Boundary</a></li>
+    </ul>
+  </div>
+
+  <!-- 22.1 Session Layer -->
+  <div class="section" id="session-layer">
+    <div class="layer-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">22.1 Session Layer (OSI Layer 5) Overview</h3>
+      <p>The <span class="hl">Session Layer</span> is responsible for establishing, managing, synchronizing, and terminating communication sessions between applications running on different network hosts.</p>
+
+      <h4 class="mini-title">Key Responsibilities of Layer 5</h4>
+      <ul class="note-list">
+        <li><strong>Session Establishment & Maintenance:</strong> Sets up virtual sessions between application processes (e.g. database connections, video conferencing streams).</li>
+        <li><strong>Dialog Control:</strong> Manages which node sends data and when (Simplex, Half-Duplex, or Full-Duplex).</li>
+        <li><strong>Synchronization & Recovery:</strong> Inserts checkpoints into long data streams so that if a crash occurs, retransmission resumes from the last valid checkpoint rather than the beginning.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.2 Dialog Control -->
+  <div class="section" id="dialog-control">
+    <div class="section-header">
+      <div class="section-icon">💬</div>
+      <div>
+        <div class="section-num">Section 22.2</div>
+        <h2 class="section-title">Dialog Control & Token Management</h2>
+      </div>
+    </div>
+    <p>Dialog control regulates the direction of communication between applications using <strong>Software Tokens</strong>:</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Dialog Mode</th><th>Mechanism</th><th>Example Application</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Simplex Session</strong></td><td>One-way data flow only (Sender → Receiver).</td><td>Radio broadcast, Sensor telemetry.</td></tr>
+          <tr><td><strong>Half-Duplex Session</strong></td><td>Two-way data flow, but only one side transmits at a time (uses Data Token).</td><td>Walkie-talkie, Terminal login session.</td></tr>
+          <tr><td><strong>Full-Duplex Session</strong></td><td>Simultaneous two-way data transmission without tokens.</td><td>VoIP phone calls, WebSockets.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.3 Synchronization -->
+  <div class="section" id="synchronization">
+    <div class="section-header">
+      <div class="section-icon">🚩</div>
+      <div>
+        <div class="section-num">Section 22.3</div>
+        <h2 class="section-title">Synchronization & Checkpointing</h2>
+      </div>
+    </div>
+    <p>For large file transfers (e.g. 1 GB document), the Session Layer inserts **Synchronization Points (Checkpoints)** into the stream:</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📍</div>
+      <div class="callout-body">
+        <div class="callout-title">Major vs Minor Synchronization Points</div>
+        <div class="callout-text">
+          • <strong>Minor Checkpoints:</strong> Inserted frequently (e.g. every 100 pages). Requires local acknowledgement; if a failure occurs, resends only from the last minor point.<br/>
+          • <strong>Major Checkpoints:</strong> Divides a session into independent logical units. Requires explicit confirmation before advancing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.4 Presentation Layer -->
+  <div class="section" id="presentation-layer">
+    <div class="layer-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">22.4 Presentation Layer (OSI Layer 6) Overview</h3>
+      <p>The <span class="hl2">Presentation Layer</span> acts as the "translator" for the network. It formats, encodes, compresses, and encrypts data so that applications on different systems (with different character sets or hardware endianness) can understand each other.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.5 Data Translation -->
+  <div class="section" id="data-translation">
+    <div class="section-header">
+      <div class="section-icon">🔤</div>
+      <div>
+        <div class="section-num">Section 22.5</div>
+        <h2 class="section-title">Data Translation & Syntax Encoding</h2>
+      </div>
+    </div>
+
+    <ul class="note-list">
+      <li><strong>Character Code Translation:</strong> Translates between different character encodings, such as **ASCII**, **EBCDIC**, and **Unicode (UTF-8 / UTF-16)**.</li>
+      <li><strong>Data Structure Formatting:</strong> Converts complex structures into standardized Network Abstract Syntax (e.g., ASN.1 - Abstract Syntax Notation One, JSON, XML).</li>
+      <li><strong>Byte Ordering (Endianness):</strong> Converts between **Big-Endian** (Network Byte Order, MSB first) and **Little-Endian** (x86 architecture host order).</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.6 Compression -->
+  <div class="section" id="compression">
+    <div class="section-header">
+      <div class="section-icon">🗜️</div>
+      <div>
+        <div class="section-num">Section 22.6</div>
+        <h2 class="section-title">Data Compression Techniques</h2>
+      </div>
+    </div>
+    <p>Compression reduces the number of bits required to transmit data, conserving network bandwidth.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">100% Exact Recovery</div>
+        <div class="info-card-title">Lossless Compression</div>
+        <div class="info-card-desc">No data is lost during compression/decompression. Essential for text files, executable code, and databases. (Algorithms: GZIP, ZIP, Run-Length Encoding, Huffman Coding).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">High Ratio / Minor Loss</div>
+        <div class="info-card-title">Lossy Compression</div>
+        <div class="info-card-desc">Permanently discards non-critical perceptual detail to achieve high compression ratios. Used for multimedia (JPEG images, MP3 audio, MP4 video).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 22.7 Encryption -->
+  <div class="section" id="encryption">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div>
+        <div class="section-num">Section 22.7</div>
+        <h2 class="section-title">Data Encryption & SSL/TLS Boundary</h2>
+      </div>
+    </div>
+    <p>The Presentation Layer handles data **Encryption** at the sender and **Decryption** at the receiver to ensure confidentiality and integrity.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Encryption Type</th><th>Mechanism</th><th>Key Usage</th><th>Common Standard</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Symmetric Encryption</strong></td><td>Same secret key used for encryption and decryption. Fast & efficient.</td><td>Single Shared Secret Key</td><td>AES-256, ChaCha20</td></tr>
+          <tr><td><strong>Asymmetric Encryption</strong></td><td>Uses a public key to encrypt and a private key to decrypt. Highly secure key exchange.</td><td>Public & Private Key Pair</td><td>RSA, ECC (Elliptic Curve)</td></tr>
+          <tr><td><strong>SSL/TLS Protocol</strong></td><td>Hybrid encryption protocol operating at the Presentation/Session boundary. Uses Asymmetric for key exchange, then switches to Symmetric for bulk payload encryption.</td><td>Hybrid Key Exchange</td><td>TLS 1.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- High-Yield MCQ Card Q100 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">Exam Question Q100</span>
+        <span class="mcq-topic-tag">Topic: SSL/TLS Protocol Concepts</span>
+      </div>
+      <div class="mcq-question">Which of the following statements is/are correct about SSL/TLS?<br/>
+        <strong>I:</strong> SSL/TLS uses both symmetric and asymmetric encryption.<br/>
+        <strong>II:</strong> TLS is the successor of SSL.<br/>
+        <strong>III:</strong> SSL is more secure than TLS.
+      </div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct"><span>A. ✅ I and II</span> <span>✓ Correct</span></li>
+        <li class="mcq-option"><span>B. I and III</span></li>
+        <li class="mcq-option"><span>C. II only</span></li>
+        <li class="mcq-option"><span>D. III only</span></li>
+        <li class="mcq-option"><span>E. I, II, and III</span></li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Explanation:</strong><br/>
+        • <strong>Statement I is TRUE:</strong> SSL/TLS uses Asymmetric encryption (RSA/Diffie-Hellman) for key exchange & auth, and Symmetric encryption (AES) for data transmission.<br/>
+        • <strong>Statement II is TRUE:</strong> TLS (Transport Layer Security) was developed as the modernized successor to SSL.<br/>
+        • <strong>Statement III is FALSE:</strong> SSL (v2/v3) is deprecated and insecure. TLS 1.3 is significantly more secure than SSL.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="21-tcp-flow-control-congestion-control.html">← Ch 21: Flow Control</a>
+      <a href="index.html">Home</a>
+      <a href="23-http-https-ftp-tftp-telnet-ssh.html">Ch 23: HTTP, HTTPS, FTP & SSH →</a>
+    </div>
+    Network Fundamentals · Chapter 22 · Session & Presentation Layers
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

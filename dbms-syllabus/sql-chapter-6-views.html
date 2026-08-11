@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Chapter 6: Views in SQL — virtual table, stored query, base table, Read-Only vs Updatable vs Materialized views, advantages, Oracle CREATE VIEW syntax with PYQ exam Q&A.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 6: Views in SQL | DBMS Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa;--pk:#db2777;--pk2:#fdf2f8;--in:#0891b2;--in2:#ecfeff}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(8,145,178,.05),transparent 40%),radial-gradient(circle at 90% 80%,rgba(124,58,237,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,#0c4a6e 0%,#075985 35%,#0369a1 65%,#1d4ed8 100%);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'6';position:absolute;right:-10px;top:-20px;font-size:200px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace;line-height:1}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#bae6fd;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+
+    /* ── SECTION BOXES ── */
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--in2);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--in);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+
+    /* ── CALLOUT VARIANTS ── */
+    .cl{border-left:4px solid var(--in);background:var(--in2);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#0c4a6e}
+    .ct{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+
+    /* ── CODE ── */
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}.co{color:#67e8f9}
+
+    /* ── TABLE ── */
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#ecfeff}
+
+    /* ── VIEW DIAGRAM ── */
+    .view-diagram{display:flex;align-items:center;justify-content:center;gap:0;margin:24px 0;flex-wrap:wrap}
+    .vd-table{border-radius:14px;padding:18px 22px;min-width:200px;text-align:center}
+    .vd-base{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;box-shadow:0 8px 20px rgba(29,78,216,.25)}
+    .vd-view{background:linear-gradient(135deg,#065f46,#059669);color:#fff;box-shadow:0 8px 20px rgba(5,150,105,.25)}
+    .vd-mat{background:linear-gradient(135deg,#581c87,#7c3aed);color:#fff;box-shadow:0 8px 20px rgba(124,58,237,.25)}
+    .vd-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:8px}
+    .vd-name{font-size:1.2rem;font-weight:800;margin-bottom:8px}
+    .vd-cols{font-family:'Fira Code',monospace;font-size:12px;opacity:.85;line-height:1.7;text-align:left}
+    .vd-phys{font-size:11px;margin-top:8px;opacity:.75}
+    .vd-arrow{font-size:2rem;color:#64748b;padding:0 16px;display:flex;align-items:center;flex-direction:column;gap:4px}
+    .vd-arrow .al{font-size:11px;font-weight:700;color:var(--mu);text-align:center}
+
+    /* ── VIEW TYPE CARDS ── */
+    .vtype-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:20px 0}
+    .vtc{border-radius:16px;padding:22px;border:2px solid;position:relative;overflow:hidden}
+    .vtc::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:0 16px 0 80px;opacity:.08}
+    .vtc.v-ro{background:#f0fdf4;border-color:#86efac}.vtc.v-ro::before{background:#10b981}
+    .vtc.v-up{background:#eff6ff;border-color:#93c5fd}.vtc.v-up::before{background:#2563eb}
+    .vtc.v-mv{background:var(--pu2);border-color:#c4b5fd}.vtc.v-mv::before{background:#7c3aed}
+    .vtc .vt-icon{font-size:28px;margin-bottom:10px}
+    .vtc .vt-name{font-size:1.1rem;font-weight:800;margin-bottom:8px;color:var(--tm)}
+    .vtc .vt-def{font-size:.92rem;color:#334155;line-height:1.6;margin-bottom:10px}
+    .vtc .vt-key{font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-block}
+    .vtc.v-ro .vt-key{background:#dcfce7;color:#166534}
+    .vtc.v-up .vt-key{background:#dbeafe;color:#1e3a8a}
+    .vtc.v-mv .vt-key{background:#ddd6fe;color:#4c1d95}
+
+    /* ── ADVANTAGES GRID ── */
+    .adv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:20px 0}
+    .adv{border-radius:14px;padding:18px;border:1.5px solid;transition:transform .2s}
+    .adv:hover{transform:translateY(-3px)}
+    .adv .ai{font-size:28px;margin-bottom:10px}
+    .adv .an{font-weight:800;font-size:.95rem;margin-bottom:6px;color:var(--tm)}
+    .adv .ad{font-size:12.5px;color:var(--mu);line-height:1.5}
+    .adv.a1{background:#ecfeff;border-color:#67e8f9}
+    .adv.a2{background:#f0fdf4;border-color:#86efac}
+    .adv.a3{background:#eff6ff;border-color:#93c5fd}
+    .adv.a4{background:var(--pu2);border-color:#c4b5fd}
+
+    /* ── FLOW CHART ── */
+    .flow{display:flex;flex-direction:column;gap:0;margin:20px 0;align-items:flex-start;max-width:480px}
+    .fb{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:12px 18px;font-size:.92rem;font-weight:600;color:var(--tm);width:100%;box-shadow:0 2px 4px rgba(0,0,0,.04)}
+    .fb.fh{background:#0f172a;color:#fff;border-color:#0f172a;font-family:'Fira Code',monospace}
+    .fb.fs{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .fb.ft{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .fa{text-align:center;font-size:1.4rem;color:#94a3b8;padding:4px 0;width:100%;display:flex;align-items:center;gap:6px}
+    .fa span{font-size:11px;font-weight:700;color:var(--mu)}
+
+    /* ── PYQ ── */
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin:0}
+
+    /* ── SCROLL BAR ── */
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#0369a1,#0891b2,#2563eb);z-index:9999;width:0%;transition:width .1s linear}
+
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}.view-diagram{flex-direction:column}.vd-arrow{transform:rotate(90deg)}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus Hub</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <a href="sql-index.html">SQL Chapters</a><span class="sep">›</span>
+  <span class="cur">Chapter 6: Views in SQL</span>
+  <a class="bk" href="sql-index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <span class="badge">SQL · Chapter 6</span>
+    <h1>Views in SQL</h1>
+    <p>One of the most placement-critical SQL topics. A view is far more than just a "virtual table" — understand how stored queries, base-table propagation, read-only vs updatable vs materialized views, and role-based access control all connect together.</p>
+    <div class="tags">
+      <span class="tag">👁️ Virtual Table</span>
+      <span class="tag">🗄️ Stored Query</span>
+      <span class="tag">🔒 Read-Only View</span>
+      <span class="tag">✏️ Updatable View</span>
+      <span class="tag">📸 Materialized View</span>
+      <span class="tag">🔐 Security &amp; Access Control</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 1 · WHAT IS A VIEW                 -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="what-is-view">
+    <h2>👁️ What is a View?</h2>
+    <p>In a placement or interview, the first answer to "What is a View?" is — <strong>virtual table</strong>. But that is just the starting point. A complete answer covers <em>why</em> it's virtual, how it's stored, and how changes propagate.</p>
+
+    <div class="cl">
+      <div class="ct">📘 Formal Definition</div>
+      A <strong>View</strong> is a <em>named, stored SQL query</em> whose result looks and behaves like a table but has <strong>no physical storage</strong> of its own. It is created from one or more base tables (or other views) using a <code>SELECT</code> statement. The view's definition (the query) is compiled and stored; the result set is generated <em>on demand</em> when you query the view.
+    </div>
+
+    <h3>🔑 Key Distinction — Table vs View</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Aspect</th><th>Base Table (Physical)</th><th>View (Virtual)</th></tr></thead><tbody>
+      <tr><td>Storage</td><td>✅ Occupies disk space (HDD/SSD)</td><td>❌ No physical storage (stores the query, not data)</td></tr>
+      <tr><td>Created by</td><td><code>CREATE TABLE</code></td><td><code>CREATE VIEW</code></td></tr>
+      <tr><td>What is stored</td><td>Actual rows and columns of data</td><td>The compiled SQL SELECT query</td></tr>
+      <tr><td>Result on query</td><td>Reads stored data directly</td><td>Executes the stored query and returns result</td></tr>
+      <tr><td>Exists as</td><td>A real, independent object</td><td>A window/lens over one or more base tables</td></tr>
+    </tbody></table></div>
+
+    <h3>🧠 The "Stored Query" Mental Model</h3>
+    <p>Think of a view like a <strong>saved camera angle</strong>. The actual scene (data) lives in the base table. The camera just frames a particular portion of it. Every time you look through the camera (query the view), you see the live scene at that moment — no separate copy is stored.</p>
+
+    <div class="flow">
+      <div class="fb fh">CREATE VIEW V1 AS SELECT id, name FROM student WHERE city = 'Delhi';</div>
+      <div class="fa">⬇ <span>SQL engine compiles the query, stores definition</span></div>
+      <div class="fb fs">View V1 definition stored in Data Dictionary (not the result rows)</div>
+      <div class="fa">⬇ <span>When user queries</span></div>
+      <div class="fb fh">SELECT * FROM V1;</div>
+      <div class="fa">⬇ <span>Engine executes the stored query on the live base table</span></div>
+      <div class="fb ft">Result set returned as if it were a real table — but nothing is stored!</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 2 · BASE TABLE ↔ VIEW              -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="base-view-relation">
+    <h2>🔗 Base Table ↔ View Relationship</h2>
+    <p>A <strong>base table</strong> is the real, physical table from which a view is derived. Understanding how changes flow between the two is critical for interviews.</p>
+
+    <h3>📊 Visual: Base Table → View</h3>
+    <div class="view-diagram">
+      <div class="vd-table vd-base">
+        <div class="vd-title">Base Table (Physical)</div>
+        <div class="vd-name">student</div>
+        <div class="vd-cols">
+          id · name · father_name<br>
+          mother_name · gender<br>
+          city · marks · phone
+        </div>
+        <div class="vd-phys">💾 Stored on disk</div>
+      </div>
+      <div class="vd-arrow">
+        <span>→</span>
+        <div class="al">CREATE VIEW<br>SELECT id,name<br>WHERE city='Delhi'</div>
+      </div>
+      <div class="vd-table vd-view">
+        <div class="vd-title">View (Virtual)</div>
+        <div class="vd-name">V_Delhi</div>
+        <div class="vd-cols">
+          id · name<br>
+          (only Delhi rows)
+        </div>
+        <div class="vd-phys">📄 Only query stored</div>
+      </div>
+    </div>
+
+    <h3>🔄 Change Propagation Rules</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Who changes?</th><th>Change</th><th>Effect on other side?</th><th>Applies automatically?</th></tr></thead><tbody>
+      <tr><td><strong>Base Table</strong></td><td>INSERT a new row</td><td>View shows the new row (if it matches the view's WHERE)</td><td>✅ Always</td></tr>
+      <tr><td><strong>Base Table</strong></td><td>UPDATE a value in a column shown in the view</td><td>View reflects the updated value immediately</td><td>✅ Always</td></tr>
+      <tr><td><strong>Base Table</strong></td><td>DELETE a row</td><td>Row disappears from the view automatically</td><td>✅ Always</td></tr>
+      <tr><td><strong>View</strong></td><td>UPDATE (if Updatable)</td><td>Change propagates back to base table</td><td>✅ Only for updatable views</td></tr>
+      <tr><td><strong>View</strong></td><td>INSERT / DELETE (if Updatable)</td><td>Row added/removed from base table</td><td>✅ Only for updatable views</td></tr>
+      <tr><td><strong>View (Read-Only)</strong></td><td>Any DML attempt</td><td>❌ Error — operation not allowed</td><td>❌ Blocked</td></tr>
+    </tbody></table></div>
+
+    <div class="cl cl-t">
+      <div class="ct">💡 Parent → Child Analogy</div>
+      The base table is the <strong>parent</strong>; the view is the <strong>child</strong>. Whatever you change in the parent (base table) is always visible in the child (view). Whether the child (view) can push changes back to the parent depends on whether it's an <strong>updatable view</strong>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 3 · TYPES OF VIEWS                 -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="types-of-views">
+    <h2>🗂️ Types of Views</h2>
+
+    <div class="vtype-grid">
+
+      <div class="vtc v-ro">
+        <div class="vt-icon">🔒</div>
+        <div class="vt-name">Read-Only View</div>
+        <div class="vt-def">Users can only <strong>SELECT</strong> (read) from this view. INSERT, UPDATE, and DELETE operations are <strong>disabled/blocked</strong>. The base table is fully protected from changes through this view. Created using <code>WITH READ ONLY</code> in Oracle.</div>
+        <span class="vt-key">✅ Most Common for Security</span>
+      </div>
+
+      <div class="vtc v-up">
+        <div class="vt-icon">✏️</div>
+        <div class="vt-name">Updatable View</div>
+        <div class="vt-def">Users can perform <strong>SELECT, INSERT, UPDATE, DELETE</strong> on this view. Changes made through the view are <strong>propagated back to the base table</strong>. Used when controlled write access through a view is needed.</div>
+        <span class="vt-key">⚠️ Use with caution — writes to base table</span>
+      </div>
+
+      <div class="vtc v-mv">
+        <div class="vt-icon">📸</div>
+        <div class="vt-name">Materialized View</div>
+        <div class="vt-def">Unlike a normal view that stores only the query, a materialized view <strong>stores the actual result set physically</strong> (a snapshot). Used heavily in data warehousing and data mining. It <em>does</em> take up disk space but enables much faster reads. The snapshot can be refreshed periodically or on-demand.</div>
+        <span class="vt-key">🏭 Used in Data Warehouse / DW</span>
+      </div>
+
+    </div>
+
+    <h3>📸 Materialized View — Deep Dive</h3>
+    <p>A materialized view is like keeping a <strong>local cache copy</strong> of remote server data. In a <em>client-server architecture</em>, your main data sits on a remote server. Instead of querying the server every single time, you take a snapshot and store it locally — this is exactly what a materialized view does inside the database engine.</p>
+    <div class="view-diagram">
+      <div class="vd-table vd-base">
+        <div class="vd-title">Remote / Main Database</div>
+        <div class="vd-name">Base Table</div>
+        <div class="vd-cols">All rows, all columns<br>Live data</div>
+        <div class="vd-phys">💾 Remote Server</div>
+      </div>
+      <div class="vd-arrow">
+        <span>📸</span>
+        <div class="al">Snapshot<br>stored locally<br>(refreshed periodically)</div>
+      </div>
+      <div class="vd-table vd-mat">
+        <div class="vd-title">Materialized View</div>
+        <div class="vd-name">MV_sales_2024</div>
+        <div class="vd-cols">Subset of rows/cols<br>Physically stored</div>
+        <div class="vd-phys">💾 Local Server (less space)</div>
+      </div>
+    </div>
+
+    <div class="tw"><table class="ct2"><thead><tr><th>Feature</th><th>Normal View</th><th>Materialized View</th></tr></thead><tbody>
+      <tr><td>Stores data physically?</td><td>❌ No — only stores the query</td><td>✅ Yes — stores the result set</td></tr>
+      <tr><td>Takes disk space?</td><td>❌ Negligible (just the query text)</td><td>✅ Yes (but less than the full base table)</td></tr>
+      <tr><td>Query speed</td><td>Re-executes query every time — slower for complex queries</td><td>Very fast — reads pre-computed stored data</td></tr>
+      <tr><td>Data freshness</td><td>Always live (reflects base table instantly)</td><td>Can be stale — refreshed on schedule or on-demand</td></tr>
+      <tr><td>Primary use case</td><td>Security, simplifying queries, access control</td><td>Data warehousing, reporting, performance optimization</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 4 · CREATE VIEW SYNTAX             -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="create-view">
+    <h2>📝 CREATE VIEW — Syntax &amp; Examples</h2>
+    <div class="cb"><span class="ll">Oracle SQL — Basic Syntax</span><pre><span class="cm">-- Basic syntax</span>
+<span class="kw">CREATE</span> [<span class="kw">OR REPLACE</span>] <span class="kw">VIEW</span> <span class="tb">view_name</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> col1, col2, ...
+  <span class="kw">FROM</span> <span class="tb">table_name</span>
+  [<span class="kw">WHERE</span> condition]
+  [<span class="kw">WITH READ ONLY</span>]<span class="op">;</span>        <span class="cm">-- optional: makes it read-only</span></pre></div>
+
+    <div class="cb"><span class="ll">Oracle SQL — Example 1: Simple View</span><pre><span class="cm">-- Base table: student(id, name, father_name, city, marks)</span>
+<span class="cm">-- Create a view showing only id and name</span>
+<span class="kw">CREATE VIEW</span> <span class="tb">V1</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> id, name
+  <span class="kw">FROM</span> <span class="tb">student</span><span class="op">;</span>
+
+<span class="cm">-- Query the view just like a table</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">V1</span><span class="op">;</span>
+<span class="cm">-- Returns: id and name of all students (from base table, live)</span></pre></div>
+
+    <div class="cb"><span class="ll">Oracle SQL — Example 2: Filtered View (WHERE clause)</span><pre><span class="cm">-- View of only Delhi students (restricts rows)</span>
+<span class="kw">CREATE VIEW</span> <span class="tb">V_Delhi</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> id, name, city
+  <span class="kw">FROM</span> <span class="tb">student</span>
+  <span class="kw">WHERE</span> city <span class="op">=</span> <span class="str">'Delhi'</span><span class="op">;</span></pre></div>
+
+    <div class="cb"><span class="ll">Oracle SQL — Example 3: Read-Only View</span><pre><span class="cm">-- Create a read-only view (no INSERT/UPDATE/DELETE allowed)</span>
+<span class="kw">CREATE VIEW</span> <span class="tb">V_Faculty_Public</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> faculty_name, course, qualification
+  <span class="kw">FROM</span> <span class="tb">faculty</span>
+  <span class="kw">WITH READ ONLY</span><span class="op">;</span>
+
+<span class="cm">-- Attempting DML on this view will throw an error:</span>
+<span class="cm">-- ORA-42399: cannot perform a DML operation on a read-only view</span></pre></div>
+
+    <div class="cb"><span class="ll">Oracle SQL — Example 4: View from Multiple Tables (JOIN)</span><pre><span class="cm">-- View combining data from 2 tables</span>
+<span class="kw">CREATE VIEW</span> <span class="tb">V_Emp_Dept</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> e.emp_id, e.name, d.dept_name
+  <span class="kw">FROM</span> <span class="tb">employees</span> e
+  <span class="kw">JOIN</span> <span class="tb">departments</span> d <span class="kw">ON</span> e.dept_id <span class="op">=</span> d.dept_id<span class="op">;</span></pre></div>
+
+    <div class="cb"><span class="ll">Oracle SQL — OR REPLACE and DROP VIEW</span><pre><span class="cm">-- Replace/modify an existing view without dropping first</span>
+<span class="kw">CREATE OR REPLACE VIEW</span> <span class="tb">V1</span> <span class="kw">AS</span>
+  <span class="kw">SELECT</span> id, name, city <span class="kw">FROM</span> <span class="tb">student</span><span class="op">;</span>
+
+<span class="cm">-- Delete a view (only removes the view definition, NOT the base table)</span>
+<span class="kw">DROP VIEW</span> <span class="tb">V1</span><span class="op">;</span></pre></div>
+
+    <h3>⚠️ DML Rules on Views</h3>
+    <div class="cl cl-w">
+      <div class="ct">⚠️ DDL is NOT allowed on Views</div>
+      You <strong>cannot run ALTER TABLE</strong> or other DDL commands on a view — views are not physical tables. You can only run:<br><br>
+      <strong>SELECT</strong> — always allowed on all views<br>
+      <strong>INSERT / UPDATE / DELETE</strong> — only on <em>updatable</em> views (not read-only)<br><br>
+      To modify a view's definition: use <code>CREATE OR REPLACE VIEW</code>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 5 · WHAT YOU CAN DO WITH VIEWS     -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="view-capabilities">
+    <h2>🛠️ What You Can Do When Creating a View</h2>
+    <div class="tw"><table class="ct2"><thead><tr><th>Operation</th><th>Allowed?</th><th>Detail</th></tr></thead><tbody>
+      <tr><td>Select fewer columns than base table</td><td>✅ Yes</td><td>Show only id, name from a 20-column table</td></tr>
+      <tr><td>Select more columns than base table</td><td>❌ No</td><td>You can't add columns that don't exist in the base table</td></tr>
+      <tr><td>Filter rows using WHERE</td><td>✅ Yes</td><td><code>WHERE city = 'Delhi'</code> — shows only matching rows</td></tr>
+      <tr><td>Combine columns from multiple tables</td><td>✅ Yes</td><td>Use JOINs — some columns from emp, some from dept</td></tr>
+      <tr><td>Use aggregate functions</td><td>✅ Yes</td><td><code>SUM(salary)</code>, <code>COUNT(*)</code> etc. in the view query</td></tr>
+      <tr><td>Create view from another view</td><td>✅ Yes</td><td>Nested/hierarchical views are allowed</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 6 · ADVANTAGES                     -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="advantages">
+    <h2>✅ Advantages of Views</h2>
+    <div class="adv-grid">
+      <div class="adv a1">
+        <div class="ai">🔐</div>
+        <div class="an">Restrict Data Access (Security)</div>
+        <div class="ad">Don't expose the full base table. Show only the columns/rows a user needs. Expose a 4-column view from a 20-column table — the user doesn't even know the other columns exist.</div>
+      </div>
+      <div class="adv a2">
+        <div class="ai">🧩</div>
+        <div class="an">Simplify Complex Queries</div>
+        <div class="ad">Instead of writing a complex multi-table JOIN repeatedly, create a view once. Then just <code>SELECT * FROM that_view</code>. Example: separate 2019, 2020, 2021 sales data into 3 simple views.</div>
+      </div>
+      <div class="adv a3">
+        <div class="ai">🔗</div>
+        <div class="an">Data Independence</div>
+        <div class="ad">If the base table structure changes (columns added/renamed), views can absorb the change — users working with the view are unaffected as long as their columns still exist.</div>
+      </div>
+      <div class="adv a4">
+        <div class="ai">👥</div>
+        <div class="an">Role-Based Access (Different Views)</div>
+        <div class="ad">Student sees: name, marks. Faculty sees: name, marks, grade. HOD sees everything. Each user role gets a tailored view — all from the same underlying base table.</div>
+      </div>
+    </div>
+
+    <h3>🏫 University System Real-World Example</h3>
+    <div class="cl cl-s">
+      <div class="ct">✅ Real-World Application — University DBMS</div>
+      <strong>Base Table (faculty):</strong> faculty_id, name, address, phone, qualification, salary, bank_account, contract_details, emergency_contact, leaves_taken…<br><br>
+      <strong>View for Students:</strong> <code>SELECT name, course, qualification FROM faculty</code> — Students see only this.<br>
+      <strong>View for HOD:</strong> <code>SELECT name, salary, leaves_taken, qualification FROM faculty</code><br>
+      <strong>View for Admin:</strong> Full access to base table.<br><br>
+      Each user type works with <em>their view</em> and feels the table has only those columns. The base table is never directly exposed to students.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════ -->
+  <!-- 7 · COMPLETE SUMMARY TABLE         -->
+  <!-- ═══════════════════════════════════ -->
+  <section class="ns" id="summary">
+    <h2>📋 Complete Summary — Views at a Glance</h2>
+    <div class="tw"><table class="ct2"><thead><tr><th>Concept</th><th>Key Point</th></tr></thead><tbody>
+      <tr><td><strong>Definition</strong></td><td>Virtual table = named stored SELECT query; no physical data storage</td></tr>
+      <tr><td><strong>Base Table</strong></td><td>Original physical table from which the view is derived</td></tr>
+      <tr><td><strong>What is stored</strong></td><td>The compiled SQL query (not the result rows)</td></tr>
+      <tr><td><strong>Physical space</strong></td><td>Normal view: none · Materialized view: yes (snapshot)</td></tr>
+      <tr><td><strong>Base → View propagation</strong></td><td>Any change in base table (INSERT/UPDATE/DELETE) always reflects in view automatically</td></tr>
+      <tr><td><strong>View → Base propagation</strong></td><td>Only for updatable views. Read-only views block all DML.</td></tr>
+      <tr><td><strong>DDL on view</strong></td><td>Not allowed. Use <code>CREATE OR REPLACE VIEW</code> to modify.</td></tr>
+      <tr><td><strong>Read-Only view</strong></td><td><code>WITH READ ONLY</code> — SELECT only, no DML</td></tr>
+      <tr><td><strong>Updatable view</strong></td><td>DML operations (INSERT/UPDATE/DELETE) propagate to base table</td></tr>
+      <tr><td><strong>Materialized view</strong></td><td>Physically stores a snapshot of the result; used in data warehousing; faster reads</td></tr>
+      <tr><td><strong>Columns</strong></td><td>Can only reduce columns (subset), cannot add new columns</td></tr>
+      <tr><td><strong>Rows</strong></td><td>Use WHERE clause to restrict rows shown</td></tr>
+      <tr><td><strong>Multiple tables</strong></td><td>A single view can combine columns from multiple tables using JOINs</td></tr>
+      <tr><td><strong>Drop view</strong></td><td><code>DROP VIEW view_name</code> — removes only the view, base table is untouched</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- PYQ Q&A -->
+  <section class="pb">
+    <h4>🎯 Interview &amp; Exam — Key Q&amp;A</h4>
+    <p><strong>Q1: What is a View in SQL? Why is it called a virtual table?</strong><br>👉 <em>A view is a stored SQL query whose result looks like a table but has no physical data storage. It's called virtual because unlike a real table, it doesn't occupy disk space — only the query definition is stored. The result is generated dynamically when the view is queried.</em></p>
+    <p><strong>Q2: What is the difference between a base table and a view?</strong><br>👉 <em>A base table physically stores data on disk. A view stores only a SELECT query. The view generates its result by executing that query on the live base table each time it's queried.</em></p>
+    <p><strong>Q3: If you update data in the base table, does the view reflect the change?</strong><br>👉 <em>Yes, always and automatically. Since the view executes the SELECT query on the live base table each time, any change in the base table (INSERT/UPDATE/DELETE) is immediately visible in the view.</em></p>
+    <p><strong>Q4: What is a Read-Only view? How do you create one in Oracle?</strong><br>👉 <em>A read-only view blocks all DML operations (INSERT, UPDATE, DELETE). Users can only SELECT from it. Created using: CREATE VIEW v_name AS SELECT ... WITH READ ONLY;</em></p>
+    <p><strong>Q5: What is an Updatable View?</strong><br>👉 <em>An updatable view allows INSERT, UPDATE, and DELETE operations. Changes made through the view are propagated back to the base table. Not all views can be updatable — complex views with JOINs, GROUP BY, DISTINCT may restrict this.</em></p>
+    <p><strong>Q6: What is a Materialized View? How is it different from a normal view?</strong><br>👉 <em>A materialized view physically stores the result set (snapshot) unlike a normal view that only stores the query. It takes disk space but is faster to query. It can become stale and needs periodic refresh. Used primarily in data warehousing.</em></p>
+    <p><strong>Q7: Can you apply DDL commands like ALTER TABLE on a view?</strong><br>👉 <em>No. DDL commands (ALTER, DROP TABLE etc.) cannot be applied on a view. To modify a view's definition, use CREATE OR REPLACE VIEW. To delete a view, use DROP VIEW.</em></p>
+    <p><strong>Q8: Can a view be created from multiple tables?</strong><br>👉 <em>Yes. A view can JOIN multiple tables and present columns from all of them as a single virtual table. This is one of the main use cases — simplifying complex multi-table queries.</em></p>
+    <p><strong>Q9: What are the security advantages of views?</strong><br>👉 <em>Views allow you to expose only selected columns/rows to users without giving them access to the full base table. For example, students can see a faculty view with name and course only, while the base table may contain salary, bank details, and personal information.</em></p>
+    <p><strong>Q10: If you DELETE a row through an updatable view, what happens to the base table?</strong><br>👉 <em>The row is deleted from the base table. Any DML operation on an updatable view directly affects the underlying base table. This is why read-only views are preferred when write access should be controlled.</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

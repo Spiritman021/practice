@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Chapter 2.5 (Part 3): Weak Entity Set in DBMS — Detailed Gate Smashers notes on Weak Entity, Owner Entity, Identifying Relationship, Discriminator/Partial Key, Total Participation, 2-Table Mapping, and PYQs.">
+  <meta name="robots" content="index, follow">
+  <title>Chapter 2.5 (Part 3): Weak Entity Set | DBMS Complete Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/chapter-2-5-4-weak-entity-set.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --border: #e2e8f0;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.04), transparent 40%),
+        linear-gradient(rgba(241, 245, 249, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241, 245, 249, 0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px 24px; }
+    .brand { 
+      text-decoration: none; 
+      color: var(--primary); 
+      font-weight: 800; 
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ph-breadcrumb {
+      background: rgba(248, 250, 252, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-wrap: wrap;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ph-breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .ph-breadcrumb a:hover { color: var(--primary); }
+    .ph-breadcrumb .sep { color: #cbd5e1; font-size: 11px; }
+    .ph-breadcrumb .current { color: var(--text-main); font-weight: 600; }
+    .ph-breadcrumb .back-btn {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
+    }
+    .ph-breadcrumb .back-btn:hover { background: var(--bg); color: var(--text-main); transform: translateX(-2px); }
+
+    main.wrap { padding: 28px 24px 72px; }
+
+    /* Hero Banner */
+    .note-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    .note-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .note-hero h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; margin-bottom: 10px; }
+    .note-hero p { color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; }
+
+    /* Section Cards */
+    .note-section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+    .note-section h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .note-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 20px 0 10px;
+    }
+
+    .note-section p { color: #334155; margin-bottom: 14px; font-size: 1rem; }
+
+    /* Generated Image Box */
+    .img-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .img-caption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+      font-size: 0.975rem;
+    }
+    .callout-title { font-weight: 800; color: var(--primary-hover); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+    /* Styled List */
+    .list-styled {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .list-styled li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 0.975rem;
+      color: #334155;
+    }
+    .list-styled li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* ER Shape SVG wrappers */
+    .er-shape {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      margin: 4px 6px;
+    }
+    .er-shape svg { overflow: visible; }
+    .er-shape text {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+
+    /* Partial Key inline text style */
+    .er-partial-key-text {
+      font-family: monospace;
+      font-weight: 700;
+      color: #b45309;
+      border-bottom: 2.5px dashed #d97706;
+      padding-bottom: 1px;
+      font-size: 14px;
+    }
+    .er-pk-text {
+      font-family: monospace;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 2.5px solid #0f172a;
+      padding-bottom: 1px;
+      font-size: 14px;
+    }
+
+    /* Comparison Table */
+    .comp-table-wrap { overflow-x: auto; margin: 24px 0; border-radius: 14px; border: 1px solid var(--border); }
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    table.comp-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 18px;
+      font-weight: 700;
+    }
+    table.comp-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.comp-table tr:nth-child(even) { background: #f8fafc; }
+    table.comp-table tr:hover { background: #eff6ff; }
+
+    /* PYQ Box */
+    .pyq-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1.5px solid #fde68a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 28px;
+    }
+    .pyq-box h4 { font-size: 1.05rem; font-weight: 800; color: #92400e; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .pyq-box p { font-size: 14px; color: #451a03; line-height: 1.5; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+    </div>
+  </header>
+
+  <nav class="ph-breadcrumb" aria-label="Breadcrumb">
+    <a href="../index.html">🏠 Practice Hub</a>
+    <span class="sep">›</span>
+    <a href="index.html">DBMS Syllabus</a>
+    <span class="sep">›</span>
+    <span class="current">Chapter 2.5 (Part 3): Weak Entity Set</span>
+    <a class="back-btn" href="index.html">← Back to Syllabus</a>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- HERO BANNER -->
+    <section class="note-hero">
+      <span class="note-badge">Gate Smashers Lecture Notes · Unit 2 Chapter 2.5 (Part 3)</span>
+      <h1>Weak Entity Set (दुर्बल एंटिटी सेट)</h1>
+      <p>Master <strong>Weak Entity Sets</strong>, Owner (Strong) Entities, Identifying Relationships, Discriminators (Partial Keys), Total Participation requirements, and the <strong>2-Table Relational Conversion Rule</strong>.</p>
+    </section>
+
+    <!-- SECTION 1: WHAT IS A WEAK ENTITY SET -->
+    <section class="note-section">
+      <h2>💡 1. What is a Weak Entity Set?</h2>
+      <p>A <strong>Weak Entity Set</strong> is an entity set that <strong>does NOT have a Primary Key</strong> (no sufficient key attributes to uniquely identify its records on its own).</p>
+
+      <div class="callout">
+        <div class="callout-title">🏢 Real-Life Corporate Example: Employees &amp; Dependents</div>
+        Suppose an IT company (e.g. Infosys) maintains employee database records:
+        <ul class="list-styled" style="margin-top: 8px;">
+          <li><strong>Strong Owner Entity (<code>EMPLOYEE</code>):</strong> Contains <code>Emp_ID</code> (Primary Key), <code>Emp_Name</code>, <code>Salary</code>. Employees deal directly with the company.</li>
+          <li><strong>Weak Entity Set (<code>DEPENDENT</code>):</strong> Stores employee family members (e.g. Spouse <code>Name</code>, <code>Age</code>). Dependents do NOT deal with Infosys directly; they are identified <em>only through the employee</em>.</li>
+        </ul>
+        <strong>Existence Dependency:</strong> If Employee <code>E1</code> leaves the company, Infosys automatically deletes all dependent records associated with <code>E1</code> because the company has no independent relationship with dependents!
+      </div>
+    </section>
+
+    <!-- VISUAL DIAGRAM -->
+    <section class="note-section">
+      <h2>🖼️ ER Diagram: Employee — Has — Dependent</h2>
+      <p>Exact ER diagram from the Gate Smashers lecture. Notice the <strong>double rectangle</strong> for Dependent (weak entity), <strong>double diamond</strong> for Has (identifying relationship), and <strong>double line</strong> for total participation.</p>
+
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:16px; padding:20px; overflow-x:auto; margin:24px 0;">
+        <svg viewBox="0 0 860 340" width="100%" style="max-width:860px; display:block; margin:0 auto; font-family:'Outfit','Inter',sans-serif;">
+
+          <!-- ===================== LINES / CONNECTORS ===================== -->
+
+          <!-- Employee → E_Id -->
+          <line x1="180" y1="170" x2="100" y2="68" stroke="#475569" stroke-width="1.8"/>
+          <!-- Employee → Name (left) -->
+          <line x1="210" y1="160" x2="240" y2="68" stroke="#475569" stroke-width="1.8"/>
+          <!-- Employee → Address -->
+          <line x1="170" y1="195" x2="120" y2="278" stroke="#475569" stroke-width="1.8"/>
+
+          <!-- Employee → Has (single line) -->
+          <line x1="270" y1="178" x2="385" y2="178" stroke="#475569" stroke-width="1.8"/>
+
+          <!-- Has → Dependent (DOUBLE LINE for total participation) -->
+          <line x1="475" y1="172" x2="592" y2="172" stroke="#2563eb" stroke-width="2.2"/>
+          <line x1="475" y1="184" x2="592" y2="184" stroke="#2563eb" stroke-width="2.2"/>
+
+          <!-- Dependent → Amount -->
+          <line x1="650" y1="160" x2="570" y2="65" stroke="#475569" stroke-width="1.8"/>
+          <!-- Dependent → Name (partial key attr) -->
+          <line x1="680" y1="155" x2="700" y2="65" stroke="#475569" stroke-width="1.8"/>
+          <!-- Dependent → Age -->
+          <line x1="720" y1="162" x2="790" y2="68" stroke="#475569" stroke-width="1.8"/>
+
+          <!-- ===================== ATTRIBUTES (Ellipses) ===================== -->
+
+          <!-- E_Id — KEY ATTRIBUTE (solid underline) -->
+          <ellipse cx="100" cy="48" rx="52" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+          <text x="100" y="45" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#0f172a">E_Id</text>
+          <!-- underline via SVG line under text -->
+          <line x1="76" y1="52" x2="124" y2="52" stroke="#0f172a" stroke-width="2"/>
+
+          <!-- Name (Employee left attr) -->
+          <ellipse cx="240" cy="48" rx="52" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+          <text x="240" y="49" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="#0f172a">Name</text>
+
+          <!-- Address -->
+          <ellipse cx="118" cy="290" rx="58" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+          <text x="118" y="291" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="#0f172a">Address</text>
+
+          <!-- Amount (Dependent attr) -->
+          <ellipse cx="568" cy="46" rx="56" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+          <text x="568" y="47" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="#0f172a">Amount</text>
+
+          <!-- Name (PARTIAL KEY — dashed ellipse border + dashed underline) -->
+          <ellipse cx="700" cy="46" rx="52" ry="26" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3"/>
+          <text x="700" y="43" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#b45309">Name</text>
+          <!-- dashed underline for partial key -->
+          <line x1="677" y1="51" x2="723" y2="51" stroke="#d97706" stroke-width="2" stroke-dasharray="4,3"/>
+
+          <!-- Age (Dependent attr) -->
+          <ellipse cx="792" cy="48" rx="44" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8"/>
+          <text x="792" y="49" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="600" fill="#0f172a">Age</text>
+
+          <!-- ===================== ENTITIES ===================== -->
+
+          <!-- EMPLOYEE — Strong Entity (Single Rectangle) -->
+          <rect x="150" y="150" width="120" height="56" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+          <text x="210" y="178" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#0f172a">Employee</text>
+
+          <!-- HAS — Identifying Relationship (DOUBLE DIAMOND) -->
+          <!-- outer diamond -->
+          <polygon points="430,148 480,178 430,208 380,178" fill="#e0e7ff" stroke="#2563eb" stroke-width="2.2"/>
+          <!-- inner diamond -->
+          <polygon points="430,156 470,178 430,200 390,178" fill="none" stroke="#2563eb" stroke-width="2"/>
+          <text x="430" y="178" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#1e1b4b">Has</text>
+
+          <!-- DEPENDENT — Weak Entity (DOUBLE RECTANGLE) -->
+          <!-- outer rect -->
+          <rect x="592" y="148" width="136" height="56" rx="3" fill="#eff6ff" stroke="#2563eb" stroke-width="2.2"/>
+          <!-- inner rect (double border) -->
+          <rect x="598" y="154" width="124" height="44" rx="2" fill="none" stroke="#2563eb" stroke-width="1.8"/>
+          <text x="660" y="176" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#1e3a8a">Dependent</text>
+
+          <!-- ===================== LEGEND ===================== -->
+          <rect x="10" y="305" width="840" height="28" rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="22" y="322" font-size="11" font-weight="700" fill="#475569">🔑 Solid underline = Primary Key (E_Id)</text>
+          <text x="260" y="322" font-size="11" font-weight="700" fill="#d97706">- - - Dashed underline = Partial Key / Discriminator (Name)</text>
+          <text x="600" y="322" font-size="11" font-weight="700" fill="#2563eb">══ Double line = Total Participation</text>
+
+        </svg>
+      </div>
+
+      <!-- also keep the AI generated image for reference -->
+      <div class="img-box" style="margin-top:0;">
+        <img src="weak_entity_set_diagram.jpg" alt="Weak Entity Set ER Diagram &amp; Relational Mapping">
+        <div class="img-caption">Figure 2: ER Symbols — Double Rectangle, Double Diamond, Double Line, Dotted Underline — and 2-Table RDBMS Conversion</div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: CORE CONCEPTS & NOTATIONS -->
+    <section class="note-section">
+      <h2>🧩 2. Core Components &amp; ER Diagram Notations</h2>
+
+      <ul class="list-styled">
+
+        <!-- 1. Weak Entity Set -->
+        <li><strong>1. Weak Entity Set:</strong> An entity set that has NO primary key of its own.
+          <br><strong>ER Symbol:</strong>
+          <span class="er-shape">
+            <svg width="160" height="46" viewBox="0 0 160 46">
+              <!-- outer rect -->
+              <rect x="2" y="2" width="156" height="42" rx="3" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+              <!-- inner rect (double border effect) -->
+              <rect x="7" y="7" width="146" height="32" rx="2" fill="none" stroke="#2563eb" stroke-width="2"/>
+              <text x="80" y="23" fill="#1e3a8a">DEPENDENT</text>
+            </svg>
+          </span>
+          <em>(Double Rectangle)</em>
+        </li>
+
+        <!-- 2. Strong Owner Entity -->
+        <li><strong>2. Strong Owner Entity Set:</strong> The primary key-holding entity upon which the weak entity depends.
+          <br><strong>ER Symbol:</strong>
+          <span class="er-shape">
+            <svg width="150" height="46" viewBox="0 0 150 46">
+              <rect x="2" y="2" width="146" height="42" rx="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+              <text x="75" y="23" fill="#1e3a8a">EMPLOYEE</text>
+            </svg>
+          </span>
+          <em>(Single Rectangle)</em>
+        </li>
+
+        <!-- 3. Identifying Relationship -->
+        <li><strong>3. Identifying Relationship:</strong> Connects a weak entity set to its strong owner entity.
+          <br><strong>ER Symbol:</strong>
+          <span class="er-shape">
+            <svg width="190" height="70" viewBox="0 0 190 70">
+              <!-- outer diamond -->
+              <polygon points="95,3 187,35 95,67 3,35" fill="#e0e7ff" stroke="#2563eb" stroke-width="2"/>
+              <!-- inner diamond (double border) -->
+              <polygon points="95,11 179,35 95,59 11,35" fill="none" stroke="#2563eb" stroke-width="2"/>
+              <text x="95" y="35" fill="#1e1b4b" font-size="12">HAS_DEPENDENT</text>
+            </svg>
+          </span>
+          <em>(Double Diamond)</em>
+        </li>
+
+        <!-- 4. Total Participation -->
+        <li><strong>4. Total Participation (Existence Dependency):</strong> Weak entity MUST ALWAYS participate totally — it cannot exist without its owner.
+          <br><strong>ER Symbol:</strong>
+          <span class="er-shape">
+            <svg width="180" height="30" viewBox="0 0 180 30">
+              <!-- double parallel lines -->
+              <line x1="0" y1="10" x2="180" y2="10" stroke="#2563eb" stroke-width="2.5"/>
+              <line x1="0" y1="20" x2="180" y2="20" stroke="#2563eb" stroke-width="2.5"/>
+              <!-- label -->
+              <text x="90" y="15" fill="#1d4ed8" font-size="10" font-weight="700">══ Double Line (Total) ══</text>
+            </svg>
+          </span>
+          <em>(Double Line connecting Weak Entity to Identifying Relationship)</em>
+        </li>
+
+        <!-- 5. Partial Key / Discriminator -->
+        <li><strong>5. Discriminator / Partial Key:</strong> Attribute that distinguishes weak entities within the same owner. (e.g. <span class="er-partial-key-text">Dep_Name</span>)
+          <br><strong>ER Symbol:</strong>
+          <span class="er-shape">
+            <svg width="130" height="44" viewBox="0 0 130 44">
+              <!-- oval with dashed border -->
+              <ellipse cx="65" cy="22" rx="62" ry="19" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-dasharray="5,3"/>
+              <!-- dashed underline for partial key text -->
+              <text x="65" y="24" fill="#b45309" text-decoration="underline" font-size="12" style="text-decoration-style:dashed">Dep_Name</text>
+            </svg>
+          </span>
+          <em>(Dashed Underline inside Dashed Ellipse)</em>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- SECTION 3: RELATIONAL TABLE MAPPING RULES -->
+    <section class="note-section">
+      <h2>⚡ 3. Relational Table Mapping Rules (Exam Favorite ⭐)</h2>
+      <p>When converting a Weak Entity Set structure (Strong Entity + Identifying Relationship + Weak Entity) into RDBMS Relational Tables, follow these strict rules:</p>
+
+      <h3>Rule 1: Number of Relational Tables Created</h3>
+      <div class="callout">
+        <div class="callout-title">🔑 Table Reduction Formula (2 Tables Only!)</div>
+        <strong>A Weak Entity Set and its Identifying Relationship are ALWAYS merged together into a single table!</strong>
+        <br><br>
+        Therefore, a Weak Entity structure requires <strong>EXACTLY 2 TABLES</strong>:
+        <ol style="margin-left: 20px; margin-top: 6px;">
+          <li><strong>Table 1 (Strong Entity Table):</strong> <code>EMPLOYEE</code> (<code>Emp_ID</code> [PK], <code>E_Name</code>, <code>E_Salary</code>).</li>
+          <li><strong>Table 2 (Merged Weak Entity Table):</strong> <code>DEPENDENT</code> (<code>Emp_ID</code> [FK], <code>Dep_Name</code> [Partial Key], <code>Dep_Age</code>).</li>
+        </ol>
+      </div>
+
+      <h3>Rule 2: Primary Key of the Weak Entity Table</h3>
+      <p>Because `Dep_Name` can repeat across different employees (two employees can both have a child named "Rahul"), `Dep_Name` alone cannot be a Primary Key.</p>
+      <ul class="list-styled">
+        <li>The Primary Key of the Weak Entity Table is a <strong>Composite Primary Key</strong> formed by combining:
+          <br><strong><code>Primary Key of Owner Entity (Emp_ID)</code> + <code>Partial Key of Weak Entity (Dep_Name)</code></strong>
+        </li>
+        <li><strong>Composite Primary Key:</strong> <code>(Emp_ID, Dep_Name)</code>.</li>
+      </ul>
+
+      <!-- EXAMPLE DATA TABLES -->
+      <h3>📊 Example Data Tables (From the Lecture)</h3>
+      <p>Below is the actual data from the Gate Smashers lecture, shown in the 2 relational tables formed after conversion:</p>
+
+      <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:16px;">
+
+        <!-- TABLE 1: EMPLOYEE -->
+        <div style="flex:1; min-width:260px;">
+          <div style="background:#0f172a; color:#fff; padding:10px 16px; border-radius:12px 12px 0 0; font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px;">
+            💪 Table 1: EMPLOYEE
+            <span style="margin-left:auto; background:#22c55e; color:#fff; font-size:11px; padding:2px 8px; border-radius:999px;">Strong Entity</span>
+          </div>
+          <div style="overflow-x:auto; border:2px solid #0f172a; border-top:none; border-radius:0 0 12px 12px;">
+            <table style="width:100%; border-collapse:collapse; font-size:14px;">
+              <thead>
+                <tr style="background:#1e293b; color:#94a3b8;">
+                  <th style="padding:10px 14px; text-align:left; white-space:nowrap;">
+                    <span style="border-bottom:2px solid #94a3b8; padding-bottom:2px;">Emp_ID</span>
+                    <span style="font-size:10px; margin-left:4px; color:#22c55e; font-weight:700;">[PK]</span>
+                  </th>
+                  <th style="padding:10px 14px; text-align:left;">Emp_Name</th>
+                  <th style="padding:10px 14px; text-align:left;">Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #e2e8f0;">
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E1</td>
+                  <td style="padding:10px 14px;">Varun</td>
+                  <td style="padding:10px 14px;">Chandigarh</td>
+                </tr>
+                <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E2</td>
+                  <td style="padding:10px 14px;">Ravi</td>
+                  <td style="padding:10px 14px;">Delhi</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E3</td>
+                  <td style="padding:10px 14px;">Amrit</td>
+                  <td style="padding:10px 14px;">Bombay</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TABLE 2: HAS_DEPENDENT (merged) -->
+        <div style="flex:1; min-width:300px;">
+          <div style="background:#1e3a8a; color:#fff; padding:10px 16px; border-radius:12px 12px 0 0; font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px;">
+            ⚠️ Table 2: HAS_DEPENDENT
+            <span style="margin-left:auto; background:#f59e0b; color:#fff; font-size:11px; padding:2px 8px; border-radius:999px;">Weak Entity (Merged)</span>
+          </div>
+          <div style="overflow-x:auto; border:2px solid #1e3a8a; border-top:none; border-radius:0 0 12px 12px;">
+            <table style="width:100%; border-collapse:collapse; font-size:14px;">
+              <thead>
+                <tr style="background:#1e40af; color:#bfdbfe;">
+                  <th style="padding:10px 14px; text-align:left; white-space:nowrap;">
+                    Emp_ID
+                    <span style="font-size:10px; margin-left:4px; color:#86efac; font-weight:700;">[FK] [PK1]</span>
+                  </th>
+                  <th style="padding:10px 14px; text-align:left; white-space:nowrap;">
+                    <span style="border-bottom:2px dashed #fbbf24; padding-bottom:2px; color:#fde68a;">Dep_Name</span>
+                    <span style="font-size:10px; margin-left:4px; color:#fde68a; font-weight:700;">[Partial][PK2]</span>
+                  </th>
+                  <th style="padding:10px 14px; text-align:left;">Dep_Age</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #dbeafe;">
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E1</td>
+                  <td style="padding:10px 14px; font-weight:600; color:#b45309; font-family:monospace;">A</td>
+                  <td style="padding:10px 14px;">16</td>
+                </tr>
+                <tr style="background:#eff6ff; border-bottom:1px solid #dbeafe;">
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E1</td>
+                  <td style="padding:10px 14px; font-weight:600; color:#b45309; font-family:monospace;">B</td>
+                  <td style="padding:10px 14px;">17</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 14px; font-weight:700; color:#2563eb; font-family:monospace;">E2</td>
+                  <td style="padding:10px 14px; font-weight:600; color:#b45309; font-family:monospace;">A</td>
+                  <td style="padding:10px 14px;">16</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Why E3 is missing note -->
+          <div style="margin-top:8px; background:#fef9c3; border:1px solid #fde047; border-radius:8px; padding:10px 14px; font-size:13px; color:#713f12;">
+            <strong>⚠️ Note:</strong> Employee <code>E3</code> has <strong>no dependent</strong> → so E3 does NOT appear here. This proves Employee has <strong>partial participation</strong> (some employees have no dependents).
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPOSITE PK EXPLANATION -->
+      <div style="margin-top:20px; background:#f0fdf4; border:1.5px solid #86efac; border-radius:12px; padding:16px 20px;">
+        <div style="font-weight:800; color:#15803d; margin-bottom:8px; font-size:15px;">🔑 Why is the Composite PK <code>(Emp_ID, Dep_Name)</code>?</div>
+        <table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:8px;">
+          <thead>
+            <tr style="background:#dcfce7; color:#166534;">
+              <th style="padding:8px 12px; text-align:left;">Emp_ID alone as PK?</th>
+              <th style="padding:8px 12px; text-align:left;">Dep_Name alone as PK?</th>
+              <th style="padding:8px 12px; text-align:left;">Composite (Emp_ID, Dep_Name)?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px 12px; color:#dc2626;">❌ E1 repeats twice (E1→A and E1→B) → Not unique!</td>
+              <td style="padding:8px 12px; color:#dc2626;">❌ "A" repeats for E1 and E2 → Not unique!</td>
+              <td style="padding:8px 12px; color:#16a34a; font-weight:700;">✅ (E1,A), (E1,B), (E2,A) → All unique! ✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- COMPARISON TABLE -->
+    <section class="note-section">
+      <h2>⚖️ Comparison Table: Strong Entity vs Weak Entity Set</h2>
+
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Feature / Parameter</th>
+              <th>💪 Strong Entity Set</th>
+              <th>⚠️ Weak Entity Set</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Primary Key</strong></td>
+              <td>Has its own unique Primary Key</td>
+              <td><strong>Does NOT have a Primary Key</strong></td>
+            </tr>
+            <tr>
+              <td><strong>ER Shape Symbol</strong></td>
+              <td>
+                <span class="er-shape">
+                  <svg width="110" height="38" viewBox="0 0 110 38">
+                    <rect x="2" y="2" width="106" height="34" rx="3" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                    <text x="55" y="19" fill="#1e3a8a" font-size="11">EMPLOYEE</text>
+                  </svg>
+                </span>
+                <em style="font-size:12px">Single Rectangle</em>
+              </td>
+              <td>
+                <span class="er-shape">
+                  <svg width="120" height="42" viewBox="0 0 120 42">
+                    <rect x="2" y="2" width="116" height="38" rx="3" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+                    <rect x="6" y="6" width="108" height="30" rx="2" fill="none" stroke="#2563eb" stroke-width="2"/>
+                    <text x="60" y="21" fill="#1e3a8a" font-size="11">DEPENDENT</text>
+                  </svg>
+                </span>
+                <em style="font-size:12px">Double Rectangle</em>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Relationship Symbol</strong></td>
+              <td>
+                <span class="er-shape">
+                  <svg width="130" height="52" viewBox="0 0 130 52">
+                    <polygon points="65,3 127,26 65,49 3,26" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+                    <text x="65" y="26" fill="#065f46" font-size="10">Manages</text>
+                  </svg>
+                </span>
+                <em style="font-size:12px">Single Diamond</em>
+              </td>
+              <td>
+                <span class="er-shape">
+                  <svg width="150" height="58" viewBox="0 0 150 58">
+                    <polygon points="75,3 147,29 75,55 3,29" fill="#e0e7ff" stroke="#2563eb" stroke-width="2"/>
+                    <polygon points="75,10 137,29 75,48 13,29" fill="none" stroke="#2563eb" stroke-width="2"/>
+                    <text x="75" y="29" fill="#1e1b4b" font-size="10">HAS_DEP</text>
+                  </svg>
+                </span>
+                <em style="font-size:12px">Double Diamond</em>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Key Attribute Notation</strong></td>
+              <td><span class="er-pk-text">Emp_ID</span> (Solid Underline)</td>
+              <td><span class="er-partial-key-text">Dep_Name</span> (Dashed Underline)</td>
+            </tr>
+            <tr>
+              <td><strong>Participation Requirement</strong></td>
+              <td>Can be Total or Partial</td>
+              <td><strong>MUST ALWAYS be Total Participation</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Existence Independence</strong></td>
+              <td>Can exist independently</td>
+              <td><strong>Depends on Owner Entity (Existence Dependency)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EXAM REVISION & PYQs -->
+    <section class="pyq-box">
+      <h4>🎯 GATE, UGC-NET &amp; IBPS SO IT Officer — Exam Focus PYQs</h4>
+      <p><strong>Q1: How is a Weak Entity Set represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Double Rectangle <code>[[ Weak Entity ]]</code>.</em></p>
+      
+      <p><strong>Q2: How is an Identifying Relationship represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Double Diamond <code>&lt;&lt; Identifying Relationship &gt;&gt;</code>.</em></p>
+
+      <p><strong>Q3: How is a Discriminator / Partial Key represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Dotted / Dashed Underline inside an Ellipse.</em></p>
+
+      <p><strong>Q4: What is the Primary Key of a Weak Entity table in an RDBMS?</strong><br>
+      👉 <em>Answer: Composite Primary Key = (Primary Key of Owner Entity + Partial Key of Weak Entity).</em></p>
+
+      <p><strong>Q5: What is the MINIMUM number of tables required to convert a Strong Entity, Weak Entity, and Identifying Relationship into RDBMS?</strong><br>
+      👉 <em>Answer: 2 Tables (The Identifying Relationship table is always merged into the Weak Entity table).</em></p>
+    </section>
+
+  </main>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

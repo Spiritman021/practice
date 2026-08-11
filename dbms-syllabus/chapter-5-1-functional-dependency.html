@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chapter 5.1: Functional Dependency (FD) — DBMS Notes on Trivial/Non-trivial FD, Armstrong's Axioms, Attribute Closure, Canonical/Minimal Cover, and FD Set Equivalence.">
+  <title>Chapter 5.1: Functional Dependency | DBMS Complete Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc; --text-main: #0f172a; --text-muted: #475569;
+      --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+      --border: #e2e8f0; --card-bg: #ffffff;
+      --green: #059669; --green-light: #ecfdf5;
+      --amber: #d97706; --amber-light: #fffbeb;
+      --red: #dc2626; --red-light: #fef2f2;
+      --purple: #7c3aed; --purple-light: #f5f3ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background: var(--bg); color: var(--text-main);
+      min-height: 100vh; line-height: 1.7;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(37,99,235,0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99,102,241,0.04), transparent 40%),
+        linear-gradient(rgba(241,245,249,0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241,245,249,0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+    header { position:sticky; top:0; background:rgba(255,255,255,0.88); backdrop-filter:blur(12px); border-bottom:1px solid rgba(226,232,240,0.8); z-index:50; }
+    .wrap { max-width:1000px; margin:0 auto; padding:16px 24px; }
+    .brand { text-decoration:none; color:var(--primary); font-weight:800; font-size:1.25rem; letter-spacing:-0.5px; display:flex; align-items:center; gap:10px; }
+    .ph-breadcrumb { background:rgba(248,250,252,0.8); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:10px 24px; display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; flex-wrap:wrap; max-width:1000px; margin:0 auto; }
+    .ph-breadcrumb a { color:var(--text-muted); text-decoration:none; }
+    .ph-breadcrumb a:hover { color:var(--primary); }
+    .ph-breadcrumb .sep { color:#cbd5e1; font-size:11px; }
+    .ph-breadcrumb .current { color:var(--text-main); font-weight:600; }
+    .ph-breadcrumb .back-btn { margin-left:auto; background:#fff; border:1px solid var(--border); border-radius:8px; padding:5px 14px; color:var(--text-muted); font-weight:600; font-size:12.5px; text-decoration:none; transition:all 0.2s; }
+    .ph-breadcrumb .back-btn:hover { color:var(--text-main); transform:translateX(-2px); }
+    main.wrap { padding:28px 24px 80px; }
+
+    /* Hero */
+    .note-hero { background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#4c1d95 100%); color:#fff; border-radius:20px; padding:32px; margin-bottom:28px; box-shadow:0 10px 25px -5px rgba(15,23,42,0.25); }
+    .note-badge { display:inline-block; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; margin-bottom:12px; letter-spacing:0.5px; text-transform:uppercase; }
+    .note-hero h1 { font-size:clamp(1.75rem,3.5vw,2.5rem); font-weight:800; margin-bottom:10px; }
+    .note-hero p { color:#cbd5e1; font-size:1.05rem; }
+
+    /* Section cards */
+    .note-section { background:#fff; border:1px solid var(--border); border-radius:18px; padding:28px; margin-bottom:28px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.02); }
+    .note-section h2 { font-size:1.35rem; font-weight:800; color:var(--text-main); margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid var(--primary-light); display:flex; align-items:center; gap:10px; }
+    .note-section h3 { font-size:1.08rem; font-weight:700; color:var(--primary); margin:22px 0 10px; }
+    .note-section h4 { font-size:1rem; font-weight:700; color:var(--text-main); margin:16px 0 8px; }
+    .note-section p { color:#334155; margin-bottom:14px; font-size:1rem; }
+
+    /* Callouts */
+    .callout { border-left:4px solid var(--primary); background:var(--primary-light); padding:16px 20px; border-radius:0 12px 12px 0; margin:18px 0; font-size:0.975rem; color:#334155; }
+    .callout .callout-title { font-weight:800; color:var(--primary-hover); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .callout.green { border-left-color:var(--green); background:var(--green-light); }
+    .callout.green .callout-title { color:#065f46; }
+    .callout.amber { border-left-color:var(--amber); background:var(--amber-light); }
+    .callout.amber .callout-title { color:#92400e; }
+    .callout.red { border-left-color:var(--red); background:var(--red-light); }
+    .callout.red .callout-title { color:#991b1b; }
+    .callout.purple { border-left-color:var(--purple); background:var(--purple-light); }
+    .callout.purple .callout-title { color:#5b21b6; }
+
+    /* Lists */
+    .list-styled { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .list-styled li { position:relative; padding-left:24px; font-size:0.975rem; color:#334155; }
+    .list-styled li::before { content:"➔"; position:absolute; left:0; color:var(--primary); font-size:13px; font-weight:bold; }
+
+    /* Math display */
+    .math-block { background:#0f172a; color:#e2e8f0; border-radius:12px; padding:16px 20px; margin:16px 0; font-family:'JetBrains Mono', monospace; font-size:0.95rem; line-height:1.8; overflow-x:auto; }
+    .math-block .comment { color:#64748b; font-style:italic; }
+    .math-block .arrow { color:#60a5fa; }
+    .math-block .highlight { color:#fbbf24; font-weight:700; }
+    .math-block .green { color:#34d399; }
+    .math-block .red { color:#f87171; }
+
+    /* SVG Diagram wrapper */
+    .svg-wrap { background:#f8fafc; border:1px solid #cbd5e1; border-radius:16px; padding:20px; overflow-x:auto; margin:20px 0; text-align:center; }
+    .svg-wrap svg { font-family:'Outfit','Inter',sans-serif; max-width:100%; }
+    .svg-caption { font-size:13px; font-weight:700; color:var(--text-muted); margin-top:10px; }
+
+    /* Step boxes */
+    .step-box { background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:18px 22px; margin:16px 0; }
+    .step-num { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--primary); color:#fff; border-radius:50%; font-size:14px; font-weight:800; margin-right:10px; flex-shrink:0; }
+    .step-row { display:flex; align-items:flex-start; gap:0; margin-bottom:14px; }
+    .step-row:last-child { margin-bottom:0; }
+    .step-content { flex:1; color:#334155; font-size:0.975rem; padding-top:4px; }
+
+    /* Tables */
+    .tbl-wrap { overflow-x:auto; margin:18px 0; border-radius:12px; border:1px solid var(--border); }
+    table.tbl { width:100%; border-collapse:collapse; font-size:14px; }
+    table.tbl th { background:#0f172a; color:#fff; padding:12px 16px; font-weight:700; }
+    table.tbl td { padding:11px 16px; border-bottom:1px solid var(--border); }
+    table.tbl tr:nth-child(even) { background:#f8fafc; }
+    table.tbl tr:hover { background:var(--primary-light); }
+    .cell-yes { color:#059669; font-weight:700; }
+    .cell-no { color:#dc2626; font-weight:700; }
+
+    /* Comparison table */
+    .comp-table-wrap { overflow-x:auto; margin:20px 0; border-radius:14px; border:1px solid var(--border); }
+    table.comp-table { width:100%; border-collapse:collapse; font-size:14px; text-align:left; }
+    table.comp-table th { background:#0f172a; color:#fff; padding:14px 18px; font-weight:700; }
+    table.comp-table td { padding:12px 18px; border-bottom:1px solid var(--border); }
+    table.comp-table tr:nth-child(even) { background:#f8fafc; }
+    table.comp-table tr:hover { background:var(--primary-light); }
+
+    /* Algorithm box */
+    .algo-box { background:#0f172a; border-radius:14px; padding:20px; margin:18px 0; }
+    .algo-box h4 { color:#60a5fa; font-size:14px; font-weight:700; margin-bottom:14px; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+    .algo-step { color:#e2e8f0; font-family:'JetBrains Mono', monospace; font-size:13px; line-height:1.9; }
+    .algo-step .kw { color:#c084fc; font-weight:700; }
+    .algo-step .var { color:#60a5fa; }
+    .algo-step .comment { color:#64748b; font-style:italic; }
+    .algo-step .result { color:#34d399; font-weight:700; }
+
+    /* Badge pills */
+    .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+    .pill-blue { background:#dbeafe; color:#1e40af; }
+    .pill-green { background:#dcfce7; color:#166534; }
+    .pill-amber { background:#fef3c7; color:#92400e; }
+    .pill-red { background:#fee2e2; color:#991b1b; }
+    .pill-purple { background:#ede9fe; color:#5b21b6; }
+
+    /* PYQ */
+    .pyq-box { background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%); border:1.5px solid #fde68a; border-radius:16px; padding:22px; margin-top:28px; }
+    .pyq-box h4 { font-size:1.05rem; font-weight:800; color:#92400e; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .pyq-box .q { font-size:14.5px; color:#451a03; line-height:1.6; margin-bottom:10px; }
+    .pyq-box .ans { background:#fff; border-radius:8px; padding:10px 14px; font-size:13.5px; color:#0f172a; margin-bottom:14px; border:1px solid #fde68a; }
+
+    /* Key formula banner */
+    .formula-banner { background:linear-gradient(135deg,#1e40af,#3730a3); color:#fff; border-radius:14px; padding:18px 22px; margin:18px 0; }
+    .formula-banner .f-title { font-size:13px; font-weight:700; opacity:0.7; margin-bottom:6px; }
+    .formula-banner .f-body { font-family:'JetBrains Mono', monospace; font-size:1.05rem; font-weight:700; line-height:1.8; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+  </div>
+</header>
+
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a>
+  <span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a>
+  <span class="sep">›</span>
+  <span class="current">Chapter 5.1: Functional Dependency</span>
+  <a class="back-btn" href="index.html">← Back to Syllabus</a>
+</nav>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="note-hero">
+    <span class="note-badge">Unit 5 · Chapter 5.1 · 🔥🔥 Top Priority</span>
+    <h1>Functional Dependency (FD)</h1>
+    <p>The foundation of <strong>Database Normalization</strong>. Master FD concepts, Armstrong's Axioms, Attribute Closure, Canonical Cover, and FD Set Equivalence — all with step-by-step examples.</p>
+  </section>
+
+  <!-- ============================================================
+       WHAT IS FUNCTIONAL DEPENDENCY?
+  ============================================================ -->
+  <section class="note-section">
+    <h2>💡 What is Functional Dependency?</h2>
+
+    <p>A <strong>Functional Dependency (FD)</strong> is a constraint between two sets of attributes in a relation. It describes how one attribute (or set of attributes) <strong>uniquely determines</strong> another attribute.</p>
+
+    <div class="formula-banner">
+      <div class="f-title">FORMAL DEFINITION</div>
+      <div class="f-body">
+        X → Y (read: "X determines Y" or "Y is functionally dependent on X")<br>
+        Meaning: For any two tuples t1 and t2 in relation R,<br>
+        if t1[X] = t2[X]  then  t1[Y] = t2[Y]
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">🏫 Real-Life Analogy</div>
+      Think of a <strong>Student Table</strong> with columns: Roll_No, Name, Age, Dept, Phone.<br><br>
+      <strong>Roll_No → Name</strong>: If two students have the same Roll_No, they MUST have the same Name. (Roll No uniquely identifies a student's name.)<br>
+      <strong>Dept → HOD</strong>: Each department has exactly one HOD, so knowing the Dept tells you the HOD.<br><br>
+      But <strong>Name → Roll_No</strong> is NOT necessarily true (two students can share the same name).
+    </div>
+
+    <!-- Example Table -->
+    <h3>📋 Example Table: STUDENT</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>Roll_No</th><th>Name</th><th>Dept</th><th>City</th><th>HOD</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>101</strong></td><td>Varun</td><td>CS</td><td>Delhi</td><td>Dr. Sharma</td></tr>
+          <tr><td><strong>102</strong></td><td>Ravi</td><td>CS</td><td>Mumbai</td><td>Dr. Sharma</td></tr>
+          <tr><td><strong>103</strong></td><td>Amit</td><td>EC</td><td>Delhi</td><td>Dr. Gupta</td></tr>
+          <tr><td><strong>104</strong></td><td>Priya</td><td>CS</td><td>Pune</td><td>Dr. Sharma</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-title">✅ FDs that HOLD in this table:</div>
+      <ul style="margin-left:16px; line-height:2;">
+        <li><strong>Roll_No → Name, Dept, City, HOD</strong> (Roll_No is a key — determines everything)</li>
+        <li><strong>Dept → HOD</strong> (CS always → Dr. Sharma, EC always → Dr. Gupta)</li>
+        <li><strong>{Roll_No, Dept} → HOD</strong> (also holds, since Roll_No alone already determines HOD)</li>
+      </ul>
+    </div>
+
+    <div class="callout red">
+      <div class="callout-title">❌ FDs that do NOT hold:</div>
+      <ul style="margin-left:16px; line-height:2;">
+        <li><strong>City → Name</strong> ❌ (Both 101 and 103 are from Delhi, but different names)</li>
+        <li><strong>Name → Dept</strong> ❌ (Two people with same name could be in different depts)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5.1.1 TRIVIAL vs NON-TRIVIAL FD
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🔀 5.1.1 — Trivial vs Non-Trivial FD</h2>
+
+    <p>This classification is based on whether the right-hand side (Y) is a <strong>subset of</strong> the left-hand side (X).</p>
+
+    <div class="formula-banner">
+      <div class="f-title">THE 3-WAY CLASSIFICATION</div>
+      <div class="f-body">
+        Trivial FD:           X → Y  when  Y ⊆ X<br>
+        Non-Trivial FD:       X → Y  when  Y ⊄ X<br>
+        Completely Non-Trivial: X → Y  when  X ∩ Y = ∅
+      </div>
+    </div>
+
+    <!-- Venn diagram SVG -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 200" width="700" height="200">
+        <!-- Case 1: Trivial (Y ⊆ X) -->
+        <rect x="10" y="10" width="200" height="170" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="110" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a">TRIVIAL FD</text>
+        <!-- X outer circle -->
+        <ellipse cx="110" cy="110" rx="80" ry="55" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="110" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb">X = {A, B, C}</text>
+        <!-- Y inner circle -->
+        <ellipse cx="110" cy="118" rx="44" ry="28" fill="#bfdbfe" stroke="#1e40af" stroke-width="2"/>
+        <text x="110" y="121" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a8a">Y = {A, B}</text>
+        <text x="110" y="175" text-anchor="middle" font-size="11" fill="#475569">Y ⊆ X → {A,B,C}→{A,B}</text>
+
+        <!-- Divider -->
+        <line x1="225" y1="20" x2="225" y2="180" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- Case 2: Non-Trivial (Y ⊄ X, partial overlap) -->
+        <rect x="235" y="10" width="220" height="170" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+        <text x="345" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#065f46">NON-TRIVIAL FD</text>
+        <!-- X circle -->
+        <ellipse cx="310" cy="110" rx="60" ry="50" fill="rgba(5,150,105,0.12)" stroke="#059669" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="302" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">X = {A,B}</text>
+        <!-- Y circle with overlap -->
+        <ellipse cx="380" cy="110" rx="60" ry="50" fill="rgba(5,150,105,0.12)" stroke="#059669" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="388" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Y = {B,C}</text>
+        <text x="345" y="117" text-anchor="middle" font-size="10" fill="#065f46">B</text>
+        <text x="345" y="175" text-anchor="middle" font-size="11" fill="#475569">Y ⊄ X → {A,B}→{B,C}</text>
+
+        <!-- Divider -->
+        <line x1="468" y1="20" x2="468" y2="180" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- Case 3: Completely Non-Trivial (X ∩ Y = ∅) -->
+        <rect x="478" y="10" width="210" height="170" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+        <text x="583" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#92400e">COMPLETELY</text>
+        <text x="583" y="47" text-anchor="middle" font-size="13" font-weight="800" fill="#92400e">NON-TRIVIAL</text>
+        <!-- X circle (no overlap) -->
+        <ellipse cx="530" cy="110" rx="44" ry="40" fill="rgba(217,119,6,0.12)" stroke="#d97706" stroke-width="2"/>
+        <text x="530" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">X={A}</text>
+        <!-- Y circle (no overlap) -->
+        <ellipse cx="636" cy="110" rx="44" ry="40" fill="rgba(217,119,6,0.12)" stroke="#d97706" stroke-width="2"/>
+        <text x="636" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">Y={B}</text>
+        <text x="583" y="175" text-anchor="middle" font-size="11" fill="#475569">X ∩ Y = ∅ → A → B</text>
+      </svg>
+      <div class="svg-caption">Figure 1: Three types of FDs — Trivial (Y⊆X), Non-Trivial (Y⊄X), Completely Non-Trivial (X∩Y=∅)</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Type</th><th>Condition</th><th>Example</th><th>Always True?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="pill pill-blue">Trivial FD</span></td>
+            <td>Y ⊆ X</td>
+            <td><code>{Roll_No, Name} → Roll_No</code></td>
+            <td><span class="cell-yes">✅ Always holds</span></td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-green">Non-Trivial FD</span></td>
+            <td>Y ⊄ X (Y has at least one attr not in X)</td>
+            <td><code>{Roll_No, Name} → Dept</code></td>
+            <td><span class="cell-no">❌ May or may not hold</span></td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-amber">Completely Non-Trivial</span></td>
+            <td>X ∩ Y = ∅ (no common attributes)</td>
+            <td><code>Roll_No → Name</code></td>
+            <td><span class="cell-no">❌ May or may not hold</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout amber">
+      <div class="callout-title">💡 Key Insight for Exams</div>
+      Every <strong>Trivial FD is always valid</strong> (it can never be violated). That's why it's "trivial" — it gives no useful information. In normalization, we care about <strong>non-trivial FDs</strong> because those are the ones that can create anomalies!
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5.1.2 ARMSTRONG'S AXIOMS
+  ============================================================ -->
+  <section class="note-section">
+    <h2>⚖️ 5.1.2 — Armstrong's Axioms</h2>
+
+    <p><strong>Armstrong's Axioms</strong> are a set of <strong>sound and complete</strong> inference rules used to derive all possible FDs from a given set of FDs. They are the foundation for computing closures and canonical covers.</p>
+
+    <div class="callout purple">
+      <div class="callout-title">📌 Sound and Complete — What does it mean?</div>
+      <strong>Sound:</strong> Any FD derived using these axioms is guaranteed to be correct (no wrong FDs generated).<br>
+      <strong>Complete:</strong> All valid FDs can be derived using these axioms (nothing is missed).
+    </div>
+
+    <!-- Axiom 1: Reflexivity -->
+    <h3>Axiom 1: Reflexivity (Trivial Rule)</h3>
+    <div class="formula-banner">
+      <div class="f-title">REFLEXIVITY AXIOM</div>
+      <div class="f-body">If Y ⊆ X, then X → Y</div>
+    </div>
+    <div class="callout green">
+      <div class="callout-title">📖 Example</div>
+      Given: <code>X = {Roll_No, Name, Dept}</code> and <code>Y = {Roll_No, Name}</code><br>
+      Since Y ⊆ X, we can conclude: <code>{Roll_No, Name, Dept} → {Roll_No, Name}</code> ✅<br><br>
+      This always produces <strong>trivial FDs</strong> — a superset always determines any of its subsets.
+    </div>
+
+    <!-- Axiom 2: Augmentation -->
+    <h3>Axiom 2: Augmentation (Growth Rule)</h3>
+    <div class="formula-banner">
+      <div class="f-title">AUGMENTATION AXIOM</div>
+      <div class="f-body">If X → Y, then XZ → YZ  (for any attribute set Z)</div>
+    </div>
+    <div class="callout green">
+      <div class="callout-title">📖 Example</div>
+      Given: <code>Roll_No → Dept</code> (a student's roll number determines their department)<br>
+      Then: <code>{Roll_No, City} → {Dept, City}</code> ✅<br><br>
+      <strong>Intuition:</strong> If X already determines Y, adding Z to both sides doesn't break anything. X+Z still determines Y+Z, because Z determines itself (reflexivity).
+    </div>
+
+    <!-- Axiom 3: Transitivity -->
+    <h3>Axiom 3: Transitivity (Chaining Rule)</h3>
+    <div class="formula-banner">
+      <div class="f-title">TRANSITIVITY AXIOM</div>
+      <div class="f-body">If X → Y and Y → Z, then X → Z</div>
+    </div>
+    <div class="callout green">
+      <div class="callout-title">📖 Example</div>
+      Given: <code>Roll_No → Dept</code> and <code>Dept → HOD</code><br>
+      Then: <code>Roll_No → HOD</code> ✅<br><br>
+      <strong>Intuition:</strong> If Roll No gives you the Dept, and Dept gives you the HOD, then Roll No can give you the HOD directly. Like a relay chain — A passes to B, B passes to C, so A can pass to C!
+    </div>
+
+    <!-- SVG: Armstrong's Axioms visual summary -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 230" width="700" height="230">
+
+        <!-- ===== REFLEXIVITY ===== -->
+        <rect x="10" y="10" width="200" height="205" rx="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+        <text x="110" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#5b21b6">REFLEXIVITY</text>
+        <text x="110" y="48" text-anchor="middle" font-size="11" fill="#7c3aed">Y ⊆ X → X → Y</text>
+        <!-- X outer box -->
+        <rect x="40" y="60" width="130" height="70" rx="8" fill="rgba(124,58,237,0.08)" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="105" y="78" text-anchor="middle" font-size="11" fill="#5b21b6">X = {A, B, C}</text>
+        <!-- Y inner box -->
+        <rect x="56" y="88" width="100" height="32" rx="5" fill="#ede9fe" stroke="#5b21b6" stroke-width="1.5"/>
+        <text x="106" y="108" text-anchor="middle" font-size="11" font-weight="700" fill="#5b21b6">Y = {A, B}</text>
+        <!-- arrow -->
+        <text x="110" y="152" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">{A,B,C} → {A,B} ✅</text>
+        <text x="110" y="170" text-anchor="middle" font-size="11" fill="#475569">Always trivially true</text>
+        <!-- Example -->
+        <rect x="30" y="182" width="160" height="26" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+        <text x="110" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#5b21b6">{RNo,Name,Dept}→{RNo}</text>
+
+        <!-- ===== AUGMENTATION ===== -->
+        <rect x="250" y="10" width="200" height="205" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="350" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a">AUGMENTATION</text>
+        <text x="350" y="48" text-anchor="middle" font-size="11" fill="#2563eb">X→Y, then XZ→YZ</text>
+        <!-- given -->
+        <rect x="270" y="60" width="160" height="34" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="350" y="75" text-anchor="middle" font-size="11" fill="#1e40af">Given: A → B</text>
+        <text x="350" y="90" text-anchor="middle" font-size="11" fill="#1e40af">(e.g. RollNo → Dept)</text>
+        <!-- arrow down -->
+        <line x1="350" y1="94" x2="350" y2="120" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- result -->
+        <text x="350" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">+ Z to both sides:</text>
+        <rect x="270" y="143" width="160" height="34" rx="8" fill="#bfdbfe" stroke="#1e40af" stroke-width="1.5"/>
+        <text x="350" y="157" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">AC → BC</text>
+        <text x="350" y="172" text-anchor="middle" font-size="11" fill="#1e40af">{RollNo,City}→{Dept,City}</text>
+        <!-- Example -->
+        <rect x="270" y="182" width="160" height="26" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+        <text x="350" y="198" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">Add Z = City on both sides</text>
+
+        <!-- ===== TRANSITIVITY ===== -->
+        <rect x="490" y="10" width="200" height="205" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="590" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="#065f46">TRANSITIVITY</text>
+        <text x="590" y="48" text-anchor="middle" font-size="11" fill="#059669">X→Y, Y→Z → X→Z</text>
+        <!-- Chain visual -->
+        <rect x="520" y="60" width="140" height="30" rx="6" fill="#dcfce7" stroke="#059669" stroke-width="1.5"/>
+        <text x="590" y="79" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">A → B</text>
+        <line x1="590" y1="90" x2="590" y2="108" stroke="#059669" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <rect x="520" y="108" width="140" height="30" rx="6" fill="#dcfce7" stroke="#059669" stroke-width="1.5"/>
+        <text x="590" y="127" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">B → C</text>
+        <line x1="590" y1="138" x2="590" y2="156" stroke="#059669" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <rect x="510" y="156" width="160" height="30" rx="6" fill="#86efac" stroke="#059669" stroke-width="2"/>
+        <text x="590" y="175" text-anchor="middle" font-size="12" font-weight="800" fill="#065f46">∴ A → C ✅</text>
+        <!-- Example -->
+        <rect x="510" y="182" width="160" height="26" rx="6" fill="#dcfce7" stroke="#059669" stroke-width="1"/>
+        <text x="590" y="198" text-anchor="middle" font-size="10.5" font-weight="700" fill="#065f46">RNo→Dept, Dept→HOD ⟹ RNo→HOD</text>
+      </svg>
+      <div class="svg-caption">Figure 2: Armstrong's Three Primary Axioms — Reflexivity, Augmentation, Transitivity</div>
+    </div>
+
+    <!-- Derived Rules -->
+    <h3>📐 Derived Rules (from the 3 Axioms)</h3>
+    <p>Using the 3 primary axioms, we can derive additional useful rules:</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Derived Rule</th><th>Formula</th><th>Derivation Idea</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Union Rule</strong></td>
+            <td>If X→Y and X→Z, then X→YZ</td>
+            <td>Augment first FD with Z, augment second with Y, then combine</td>
+            <td>RNo→Name and RNo→Dept ⟹ RNo→{Name,Dept}</td>
+          </tr>
+          <tr>
+            <td><strong>Decomposition Rule</strong></td>
+            <td>If X→YZ, then X→Y and X→Z</td>
+            <td>Reflexivity: YZ→Y, then transitivity with X→YZ</td>
+            <td>RNo→{Name,Dept} ⟹ RNo→Name and RNo→Dept</td>
+          </tr>
+          <tr>
+            <td><strong>Pseudo-Transitivity</strong></td>
+            <td>If X→Y and WY→Z, then WX→Z</td>
+            <td>Augment X→Y by W to get WX→WY, then transitivity with WY→Z</td>
+            <td>A→B and CB→D ⟹ CA→D</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5.1.3 CLOSURE OF ATTRIBUTES
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🔒 5.1.3 — Closure of Attributes (X⁺) and FD Set (F⁺)</h2>
+
+    <h3>Part A: Attribute Closure (X⁺)</h3>
+
+    <div class="formula-banner">
+      <div class="f-title">DEFINITION</div>
+      <div class="f-body">
+        Attribute Closure of X w.r.t FD set F:<br>
+        X⁺ = Set of ALL attributes that can be functionally determined by X, using F<br><br>
+        Uses: Find candidate keys, check if X→Y holds, find superkeys
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">🔑 Why is X⁺ important?</div>
+      <ul class="list-styled" style="margin-top:8px;">
+        <li>If <strong>X⁺ = all attributes of R</strong> → X is a <strong>Superkey</strong></li>
+        <li>If X⁺ = all attributes AND no proper subset of X has the same closure → X is a <strong>Candidate Key</strong></li>
+        <li>To check if <strong>X → Y holds</strong>: compute X⁺, check if Y ⊆ X⁺</li>
+      </ul>
+    </div>
+
+    <!-- Algorithm -->
+    <div class="algo-box">
+      <h4>⚙️ Algorithm: Compute Attribute Closure X⁺</h4>
+      <div class="algo-step">
+<span class="kw">Input:</span>  <span class="var">Attribute set X</span>, <span class="var">FD set F</span>
+<span class="kw">Output:</span> <span class="result">X⁺ (closure of X)</span>
+
+<span class="kw">Step 1:</span> X⁺ = X                  <span class="comment">// start with X itself</span>
+<span class="kw">Step 2:</span> <span class="kw">Repeat</span> until no change:
+          <span class="kw">For each</span> FD (A → B) <span class="kw">in</span> F:
+            <span class="kw">If</span> A ⊆ X⁺:
+              X⁺ = X⁺ ∪ B      <span class="comment">// add B to closure</span>
+<span class="kw">Step 3:</span> <span class="kw">Return</span> X⁺
+      </div>
+    </div>
+
+    <!-- Worked Example: Closure -->
+    <h3>🧮 Worked Example: Compute {A, B}⁺</h3>
+    <div class="callout">
+      <div class="callout-title">📋 Given</div>
+      <strong>Relation R(A, B, C, D, E, F)</strong><br>
+      <strong>F = {A→B, B→C, C→D, D→E, AB→F}</strong><br>
+      <strong>Find: {A, B}⁺</strong>
+    </div>
+
+    <div class="step-box">
+      <div class="step-row">
+        <span class="step-num">1</span>
+        <div class="step-content"><strong>Initialize:</strong> X⁺ = {A, B}</div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">2</span>
+        <div class="step-content">
+          <strong>Check A→B:</strong> A ∈ X⁺? Yes → Add B. X⁺ = {A, B} (B already there, no change)<br>
+          <strong>Check B→C:</strong> B ∈ X⁺? Yes → Add C. X⁺ = {A, B, C}<br>
+          <strong>Check C→D:</strong> C ∈ X⁺? Yes → Add D. X⁺ = {A, B, C, D}<br>
+          <strong>Check D→E:</strong> D ∈ X⁺? Yes → Add E. X⁺ = {A, B, C, D, E}<br>
+          <strong>Check AB→F:</strong> {A, B} ⊆ X⁺? Yes → Add F. X⁺ = {A, B, C, D, E, F}
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">3</span>
+        <div class="step-content">No more FDs to apply. <strong>X⁺ = {A, B, C, D, E, F} = all attributes of R</strong></div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-title">✅ Conclusion</div>
+      {A, B}⁺ = {A, B, C, D, E, F} = All attributes of R.<br>
+      ∴ <strong>{A, B} is a Superkey</strong>. Check if it's a Candidate Key by testing subsets:<br>
+      &nbsp;&nbsp;• A⁺ = {A, B, C, D, E, F} → A alone is a Superkey too!<br>
+      &nbsp;&nbsp;∴ <strong>A alone is a Candidate Key</strong>, and {A, B} is just a Superkey (not minimal).
+    </div>
+
+    <!-- Closure Animation SVG -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 180" width="700" height="180">
+        <!-- Step labels -->
+        <text x="12" y="20" font-size="12" font-weight="800" fill="#0f172a">Computing {A,B}⁺ step by step:</text>
+
+        <!-- Step boxes -->
+        <!-- Init -->
+        <rect x="10" y="35" width="90" height="50" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="55" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">Start</text>
+        <text x="55" y="72" text-anchor="middle" font-size="12" font-weight="800" fill="#2563eb">{A, B}</text>
+
+        <!-- arrow -->
+        <line x1="100" y1="60" x2="125" y2="60" stroke="#475569" stroke-width="1.5" marker-end="url(#arb)"/>
+        <text x="113" y="55" text-anchor="middle" font-size="10" fill="#059669">A→B</text>
+
+        <!-- After A→B -->
+        <rect x="128" y="35" width="90" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="173" y="56" text-anchor="middle" font-size="10" fill="#065f46">+B (exists)</text>
+        <text x="173" y="72" text-anchor="middle" font-size="12" font-weight="800" fill="#059669">{A, B}</text>
+
+        <!-- arrow -->
+        <line x1="218" y1="60" x2="243" y2="60" stroke="#475569" stroke-width="1.5"/>
+        <text x="231" y="55" text-anchor="middle" font-size="10" fill="#059669">B→C</text>
+
+        <!-- After B→C -->
+        <rect x="246" y="35" width="90" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="291" y="56" text-anchor="middle" font-size="10" fill="#065f46">+C</text>
+        <text x="291" y="72" text-anchor="middle" font-size="12" font-weight="800" fill="#059669">{A,B,C}</text>
+
+        <!-- arrow -->
+        <line x1="336" y1="60" x2="361" y2="60" stroke="#475569" stroke-width="1.5"/>
+        <text x="349" y="55" text-anchor="middle" font-size="10" fill="#059669">C→D</text>
+
+        <!-- After C→D -->
+        <rect x="364" y="35" width="90" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="409" y="56" text-anchor="middle" font-size="10" fill="#065f46">+D</text>
+        <text x="409" y="72" text-anchor="middle" font-size="11" font-weight="800" fill="#059669">{A,B,C,D}</text>
+
+        <!-- arrow -->
+        <line x1="454" y1="60" x2="479" y2="60" stroke="#475569" stroke-width="1.5"/>
+        <text x="467" y="55" text-anchor="middle" font-size="10" fill="#059669">D→E</text>
+
+        <!-- After D→E -->
+        <rect x="482" y="35" width="90" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="527" y="56" text-anchor="middle" font-size="10" fill="#065f46">+E</text>
+        <text x="527" y="72" text-anchor="middle" font-size="11" font-weight="800" fill="#059669">{A,B,C,D,E}</text>
+
+        <!-- arrow down then right -->
+        <line x1="572" y1="60" x2="597" y2="60" stroke="#475569" stroke-width="1.5"/>
+        <text x="585" y="55" text-anchor="middle" font-size="10" fill="#059669">AB→F</text>
+
+        <!-- Final result -->
+        <rect x="600" y="35" width="92" height="50" rx="8" fill="#86efac" stroke="#059669" stroke-width="2.5"/>
+        <text x="646" y="54" text-anchor="middle" font-size="10" fill="#065f46">+F → DONE!</text>
+        <text x="646" y="70" text-anchor="middle" font-size="10.5" font-weight="800" fill="#065f46">{A,B,C,D,E,F}</text>
+
+        <!-- Final label -->
+        <text x="350" y="120" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">{A,B}⁺ = {A,B,C,D,E,F} = All attributes of R → {A,B} is a SUPERKEY ✅</text>
+        <text x="350" y="142" text-anchor="middle" font-size="12" fill="#2563eb">Since A⁺ also = All attrs → A is the CANDIDATE KEY (minimal superkey)</text>
+
+        <defs>
+          <marker id="arb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#475569"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="svg-caption">Figure 3: Step-by-step computation of {A,B}⁺</div>
+    </div>
+
+    <h3>Part B: Closure of FD Set (F⁺)</h3>
+    <p><strong>F⁺</strong> (closure of FD set F) is the set of <em>all</em> FDs that can be derived from F using Armstrong's Axioms. It is typically very large and not computed directly — instead, we use <strong>attribute closures (X⁺)</strong> to check individual FDs.</p>
+    <div class="callout amber">
+      <div class="callout-title">💡 Practical Use</div>
+      To check if a given FD X→Y belongs to F⁺:<br>
+      <strong>Compute X⁺ using F. If Y ⊆ X⁺, then X→Y ∈ F⁺ ✅</strong>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5.1.4 CANONICAL / MINIMAL COVER
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🎯 5.1.4 — Canonical / Minimal Cover (F_c)</h2>
+
+    <p>A <strong>Canonical Cover</strong> (also called <strong>Minimal Cover</strong>) is a simplified, equivalent version of an FD set F that contains no redundant FDs and no redundant attributes on the left-hand side.</p>
+
+    <div class="callout purple">
+      <div class="callout-title">🧹 Why do we need it?</div>
+      A given FD set F may contain redundant FDs that can be derived from others. Removing them gives us the "minimal" set that is equivalent to F but cleaner — useful in <strong>normalization (3NF synthesis algorithm)</strong>.
+    </div>
+
+    <div class="formula-banner">
+      <div class="f-title">PROPERTIES OF CANONICAL COVER F_c</div>
+      <div class="f-body">
+        1. F_c is equivalent to F  (i.e., F_c⁺ = F⁺)
+        2. No FD in F_c has a redundant LHS attribute (LHS is minimal)
+        3. No FD in F_c is redundant (removing any FD changes F_c⁺)
+        4. Each FD in F_c has exactly ONE attribute on the RHS
+      </div>
+    </div>
+
+    <!-- Algorithm -->
+    <div class="algo-box">
+      <h4>⚙️ Algorithm: Find Canonical Cover</h4>
+      <div class="algo-step">
+<span class="kw">Input:</span>  <span class="var">FD set F</span>
+<span class="kw">Output:</span> <span class="result">Canonical Cover F_c</span>
+
+<span class="kw">Step 1:</span> Decompose all FDs to have <span class="result">single attribute on RHS</span>
+          (use Decomposition rule: X→YZ becomes X→Y and X→Z)
+
+<span class="kw">Step 2:</span> Remove <span class="result">redundant LHS attributes</span>
+          For each FD A→B in F:
+            For each attribute a in A (if A has multiple attrs):
+              Test if (A - {a})⁺ contains B (using remaining FDs)
+              If YES → remove 'a' from LHS (it's redundant)
+
+<span class="kw">Step 3:</span> Remove <span class="result">redundant FDs</span>
+          For each FD X→Y in F:
+            Remove it temporarily: F' = F - {X→Y}
+            Compute X⁺ using F'
+            If Y ⊆ X⁺ → X→Y is redundant, keep it removed
+            Else → X→Y is needed, add it back
+
+<span class="kw">Step 4:</span> <span class="kw">Return</span> remaining FDs as <span class="result">F_c</span>
+      </div>
+    </div>
+
+    <!-- Worked Example -->
+    <h3>🧮 Worked Example: Find Canonical Cover</h3>
+
+    <div class="callout">
+      <div class="callout-title">📋 Given</div>
+      <strong>R(A, B, C)</strong><br>
+      <strong>F = {A→BC, B→C, A→B, AB→C}</strong><br>
+      <strong>Find: Canonical Cover F_c</strong>
+    </div>
+
+    <div class="step-box">
+      <div class="step-row">
+        <span class="step-num">1</span>
+        <div class="step-content">
+          <strong>Step 1: Decompose RHS to single attributes</strong><br>
+          A→BC splits into: <strong>A→B</strong> and <strong>A→C</strong><br>
+          F becomes: <code>{A→B, A→C, B→C, A→B, AB→C}</code><br>
+          Remove duplicate A→B: <code>F = {A→B, A→C, B→C, AB→C}</code>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">2</span>
+        <div class="step-content">
+          <strong>Step 2: Remove redundant LHS attributes from AB→C</strong><br>
+          Test if A alone determines C (remove B from LHS of AB→C):<br>
+          &nbsp;&nbsp;A⁺ using {A→B, A→C, B→C} = {A, B, C} → C ∈ A⁺ ✅<br>
+          So B is redundant in AB→C. Replace with <strong>A→C</strong><br>
+          But A→C already exists! So AB→C is now just a duplicate.<br>
+          F = <code>{A→B, A→C, B→C}</code>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">3</span>
+        <div class="step-content">
+          <strong>Step 3: Remove redundant FDs</strong><br>
+          <strong>Test A→C:</strong> Remove it temporarily. F' = {A→B, B→C}<br>
+          &nbsp;&nbsp;A⁺ using F' = {A, B, C} → C ∈ A⁺ ✅ (via A→B→C transitivity)<br>
+          ∴ A→C is <strong>redundant!</strong> Remove it.<br>
+          F = <code>{A→B, B→C}</code>
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">4</span>
+        <div class="step-content">
+          <strong>Test A→B:</strong> F' = {B→C}. A⁺ = {A} → B ∉ A⁺ ❌. Keep A→B.<br>
+          <strong>Test B→C:</strong> F' = {A→B}. B⁺ = {B} → C ∉ B⁺ ❌. Keep B→C.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-title">✅ Final Canonical Cover</div>
+      <strong>F_c = {A→B, B→C}</strong><br><br>
+      Verification: Using F_c, A⁺ = {A,B,C} = all attrs. This is equivalent to F (same F_c⁺ = F⁺). ✅
+    </div>
+  </section>
+
+  <!-- ============================================================
+       5.1.5 EQUIVALENCE OF FD SETS
+  ============================================================ -->
+  <section class="note-section">
+    <h2>⚡ 5.1.5 — Equivalence of FD Sets</h2>
+
+    <div class="formula-banner">
+      <div class="f-title">DEFINITION</div>
+      <div class="f-body">
+        Two FD sets F and G are equivalent if:
+          F⁺ = G⁺
+        (They derive the same set of all possible FDs)
+
+        Equivalently:
+          F covers G  (every FD in G can be derived from F)
+          AND
+          G covers F  (every FD in F can be derived from G)
+      </div>
+    </div>
+
+    <h3>How to Check Equivalence?</h3>
+
+    <div class="algo-box">
+      <h4>⚙️ Algorithm: Check if F and G are Equivalent</h4>
+      <div class="algo-step">
+<span class="kw">Method:</span> Check if F covers G AND G covers F
+
+<span class="kw">F covers G:</span>
+  <span class="kw">For each</span> FD (X → Y) <span class="kw">in</span> G:
+    Compute X⁺ <span class="kw">using</span> F
+    <span class="kw">If</span> Y ⊆ X⁺ → ✅ (this FD is derivable from F)
+    <span class="kw">Else</span> → ❌ F does NOT cover G → Not equivalent
+
+<span class="kw">G covers F:</span>
+  <span class="kw">For each</span> FD (X → Y) <span class="kw">in</span> F:
+    Compute X⁺ <span class="kw">using</span> G
+    <span class="kw">If</span> Y ⊆ X⁺ → ✅ (this FD is derivable from G)
+    <span class="kw">Else</span> → ❌ G does NOT cover F → Not equivalent
+
+<span class="kw">If both cover each other:</span> <span class="result">F ≡ G (Equivalent!)</span>
+      </div>
+    </div>
+
+    <h3>🧮 Worked Example: Check Equivalence</h3>
+    <div class="callout">
+      <div class="callout-title">📋 Given</div>
+      <strong>F = {A→B, B→C, A→C}</strong><br>
+      <strong>G = {A→B, B→C}</strong><br>
+      <strong>Are F and G equivalent?</strong>
+    </div>
+
+    <div class="step-box">
+      <div class="step-row">
+        <span class="step-num">1</span>
+        <div class="step-content">
+          <strong>Check if G covers F</strong> (every FD in F derivable from G):<br>
+          &nbsp;• A→B: A⁺ using G = {A,B,C} → B ∈ A⁺ ✅<br>
+          &nbsp;• B→C: B⁺ using G = {B,C} → C ∈ B⁺ ✅<br>
+          &nbsp;• A→C: A⁺ using G = {A,B,C} → C ∈ A⁺ ✅<br>
+          ∴ G covers F ✅
+        </div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">2</span>
+        <div class="step-content">
+          <strong>Check if F covers G</strong> (every FD in G derivable from F):<br>
+          &nbsp;• A→B: A⁺ using F = {A,B,C} → B ∈ A⁺ ✅<br>
+          &nbsp;• B→C: B⁺ using F = {B,C} → C ∈ B⁺ ✅<br>
+          ∴ F covers G ✅
+        </div>
+      </div>
+    </div>
+    <div class="callout green">
+      <div class="callout-title">✅ Conclusion</div>
+      Both cover each other, so <strong>F ≡ G (Equivalent)</strong>!<br><br>
+      Notice G = {A→B, B→C} is actually the <strong>Canonical Cover</strong> of F (A→C was redundant since it's derivable from A→B and B→C via transitivity).
+    </div>
+
+    <!-- SVG: Equivalence visual -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 180" width="700" height="180">
+        <!-- F circle -->
+        <ellipse cx="220" cy="95" rx="160" ry="75" fill="rgba(37,99,235,0.07)" stroke="#2563eb" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="100" y="60" font-size="12" font-weight="800" fill="#1e3a8a">F = {A→B, B→C, A→C}</text>
+
+        <!-- G circle -->
+        <ellipse cx="440" cy="95" rx="160" ry="75" fill="rgba(5,150,105,0.07)" stroke="#059669" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="370" y="60" font-size="12" font-weight="800" fill="#065f46">G = {A→B, B→C}</text>
+
+        <!-- Middle overlap label -->
+        <text x="330" y="85" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">F⁺ = G⁺</text>
+        <text x="330" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="#d97706">≡ Equivalent</text>
+
+        <!-- Arrows both ways -->
+        <line x1="245" y1="120" x2="325" y2="120" stroke="#2563eb" stroke-width="2"/>
+        <polygon points="323,115 333,120 323,125" fill="#2563eb"/>
+        <line x1="415" y1="130" x2="335" y2="130" stroke="#059669" stroke-width="2"/>
+        <polygon points="337,125 327,130 337,135" fill="#059669"/>
+        <text x="280" y="115" text-anchor="middle" font-size="10" fill="#2563eb">F covers G</text>
+        <text x="380" y="145" text-anchor="middle" font-size="10" fill="#059669">G covers F</text>
+
+        <!-- Note at bottom -->
+        <text x="350" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#7c3aed">G is the canonical cover of F — A→C is redundant in F</text>
+      </svg>
+      <div class="svg-caption">Figure 4: FD Set Equivalence — F and G are equivalent because F⁺ = G⁺</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       QUICK SUMMARY TABLE
+  ============================================================ -->
+  <section class="note-section">
+    <h2>📋 Quick Summary — All Concepts at a Glance</h2>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Concept</th><th>Definition</th><th>Key Use</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="pill pill-blue">Trivial FD</span><br>X → Y, Y⊆X</td>
+            <td>Y is a subset of X — always holds</td>
+            <td>Identifying useless FDs; exams love testing this</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-green">Non-Trivial FD</span><br>X → Y, Y⊄X</td>
+            <td>Y has at least one attribute not in X</td>
+            <td>Basis for normalization analysis</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-purple">Reflexivity</span></td>
+            <td>Y⊆X → X→Y</td>
+            <td>Deriving trivial FDs; Armstrong completeness</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-purple">Augmentation</span></td>
+            <td>X→Y → XZ→YZ</td>
+            <td>Adding attributes to both sides; used in closure computation</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-purple">Transitivity</span></td>
+            <td>X→Y, Y→Z → X→Z</td>
+            <td>Most important axiom! Used in detecting transitive dependency (3NF)</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-amber">Attribute Closure X⁺</span></td>
+            <td>All attrs determined by X using F</td>
+            <td>Finding superkeys, candidate keys, checking FD membership</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-amber">Canonical Cover F_c</span></td>
+            <td>Minimal equivalent FD set (no redundancy)</td>
+            <td>3NF synthesis algorithm; minimal representation</td>
+          </tr>
+          <tr>
+            <td><span class="pill pill-green">FD Set Equivalence</span></td>
+            <td>F ≡ G when F⁺ = G⁺</td>
+            <td>Comparing FD sets; verifying canonical covers</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PYQs -->
+  <section class="pyq-box">
+    <h4>🎯 GATE & UGC-NET Exam Focus — Previous Year Questions</h4>
+
+    <div class="q"><strong>Q1 (GATE 2019): Which of the following FDs is trivial?</strong><br>
+    (a) A→B (b) AB→A (c) AB→C (d) A→AB</div>
+    <div class="ans">👉 <strong>Answer: (b) AB→A</strong> — Because A ⊆ {A,B}, so Y⊆X → trivial.</div>
+
+    <div class="q"><strong>Q2 (GATE 2015): Given F = {A→B, BC→D, AB→C}. Compute (AB)⁺.</strong></div>
+    <div class="ans">👉 Start: {A,B}. A→B: B∈AB✅. BC→D: need C first. AB→C: {A,B}⊆AB⁺ ✅ → add C. BC→D: {B,C}⊆{A,B,C} ✅ → add D. <strong>AB⁺ = {A,B,C,D}</strong></div>
+
+    <div class="q"><strong>Q3 (UGC-NET): Armstrong's Axioms are said to be ___.</strong><br>
+    (a) Sound only (b) Complete only (c) Sound and Complete (d) Neither</div>
+    <div class="ans">👉 <strong>Answer: (c) Sound and Complete</strong> — They generate all valid FDs and only valid FDs.</div>
+
+    <div class="q"><strong>Q4 (GATE 2016): Which rule is NOT one of Armstrong's primary axioms?</strong><br>
+    (a) Reflexivity (b) Augmentation (c) Transitivity (d) Union</div>
+    <div class="ans">👉 <strong>Answer: (d) Union</strong> — Union is a derived rule, not a primary axiom.</div>
+
+    <div class="q"><strong>Q5 (GATE 2020): Given F = {A→B, A→C, B→C}. What is the canonical cover?</strong></div>
+    <div class="ans">👉 Step 1: Already single RHS. Step 2: No composite LHS. Step 3: Test A→C: Remove it, A⁺ using {A→B, B→C} = {A,B,C} → C∈A⁺ ✅ → A→C is redundant. <strong>F_c = {A→B, B→C}</strong></div>
+
+    <div class="q"><strong>Q6 (UGC-NET): If X→Y and X→Z, what can we conclude?</strong></div>
+    <div class="ans">👉 By the <strong>Union Rule</strong> (derived from Armstrong's Axioms): <strong>X → YZ</strong></div>
+  </section>
+
+</main>
+
+<script src="../ask-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Chapter 7: Order of SQL Query Execution (FROM→JOIN→WHERE→GROUP BY→HAVING→SELECT→DISTINCT→ORDER BY→LIMIT) and GROUP BY clause with rules, examples, and PYQ Q&A.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 7: Query Execution Order &amp; GROUP BY | DBMS Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa;--pk:#db2777;--pk2:#fdf2f8;--in:#0891b2;--in2:#ecfeff;--ro:#dc2626;--gr:#16a34a}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(124,58,237,.05),transparent 40%),radial-gradient(circle at 90% 80%,rgba(37,99,235,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,#3b0764 0%,#6d28d9 35%,#7c3aed 65%,#4f46e5 100%);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'7';position:absolute;right:-10px;top:-20px;font-size:200px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace;line-height:1}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#ddd6fe;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+
+    /* ── PART NAV ── */
+    .part-nav{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .pn{flex:1;min-width:200px;background:#fff;border:2px solid;border-radius:14px;padding:16px 20px;text-decoration:none;color:var(--tm);transition:all .2s ease;display:flex;align-items:center;gap:12px}
+    .pn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .pn.p1{border-color:var(--pu)}.pn.p2{border-color:var(--tl)}
+    .pn-icon{font-size:24px;flex-shrink:0}.pn-text{font-weight:800;font-size:.95rem;color:var(--tm)}
+    .pn-sub{font-size:12px;color:var(--mu);font-weight:500}
+
+    /* ── SECTION BOXES ── */
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--pu2);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--pu);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+
+    /* ── CALLOUTS ── */
+    .cl{border-left:4px solid var(--pu);background:var(--pu2);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#2e1065}
+    .ct{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem;color:var(--pu)}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    .cl-b{border-left-color:var(--pr);background:var(--pl);color:#1e3a8a}.cl-b .ct{color:var(--pr)}
+
+    /* ── CODE ── */
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+
+    /* ── TABLE ── */
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd);vertical-align:top}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:var(--pu2)}
+
+    /* ── EXECUTION ORDER TIMELINE ── */
+    .exec-timeline{display:flex;flex-direction:column;gap:0;margin:28px 0;position:relative}
+    .exec-timeline::before{content:'';position:absolute;left:36px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#7c3aed,#2563eb,#0d9488,#10b981,#f59e0b,#ea580c,#db2777,#0891b2,#64748b)}
+    .et-row{display:flex;align-items:flex-start;gap:16px;padding:12px 0;position:relative;z-index:1}
+    .et-num{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.95rem;flex-shrink:0;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .et-body{flex:1;background:#fff;border:1.5px solid var(--bd);border-radius:14px;padding:14px 18px;box-shadow:0 2px 4px rgba(0,0,0,.03)}
+    .et-kw{font-family:'Fira Code',monospace;font-size:1.05rem;font-weight:800;margin-bottom:4px}
+    .et-desc{font-size:.92rem;color:#334155;line-height:1.5}
+    .et-eg{font-family:'Fira Code',monospace;font-size:.8rem;background:#f1f5f9;padding:4px 8px;border-radius:5px;display:inline-block;margin-top:5px;color:#475569}
+    .n1{background:#7c3aed}.n2{background:#2563eb}.n3{background:#0d9488}.n4{background:#059669}
+    .n5{background:#f59e0b}.n6{background:#ea580c}.n7{background:#db2777}.n8{background:#0891b2}.n9{background:#475569}
+    .kw1{color:#7c3aed}.kw2{color:#2563eb}.kw3{color:#0d9488}.kw4{color:#059669}
+    .kw5{color:#f59e0b}.kw6{color:#ea580c}.kw7{color:#db2777}.kw8{color:#0891b2}.kw9{color:#475569}
+
+    /* ── QUICK REF PILL ROW ── */
+    .exec-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:20px 0}
+    .ep{display:flex;align-items:center;gap:6px}
+    .ep .pill{font-family:'Fira Code',monospace;font-weight:800;font-size:.85rem;padding:5px 12px;border-radius:999px;color:#fff;white-space:nowrap}
+    .ep .arr{font-size:1.2rem;color:#cbd5e1}
+    .ep .pill.p1{background:#7c3aed}.ep .pill.p2{background:#2563eb}.ep .pill.p3{background:#0d9488}
+    .ep .pill.p4{background:#059669}.ep .pill.p5{background:#f59e0b}.ep .pill.p6{background:#ea580c}
+    .ep .pill.p7{background:#db2777}.ep .pill.p8{background:#0891b2}.ep .pill.p9{background:#475569}
+
+    /* ── DATA TABLE ── */
+    .emp-table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;border:1px solid var(--bd);font-size:14px;margin:18px 0}
+    .emp-table th{background:#1e293b;color:#fff;padding:11px 16px;font-weight:700;text-align:left}
+    .emp-table td{padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Fira Code',monospace;font-size:13px}
+    .emp-table tr.hr-row td{background:#eff6ff}.emp-table tr.mkt-row td{background:#f0fdf4}.emp-table tr.it-row td{background:#fff7ed}
+    .emp-table tr.rej{opacity:.4;text-decoration:line-through}
+
+    /* ── GROUP VISUAL ── */
+    .group-viz{display:flex;gap:14px;flex-wrap:wrap;margin:20px 0}
+    .gv{border-radius:14px;padding:16px 20px;border:2px solid;flex:1;min-width:150px}
+    .gv.g-hr{background:#eff6ff;border-color:#93c5fd}.gv.g-mkt{background:#f0fdf4;border-color:#86efac}.gv.g-it{background:#fff7ed;border-color:#fed7aa}
+    .gv .gv-title{font-weight:800;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .gv .gv-row{font-family:'Fira Code',monospace;font-size:13px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+    .gv .gv-row:last-child{border:none}
+    .gv .gv-count{margin-top:8px;font-weight:800;font-size:.9rem}
+
+    /* ── STEP TRACE ── */
+    .trace-step{border:1.5px solid var(--bd);border-radius:14px;margin:14px 0;overflow:hidden}
+    .trace-head{display:flex;align-items:center;gap:12px;padding:12px 18px;font-weight:800;font-size:.95rem;cursor:default}
+    .trace-body{padding:14px 18px;background:#f8fafc;border-top:1px solid var(--bd);font-size:.92rem;color:#334155}
+
+    /* ── RULES BOX ── */
+    .rules{display:flex;flex-direction:column;gap:12px;margin:20px 0}
+    .rule{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:14px 18px}
+    .rule .rnum{width:32px;height:32px;border-radius:50%;background:var(--pu);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;flex-shrink:0}
+    .rule .rtext{font-size:.95rem;color:#334155;line-height:1.5}
+    .rule .rtext strong{color:var(--tm)}
+
+    /* ── PYQ ── */
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin:0}
+
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#7c3aed,#2563eb,#0d9488);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}.exec-timeline::before{left:20px}.part-nav{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus Hub</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <a href="sql-index.html">SQL Chapters</a><span class="sep">›</span>
+  <span class="cur">Chapter 7: Execution Order &amp; GROUP BY</span>
+  <a class="bk" href="sql-index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 7</span>
+    <h1>Query Execution Order &amp; GROUP BY</h1>
+    <p>Ever wonder why you write SELECT first but it runs last? Understand the exact internal execution order of every SQL keyword, then master the GROUP BY clause — the engine behind all department-wise, branch-wise, and category-wise summary queries.</p>
+    <div class="tags">
+      <span class="tag">🔢 FROM → JOIN → WHERE → GROUP BY</span>
+      <span class="tag">→ HAVING → SELECT → DISTINCT → ORDER BY → LIMIT</span>
+      <span class="tag">📊 GROUP BY clause</span>
+      <span class="tag">⚠️ SELECT rules with GROUP BY</span>
+    </div>
+  </section>
+
+  <div class="part-nav">
+    <a href="#exec-order" class="pn p1">
+      <span class="pn-icon">⚙️</span>
+      <div><div class="pn-text">Part A — Query Execution Order</div><div class="pn-sub">9-step sequence with live example trace</div></div>
+    </a>
+    <a href="#group-by" class="pn p2">
+      <span class="pn-icon">📊</span>
+      <div><div class="pn-text">Part B — GROUP BY Clause</div><div class="pn-sub">Rules, group visualization, aggregate usage</div></div>
+    </a>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- PART A — EXECUTION ORDER               -->
+  <!-- ════════════════════════════════════════ -->
+  <section class="ns" id="exec-order">
+    <h2>⚙️ Part A: Order of SQL Query Execution</h2>
+    <p>When you write a SQL query, you write it in this order: <code>SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY</code>. But the <strong>database engine executes it in a completely different order</strong>! Understanding this is key to writing correct queries and cracking interviews.</p>
+
+    <div class="cl">
+      <div class="ct">🧠 The Critical Insight</div>
+      You write: <strong>SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY</strong><br>
+      Engine runs: <strong>FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT</strong><br><br>
+      <strong>SELECT is written first but runs 6th!</strong> That is why you cannot use a SELECT alias in a WHERE clause — WHERE runs before SELECT.
+    </div>
+
+    <h3>🔢 Quick Reference — Execution Sequence</h3>
+    <div class="exec-pills">
+      <div class="ep"><span class="pill p1">1. FROM</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p2">2. JOIN</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p3">3. WHERE</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p4">4. GROUP BY</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p5">5. HAVING</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p6">6. SELECT</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p7">7. DISTINCT</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p8">8. ORDER BY</span><span class="arr">→</span></div>
+      <div class="ep"><span class="pill p9">9. LIMIT</span></div>
+    </div>
+
+    <h3>📋 The Example Query + Data</h3>
+    <p>Let's trace execution step-by-step using this query and table:</p>
+    <div class="cb"><span class="ll">Example Query</span><pre><span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">COUNT</span>(<span class="tb">department</span>) <span class="kw">AS</span> emp_count
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">WHERE</span>    city <span class="op">=</span> <span class="str">'Delhi'</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span>
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="tb">department</span>) <span class="op">&lt;</span> <span class="vl">5</span>
+<span class="kw">ORDER BY</span> <span class="fn">COUNT</span>(<span class="tb">department</span>) <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>    <span class="vl">1</span><span class="op">;</span></pre></div>
+
+    <table class="emp-table">
+      <thead><tr><th>Emp ID</th><th>Name</th><th>City</th><th>Department</th></tr></thead>
+      <tbody>
+        <tr class="hr-row"><td>1</td><td>Ram</td><td>Delhi</td><td>HR</td></tr>
+        <tr class="mkt-row"><td>2</td><td>Amrit</td><td>Delhi</td><td>Marketing</td></tr>
+        <tr class="hr-row"><td>3</td><td>Ravi</td><td>Delhi</td><td>HR</td></tr>
+        <tr class="mkt-row"><td>4</td><td>Nitin</td><td>Mumbai</td><td>Marketing</td></tr>
+        <tr class="it-row"><td>5</td><td>Varun</td><td>Delhi</td><td>IT</td></tr>
+        <tr class="mkt-row"><td>6</td><td>Priya</td><td>Delhi</td><td>Marketing</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🔬 Step-by-Step Execution Trace</h3>
+    <div class="exec-timeline">
+
+      <div class="et-row">
+        <div class="et-num n1">1</div>
+        <div class="et-body">
+          <div class="et-kw kw1">FROM employee</div>
+          <div class="et-desc">The entire <code>employee</code> table is loaded into memory. This is always step 1 — the engine must know which table(s) to work with before doing anything else. All 6 rows are available.</div>
+          <span class="et-eg">→ All 6 rows loaded: Ram, Amrit, Ravi, Nitin, Varun, Priya</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n2">2</div>
+        <div class="et-body">
+          <div class="et-kw kw2">JOIN (if used)</div>
+          <div class="et-desc">If multiple tables are joined (<code>JOIN … ON …</code> or comma-separated tables), the join operation runs here — combining rows from multiple tables based on the join condition. <em>Not used in this example.</em></div>
+          <span class="et-eg">→ Skipped (single table query)</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n3">3</div>
+        <div class="et-body">
+          <div class="et-kw kw3">WHERE city = 'Delhi'</div>
+          <div class="et-desc">Filter rows at the <strong>individual tuple level</strong>. Each row is checked against the condition. Rows not matching are rejected. WHERE runs <em>before</em> grouping — so it filters individual rows, not groups.</div>
+          <span class="et-eg">→ Nitin (Mumbai) ❌ rejected. Remaining: Ram, Amrit, Ravi, Varun, Priya (5 rows)</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n4">4</div>
+        <div class="et-body">
+          <div class="et-kw kw4">GROUP BY department</div>
+          <div class="et-desc">Groups all remaining rows by the specified column. Rows with the same department value are combined into one group. After this step, you no longer see individual rows — you see <strong>groups</strong>.</div>
+          <span class="et-eg">→ HR group: {Ram, Ravi} · Marketing group: {Amrit, Priya} · IT group: {Varun}</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n5">5</div>
+        <div class="et-body">
+          <div class="et-kw kw5">HAVING COUNT(department) &lt; 5</div>
+          <div class="et-desc">Filters <strong>groups</strong> (not rows). This is the WHERE clause for groups. Aggregate functions like COUNT, SUM, AVG can be used here. Groups not satisfying the condition are rejected.</div>
+          <span class="et-eg">→ HR count=2 ✅ · Marketing count=2 ✅ · IT count=1 ✅ → All 3 groups pass (all &lt; 5)</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n6">6</div>
+        <div class="et-body">
+          <div class="et-kw kw6">SELECT department, COUNT(department)</div>
+          <div class="et-desc">Now — and only now — does SELECT run. It picks which columns/expressions to include in the final result set. Despite being written first in the query, it runs 6th. This is why aliases defined in SELECT can't be used in WHERE or HAVING.</div>
+          <span class="et-eg">→ Output: (HR, 2), (Marketing, 2), (IT, 1)</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n7">7</div>
+        <div class="et-body">
+          <div class="et-kw kw7">DISTINCT (if used)</div>
+          <div class="et-desc">If <code>SELECT DISTINCT</code> was used, duplicate rows are removed from the result set at this stage. <em>Not used in this example.</em></div>
+          <span class="et-eg">→ Skipped (no DISTINCT in this query)</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n8">8</div>
+        <div class="et-body">
+          <div class="et-kw kw8">ORDER BY COUNT(department) DESC</div>
+          <div class="et-desc">Sort the result set. Descending means highest count first. The data is all selected already — ORDER BY just rearranges for presentation.</div>
+          <span class="et-eg">→ Marketing(2), HR(2), IT(1) — sorted high→low</span>
+        </div>
+      </div>
+
+      <div class="et-row">
+        <div class="et-num n9">9</div>
+        <div class="et-body">
+          <div class="et-kw kw9">LIMIT 1</div>
+          <div class="et-desc">Clips the result to the top N rows. Runs last — after everything is selected, filtered, grouped, and sorted. This gives you the "top 1 department with most employees."</div>
+          <span class="et-eg">→ Final output: Marketing · 2 (the department with highest employee count in Delhi)</span>
+        </div>
+      </div>
+
+    </div>
+
+    <h3>📊 Complete Reference Table</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Step</th><th>Keyword</th><th>Purpose</th><th>Filters</th><th>Can Use Agg. Fn?</th></tr></thead><tbody>
+      <tr><td><strong>1</strong></td><td><code>FROM</code></td><td>Load the source table(s)</td><td>—</td><td>❌</td></tr>
+      <tr><td><strong>2</strong></td><td><code>JOIN … ON</code></td><td>Combine multiple tables</td><td>—</td><td>❌</td></tr>
+      <tr><td><strong>3</strong></td><td><code>WHERE</code></td><td>Filter individual rows</td><td>Rows (tuples)</td><td>❌ Cannot use aggregate here</td></tr>
+      <tr><td><strong>4</strong></td><td><code>GROUP BY</code></td><td>Create groups of rows</td><td>—</td><td>—</td></tr>
+      <tr><td><strong>5</strong></td><td><code>HAVING</code></td><td>Filter groups</td><td>Groups</td><td>✅ Must use aggregate here</td></tr>
+      <tr><td><strong>6</strong></td><td><code>SELECT</code></td><td>Choose output columns/expressions</td><td>—</td><td>✅</td></tr>
+      <tr><td><strong>7</strong></td><td><code>DISTINCT</code></td><td>Remove duplicate rows from result</td><td>Duplicate rows</td><td>—</td></tr>
+      <tr><td><strong>8</strong></td><td><code>ORDER BY</code></td><td>Sort result set</td><td>—</td><td>✅</td></tr>
+      <tr><td><strong>9</strong></td><td><code>LIMIT / FETCH</code></td><td>Return top N rows</td><td>Row count</td><td>—</td></tr>
+    </tbody></table></div>
+
+    <div class="cl cl-d">
+      <div class="ct">⚠️ Common Mistake: WHERE vs HAVING</div>
+      <strong>WHERE</strong> filters individual rows (runs at step 3, before grouping). You <strong>cannot use aggregate functions</strong> in WHERE.<br>
+      <strong>HAVING</strong> filters groups (runs at step 5, after grouping). You <strong>must use aggregate functions</strong> in HAVING.<br><br>
+      ❌ Wrong: <code>WHERE COUNT(dept) > 2</code> — COUNT not allowed in WHERE<br>
+      ✅ Right: <code>HAVING COUNT(dept) > 2</code> — use HAVING for group-level conditions
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- PART B — GROUP BY                       -->
+  <!-- ════════════════════════════════════════ -->
+  <section class="ns" id="group-by">
+    <h2>📊 Part B: GROUP BY Clause</h2>
+    <p>GROUP BY is used to <strong>arrange rows with the same value in a column into groups</strong> so that aggregate functions (COUNT, SUM, AVG, MAX, MIN) can be applied <em>per group</em>. It is the fundamental tool for all "department-wise", "branch-wise", "city-wise" summary queries.</p>
+
+    <div class="cl cl-b">
+      <div class="ct">📌 Classic Use Case</div>
+      <strong>Problem:</strong> Find the number of employees in each department.<br>
+      <strong>Problem:</strong> Find the total salary department-wise.<br>
+      <strong>Problem:</strong> Find how many students are in each branch of a university.<br><br>
+      All of these require GROUP BY — because you need to split data into groups, then apply an aggregate function <em>on each group</em>.
+    </div>
+
+    <h3>📋 Working Data — EMP Table</h3>
+    <table class="emp-table">
+      <thead><tr><th>Eid</th><th>Name</th><th>City</th><th>Department</th></tr></thead>
+      <tbody>
+        <tr class="hr-row"><td>1</td><td>Ram</td><td>Delhi</td><td>HR</td></tr>
+        <tr class="mkt-row"><td>2</td><td>Amrit</td><td>Delhi</td><td>Marketing</td></tr>
+        <tr class="hr-row"><td>3</td><td>Ravi</td><td>Delhi</td><td>HR</td></tr>
+        <tr class="mkt-row"><td>4</td><td>Nitin</td><td>Mumbai</td><td>Marketing</td></tr>
+        <tr class="it-row"><td>5</td><td>Varun</td><td>Delhi</td><td>IT</td></tr>
+        <tr class="mkt-row"><td>6</td><td>Priya</td><td>Delhi</td><td>Marketing</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🧩 How GROUP BY Creates Groups</h3>
+    <p>When <code>GROUP BY department</code> runs, rows with the same department value are clustered together:</p>
+    <div class="group-viz">
+      <div class="gv g-hr">
+        <div class="gv-title">🔵 HR Group</div>
+        <div class="gv-row">1 · Ram · Delhi</div>
+        <div class="gv-row">3 · Ravi · Delhi</div>
+        <div class="gv-count">COUNT = <strong>2</strong></div>
+      </div>
+      <div class="gv g-mkt">
+        <div class="gv-title">🟢 Marketing Group</div>
+        <div class="gv-row">2 · Amrit · Delhi</div>
+        <div class="gv-row">4 · Nitin · Mumbai</div>
+        <div class="gv-row">6 · Priya · Delhi</div>
+        <div class="gv-count">COUNT = <strong>3</strong></div>
+      </div>
+      <div class="gv g-it">
+        <div class="gv-title">🟠 IT Group</div>
+        <div class="gv-row">5 · Varun · Delhi</div>
+        <div class="gv-count">COUNT = <strong>1</strong></div>
+      </div>
+    </div>
+
+    <h3>⚠️ The Two Critical Rules of GROUP BY</h3>
+    <div class="rules">
+      <div class="rule">
+        <div class="rnum">R1</div>
+        <div class="rtext"><strong>Only the GROUP BY column can appear in SELECT directly.</strong><br>
+        If you write <code>GROUP BY department</code>, only <code>department</code> can be listed alone in SELECT. You cannot directly write <code>name</code>, <code>eid</code>, or <code>city</code> — those are individual-row values, not group-level values.</div>
+      </div>
+      <div class="rule">
+        <div class="rnum">R2</div>
+        <div class="rtext"><strong>Any other column must be wrapped in an aggregate function.</strong><br>
+        If you want to show any other attribute in SELECT, wrap it: <code>COUNT(eid)</code>, <code>SUM(salary)</code>, <code>MAX(salary)</code> etc. The aggregate collapses all rows in the group to a single value.</div>
+      </div>
+    </div>
+
+    <div class="cl cl-w">
+      <div class="ct">⚠️ Why These Rules Exist</div>
+      After GROUP BY, you no longer have individual rows — you have <strong>groups</strong>. A group for HR has 2 employees. If you ask "what is the name of the HR group?", there's no single answer — it could be Ram or Ravi. That's why you must either use the GROUP BY column (which has one value per group) or use an aggregate function to collapse multiple values into one.
+    </div>
+
+    <h3>📝 SQL Queries — GROUP BY Examples</h3>
+    <div class="cb"><span class="ll">Oracle SQL — GROUP BY</span><pre><span class="cm">-- Q1: Count employees in each department</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_employees
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>
+<span class="cm">-- Output: HR→2, Marketing→3, IT→1</span>
+
+<span class="cm">-- Q2: Total salary per department (assumes salary column exists)</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">SUM</span>(<span class="tb">salary</span>) <span class="kw">AS</span> total_salary
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>
+
+<span class="cm">-- Q3: Average salary per department</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">AVG</span>(<span class="tb">salary</span>) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>
+
+<span class="cm">-- Q4: Departments where more than 1 employee works (HAVING filter)</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> num_employees
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span>
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="vl">1</span><span class="op">;</span>
+<span class="cm">-- Output: HR→2, Marketing→3 (IT excluded, only 1 employee)</span>
+
+<span class="cm">-- Q5: Delhi employees only, count per department (WHERE + GROUP BY)</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> delhi_count
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">WHERE</span>    city <span class="op">=</span> <span class="str">'Delhi'</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>
+<span class="cm">-- Nitin (Mumbai) excluded by WHERE first, then grouped</span>
+<span class="cm">-- Output: HR→2, Marketing→2 (Amrit+Priya), IT→1</span></pre></div>
+
+    <h3>❌ Common Errors with GROUP BY</h3>
+    <div class="cb"><span class="ll">Common Errors</span><pre><span class="cm">-- ❌ ERROR: Cannot select 'name' directly when using GROUP BY department</span>
+<span class="cm">-- ORA-00979: not a GROUP BY expression</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="tb">name</span>, <span class="fn">COUNT</span>(<span class="op">*</span>)
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>   <span class="cm">-- ❌ 'name' is not in GROUP BY</span>
+
+<span class="cm">-- ✅ FIX: Either add name to GROUP BY, or wrap in aggregate</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">MAX</span>(<span class="tb">name</span>), <span class="fn">COUNT</span>(<span class="op">*</span>)   <span class="cm">-- MAX(name) is an aggregate</span>
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span><span class="op">;</span>
+
+<span class="cm">-- ❌ ERROR: Cannot use aggregate in WHERE</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">WHERE</span>    <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="vl">2</span><span class="op">;</span>   <span class="cm">-- ❌ WHERE runs before grouping!</span>
+
+<span class="cm">-- ✅ FIX: Use HAVING for group-level conditions</span>
+<span class="kw">SELECT</span>   <span class="tb">department</span>
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span>
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;</span> <span class="vl">2</span><span class="op">;</span>   <span class="cm">-- ✅</span></pre></div>
+
+    <h3>📋 GROUP BY vs WHERE vs HAVING — Side by Side</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Feature</th><th>WHERE</th><th>HAVING</th></tr></thead><tbody>
+      <tr><td>Runs at step</td><td>3 (before grouping)</td><td>5 (after grouping)</td></tr>
+      <tr><td>Filters</td><td>Individual rows / tuples</td><td>Groups</td></tr>
+      <tr><td>Can use aggregate?</td><td>❌ No</td><td>✅ Yes (required)</td></tr>
+      <tr><td>Used without GROUP BY?</td><td>✅ Yes</td><td>❌ Meaningless without GROUP BY</td></tr>
+      <tr><td>Example</td><td><code>WHERE city = 'Delhi'</code></td><td><code>HAVING COUNT(*) > 2</code></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- PYQ Q&A -->
+  <section class="pb">
+    <h4>🎯 Interview &amp; Exam — Key Q&amp;A</h4>
+    <p><strong>Q1: In what order does SQL execute a query?</strong><br>👉 <em>FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT. SELECT is written first but executes 6th.</em></p>
+    <p><strong>Q2: Why can't you use a SELECT alias in a WHERE clause?</strong><br>👉 <em>Because WHERE runs at step 3, before SELECT runs at step 6. The alias doesn't exist yet when WHERE is processed.</em></p>
+    <p><strong>Q3: What is the difference between WHERE and HAVING?</strong><br>👉 <em>WHERE filters individual rows before grouping (step 3) and cannot use aggregate functions. HAVING filters groups after GROUP BY (step 5) and must use aggregate functions.</em></p>
+    <p><strong>Q4: What is GROUP BY used for?</strong><br>👉 <em>GROUP BY groups rows that have the same value in a column so that aggregate functions (COUNT, SUM, AVG, MAX, MIN) can be applied per group — enabling department-wise, city-wise, branch-wise summaries.</em></p>
+    <p><strong>Q5: What columns can appear in SELECT when using GROUP BY?</strong><br>👉 <em>Only (1) the column(s) listed in GROUP BY, or (2) any other column wrapped in an aggregate function. Directly using a non-grouped column in SELECT is an error.</em></p>
+    <p><strong>Q6: Write a query to find which departments have more than 2 employees.</strong><br>👉 <em>SELECT department, COUNT(*) FROM employee GROUP BY department HAVING COUNT(*) &gt; 2;</em></p>
+    <p><strong>Q7: Why does ORDER BY run so late (step 8)?</strong><br>👉 <em>Because ORDER BY only sorts the final result for display. All filtering, grouping, and selection must happen first — you can't sort data that hasn't been selected yet.</em></p>
+    <p><strong>Q8: Can you use WHERE and HAVING together?</strong><br>👉 <em>Yes! WHERE filters rows first (e.g., WHERE city='Delhi'), then GROUP BY groups what's left, then HAVING filters those groups (e.g., HAVING COUNT(*) &gt; 1).</em></p>
+    <p><strong>Q9: What does LIMIT do and when does it run?</strong><br>👉 <em>LIMIT restricts the output to top N rows. It runs last (step 9) — after all filtering, grouping, selection, and sorting. It's the final "clip" of the output.</em></p>
+    <p><strong>Q10: What is the output of: SELECT department, COUNT(*) FROM employee GROUP BY department; on the given EMP table?</strong><br>👉 <em>HR → 2, Marketing → 3, IT → 1 (order may vary depending on engine).</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

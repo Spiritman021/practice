@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 30 – Wireless LAN (IEEE 802.11, Wi-Fi) & Bluetooth | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on IEEE 802.11 Wireless LAN architecture (BSS, ESS), Wi-Fi standards (Wi-Fi 4 to 7), CSMA/CA RTS/CTS, and Bluetooth Piconet/Scatternet." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .wlan-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 30</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 30 · Wireless & Mobile Networks</div>
+    <h1 class="page-title">Wireless LAN (IEEE 802.11,<br/>Wi-Fi) & Bluetooth</h1>
+    <p class="page-subtitle">Master IEEE 802.11 WLAN architecture (BSS, ESS), CSMA/CA RTS/CTS collision avoidance, Wi-Fi 4/5/6/7 standards evolution, and Bluetooth Piconet/Scatternet topology.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#wlan-arch"><span class="toc-num">30.1</span> IEEE 802.11 WLAN Architecture (BSS & ESS)</a></li>
+      <li><a href="#hidden-station"><span class="toc-num">30.2</span> Hidden & Exposed Station Problems</a></li>
+      <li><a href="#rts-cts"><span class="toc-num">30.3</span> CSMA/CA with RTS/CTS Handshake</a></li>
+      <li><a href="#wifi-standards"><span class="toc-num">30.4</span> Wi-Fi Standards Evolution (Wi-Fi 4 to Wi-Fi 7)</a></li>
+      <li><a href="#bluetooth"><span class="toc-num">30.5</span> Bluetooth Basics (Piconet & Scatternet)</a></li>
+      <li><a href="#ble"><span class="toc-num">30.6</span> Classic Bluetooth vs Bluetooth Low Energy (BLE)</a></li>
+    </ul>
+  </div>
+
+  <!-- 30.1 WLAN Arch -->
+  <div class="section" id="wlan-arch">
+    <div class="wlan-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">30.1 IEEE 802.11 WLAN Architecture (BSS & ESS)</h3>
+      <p>The <span class="hl">IEEE 802.11</span> standard defines two primary operational modes for Wireless LANs:</p>
+
+      <ul class="note-list">
+        <li><strong>Infrastructure Mode:</strong> Wireless clients connect through a central **Access Point (AP)** connected to a wired backbone.</li>
+        <li><strong>Ad-Hoc Mode (IBSS - Independent BSS):</strong> Peer-to-peer wireless network without a central Access Point.</li>
+      </ul>
+
+      <h4 class="mini-title">Key Architectural Components</h4>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr><th>Component</th><th>Abbreviation</th><th>Description & Function</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Basic Service Set</strong></td><td>BSS</td><td>The fundamental building block of 802.11; consists of stationary/mobile wireless stations and an Access Point (AP). Identified by a BSSID (AP MAC address).</td></tr>
+            <tr><td><strong>Extended Service Set</strong></td><td>ESS</td><td>Consists of two or more BSSs connected via a wired **Distribution System (DS)**. Allows seamless roaming across APs under a single SSID.</td></tr>
+            <tr><td><strong>Distribution System</strong></td><td>DS</td><td>The underlying wired Ethernet network connecting multiple APs together.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 30.2 Hidden Station -->
+  <div class="section" id="hidden-station">
+    <div class="section-header">
+      <div class="section-icon">🫣</div>
+      <div>
+        <div class="section-num">Section 30.2</div>
+        <h2 class="section-title">Hidden & Exposed Station Problems</h2>
+      </div>
+    </div>
+    <p>Wireless transmission media suffer from physical radio range limitations that cause unique access problems:</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Collision Threat</div>
+        <div class="info-card-title">Hidden Station Problem</div>
+        <div class="info-card-desc">Station A and Station C are both in range of Access Point B, but A and C cannot hear each other. If both transmit to B simultaneously, a collision occurs at B!</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Wasted Capacity</div>
+        <div class="info-card-title">Exposed Station Problem</div>
+        <div class="info-card-desc">Station B is sending data to A. Station C hears B and falsely assumes the channel is busy, deferring its transmission to D even though C sending to D would cause zero interference at A!</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 30.3 RTS CTS -->
+  <div class="section" id="rts-cts">
+    <div class="section-header">
+      <div class="section-icon">🤝</div>
+      <div>
+        <div class="section-num">Section 30.3</div>
+        <h2 class="section-title">CSMA/CA with RTS/CTS Handshake</h2>
+      </div>
+    </div>
+    <p>To solve the Hidden Station problem, 802.11 uses <span class="hl2">CSMA/CA (Collision Avoidance)</span> with an optional **RTS/CTS Reservation Handshake**:</p>
+
+    <ol class="note-list" style="margin-left:20px;">
+      <li><strong>Request to Send (RTS):</strong> Sender transmits a short RTS packet containing the duration needed for transmission.</li>
+      <li><strong>Clear to Send (CTS):</strong> Receiver broadcasts a CTS packet. All neighboring stations hearing the CTS freeze their transmission for the specified duration (**NAV - Network Allocation Vector**).</li>
+      <li><strong>Data Transmission:</strong> Sender transmits the main data frame safely without collisions.</li>
+      <li><strong>Acknowledgement (ACK):</strong> Receiver returns an ACK frame to confirm successful delivery.</li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 30.4 Wi-Fi Standards -->
+  <div class="section" id="wifi-standards">
+    <div class="section-header">
+      <div class="section-icon">📶</div>
+      <div>
+        <div class="section-num">Section 30.4</div>
+        <h2 class="section-title">Wi-Fi Standards Evolution (Wi-Fi 4 to Wi-Fi 7)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Standard</th><th>Generational Name</th><th>Frequency Bands</th><th>Max Link Rate</th><th>Key Technologies</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>802.11b</strong></td><td>Legacy</td><td>2.4 GHz</td><td>11 Mbps</td><td>DSSS, CCK</td></tr>
+          <tr><td><strong>802.11a/g</strong></td><td>Legacy</td><td>5 GHz / 2.4 GHz</td><td>54 Mbps</td><td>OFDM Modulation</td></tr>
+          <tr><td><strong>802.11n</strong></td><td><strong>Wi-Fi 4</strong></td><td>2.4 GHz / 5 GHz</td><td>600 Mbps</td><td>MIMO (4x4), 40 MHz Channels, 64-QAM</td></tr>
+          <tr><td><strong>802.11ac</strong></td><td><strong>Wi-Fi 5</strong></td><td>5 GHz</td><td>3.5 Gbps</td><td>MU-MIMO, 160 MHz Channels, 256-QAM, Beamforming</td></tr>
+          <tr><td><strong>802.11ax</strong></td><td><strong>Wi-Fi 6 / 6E</strong></td><td>2.4 / 5 / 6 GHz</td><td>9.6 Gbps</td><td>OFDMA, 1024-QAM, Target Wake Time (TWT), 6GHz Band</td></tr>
+          <tr><td><strong>802.11be</strong></td><td><strong>Wi-Fi 7</strong></td><td>2.4 / 5 / 6 GHz</td><td>46 Gbps</td><td>320 MHz Channels, 4096-QAM (4K-QAM), Multi-Link Operation (MLO)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/wifi_standards_bluetooth_architecture.jpg" alt="IEEE 802.11 WLAN Architecture, CSMA/CA RTS/CTS, Wi-Fi 4-7 Standards, and Bluetooth Piconet/Scatternet Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 30.1 – IEEE 802.11 ESS Architecture, CSMA/CA RTS/CTS (Hidden Station Solution), Wi-Fi 4/5/6/7 Standards & Bluetooth Topology</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 30.5 Bluetooth -->
+  <div class="section" id="bluetooth">
+    <div class="wlan-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">30.5 Bluetooth Basics (Piconet & Scatternet)</h3>
+      <p><span class="hl2">Bluetooth (IEEE 802.15.1)</span> is a Short-Range Wireless Personal Area Network (WPAN) operating in the **2.4 GHz ISM band** using **Frequency Hopping Spread Spectrum (FHSS)** (hops 1600 times per second across 79 channels).</p>
+
+      <h4 class="mini-title">Bluetooth Network Topologies</h4>
+      <ul class="note-list">
+        <li><strong>Piconet:</strong> An ad-hoc network consisting of **1 Primary Master node** and up to **7 active Secondary Slave nodes** (plus up to 255 parked nodes). All communication flows through the Master.</li>
+        <li><strong>Scatternet:</strong> Formed by interconnecting multiple Piconets. A node can act as a Slave in one Piconet and a Master/Slave in another Piconet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 30.6 BLE -->
+  <div class="section" id="ble">
+    <div class="section-header">
+      <div class="section-icon">🔋</div>
+      <div>
+        <div class="section-num">Section 30.6</div>
+        <h2 class="section-title">Classic Bluetooth vs Bluetooth Low Energy (BLE)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Classic Bluetooth (v2.1 / v3.0)</th><th>Bluetooth Low Energy (BLE v4.0 / v5.x)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Primary Focus</td><td>Continuous high-throughput data streaming (Audio, file transfer)</td><td>Ultra-low power consumption for IoT, wearables & sensors</td></tr>
+          <tr><td>Power Consumption</td><td>Moderate (Requires frequent recharging)</td><td>Extremely Low (Operates for years on coin-cell battery)</td></tr>
+          <tr><td>Channels</td><td>79 channels (1 MHz bandwidth)</td><td>40 channels (2 MHz bandwidth; 3 advertising + 37 data)</td></tr>
+          <tr><td>Connection Time</td><td>~100 ms</td><td>&lt; 3 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="29-common-network-attacks-dos-ddos-mitm-phishing.html">← Ch 29: Cyber Attacks</a>
+      <a href="index.html">Home</a>
+      <a href="31-cellular-network-generations-2g-3g-4g-5g.html">Ch 31: Cellular 2G to 5G →</a>
+    </div>
+    Network Fundamentals · Chapter 30 · Wireless LAN & Bluetooth
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

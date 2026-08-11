@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 20 – TCP Header, 3-Way Handshake & Connection Management | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on TCP 20-byte Header structure, 3-Way Handshake connection setup, 4-Way Connection termination, and TCP State Machine." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .tcp-box {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 20</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 20 · Transport Layer</div>
+    <h1 class="page-title">TCP Header, 3-Way Handshake &<br/>Connection Management</h1>
+    <p class="page-subtitle">Master the 20-byte TCP Header format, 3-Way Handshake establishment (SYN, SYN-ACK, ACK), 4-Way Termination (FIN/ACK), and TCP state transitions.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#tcp-overview"><span class="toc-num">20.1</span> TCP Overview & Features</a></li>
+      <li><a href="#tcp-header"><span class="toc-num">20.2</span> TCP Header Structure (20–60 Bytes)</a></li>
+      <li><a href="#handshake-3way"><span class="toc-num">20.3</span> Connection Establishment: 3-Way Handshake</a></li>
+      <li><a href="#termination-4way"><span class="toc-num">20.4</span> Connection Termination: 4-Way Handshake</a></li>
+      <li><a href="#tcp-states"><span class="toc-num">20.5</span> TCP Connection State Machine</a></li>
+    </ul>
+  </div>
+
+  <!-- 20.1 Overview -->
+  <div class="section" id="tcp-overview">
+    <div class="section-header">
+      <div class="section-icon">🤝</div>
+      <div>
+        <div class="section-num">Section 20.1</div>
+        <h2 class="section-title">TCP Overview & Features</h2>
+      </div>
+    </div>
+    <p><span class="hl">TCP (RFC 793)</span> is a connection-oriented, highly reliable, full-duplex protocol operating at the Transport Layer.</p>
+
+    <ul class="note-list">
+      <li><strong>Connection-Oriented:</strong> Establishes a logical virtual circuit between sender and receiver before transferring data.</li>
+      <li><strong>Byte-Stream Service:</strong> Treats data as a continuous stream of uninterpreted bytes, assigning a 32-bit sequence number to every byte.</li>
+      <li><strong>Full-Duplex:</strong> Data can flow in both directions simultaneously over the same connection.</li>
+      <li><strong>Reliable Delivery:</strong> Uses positive acknowledgements (ACKs) and retransmission timers (RTO) to recover lost or corrupted packets.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 20.2 Header -->
+  <div class="section" id="tcp-header">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 20.2</div>
+        <h2 class="section-title">TCP Header Structure (20–60 Bytes)</h2>
+      </div>
+    </div>
+    <p>The standard TCP Header contains <strong>20 fixed bytes</strong> (and up to 40 bytes of optional parameters).</p>
+
+    <!-- Header Diagram SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 720 220" width="100%" style="max-width:700px">
+        <!-- Row 1 -->
+        <rect x="20" y="30" width="340" height="34" rx="4" fill="#1a2545" stroke="#4f8ef7" stroke-width="1.5"/><text x="190" y="52" text-anchor="middle" fill="#4f8ef7" font-size="10" font-weight="700" font-family="Inter">Source Port (16 bits)</text>
+        <rect x="360" y="30" width="340" height="34" rx="4" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/><text x="530" y="52" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">Destination Port (16 bits)</text>
+
+        <!-- Row 2 -->
+        <rect x="20" y="68" width="680" height="34" rx="4" fill="rgba(79,142,247,0.15)" stroke="#4f8ef7" stroke-width="1.5"/><text x="360" y="90" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="800" font-family="Inter">Sequence Number (32 bits / 4 Bytes)</text>
+
+        <!-- Row 3 -->
+        <rect x="20" y="106" width="680" height="34" rx="4" fill="rgba(0,212,170,0.15)" stroke="#00d4aa" stroke-width="1.5"/><text x="360" y="128" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="800" font-family="Inter">Acknowledgement Number (32 bits / 4 Bytes)</text>
+
+        <!-- Row 4 -->
+        <rect x="20" y="144" width="80" height="34" rx="4" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/><text x="60" y="166" text-anchor="middle" fill="#f7a34f" font-size="9" font-weight="700" font-family="Inter">Data Offset</text>
+        <rect x="100" y="144" width="80" height="34" rx="4" fill="#131d35" stroke="#5a6a8a" stroke-width="1.5"/><text x="140" y="166" text-anchor="middle" fill="#5a6a8a" font-size="9" font-weight="700" font-family="Inter">Reserved</text>
+        <rect x="180" y="144" width="200" height="34" rx="4" fill="#1a2545" stroke="#f05c88" stroke-width="1.5"/><text x="280" y="166" text-anchor="middle" fill="#f05c88" font-size="9" font-weight="700" font-family="Inter">Flags: URG | ACK | PSH | RST | SYN | FIN</text>
+        <rect x="380" y="144" width="320" height="34" rx="4" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/><text x="540" y="166" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">Window Size (16 bits)</text>
+
+        <!-- Row 5 -->
+        <rect x="20" y="182" width="340" height="34" rx="4" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/><text x="190" y="204" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="700" font-family="Inter">Checksum (16 bits)</text>
+        <rect x="360" y="182" width="340" height="34" rx="4" fill="#1a2545" stroke="#7c5cf0" stroke-width="1.5"/><text x="530" y="204" text-anchor="middle" fill="#7c5cf0" font-size="10" font-weight="700" font-family="Inter">Urgent Pointer (16 bits)</text>
+      </svg>
+    </div>
+
+    <h4 class="mini-title">Key TCP Control Flags</h4>
+    <ul class="note-list">
+      <li><strong>SYN (Synchronize):</strong> Initiates a connection and synchronizes initial sequence numbers (ISN).</li>
+      <li><strong>ACK (Acknowledgement):</strong> Indicates that the Acknowledgement Number field is valid.</li>
+      <li><strong>FIN (Finish):</strong> Indicates that sender has finished transmitting data and requests connection termination.</li>
+      <li><strong>RST (Reset):</strong> Immediately aborts an abnormal connection.</li>
+      <li><strong>PSH (Push):</strong> Forces receiver to immediately push data to application without buffering.</li>
+      <li><strong>URG (Urgent):</strong> Indicates that Urgent Pointer field is valid for urgent data payload.</li>
+    </ul>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/tcp_header_and_handshakes.jpg" alt="TCP 20-Byte Header, 3-Way Handshake, and 4-Way Termination Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 20.1 – TCP 20-Byte Header Fields, 3-Way Handshake (SYN/ACK) & 4-Way Termination (FIN/ACK)</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 20.3 Handshake 3-Way -->
+  <div class="section" id="handshake-3way">
+    <div class="section-header">
+      <div class="section-icon">📶</div>
+      <div>
+        <div class="section-num">Section 20.3</div>
+        <h2 class="section-title">Connection Establishment: 3-Way Handshake</h2>
+      </div>
+    </div>
+    <p>TCP establishes a connection between Client and Server using a **3-Way Handshake**:</p>
+
+    <!-- 3-Way Handshake SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 700 240" width="100%" style="max-width:680px">
+        <!-- Axes -->
+        <line x1="120" y1="30" x2="120" y2="220" stroke="#4f8ef7" stroke-width="2"/>
+        <text x="120" y="20" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="800" font-family="Inter">CLIENT</text>
+
+        <line x1="580" y1="30" x2="580" y2="220" stroke="#00d4aa" stroke-width="2"/>
+        <text x="580" y="20" text-anchor="middle" fill="#00d4aa" font-size="12" font-weight="800" font-family="Inter">SERVER (LISTEN)</text>
+
+        <!-- Step 1 SYN -->
+        <line x1="120" y1="50" x2="580" y2="90" stroke="#4f8ef7" stroke-width="2"/>
+        <polygon points="580,90 570,83 570,95" fill="#4f8ef7"/>
+        <text x="350" y="60" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="JetBrains Mono">Step 1: SYN [Seq = x]</text>
+
+        <!-- Step 2 SYN-ACK -->
+        <line x1="580" y1="100" x2="120" y2="140" stroke="#00d4aa" stroke-width="2"/>
+        <polygon points="120,140 130,133 130,145" fill="#00d4aa"/>
+        <text x="350" y="110" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="JetBrains Mono">Step 2: SYN-ACK [Seq = y, Ack = x + 1]</text>
+
+        <!-- Step 3 ACK -->
+        <line x1="120" y1="150" x2="580" y2="190" stroke="#f7a34f" stroke-width="2"/>
+        <polygon points="580,190 570,183 570,195" fill="#f7a34f"/>
+        <text x="350" y="160" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="JetBrains Mono">Step 3: ACK [Seq = x + 1, Ack = y + 1]</text>
+
+        <!-- States -->
+        <text x="110" y="215" text-anchor="end" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">ESTABLISHED</text>
+        <text x="590" y="215" text-anchor="start" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">ESTABLISHED</text>
+      </svg>
+    </div>
+
+    <ol class="note-list" style="margin-left:20px;">
+      <li><strong>Step 1 (SYN):</strong> Client sends a SYN segment with Initial Sequence Number <code>x</code> to request a connection. Client enters <code>SYN-SENT</code> state.</li>
+      <li><strong>Step 2 (SYN-ACK):</strong> Server responds with a SYN-ACK segment, acknowledging <code>Ack = x + 1</code> and proposing its own sequence number <code>Seq = y</code>. Server enters <code>SYN-RCVD</code> state.</li>
+      <li><strong>Step 3 (ACK):</strong> Client responds with an ACK segment (<code>Ack = y + 1</code>). Both sides enter <code>ESTABLISHED</code> state and data transfer begins!</li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 20.4 Termination 4-Way -->
+  <div class="section" id="termination-4way">
+    <div class="section-header">
+      <div class="section-icon">🔴</div>
+      <div>
+        <div class="section-num">Section 20.4</div>
+        <h2 class="section-title">Connection Termination: 4-Way Handshake</h2>
+      </div>
+    </div>
+    <p>Since TCP is full-duplex, terminating a connection requires closing each direction independently using a **4-Way Handshake**:</p>
+
+    <ul class="note-list">
+      <li><strong>Step 1 (FIN from A):</strong> Client sends FIN segment to close its sending direction (Enters <code>FIN-WAIT-1</code>).</li>
+      <li><strong>Step 2 (ACK from B):</strong> Server sends ACK (Client enters <code>FIN-WAIT-2</code>; Server enters <code>CLOSE-WAIT</code>).</li>
+      <li><strong>Step 3 (FIN from B):</strong> Server finishes sending pending data and sends FIN segment (Server enters <code>LAST-ACK</code>).</li>
+      <li><strong>Step 4 (ACK from A):</strong> Client sends final ACK and enters <code>TIME-WAIT</code> state for <strong>2 × MSL (Maximum Segment Lifetime = ~4 minutes)</strong> before closing.</li>
+    </ul>
+
+    <div class="callout note">
+      <div class="callout-icon">⏱️</div>
+      <div class="callout-body">
+        <div class="callout-title">Why the TIME-WAIT State (2 * MSL) Exists</div>
+        <div class="callout-text">
+          1. Ensures the final ACK is received by the remote peer (retransmits ACK if lost).<br/>
+          2. Allows all old duplicate segments floating in the network to expire before a new socket connection reuses the same port pair.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 20.5 States -->
+  <div class="section" id="tcp-states">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 20.5</div>
+        <h2 class="section-title">TCP Connection State Machine</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>TCP State</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>CLOSED</strong></td><td>No connection active. Default starting state.</td></tr>
+          <tr><td><strong>LISTEN</strong></td><td>Server is waiting for an incoming SYN request.</td></tr>
+          <tr><td><strong>SYN-SENT</strong></td><td>Client has sent SYN and is waiting for matching SYN-ACK.</td></tr>
+          <tr><td><strong>SYN-RCVD</strong></td><td>Server received SYN, sent SYN-ACK, waiting for final ACK.</td></tr>
+          <tr><td><strong>ESTABLISHED</strong></td><td>Connection active; full-duplex data transfer in progress.</td></tr>
+          <tr><td><strong>FIN-WAIT-1 / 2</strong></td><td>Client active close initiated; waiting for server ACK / FIN.</td></tr>
+          <tr><td><strong>CLOSE-WAIT / LAST-ACK</strong></td><td>Server passive close; processing remaining data before final FIN.</td></tr>
+          <tr><td><strong>TIME-WAIT</strong></td><td>Client waiting 2*MSL to ensure clean closure before returning to CLOSED.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="19-transport-layer-ports-sockets-udp.html">← Ch 19: Ports & UDP</a>
+      <a href="index.html">Home</a>
+      <a href="21-tcp-flow-control-congestion-control.html">Ch 21: Flow & Congestion Control →</a>
+    </div>
+    Network Fundamentals · Chapter 20 · TCP Header & Connection Management
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

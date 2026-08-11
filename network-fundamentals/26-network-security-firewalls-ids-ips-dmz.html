@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 26 – Firewalls, DMZ Architecture, IDS & IPS | Network Fundamentals</title>
+  <meta name="description" content="Comprehensive guide on Network Security fundamentals: CIA Triad, Firewall types (Stateless, Stateful SPI, Proxy, NGFW), DMZ network design, and IDS vs IPS." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 26</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 26 · Network Security</div>
+    <h1 class="page-title">Firewalls, DMZ Architecture,<br/>IDS & IPS</h1>
+    <p class="page-subtitle">Understand core network security principles (CIA Triad), Firewall types (Stateless vs Stateful SPI, NGFW), DMZ network perimeter design, and IDS vs IPS detection/prevention.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#cia-triad"><span class="toc-num">26.1</span> Network Security & The CIA Triad</a></li>
+      <li><a href="#firewalls"><span class="toc-num">26.2</span> Firewalls Overview & Types</a></li>
+      <li><a href="#stateless-vs-stateful"><span class="toc-num">26.3</span> Stateless vs Stateful Packet Inspection (SPI)</a></li>
+      <li><a href="#dmz-arch"><span class="toc-num">26.4</span> DMZ (Demilitarized Zone) Network Architecture</a></li>
+      <li><a href="#ids-vs-ips"><span class="toc-num">26.5</span> IDS vs IPS (Intrusion Detection & Prevention)</a></li>
+      <li><a href="#detection-methods"><span class="toc-num">26.6</span> Signature-Based vs Anomaly-Based Detection</a></li>
+    </ul>
+  </div>
+
+  <!-- 26.1 CIA Triad -->
+  <div class="section" id="cia-triad">
+    <div class="sec-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">26.1 Network Security & The CIA Triad</h3>
+      <p>The foundation of information security rests upon three core pillars known as the <span class="hl">CIA Triad</span>:</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="info-card-label">Pillar 1</div>
+          <div class="info-card-title">Confidentiality</div>
+          <div class="info-card-desc">Ensures data is accessible only to authorized users and protected from unauthorized disclosure. (Enforced via Encryption).</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-label">Pillar 2</div>
+          <div class="info-card-title">Integrity</div>
+          <div class="info-card-desc">Guarantees that data remains accurate, complete, and unaltered during transmission. (Enforced via Hashing & Digital Signatures).</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-label">Pillar 3</div>
+          <div class="info-card-title">Availability</div>
+          <div class="info-card-desc">Ensures authorized users have timely, reliable access to network resources. (Enforced via Redundancy & DDoS Protection).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 26.2 Firewalls -->
+  <div class="section" id="firewalls">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div>
+        <div class="section-num">Section 26.2</div>
+        <h2 class="section-title">Firewalls Overview & Types</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">Firewall</span> is a network security system that monitors and controls incoming and outgoing network traffic based on predetermined security rules.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Firewall Generation / Type</th><th>OSI Layer</th><th>Operating Mechanism</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Stateless Packet Filter</strong></td>
+            <td>Network / Transport (Layers 3–4)</td>
+            <td>Inspects individual packet headers (IPs, Ports) against Access Control Lists (ACLs) without tracking connection state.</td>
+          </tr>
+          <tr>
+            <td><strong>Stateful Packet Inspection (SPI)</strong></td>
+            <td>Transport (Layer 4)</td>
+            <td>Tracks active TCP connection states in a state table. Automatically permits return traffic for legitimate outbound connections.</td>
+          </tr>
+          <tr>
+            <td><strong>Circuit-Level Gateway</strong></td>
+            <td>Session (Layer 5)</td>
+            <td>Validates TCP handshakes before permitting sessions without inspecting actual payload contents.</td>
+          </tr>
+          <tr>
+            <td><strong>Application-Level Gateway (Proxy)</strong></td>
+            <td>Application (Layer 7)</td>
+            <td>Terminates incoming connection, deep-inspects payload contents (e.g. HTTP, FTP), and forwards request to destination.</td>
+          </tr>
+          <tr>
+            <td><strong>Next-Generation Firewall (NGFW)</strong></td>
+            <td>Layers 3 through 7</td>
+            <td>Combines SPI with Deep Packet Inspection (DPI), Intrusion Prevention (IPS), TLS decryption, and Application Identification.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 26.3 Stateless vs Stateful -->
+  <div class="section" id="stateless-vs-stateful">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <div>
+        <div class="section-num">Section 26.3</div>
+        <h2 class="section-title">Stateless vs Stateful Packet Inspection (SPI)</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Older / Simple</div>
+        <div class="info-card-title">Stateless Filtering</div>
+        <div class="info-card-desc">Evaluates each packet independently. Requires explicit rules for both outbound and inbound traffic. Vulnerable to IP spoofing and ACK scanning.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Modern Standard</div>
+        <div class="info-card-title">Stateful Filtering (SPI)</div>
+        <div class="info-card-desc">Maintains a **State Table** recording TCP sequence numbers, SYN/ACK states, and IP:Port 4-tuples. Blocks unsolicited inbound packets automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 26.4 DMZ -->
+  <div class="section" id="dmz-arch">
+    <div class="sec-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">26.4 DMZ (Demilitarized Zone) Network Architecture</h3>
+      <p>A <span class="hl2">DMZ (Demilitarized Zone)</span> is a physical or logical subnetwork that isolates public-facing services (e.g. Web, Mail, DNS servers) from an organization's private internal LAN.</p>
+
+      <!-- DMZ SVG Diagram -->
+      <div class="diagram-box">
+        <svg viewBox="0 0 700 200" width="100%" style="max-width:680px">
+          <!-- Internet -->
+          <rect x="20" y="70" width="100" height="60" rx="8" fill="#131d35" stroke="#f05c88" stroke-width="1.5"/>
+          <text x="70" y="105" text-anchor="middle" fill="#f05c88" font-size="12" font-weight="700" font-family="Inter">Untrusted Internet</text>
+
+          <!-- Outer Firewall -->
+          <rect x="160" y="70" width="80" height="60" rx="6" fill="#1a2545" stroke="#f7a34f" stroke-width="1.5"/>
+          <text x="200" y="98" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="700" font-family="Inter">External</text>
+          <text x="200" y="112" text-anchor="middle" fill="#f7a34f" font-size="10" font-weight="700" font-family="Inter">Firewall</text>
+
+          <!-- DMZ -->
+          <rect x="280" y="20" width="140" height="160" rx="10" fill="rgba(79,142,247,0.12)" stroke="#4f8ef7" stroke-width="1.5" stroke-dasharray="5,4"/>
+          <text x="350" y="42" text-anchor="middle" fill="#4f8ef7" font-size="12" font-weight="800" font-family="Inter">DMZ Subnet</text>
+          <rect x="300" y="55" width="100" height="30" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1"/>
+          <text x="350" y="74" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="Inter">Web Server</text>
+          <rect x="300" y="95" width="100" height="30" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1"/>
+          <text x="350" y="114" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="Inter">Mail Server</text>
+          <rect x="300" y="135" width="100" height="30" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1"/>
+          <text x="350" y="154" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="Inter">DNS Server</text>
+
+          <!-- Inner Firewall -->
+          <rect x="460" y="70" width="80" height="60" rx="6" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="500" y="98" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">Internal</text>
+          <text x="500" y="112" text-anchor="middle" fill="#00d4aa" font-size="10" font-weight="700" font-family="Inter">Firewall</text>
+
+          <!-- Private Internal LAN -->
+          <rect x="580" y="70" width="100" height="60" rx="8" fill="#131d35" stroke="#00d4aa" stroke-width="1.5"/>
+          <text x="630" y="98" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Private LAN</text>
+          <text x="630" y="114" text-anchor="middle" fill="#9aa5c4" font-size="9" font-family="Inter">Internal DBs</text>
+
+          <!-- Connecting Lines -->
+          <line x1="120" y1="100" x2="160" y2="100" stroke="#f05c88" stroke-width="2"/>
+          <line x1="240" y1="100" x2="280" y2="100" stroke="#f7a34f" stroke-width="2"/>
+          <line x1="420" y1="100" x2="460" y2="100" stroke="#4f8ef7" stroke-width="2"/>
+          <line x1="540" y1="100" x2="580" y2="100" stroke="#00d4aa" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <p style="margin-top:12px;">If a hacker compromises a public web server in the DMZ, the internal firewall blocks them from reaching sensitive private databases in the internal LAN!</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 26.5 IDS vs IPS -->
+  <div class="section" id="ids-vs-ips">
+    <div class="section-header">
+      <div class="section-icon">🚨</div>
+      <div>
+        <div class="section-num">Section 26.5</div>
+        <h2 class="section-title">IDS vs IPS (Intrusion Detection & Prevention)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>IDS (Intrusion Detection System)</th><th>IPS (Intrusion Prevention System)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Operating Mode</td><td><strong>Passive / Out-of-band</strong> (copies traffic via TAP/SPAN port)</td><td><strong>Active / Inline</strong> (all traffic physically passes through IPS)</td></tr>
+          <tr><td>Action Taken</td><td>Alerts admins and logs event (No direct packet blocking)</td><td>Drops malicious packets, resets connections, blocks attacker IP in real-time</td></tr>
+          <tr><td>Latency Impact</td><td>Zero latency impact on production traffic</td><td>Minor latency overhead due to inline packet processing</td></tr>
+          <tr><td>Deployment Risk</td><td>Low risk (cannot break legitimate network traffic)</td><td>Higher risk (false positives can block legitimate traffic)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/firewall_dmz_ids_ips_architecture.jpg" alt="Firewall Generations, DMZ Architecture, and IDS vs IPS Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 26.1 – Firewall Generations (Stateless, SPI, Proxy, NGFW), DMZ Subnet Architecture & IDS vs IPS Deployment</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 26.6 Detection Methods -->
+  <div class="section" id="detection-methods">
+    <div class="sec-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">26.6 Signature-Based vs Anomaly-Based Detection</h3>
+      
+      <ul class="note-list">
+        <li><strong>Signature-Based Detection:</strong> Compares network traffic against a database of known attack patterns (e.g. Snort rules). High accuracy for known threats; **blind to zero-day attacks**.</li>
+        <li><strong>Anomaly-Based / Behavioral Detection:</strong> Establishes a baseline of normal network behavior using machine learning. Flags deviations from baseline. Can detect **zero-day attacks**, but suffers higher false positive rates.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="25-snmp-network-management-and-app-layer-summary.html">← Ch 25: SNMP & Summary</a>
+      <a href="index.html">Home</a>
+      <a href="27-cryptography-symmetric-asymmetric-hashing.html">Ch 27: Cryptography & Hashing →</a>
+    </div>
+    Network Fundamentals · Chapter 26 · Firewalls, DMZ, IDS & IPS
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

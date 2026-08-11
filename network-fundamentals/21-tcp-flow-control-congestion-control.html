@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 21 – TCP Flow Control, Congestion Control & RDT | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on TCP Sliding Window flow control, Receiver Window rwnd, Congestion Window cwnd, Slow Start, AIMD, Fast Retransmit, Fast Recovery, and RDT." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .flow-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 21</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 21 · Transport Layer</div>
+    <h1 class="page-title">TCP Flow Control, Congestion<br/>Control & Reliable Data Transfer</h1>
+    <p class="page-subtitle">Understand TCP Sliding Window flow control (rwnd), Congestion Window (cwnd) mechanisms (Slow Start, AIMD, Fast Retransmit & Fast Recovery), and RDT primitives.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#flow-control"><span class="toc-num">21.1</span> TCP Flow Control (Sliding Window & rwnd)</a></li>
+      <li><a href="#silly-window"><span class="toc-num">21.2</span> Silly Window Syndrome & Solutions</a></li>
+      <li><a href="#congestion-control"><span class="toc-num">21.3</span> TCP Congestion Control Overview</a></li>
+      <li><a href="#slow-start-aimd"><span class="toc-num">21.4</span> Slow Start & Congestion Avoidance (AIMD)</a></li>
+      <li><a href="#fast-retransmit"><span class="toc-num">21.5</span> Fast Retransmit & Fast Recovery</a></li>
+      <li><a href="#tahoe-vs-reno"><span class="toc-num">21.6</span> TCP Tahoe vs TCP Reno Comparison</a></li>
+      <li><a href="#rdt-summary"><span class="toc-num">21.7</span> Reliable Data Transfer (RDT) Summary</a></li>
+    </ul>
+  </div>
+
+  <!-- 21.1 Flow Control -->
+  <div class="section" id="flow-control">
+    <div class="flow-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">21.1 TCP Flow Control (Sliding Window & rwnd)</h3>
+      <p><span class="hl">Flow Control</span> prevents a fast sender from overwhelming a slow receiver's buffer. TCP uses a **Dynamic Sliding Window Protocol**.</p>
+      <p>The receiver continuously advertises its available buffer space via the **Receiver Window (rwnd)** field in TCP header ACK updates.</p>
+
+      <div class="callout key">
+        <div class="callout-icon">🧮</div>
+        <div class="callout-body">
+          <div class="callout-title">Receiver Window Formula</div>
+          <div class="callout-text">
+            <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:6px 0;">rwnd = Receiver Buffer Size - (Last Byte Received - Last Byte Read by Application)</div>
+            Sender must ensure: (Last Byte Sent - Last Byte Acked) ≤ rwnd
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 21.2 Silly Window -->
+  <div class="section" id="silly-window">
+    <div class="section-header">
+      <div class="section-icon">⚠️</div>
+      <div>
+        <div class="section-num">Section 21.2</div>
+        <h2 class="section-title">Silly Window Syndrome & Solutions</h2>
+      </div>
+    </div>
+    <p><span class="hl2">Silly Window Syndrome (SWS)</span> occurs when data is transmitted in tiny 1-byte chunks, causing 40 bytes of TCP/IP header overhead for 1 byte of payload!</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Sender Solution</div>
+        <div class="info-card-title">Nagle's Algorithm</div>
+        <div class="info-card-desc">Sender buffers small outgoing data chunks until a full-sized segment (MSS) is formed or an ACK for previous segment arrives.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Receiver Solution</div>
+        <div class="info-card-title">Clark's Solution</div>
+        <div class="info-card-desc">Receiver avoids advertising tiny window updates (advertises rwnd = 0 until buffer space ≥ MSS or half of total buffer).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 21.3 Congestion Control -->
+  <div class="section" id="congestion-control">
+    <div class="section-header">
+      <div class="section-icon">🚦</div>
+      <div>
+        <div class="section-num">Section 21.3</div>
+        <h2 class="section-title">TCP Congestion Control Overview</h2>
+      </div>
+    </div>
+    <p>While flow control protects the receiver, <span class="hl">Congestion Control</span> protects the intermediate network routers from buffer overflow.</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <div class="callout-title">Effective Transmission Window Formula</div>
+        <div class="callout-text">
+          <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent3); margin:6px 0;">Effective Window = min(cwnd, rwnd)</div>
+          where <em>cwnd</em> is the Congestion Window (managed by sender) and <em>rwnd</em> is Receiver Window (advertised by receiver).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 21.4 Slow Start & AIMD -->
+  <div class="section" id="slow-start-aimd">
+    <div class="flow-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">21.4 Slow Start & Congestion Avoidance (AIMD)</h3>
+      
+      <h4 class="mini-title">1. Slow Start Phase (Exponential Growth)</h4>
+      <ul class="note-list">
+        <li>Initial <code>cwnd</code> starts at 1 MSS (Maximum Segment Size).</li>
+        <li>For every received ACK, <code>cwnd</code> increases by 1 MSS (doubles every RTT: 1 → 2 → 4 → 8 → 16 MSS).</li>
+        <li>Continues until <code>cwnd</code> reaches the **Slow Start Threshold (ssthresh)**.</li>
+      </ul>
+
+      <h4 class="mini-title">2. Congestion Avoidance Phase (AIMD - Linear Growth)</h4>
+      <ul class="note-list">
+        <li>When <code>cwnd ≥ ssthresh</code>, growth shifts to **Additive Increase**.</li>
+        <li><code>cwnd</code> increases by 1 MSS per RTT (linear growth: 16 → 17 → 18 → 19 MSS).</li>
+        <li>Upon packet loss / timeout (**Multiplicative Decrease**): 
+          <br/>Set <code>ssthresh = cwnd / 2</code>, and reset <code>cwnd = 1 MSS</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 21.5 Fast Retransmit -->
+  <div class="section" id="fast-retransmit">
+    <div class="flow-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">21.5 Fast Retransmit & Fast Recovery</h3>
+      
+      <h4 class="mini-title">1. Fast Retransmit</h4>
+      <p>If a single segment is lost in a stream, the receiver sends **3 duplicate ACKs** for the missing segment. Upon receiving 3 duplicate ACKs, the sender immediately retransmits the missing segment **WITHOUT waiting for the Retransmission Timeout (RTO) timer** to expire!</p>
+
+      <h4 class="mini-title">2. Fast Recovery</h4>
+      <p>Instead of resetting <code>cwnd</code> back to 1 MSS after 3 duplicate ACKs, TCP skips Slow Start and goes directly into Congestion Avoidance with <code>cwnd = ssthresh + 3 MSS</code>.</p>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/tcp_flow_and_congestion_control.jpg" alt="TCP Sliding Window Flow Control and Congestion Control cwnd Trajectory Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 21.1 – TCP Sliding Window (rwnd) Buffer & Congestion Window (cwnd) Trajectory Graph</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 21.6 Tahoe vs Reno -->
+  <div class="section" id="tahoe-vs-reno">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 21.6</div>
+        <h2 class="section-title">TCP Tahoe vs TCP Reno Comparison</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>TCP Tahoe (Older)</th><th>TCP Reno (Modern Standard)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reaction to Timeout</td><td><code>ssthresh = cwnd / 2</code>, <code>cwnd = 1 MSS</code></td><td><code>ssthresh = cwnd / 2</code>, <code>cwnd = 1 MSS</code></td></tr>
+          <tr><td>Reaction to 3 Duplicate ACKs</td><td>Resets <code>cwnd = 1 MSS</code> (Enters Slow Start)</td><td>Sets <code>cwnd = ssthresh</code> (Enters Fast Recovery)</td></tr>
+          <tr><td>Fast Recovery Support</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Throughput Efficiency</td><td>Lower (restarts from 1 MSS every loss)</td><td>Significantly Higher (maintains linear growth)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 21.7 RDT Summary -->
+  <div class="section" id="rdt-summary">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div>
+        <div class="section-num">Section 21.7</div>
+        <h2 class="section-title">Reliable Data Transfer (RDT) Summary</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>RDT Mechanism</th><th>Function / Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Checksums</strong></td><td>Detect bit errors in transmitted segments.</td></tr>
+          <tr><td><strong>Sequence Numbers</strong></td><td>Detect lost, duplicate, or out-of-order segments.</td></tr>
+          <tr><td><strong>Acknowledgements (ACKs)</strong></td><td>Inform sender that specific bytes were received successfully.</td></tr>
+          <tr><td><strong>Retransmission Timers (RTO)</strong></td><td>Trigger retransmission if ACK is not received within estimated RTT timeout window.</td></tr>
+          <tr><td><strong>Sliding Window Buffers</strong></td><td>Provide flow control and pipe pipelining for maximum throughput.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="20-tcp-header-handshake-connection-management.html">← Ch 20: TCP Header & Handshakes</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 21 · TCP Flow Control & Congestion Control
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 35 – Networking Numericals: Subnetting, BDP & ARQ Formulas | Network Fundamentals</title>
+  <meta name="description" content="IBPS SO IT Exam Special: Step-by-step solved numerical problems on Subnetting, Bandwidth-Delay Product, ARQ efficiency, Nyquist/Shannon capacity, and Hamming Code." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .num-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+    .step-box {
+      background: var(--card2); border-left: 4px solid var(--accent);
+      padding: 14px 18px; margin: 12px 0; border-radius: 0 8px 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 35 · IBPS SO IT Special</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 35 · High-Yield IBPS SO IT Exam Prep</div>
+    <h1 class="page-title">Networking Numericals:<br/>Subnetting, BDP & ARQ Formulas</h1>
+    <p class="page-subtitle">Master step-by-step solved numerical problems on FLSM/VLSM Subnetting, Bandwidth-Delay Product (BDP), Sliding Window ARQ Efficiency ($\eta$), Shannon Capacity, and Hamming Code.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#num-subnetting"><span class="toc-num">35.1</span> Subnetting Formulas & Solved Examples</a></li>
+      <li><a href="#num-bdp"><span class="toc-num">35.2</span> Bandwidth-Delay Product (BDP) Solved Numericals</a></li>
+      <li><a href="#num-arq"><span class="toc-num">35.3</span> ARQ Protocol Efficiency & Window Size Numericals</a></li>
+      <li><a href="#num-shannon"><span class="toc-num">35.4</span> Nyquist & Shannon Channel Capacity Numericals</a></li>
+      <li><a href="#num-hamming"><span class="toc-num">35.5</span> Hamming Code & CRC Error Correction Numericals</a></li>
+    </ul>
+  </div>
+
+  <!-- 35.1 Subnetting -->
+  <div class="section" id="num-subnetting">
+    <div class="num-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">35.1 Subnetting Formulas & Solved Examples</h3>
+
+      <div class="callout key">
+        <div class="callout-icon">🧮</div>
+        <div class="callout-body">
+          <div class="callout-title">Master Subnetting Formulas & Quick Tricks</div>
+          <div class="callout-text">
+            1. <strong>Total Host Addresses per Subnet</strong> = 2<sup>(32 - CIDR)</sup><br/>
+            2. <strong>Usable Hosts per Subnet</strong> = 2<sup>(32 - CIDR)</sup> - 2 (subtract Network ID and Broadcast IP)<br/>
+            3. <strong>Number of Subnets Created</strong> = 2<sup>(Subnet Bits Borrowed)</sup><br/>
+            4. <strong>Magic Block Size Trick</strong> = 256 - (Subnet Mask Octet Value)
+          </div>
+        </div>
+      </div>
+
+      <h4 class="mini-title" style="margin-top:20px;">Problem 1: FLSM Subnetting Analysis</h4>
+      <p><strong>Question:</strong> An organization is assigned IP prefix <code>192.168.10.0/27</code>. Determine the Subnet Mask, Block Size, Total Usable Hosts per subnet, Network ID, First Usable Host, Last Usable Host, and Broadcast Address for the first subnet.</p>
+
+      <div class="step-box">
+        <strong>Solution:</strong><br/>
+        • <strong>Subnet Mask:</strong> CIDR <code>/27</code> means 27 ones in binary: <code>11111111.11111111.11111111.11100000</code> &rarr; <strong>255.255.255.224</strong><br/>
+        • <strong>Block Size:</strong> 256 - 224 = <strong>32</strong> (Subnets jump in steps of 32!)<br/>
+        • <strong>Usable Hosts:</strong> 32 - 2 = <strong>30 hosts per subnet</strong><br/>
+        • <strong>Subnet 0 Ranges:</strong><br/>
+        &nbsp;&nbsp;- Network ID: <code>192.168.10.0</code><br/>
+        &nbsp;&nbsp;- First Usable Host: <code>192.168.10.1</code><br/>
+        &nbsp;&nbsp;- Last Usable Host: <code>192.168.10.30</code><br/>
+        &nbsp;&nbsp;- Broadcast Address: <code>192.168.10.31</code>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 35.2 BDP -->
+  <div class="section" id="num-bdp">
+    <div class="section-header">
+      <div class="section-icon">⏱️</div>
+      <div>
+        <div class="section-num">Section 35.2</div>
+        <h2 class="section-title">Bandwidth-Delay Product (BDP) Solved Numericals</h2>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <div class="callout-title">Bandwidth-Delay Product Formula</div>
+        <div class="callout-text">
+          <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:6px 0;">BDP = Bandwidth (bps) &times; Round-Trip Time (RTT in seconds)</div>
+          BDP represents the maximum number of bits that can be "in flight" in the network pipe at any instant.
+        </div>
+      </div>
+    </div>
+
+    <h4 class="mini-title" style="margin-top:16px;">Problem 2: BDP & Window Size Calculation</h4>
+    <p><strong>Question:</strong> A point-to-point link has a bandwidth of <strong>100 Mbps</strong> and a Round-Trip Time (RTT) of <strong>50 ms</strong>. Calculate: (a) The Bandwidth-Delay Product (BDP) in Bytes, and (b) The minimum TCP Receiver Window size required to achieve 100% link utilization.</p>
+
+    <div class="step-box">
+      <strong>Solution:</strong><br/>
+      • Bandwidth $B = 100 \text{ Mbps} = 100 \times 10^6 \text{ bits/sec}$<br/>
+      • RTT $= 50 \text{ ms} = 0.05 \text{ seconds}$<br/>
+      • (a) $\text{BDP in bits} = 100 \times 10^6 \times 0.05 = 5,000,000 \text{ bits}$<br/>
+      • $\text{BDP in Bytes} = \frac{5,000,000}{8} = \mathbf{625,000 \text{ Bytes} \ (625 \text{ KB})}$<br/>
+      • (b) Minimum TCP Window Size = BDP = <strong>625,000 Bytes</strong>.
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 35.3 ARQ Efficiency -->
+  <div class="section" id="num-arq">
+    <div class="num-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">35.3 ARQ Protocol Efficiency & Window Size Numericals</h3>
+
+      <div class="callout key">
+        <div class="callout-icon">🔄</div>
+        <div class="callout-body">
+          <div class="callout-title">Sliding Window Efficiency Formulas</div>
+          <div class="callout-text">
+            • <strong>Transmission Delay:</strong> T<sub>t</sub> = Packet Length (L) / Bandwidth (B)<br/>
+            • <strong>Propagation Delay:</strong> T<sub>p</sub> = Distance (d) / Velocity (v)<br/>
+            • <strong>Delay Ratio:</strong> a = T<sub>p</sub> / T<sub>t</sub><br/>
+            • <strong>Stop-and-Wait Efficiency (&eta;):</strong> &eta; = T<sub>t</sub> / (T<sub>t</sub> + 2 T<sub>p</sub>) = 1 / (1 + 2a)<br/>
+            • <strong>Optimal Sliding Window Size (N):</strong> N = 1 + 2a = 1 + 2(T<sub>p</sub> / T<sub>t</sub>)<br/>
+            • <strong>Throughput:</strong> Throughput = &eta; &times; Bandwidth
+          </div>
+        </div>
+      </div>
+
+      <h4 class="mini-title" style="margin-top:20px;">Problem 3: Stop-and-Wait ARQ Efficiency</h4>
+      <p><strong>Question:</strong> A packet of size 1000 Bytes is sent over a 1 Mbps link. The propagation delay between sender and receiver is 20 ms. Calculate: (a) $T_t$, (b) $T_p$, (c) Efficiency $\eta$, and (d) Optimal window size $N$ for 100% throughput.</p>
+
+      <div class="step-box">
+        <strong>Solution:</strong><br/>
+        • Packet Length $L = 1000 \text{ Bytes} = 8000 \text{ bits}$<br/>
+        • Bandwidth $B = 1 \text{ Mbps} = 10^6 \text{ bits/sec}$<br/>
+        • (a) $T_t = \frac{8000}{10^6} = 0.008 \text{ sec} = \mathbf{8 \text{ ms}}$<br/>
+        • (b) $T_p = \mathbf{20 \text{ ms}}$<br/>
+        • (c) $a = \frac{T_p}{T_t} = \frac{20}{8} = 2.5$<br/>
+        • $\eta = \frac{1}{1 + 2a} = \frac{1}{1 + 2(2.5)} = \frac{1}{6} = \mathbf{16.67\%}$<br/>
+        • (d) Optimal Window Size $N = 1 + 2a = 1 + 5 = \mathbf{6 \text{ frames}}$.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 35.4 Shannon Capacity -->
+  <div class="section" id="num-shannon">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 35.4</div>
+        <h2 class="section-title">Nyquist & Shannon Channel Capacity Numericals</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Formula Name</th><th>Equation</th><th>Variables</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nyquist Bit Rate</strong> (Noiseless Channel)</td>
+            <td>$\text{Bit Rate} = 2 \times B \times \log_2(V)$</td>
+            <td>$B$ = Bandwidth (Hz), $V$ = Signal discrete voltage levels</td>
+          </tr>
+          <tr>
+            <td><strong>Shannon Capacity</strong> (Noisy Channel)</td>
+            <td>$C = B \times \log_2(1 + \text{SNR})$</td>
+            <td>$B$ = Bandwidth (Hz), $\text{SNR}$ = Signal-to-Noise Ratio (linear)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mini-title" style="margin-top:16px;">Problem 4: Shannon Capacity Calculation</h4>
+    <p><strong>Question:</strong> A telephone channel has a bandwidth of <strong>3 kHz</strong> and a Signal-to-Noise ratio ($\text{SNR}_{\text{dB}}$) of <strong>30 dB</strong>. Calculate the maximum theoretical channel capacity $C$ in kbps.</p>
+
+    <div class="step-box">
+      <strong>Solution:</strong><br/>
+      • Convert $\text{SNR}_{\text{dB}}$ to linear scale: $\text{SNR}_{\text{dB}} = 10 \log_{10}(\text{SNR}) = 30 \implies \text{SNR} = 10^3 = 1000$<br/>
+      • $C = B \times \log_2(1 + \text{SNR}) = 3000 \times \log_2(1 + 1000) \approx 3000 \times \log_2(1001)$<br/>
+      • Since $\log_2(1024) = 10$, $\log_2(1001) \approx 9.97$<br/>
+      • $C = 3000 \times 9.97 = \mathbf{29,910 \text{ bps} \ \approx 30 \text{ kbps}}$.
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 35.5 Hamming Code -->
+  <div class="section" id="num-hamming">
+    <div class="sec-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">35.5 Hamming Code & CRC Error Correction Numericals</h3>
+
+      <div class="callout note">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <div class="callout-title">Hamming Parity Bits Condition</div>
+          <div class="callout-text">
+            <div style="font-weight:700; font-size:14px; font-family:'JetBrains Mono', monospace; color:var(--accent); margin:6px 0;">2<sup>r</sup> &ge; m + r + 1</div>
+            where <em>m</em> is the number of data bits and <em>r</em> is the minimum number of parity/redundancy bits required.
+          </div>
+        </div>
+      </div>
+
+      <h4 class="mini-title" style="margin-top:16px;">Problem 5: Hamming Parity Bits Calculation</h4>
+      <p><strong>Question:</strong> How many parity bits $r$ are required to transmit a 7-bit ASCII data payload ($m = 7$) using Hamming error correction code?</p>
+
+      <div class="step-box">
+        <strong>Solution:</strong><br/>
+        • Test values of $r$ in $2^r \ge 7 + r + 1 = 8 + r$:<br/>
+        &nbsp;&nbsp;- Try $r = 3$: $2^3 = 8 \ge 8 + 3 = 11$ (False!)<br/>
+        &nbsp;&nbsp;- Try $r = 4$: $2^4 = 16 \ge 8 + 4 = 12$ (True!)<br/>
+        • Minimum parity bits required = <strong>4 bits</strong> (Total codeword length = 7 + 4 = 11 bits).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="34-networking-acronyms-full-forms-and-quick-cheat-sheet.html">← Ch 34: Acronyms & Cheat Sheet</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 35 · Networking Numericals
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

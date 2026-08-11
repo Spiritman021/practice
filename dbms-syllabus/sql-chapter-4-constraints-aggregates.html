@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="SQL Chapter 4: Constraints (UNIQUE, NOT NULL, PRIMARY KEY, CHECK, FOREIGN KEY, DEFAULT) and Aggregate Functions (MAX, MIN, COUNT, SUM, AVG, DISTINCT) with Oracle examples and PYQ exam Q&A.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 4: Constraints &amp; Aggregate Functions | DBMS Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/sql-chapter-4-constraints-aggregates.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.04),transparent 40%),radial-gradient(circle at 90% 80%,rgba(124,58,237,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+    .hero{background:linear-gradient(135deg,#1e3a8a 0%,#312e81 40%,#4c1d95 75%,#5b21b6 100%);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'4';position:absolute;right:-10px;top:-20px;font-size:200px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace;line-height:1}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#c4b5fd;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+    .part-nav{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .pn{flex:1;min-width:200px;background:#fff;border:2px solid;border-radius:14px;padding:16px 20px;text-decoration:none;color:var(--tm);transition:all .2s ease;display:flex;align-items:center;gap:12px}
+    .pn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .pn.p1{border-color:#7c3aed}.pn.p2{border-color:#0d9488}
+    .pn-icon{font-size:24px}.pn-text{font-weight:800;font-size:.95rem;color:var(--tm)}
+    .pn-sub{font-size:12px;color:var(--mu);font-weight:500}
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--pl);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--pr);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .cl{border-left:4px solid var(--pr);background:var(--pl);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#1e3a8a}
+    .ct{font-weight:800;color:var(--ph);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-o{border-left-color:var(--or);background:var(--or2);color:#431407}.cl-o .ct{color:var(--or)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    .ls{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .ls li{position:relative;padding-left:24px;font-size:.975rem;color:#334155}
+    .ls li::before{content:"➔";position:absolute;left:0;color:var(--pr);font-size:13px;font-weight:bold}
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#eff6ff}
+    .cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0}
+    .cc{border-radius:14px;padding:18px;text-align:center;border:1.5px solid;transition:transform .2s ease}
+    .cc:hover{transform:translateY(-3px)}
+    .cc .ci{font-size:26px;margin-bottom:8px}.cc .cn{font-size:1rem;font-weight:800;margin-bottom:4px}.cc .cd{font-size:12px;line-height:1.4;opacity:.85}
+    .cc.uq{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .cc.nn{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .cc.pk{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+    .cc.ck{background:#fff7ed;border-color:#fed7aa;color:#431407}
+    .cc.fk{background:#fef3c7;border-color:#fbbf24;color:#78350f}
+    .cc.df{background:#f5f3ff;border-color:#c4b5fd;color:#3b0764}
+    .agg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:20px 0}
+    .agg{border-radius:14px;padding:18px;text-align:center;border:1.5px solid;transition:transform .2s}
+    .agg:hover{transform:translateY(-3px)}
+    .agg .ai{font-size:26px;margin-bottom:6px}.agg .an{font-weight:800;font-size:1.1rem;font-family:'Fira Code',monospace;margin-bottom:5px}.agg .ad{font-size:12px;line-height:1.4}
+    .agg.mx{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+    .agg.mn{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .agg.cn{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .agg.sm{background:#fff7ed;border-color:#fed7aa;color:#431407}
+    .agg.av{background:#f5f3ff;border-color:#c4b5fd;color:#3b0764}
+    .emp-table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;border:1px solid var(--bd);font-size:14px;margin:18px 0}
+    .emp-table th{background:#1e293b;color:#fff;padding:11px 16px;font-weight:700;text-align:left}
+    .emp-table td{padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Fira Code',monospace;font-size:13px}
+    .emp-table tr:nth-child(even) td{background:#f8fafc}
+    .emp-table .null-val{color:#94a3b8;font-style:italic}
+    .emp-table .hi{background:#fef9c3!important;font-weight:700;color:#78350f}
+    .result-box{background:#0f172a;border-radius:12px;padding:14px 20px;margin:12px 0;border-left:4px solid #10b981}
+    .result-box .rl{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;font-family:'Fira Code',monospace}
+    .result-box .rv{font-family:'Fira Code',monospace;font-size:1.1rem;font-weight:800;color:#86efac}
+    .formula-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;border-radius:14px;padding:18px 22px;margin:16px 0;text-align:center}
+    .formula-box .fl{font-size:12px;font-weight:800;color:#166534;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+    .formula-box .fv{font-size:1.15rem;font-weight:800;color:#14532d;font-family:'Fira Code',monospace}
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin-bottom:0}
+    .real-eg{background:#f8fafc;border:1px solid var(--bd);border-radius:14px;padding:16px 20px;margin:16px 0;display:flex;align-items:flex-start;gap:14px}
+    .re-icon{font-size:28px;flex-shrink:0}.re-body .re-title{font-weight:800;color:var(--tm);font-size:1rem;margin-bottom:4px}
+    .re-body p{font-size:.93rem;color:var(--mu);margin:0}
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#7c3aed,#2563eb,#0d9488);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}.part-nav{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus Hub</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <a href="sql-index.html">SQL Chapters</a><span class="sep">›</span>
+  <span class="cur">Chapter 4: Constraints &amp; Aggregate Functions</span>
+  <a class="bk" href="sql-index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 4</span>
+    <h1>Constraints &amp; Aggregate Functions</h1>
+    <p>Two of the most important foundational topics in SQL — Constraints enforce data integrity rules before data enters the table; Aggregate Functions compute summary statistics across rows. Both are critical for GATE, IBPS SO, and placement interviews.</p>
+    <div class="tags">
+      <span class="tag">🔑 UNIQUE · NOT NULL</span><span class="tag">🏷️ PRIMARY KEY = Unique + NOT NULL</span>
+      <span class="tag">✅ CHECK · DEFAULT</span><span class="tag">🔗 FOREIGN KEY</span>
+      <span class="tag">📊 MAX · MIN · COUNT · SUM · AVG</span><span class="tag">🎯 DISTINCT + NULL rules</span>
+    </div>
+  </section>
+
+  <!-- PART QUICK NAV -->
+  <div class="part-nav">
+    <a href="#constraints" class="pn p1">
+      <span class="pn-icon">🔒</span>
+      <div><div class="pn-text">Part A — Constraints</div><div class="pn-sub">UNIQUE · NOT NULL · PRIMARY KEY · CHECK · FOREIGN KEY · DEFAULT</div></div>
+    </a>
+    <a href="#aggregates" class="pn p2">
+      <span class="pn-icon">📊</span>
+      <div><div class="pn-text">Part B — Aggregate Functions</div><div class="pn-sub">MAX · MIN · COUNT · SUM · AVG + DISTINCT &amp; NULL behaviour</div></div>
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  PART A — CONSTRAINTS                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="ns" id="constraints">
+    <h2>🔒 Part A: Constraints in SQL</h2>
+    <p>A <strong>Constraint</strong> is a rule or condition applied on a table column <em>before</em> data can be inserted. It restricts users to enter only valid data that satisfies the defined condition, ensuring <strong>data integrity</strong> in the database.</p>
+
+    <div class="real-eg">
+      <span class="re-icon">📧</span>
+      <div class="re-body">
+        <div class="re-title">Real-Life Analogy — Gmail Account Creation</div>
+        <p>When you sign up for Gmail, you can't use a username that already exists (UNIQUE constraint). When creating a password, it must have ≥8 characters + special char + number (CHECK constraint). These are <strong>constraints</strong> — rules that enforce only valid data goes in.</p>
+      </div>
+    </div>
+
+    <div class="cl">
+      <div class="ct">📌 Where Are Constraints Applied?</div>
+      Constraints are applied on <strong>columns (attributes)</strong> of a table — either at the time of <code>CREATE TABLE</code> or later via <code>ALTER TABLE</code>. Only data that satisfies the constraint is allowed into that column.
+    </div>
+
+    <h3>🗂️ The 6 SQL Constraints — At a Glance</h3>
+    <div class="cg">
+      <div class="cc uq"><div class="ci">🔵</div><div class="cn">UNIQUE</div><div class="cd">No duplicate values in the column. Multiple per table.</div></div>
+      <div class="cc nn"><div class="ci">🚫</div><div class="cn">NOT NULL</div><div class="cd">Column cannot be left empty. Must have a value.</div></div>
+      <div class="cc pk"><div class="ci">🔑</div><div class="cn">PRIMARY KEY</div><div class="cd">UNIQUE + NOT NULL combined. Only <strong>one</strong> per table.</div></div>
+      <div class="cc ck"><div class="ci">✅</div><div class="cn">CHECK</div><div class="cd">Custom condition/domain must be satisfied before insert.</div></div>
+      <div class="cc fk"><div class="ci">🔗</div><div class="cn">FOREIGN KEY</div><div class="cd">Referential integrity between two tables. Very important!</div></div>
+      <div class="cc df"><div class="ci">🎛️</div><div class="cn">DEFAULT</div><div class="cd">Auto-fills a preset value if no value is provided.</div></div>
+    </div>
+
+    <!-- UNIQUE -->
+    <h3>🔵 1. UNIQUE Constraint</h3>
+    <p>The <code>UNIQUE</code> constraint ensures that <strong>all values in a column are distinct</strong> — no duplicates allowed. A table can have <strong>multiple</strong> UNIQUE constraints (unlike PRIMARY KEY which allows only one). A UNIQUE column <em>can</em> hold NULL values (unless also NOT NULL).</p>
+    <div class="real-eg">
+      <span class="re-icon">📱</span>
+      <div class="re-body">
+        <div class="re-title">Real-World Example</div>
+        <p>A <code>mobile_number</code> column in an employee table should be UNIQUE — no two employees can share the same mobile number. If user tries to insert a duplicate, the database will throw an error and reject the insertion.</p>
+      </div>
+    </div>
+    <div class="cb"><span class="ll">Oracle SQL — UNIQUE</span><pre><span class="cm">-- At CREATE TABLE time:</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>       <span class="fn">INT</span>,
+    <span class="tb">mobile_no</span>    <span class="fn">VARCHAR2</span>(<span class="vl">15</span>) <span class="kw">UNIQUE</span>,
+    <span class="tb">email</span>        <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">UNIQUE</span>
+)<span class="op">;</span>
+
+<span class="cm">-- Via ALTER TABLE (add after table exists):</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employees</span> <span class="kw">ADD CONSTRAINT</span> <span class="tb">uq_mobile</span> <span class="kw">UNIQUE</span>(<span class="tb">mobile_no</span>)<span class="op">;</span></pre></div>
+
+    <!-- NOT NULL -->
+    <h3>🚫 2. NOT NULL Constraint</h3>
+    <p>The <code>NOT NULL</code> constraint ensures that a column <strong>cannot be left empty</strong>. The user <em>must</em> provide a value. This is the "mandatory field" rule.</p>
+    <div class="cl cl-w"><div class="ct">⚠️ NULL ≠ Zero!</div>
+    <strong>NULL</strong> means "value not available / unknown / not applicable." Zero (0) is an actual numeric value. NULL means the field is completely empty — no data was provided. <code>NOT NULL</code> means something must be provided.</div>
+    <div class="real-eg">
+      <span class="re-icon">📝</span>
+      <div class="re-body">
+        <div class="re-title">Real-World Example — Mandatory Fields in a Form</div>
+        <p>When you fill a form online, fields marked with a red asterisk (*) are mandatory — you cannot submit the form leaving them blank. That asterisk represents a <code>NOT NULL</code> constraint on that column in the database.</p>
+      </div>
+    </div>
+    <div class="cb"><span class="ll">Oracle SQL — NOT NULL</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">students</span> (
+    <span class="tb">student_id</span>   <span class="fn">INT</span>           <span class="kw">NOT NULL</span>,
+    <span class="tb">name</span>         <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,
+    <span class="tb">email</span>        <span class="fn">VARCHAR2</span>(<span class="vl">100</span>)          <span class="cm">-- Optional field, NULL allowed</span>
+)<span class="op">;</span>
+
+<span class="cm">-- This will throw an error (name cannot be NULL):</span>
+<span class="kw">INSERT INTO</span> <span class="tb">students</span> <span class="kw">VALUES</span> (<span class="vl">101</span>, <span class="kw">NULL</span>, <span class="str">'test@mail.com'</span>)<span class="op">;</span>
+<span class="cm">-- ORA-01400: cannot insert NULL into ("STUDENTS"."NAME")</span></pre></div>
+
+    <!-- PRIMARY KEY -->
+    <h3>🔑 3. PRIMARY KEY Constraint</h3>
+    <p>A <code>PRIMARY KEY</code> is the most important constraint in a table. It is a <strong>combination of UNIQUE + NOT NULL</strong>. Every table should have exactly <strong>one PRIMARY KEY</strong>. It uniquely identifies each row in the table.</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Feature</th><th>UNIQUE</th><th>NOT NULL</th><th>PRIMARY KEY</th></tr></thead><tbody>
+      <tr><td>Duplicates allowed?</td><td>❌ No</td><td>✅ Yes</td><td>❌ No</td></tr>
+      <tr><td>NULL allowed?</td><td>✅ Yes (one NULL)</td><td>❌ No</td><td>❌ No</td></tr>
+      <tr><td>Count per table</td><td>Multiple</td><td>Multiple</td><td>Only <strong>ONE</strong></td></tr>
+      <tr><td>Use case</td><td>email, mobile</td><td>name, id</td><td>emp_id, roll_no</td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">Oracle SQL — PRIMARY KEY</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>   <span class="fn">INT</span>           <span class="kw">PRIMARY KEY</span>,   <span class="cm">-- UNIQUE + NOT NULL</span>
+    <span class="tb">name</span>     <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,
+    <span class="tb">email</span>    <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">UNIQUE</span>
+)<span class="op">;</span>
+
+<span class="cm">-- Real examples where PRIMARY KEY is used:</span>
+<span class="cm">-- Employee table  → emp_id (unique per employee, mandatory)</span>
+<span class="cm">-- Student table   → roll_number / registration_number</span>
+<span class="cm">-- Product table   → product_id</span></pre></div>
+
+    <!-- CHECK -->
+    <h3>✅ 4. CHECK Constraint</h3>
+    <p>The <code>CHECK</code> constraint validates a <strong>custom condition (domain)</strong> before any data is inserted. If the inserted value doesn't satisfy the condition, the database rejects it with an error.</p>
+    <div class="real-eg">
+      <span class="re-icon">🔢</span>
+      <div class="re-body">
+        <div class="re-title">Example — Age must be > 18</div>
+        <p>Without CHECK, a user could enter <code>age = -10</code> and the database would accept it (int is valid). With <code>CHECK (age &gt; 18)</code>, only values greater than 18 are accepted. Value 10 → Error. Value 25 → Accepted.</p>
+      </div>
+    </div>
+    <div class="cb"><span class="ll">Oracle SQL — CHECK Constraint</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>   <span class="fn">INT</span>            <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">age</span>      <span class="fn">INT</span>            <span class="kw">CHECK</span> (<span class="tb">age</span> <span class="op">&gt;</span> <span class="vl">18</span>),
+    <span class="tb">address</span>  <span class="fn">VARCHAR2</span>(<span class="vl">50</span>)  <span class="kw">CHECK</span> (<span class="tb">address</span> <span class="kw">IN</span> (<span class="str">'Delhi'</span>, <span class="str">'Chandigarh'</span>, <span class="str">'Mumbai'</span>)),
+    <span class="tb">salary</span>   <span class="fn">NUMBER</span>         <span class="kw">CHECK</span> (<span class="tb">salary</span> <span class="op">&gt;=</span> <span class="vl">0</span>)
+)<span class="op">;</span>
+
+<span class="cm">-- age = -10 → ORA-02290: check constraint violated</span>
+<span class="cm">-- age = 25  → ✅ Accepted</span>
+<span class="cm">-- address = 'Pune' → ❌ Error (not in domain)</span>
+<span class="cm">-- address = 'Delhi' → ✅ Accepted</span></pre></div>
+    <div class="cl cl-p"><div class="ct">📌 Domain = Fixed Set of Valid Values</div>
+    When you use CHECK with <code>IN ('value1', 'value2', ...)</code>, you are <strong>fixing the domain</strong> of the column — restricting it to only a predefined set of valid values.</div>
+
+    <!-- FOREIGN KEY -->
+    <h3>🔗 5. FOREIGN KEY Constraint ⭐⭐⭐</h3>
+    <p>A <code>FOREIGN KEY</code> is used for <strong>Referential Integrity</strong>. It links one table to another — specifically to the PRIMARY KEY of another table (or itself). It ensures that values in one table always reference valid values in another table.</p>
+    <div class="cl cl-d"><div class="ct">⭐⭐⭐ Very Important Topic</div>
+    FOREIGN KEY is one of the most important topics in DBMS — it covers Referential Integrity, cascading operations (ON DELETE CASCADE, ON UPDATE), and parent-child table relationships. It is covered in-depth in a dedicated video (and upcoming SQL chapter).</div>
+    <div class="cb"><span class="ll">Oracle SQL — FOREIGN KEY (Overview)</span><pre><span class="cm">-- Parent table (referenced table)</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">departments</span> (
+    <span class="tb">dept_id</span>   <span class="fn">INT</span>           <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">dept_name</span> <span class="fn">VARCHAR2</span>(<span class="vl">50</span>)
+)<span class="op">;</span>
+
+<span class="cm">-- Child table (table with the foreign key)</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>  <span class="fn">INT</span>  <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">name</span>    <span class="fn">VARCHAR2</span>(<span class="vl">100</span>),
+    <span class="tb">dept_id</span> <span class="fn">INT</span>  <span class="kw">REFERENCES</span> <span class="tb">departments</span>(<span class="tb">dept_id</span>)  <span class="cm">-- Foreign Key</span>
+)<span class="op">;</span>
+
+<span class="cm">-- A dept_id of 99 cannot be inserted in employees</span>
+<span class="cm">-- if 99 does not exist in the departments table.</span>
+<span class="cm">-- This is Referential Integrity.</span></pre></div>
+
+    <!-- DEFAULT -->
+    <h3>🎛️ 6. DEFAULT Constraint</h3>
+    <p>The <code>DEFAULT</code> constraint automatically assigns a <strong>preset value</strong> to a column when no value is explicitly provided during insert. The column will never be empty — it takes the default value.</p>
+    <div class="real-eg">
+      <span class="re-icon">⌚</span>
+      <div class="re-body">
+        <div class="re-title">Analogy — Watch Default Time</div>
+        <p>A newly manufactured watch always shows <strong>10:10</strong> as the default time in the store. Once you buy and set it, the actual time is used. DEFAULT in SQL works the same way — the preset value is used until a real value is provided.</p>
+      </div>
+    </div>
+    <div class="cb"><span class="ll">Oracle SQL — DEFAULT</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>   <span class="fn">INT</span>            <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">name</span>     <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,
+    <span class="tb">salary</span>   <span class="fn">NUMBER</span>         <span class="kw">DEFAULT</span> <span class="vl">10000</span>,      <span class="cm">-- If not provided → 10000</span>
+    <span class="tb">status</span>   <span class="fn">VARCHAR2</span>(<span class="vl">20</span>)  <span class="kw">DEFAULT</span> <span class="str">'active'</span>,   <span class="cm">-- If not provided → 'active'</span>
+    <span class="tb">join_date</span> <span class="fn">DATE</span>          <span class="kw">DEFAULT</span> <span class="fn">SYSDATE</span>     <span class="cm">-- Auto-set to today's date</span>
+)<span class="op">;</span>
+
+<span class="cm">-- Insert without salary → salary will be 10000 automatically</span>
+<span class="kw">INSERT INTO</span> <span class="tb">employees</span>(<span class="tb">emp_id</span>, <span class="tb">name</span>) <span class="kw">VALUES</span> (<span class="vl">101</span>, <span class="str">'Rahul'</span>)<span class="op">;</span>
+<span class="cm">-- Result: salary = 10000, status = 'active', join_date = today</span></pre></div>
+
+    <!-- ALL CONSTRAINTS TOGETHER -->
+    <h3>🔀 All 6 Constraints Together in One Table</h3>
+    <div class="cb"><span class="ll">Oracle SQL — Complete Example</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">employee</span> (
+    <span class="tb">emp_id</span>    <span class="fn">INT</span>            <span class="kw">PRIMARY KEY</span>,              <span class="cm">-- Unique + NOT NULL</span>
+    <span class="tb">name</span>      <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,                  <span class="cm">-- Mandatory field</span>
+    <span class="tb">email</span>     <span class="fn">VARCHAR2</span>(<span class="vl">150</span>) <span class="kw">UNIQUE</span>,                     <span class="cm">-- No duplicate emails</span>
+    <span class="tb">age</span>       <span class="fn">INT</span>            <span class="kw">CHECK</span> (<span class="tb">age</span> <span class="op">&gt;</span> <span class="vl">18</span>),          <span class="cm">-- Must be > 18</span>
+    <span class="tb">dept_id</span>   <span class="fn">INT</span>            <span class="kw">REFERENCES</span> <span class="tb">dept</span>(<span class="tb">dept_id</span>), <span class="cm">-- Foreign Key</span>
+    <span class="tb">salary</span>    <span class="fn">NUMBER</span>         <span class="kw">DEFAULT</span> <span class="vl">10000</span>              <span class="cm">-- Defaults to 10000</span>
+)<span class="op">;</span></pre></div>
+    <div class="tw"><table class="ct2"><thead><tr><th>Constraint</th><th>Duplicates?</th><th>NULL OK?</th><th>Count per Table</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><code>UNIQUE</code></td><td>❌</td><td>✅ One NULL</td><td>Multiple</td><td>No duplicate values</td></tr>
+      <tr><td><code>NOT NULL</code></td><td>✅</td><td>❌</td><td>Multiple</td><td>Mandatory field</td></tr>
+      <tr><td><code>PRIMARY KEY</code></td><td>❌</td><td>❌</td><td><strong>Only ONE</strong></td><td>Row identifier = UNIQUE + NOT NULL</td></tr>
+      <tr><td><code>CHECK</code></td><td>✅</td><td>✅</td><td>Multiple</td><td>Custom domain / condition</td></tr>
+      <tr><td><code>FOREIGN KEY</code></td><td>✅</td><td>✅</td><td>Multiple</td><td>Referential integrity between tables</td></tr>
+      <tr><td><code>DEFAULT</code></td><td>✅</td><td>✅</td><td>Multiple</td><td>Auto-fill preset value if none provided</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  PART B — AGGREGATE FUNCTIONS          -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="ns" id="aggregates">
+    <h2>📊 Part B: Aggregate Functions in SQL</h2>
+    <p>Aggregate functions operate on a <strong>set of rows</strong> and return a <strong>single summary value</strong>. There are exactly <strong>5 aggregate functions</strong> in SQL. They are heavily used in <code>GROUP BY</code> queries, subqueries, and correlated queries.</p>
+
+    <div class="agg-grid">
+      <div class="agg mx"><div class="ai">⬆️</div><div class="an">MAX()</div><div class="ad">Returns the maximum value in the column</div></div>
+      <div class="agg mn"><div class="ai">⬇️</div><div class="an">MIN()</div><div class="ad">Returns the minimum value in the column</div></div>
+      <div class="agg cn"><div class="ai">🔢</div><div class="an">COUNT()</div><div class="ad">Returns the number of rows (or non-NULL values)</div></div>
+      <div class="agg sm"><div class="ai">➕</div><div class="an">SUM()</div><div class="ad">Returns the total sum of all values in the column</div></div>
+      <div class="agg av"><div class="ai">📐</div><div class="an">AVG()</div><div class="ad">Returns the average = SUM/COUNT (ignoring NULLs)</div></div>
+    </div>
+
+    <h3>📋 Working Data — EMP Table</h3>
+    <p>All examples below use this sample <code>emp</code> table:</p>
+    <table class="emp-table">
+      <thead><tr><th>Eid</th><th>Ename</th><th>Dept</th><th>Salary</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Alice</td><td>IT</td><td class="hi">10,000</td></tr>
+        <tr><td>2</td><td>Bob</td><td>HR</td><td class="hi">20,000</td></tr>
+        <tr><td>3</td><td>Carol</td><td>IT</td><td class="hi">30,000</td></tr>
+        <tr><td>4</td><td>David</td><td>HR</td><td class="hi">30,000</td></tr>
+        <tr><td>5</td><td>Eve</td><td>IT</td><td class="hi">50,000</td></tr>
+        <tr><td>6</td><td>Frank</td><td>HR</td><td class="null-val">NULL</td></tr>
+      </tbody>
+    </table>
+    <div class="cl cl-t"><div class="ct">📌 Key Rule: NULL is Ignored by All Aggregate Functions</div>
+    NULL means "value not available." All 5 aggregate functions (<code>MAX</code>, <code>MIN</code>, <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>) <strong>automatically skip NULL values</strong> in their calculations. Only <code>COUNT(*)</code> counts NULLs because it counts rows, not values.</div>
+
+    <!-- MAX -->
+    <h3>⬆️ 1. MAX() — Maximum Value</h3>
+    <div class="cb"><span class="ll">SQL — MAX</span><pre><span class="kw">SELECT</span> <span class="fn">MAX</span>(<span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- Ignores NULL row. Checks: 10000, 20000, 30000, 30000, 50000</span>
+<span class="cm">-- Maximum = 50000</span></pre></div>
+    <div class="result-box"><div class="rl">Output</div><div class="rv">50000</div></div>
+
+    <!-- MIN -->
+    <h3>⬇️ 2. MIN() — Minimum Value</h3>
+    <div class="cb"><span class="ll">SQL — MIN</span><pre><span class="kw">SELECT</span> <span class="fn">MIN</span>(<span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- Ignores NULL row. Checks: 10000, 20000, 30000, 30000, 50000</span>
+<span class="cm">-- Minimum = 10000</span></pre></div>
+    <div class="result-box"><div class="rl">Output</div><div class="rv">10000</div></div>
+
+    <!-- COUNT -->
+    <h3>🔢 3. COUNT() — Three Variations</h3>
+    <div class="cb"><span class="ll">SQL — COUNT Variations</span><pre><span class="cm">-- Variation 1: COUNT(*) → counts ALL rows including NULL rows</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- 6 total rows → Output: 6</span>
+
+<span class="cm">-- Variation 2: COUNT(column) → counts non-NULL values only</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- Skips NULL row → counts: 10000, 20000, 30000, 30000, 50000 = 5</span>
+<span class="cm">-- Output: 5</span>
+
+<span class="cm">-- Variation 3: COUNT(DISTINCT column) → counts unique non-NULL values</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> <span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- Unique values: 10000, 20000, 30000, 50000 (30000 counted once)</span>
+<span class="cm">-- NULL skipped → Output: 4</span></pre></div>
+    <div class="tw"><table class="ct2"><thead><tr><th>Query</th><th>What is Counted</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>COUNT(*)</code></td><td>All rows including NULL rows</td><td><strong>6</strong></td></tr>
+      <tr><td><code>COUNT(salary)</code></td><td>Non-NULL salary values only</td><td><strong>5</strong></td></tr>
+      <tr><td><code>COUNT(DISTINCT salary)</code></td><td>Unique non-NULL salary values</td><td><strong>4</strong></td></tr>
+    </tbody></table></div>
+
+    <!-- SUM -->
+    <h3>➕ 4. SUM() — Total Sum</h3>
+    <div class="cb"><span class="ll">SQL — SUM Variations</span><pre><span class="cm">-- SUM(salary) → adds all non-NULL values</span>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(<span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- 10000 + 20000 + 30000 + 30000 + 50000 = 1,40,000</span>
+<span class="cm">-- Output: 1,40,000</span>
+
+<span class="cm">-- SUM(DISTINCT salary) → adds unique values only, 30000 counted once</span>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(<span class="kw">DISTINCT</span> <span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- 10000 + 20000 + 30000 + 50000 = 1,10,000 (30000 counted once)</span>
+<span class="cm">-- Output: 1,10,000</span></pre></div>
+    <div class="tw"><table class="ct2"><thead><tr><th>Query</th><th>Calculation</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>SUM(salary)</code></td><td>10K + 20K + 30K + 30K + 50K</td><td><strong>1,40,000</strong></td></tr>
+      <tr><td><code>SUM(DISTINCT salary)</code></td><td>10K + 20K + 30K + 50K (30K once)</td><td><strong>1,10,000</strong></td></tr>
+    </tbody></table></div>
+
+    <!-- AVG -->
+    <h3>📐 5. AVG() — Average Value</h3>
+    <div class="formula-box">
+      <div class="fl">Formula of Average</div>
+      <div class="fv">AVG(salary) = SUM(salary) / COUNT(salary)</div>
+    </div>
+    <div class="cb"><span class="ll">SQL — AVG Variations</span><pre><span class="cm">-- AVG(salary) → SUM(salary) / COUNT(salary)</span>
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- SUM = 1,40,000 | COUNT (non-NULL) = 5</span>
+<span class="cm">-- AVG = 1,40,000 / 5 = 28,000</span>
+<span class="cm">-- Output: 28,000</span>
+
+<span class="cm">-- AVG(DISTINCT salary) → SUM(DISTINCT) / COUNT(DISTINCT)</span>
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="kw">DISTINCT</span> <span class="tb">salary</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+<span class="cm">-- SUM(DISTINCT) = 1,10,000 | COUNT(DISTINCT) = 4</span>
+<span class="cm">-- AVG = 1,10,000 / 4 = 27,500</span>
+<span class="cm">-- Output: 27,500</span></pre></div>
+    <div class="tw"><table class="ct2"><thead><tr><th>Query</th><th>SUM Used</th><th>COUNT Used</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>AVG(salary)</code></td><td>1,40,000 (all)</td><td>5 (non-NULL)</td><td><strong>28,000</strong></td></tr>
+      <tr><td><code>AVG(DISTINCT salary)</code></td><td>1,10,000 (distinct)</td><td>4 (distinct)</td><td><strong>27,500</strong></td></tr>
+    </tbody></table></div>
+
+    <!-- FULL SUMMARY TABLE -->
+    <h3>📋 Complete Reference Table — All Queries on EMP</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Query</th><th>Includes NULL?</th><th>Includes Duplicates?</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>SELECT MAX(salary) FROM emp</code></td><td>❌ Skip NULL</td><td>✅ Yes</td><td><strong>50,000</strong></td></tr>
+      <tr><td><code>SELECT MIN(salary) FROM emp</code></td><td>❌ Skip NULL</td><td>✅ Yes</td><td><strong>10,000</strong></td></tr>
+      <tr><td><code>SELECT COUNT(*) FROM emp</code></td><td>✅ Count NULL rows</td><td>✅ Yes</td><td><strong>6</strong></td></tr>
+      <tr><td><code>SELECT COUNT(salary) FROM emp</code></td><td>❌ Skip NULL</td><td>✅ Yes</td><td><strong>5</strong></td></tr>
+      <tr><td><code>SELECT COUNT(DISTINCT salary) FROM emp</code></td><td>❌ Skip NULL</td><td>❌ Unique only</td><td><strong>4</strong></td></tr>
+      <tr><td><code>SELECT SUM(salary) FROM emp</code></td><td>❌ Skip NULL</td><td>✅ Yes</td><td><strong>1,40,000</strong></td></tr>
+      <tr><td><code>SELECT SUM(DISTINCT salary) FROM emp</code></td><td>❌ Skip NULL</td><td>❌ Unique only</td><td><strong>1,10,000</strong></td></tr>
+      <tr><td><code>SELECT AVG(salary) FROM emp</code></td><td>❌ Skip NULL</td><td>✅ Yes</td><td><strong>28,000</strong></td></tr>
+      <tr><td><code>SELECT AVG(DISTINCT salary) FROM emp</code></td><td>❌ Skip NULL</td><td>❌ Unique only</td><td><strong>27,500</strong></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- PYQ -->
+  <section class="pb">
+    <h4>🎯 Exam Focus — Key Q&amp;A</h4>
+    <p><strong>Q1: What is the difference between UNIQUE and PRIMARY KEY?</strong><br>👉 <em>Both disallow duplicates. But PRIMARY KEY = UNIQUE + NOT NULL. A table can have multiple UNIQUE constraints but only ONE PRIMARY KEY.</em></p>
+    <p><strong>Q2: What is NULL in SQL?</strong><br>👉 <em>NULL means the value is unknown or not available — it is NOT zero or empty string. All aggregate functions (MAX, MIN, COUNT(col), SUM, AVG) ignore NULL values. Only COUNT(*) counts NULL rows.</em></p>
+    <p><strong>Q3: What constraint prevents entering -10 as age?</strong><br>👉 <em>CHECK constraint: CHECK (age > 0) or CHECK (age >= 18).</em></p>
+    <p><strong>Q4: What is the output of COUNT(*) vs COUNT(salary) if one row has NULL salary?</strong><br>👉 <em>COUNT(*) counts all rows including the NULL row. COUNT(salary) skips the NULL row and counts only rows with a salary value.</em></p>
+    <p><strong>Q5: How is AVG(salary) computed internally?</strong><br>👉 <em>AVG(salary) = SUM(salary) / COUNT(salary). Both SUM and COUNT skip NULLs.</em></p>
+    <p><strong>Q6: What does AVG(DISTINCT salary) compute?</strong><br>👉 <em>It uses SUM(DISTINCT salary) / COUNT(DISTINCT salary). Duplicate values are counted only once in both sum and count.</em></p>
+    <p><strong>Q7: What is the purpose of FOREIGN KEY?</strong><br>👉 <em>FOREIGN KEY enforces Referential Integrity — it ensures that values in one table's column correspond to valid values in another (parent) table's PRIMARY KEY.</em></p>
+    <p><strong>Q8: What does DEFAULT constraint do?</strong><br>👉 <em>It automatically assigns a preset value to a column when no value is provided during INSERT. The column will never be NULL if DEFAULT is set.</em></p>
+    <p><strong>Q9: What is the key difference between CHECK and NOT NULL?</strong><br>👉 <em>NOT NULL only checks whether a value is provided. CHECK validates if the provided value satisfies a specific condition/domain.</em></p>
+    <p><strong>Q10: SELECT COUNT(DISTINCT salary) from a table with values {10000, 20000, 30000, 30000, 50000, NULL}?</strong><br>👉 <em>NULL is skipped. Unique non-NULL values: {10000, 20000, 30000, 50000} → Output: 4</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Chapter 5: LIKE Command wildcards (%, _) with all 5 patterns, Single Row vs Multi Row Functions — Number, Character, Date, General, Conversion functions with Oracle examples and PYQ Q&A.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 5: LIKE Command &amp; SQL Functions | DBMS Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa;--pk:#db2777;--pk2:#fdf2f8}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.04),transparent 40%),radial-gradient(circle at 90% 80%,rgba(13,148,136,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+    .hero{background:linear-gradient(135deg,#0f766e 0%,#0d9488 30%,#0891b2 65%,#0369a1 100%);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'5';position:absolute;right:-10px;top:-20px;font-size:200px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace;line-height:1}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#a5f3fc;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+    .part-nav{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .pn{flex:1;min-width:200px;background:#fff;border:2px solid;border-radius:14px;padding:16px 20px;text-decoration:none;color:var(--tm);transition:all .2s ease;display:flex;align-items:center;gap:12px}
+    .pn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .pn.p1{border-color:var(--tl)}.pn.p2{border-color:var(--pr)}
+    .pn-icon{font-size:24px}.pn-text{font-weight:800;font-size:.95rem;color:var(--tm)}
+    .pn-sub{font-size:12px;color:var(--mu);font-weight:500}
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--tl2);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--tl);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .cl{border-left:4px solid var(--pr);background:var(--pl);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#1e3a8a}
+    .ct{font-weight:800;color:var(--ph);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-pk{border-left-color:var(--pk);background:var(--pk2);color:#500724}.cl-pk .ct{color:var(--pk)}
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    .ls{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .ls li{position:relative;padding-left:24px;font-size:.975rem;color:#334155}
+    .ls li::before{content:"➔";position:absolute;left:0;color:var(--tl);font-size:13px;font-weight:bold}
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#f0fdfa}
+    .emp-table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;border:1px solid var(--bd);font-size:14px;margin:18px 0}
+    .emp-table th{background:#1e293b;color:#fff;padding:11px 16px;font-weight:700;text-align:left}
+    .emp-table td{padding:10px 16px;border-bottom:1px solid var(--bd);font-family:'Fira Code',monospace;font-size:13px}
+    .emp-table tr:nth-child(even) td{background:#f8fafc}
+    .emp-table .hi{background:#fef9c3!important;font-weight:700;color:#78350f}
+    .emp-table .out{background:#dcfce7!important;font-weight:700;color:#166534}
+    .result-box{background:#0f172a;border-radius:12px;padding:14px 20px;margin:12px 0;border-left:4px solid #10b981}
+    .result-box .rl{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;font-family:'Fira Code',monospace}
+    .result-box .rv{font-family:'Fira Code',monospace;font-size:1rem;font-weight:800;color:#86efac}
+    /* pattern demo boxes */
+    .pattern-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+    .pc{border-radius:16px;padding:20px;border:1.5px solid;position:relative;overflow:hidden}
+    .pc.p1{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd}
+    .pc.p2{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#86efac}
+    .pc.p3{background:linear-gradient(135deg,#fff7ed,#fed7aa);border-color:#fdba74}
+    .pc.p4{background:linear-gradient(135deg,#f5f3ff,#ddd6fe);border-color:#c4b5fd}
+    .pc.p5{background:linear-gradient(135deg,#fdf2f8,#fbcfe8);border-color:#f9a8d4}
+    .pc .case-num{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;opacity:.7}
+    .pc .case-title{font-weight:800;font-size:1rem;color:var(--tm);margin-bottom:10px}
+    .pc .pat{font-family:'Fira Code',monospace;font-size:1.15rem;font-weight:800;background:rgba(0,0,0,.07);padding:6px 14px;border-radius:8px;display:inline-block;margin-bottom:10px;letter-spacing:2px}
+    .pc .match{font-size:12.5px;color:#334155;line-height:1.6}
+    .pc .match strong{color:var(--sc);font-weight:800}
+    /* wildcard legend */
+    .wc-legend{display:flex;gap:16px;flex-wrap:wrap;margin:20px 0}
+    .wc{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:14px 18px;flex:1;min-width:200px}
+    .wc .ws{font-family:'Fira Code',monospace;font-size:2rem;font-weight:900;width:40px;text-align:center;flex-shrink:0}
+    .wc.w1 .ws{color:var(--tl)}.wc.w2 .ws{color:var(--pu)}
+    .wc .wt{font-weight:800;font-size:.95rem;color:var(--tm);margin-bottom:4px}
+    .wc .wd{font-size:13px;color:var(--mu)}
+    /* functions category grid */
+    .fn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0}
+    .fn-cat{border-radius:14px;padding:18px;border:1.5px solid;transition:transform .2s}
+    .fn-cat:hover{transform:translateY(-2px)}
+    .fn-cat .fc-icon{font-size:24px;margin-bottom:8px}
+    .fn-cat .fc-name{font-weight:800;font-size:1rem;margin-bottom:6px}
+    .fn-cat .fc-fns{font-size:12px;line-height:1.8;font-family:'Fira Code',monospace;opacity:.85}
+    .fn-cat.c1{background:#f0fdfa;border-color:#5eead4;color:#134e4a}
+    .fn-cat.c2{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .fn-cat.c3{background:#fff7ed;border-color:#fed7aa;color:#431407}
+    .fn-cat.c4{background:#f5f3ff;border-color:#c4b5fd;color:#3b0764}
+    .fn-cat.c5{background:#fdf2f8;border-color:#f9a8d4;color:#500724}
+    /* single vs multi comparison */
+    .svmgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+    .svm{border-radius:16px;padding:20px;border:2px solid}
+    .svm.sr{background:#f0fdfa;border-color:#5eead4}
+    .svm.mr{background:#eff6ff;border-color:#93c5fd}
+    .svm .svm-title{font-weight:800;font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .svm .svm-title.tl{color:#0d9488}.svm .svm-title.bl{color:#1d4ed8}
+    .svm p{font-size:.93rem;color:#334155;margin-bottom:8px}
+    .svm .svm-eg{font-family:'Fira Code',monospace;font-size:12px;background:rgba(0,0,0,.05);padding:6px 10px;border-radius:6px;margin-top:6px}
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin-bottom:0}
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#0d9488,#0891b2,#2563eb);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}.svmgrid{grid-template-columns:1fr}.pattern-cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus Hub</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <a href="sql-index.html">SQL Chapters</a><span class="sep">›</span>
+  <span class="cur">Chapter 5: LIKE &amp; SQL Functions</span>
+  <a class="bk" href="sql-index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 5</span>
+    <h1>LIKE Command &amp; SQL Functions</h1>
+    <p>Master pattern matching with LIKE wildcards (<code style="background:rgba(255,255,255,.15);color:#fff">%</code> and <code style="background:rgba(255,255,255,.15);color:#fff">_</code>) through 5 real exam cases, then understand the full taxonomy of Single Row vs Multi Row Functions with all sub-categories.</p>
+    <div class="tags">
+      <span class="tag">🔍 LIKE · % · _ wildcards</span>
+      <span class="tag">5 Pattern Cases</span>
+      <span class="tag">Single Row Functions</span>
+      <span class="tag">Multi Row Functions</span>
+      <span class="tag">Number · Char · Date · General · Conversion</span>
+    </div>
+  </section>
+
+  <div class="part-nav">
+    <a href="#like-cmd" class="pn p1">
+      <span class="pn-icon">🔍</span>
+      <div><div class="pn-text">Part A — LIKE Command</div><div class="pn-sub">%, _ wildcards · 5 exam patterns with EMP table</div></div>
+    </a>
+    <a href="#functions" class="pn p2">
+      <span class="pn-icon">⚙️</span>
+      <div><div class="pn-text">Part B — SQL Functions</div><div class="pn-sub">Single Row vs Multi Row · 5 function categories</div></div>
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  PART A — LIKE COMMAND                 -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="ns" id="like-cmd">
+    <h2>🔍 Part A: LIKE Command in SQL</h2>
+    <p>The <code>LIKE</code> command is used to <strong>search/filter data based on a partial pattern</strong> in a column. Unlike <code>WHERE col = 'value'</code> which requires an exact match, <code>LIKE</code> lets you use wildcards to search by pattern — for example, find all names starting with 'A', or containing 'ee', or exactly 5 characters long.</p>
+
+    <h3>🃏 The Two LIKE Wildcards</h3>
+    <div class="wc-legend">
+      <div class="wc w1">
+        <span class="ws">%</span>
+        <div>
+          <div class="wt">Percent Sign — Any sequence</div>
+          <div class="wd">Represents <strong>zero or more characters</strong> of any kind. Use when you don't care how many characters are there or what they are.</div>
+        </div>
+      </div>
+      <div class="wc w2">
+        <span class="ws">_</span>
+        <div>
+          <div class="wt">Underscore — Exactly one character</div>
+          <div class="wd">Represents <strong>exactly one character</strong>. Use when you want to fix the length or position of a specific character in the string.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cl cl-t">
+      <div class="ct">📌 LIKE Syntax</div>
+      <code>SELECT * FROM table_name WHERE column_name LIKE 'pattern';</code><br><br>
+      The pattern is enclosed in <strong>single quotes</strong>. The <code>%</code> and <code>_</code> wildcards appear inside the pattern string.
+    </div>
+
+    <h3>📋 Working Data — EMP Table</h3>
+    <p>All 5 LIKE pattern cases below use this sample <code>emp</code> table:</p>
+    <table class="emp-table">
+      <thead><tr><th>ID</th><th>Name</th><th>Length</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Varun</td><td>5</td></tr>
+        <tr><td>2</td><td>Arun</td><td>4</td></tr>
+        <tr><td>3</td><td>Amrit</td><td>5</td></tr>
+        <tr><td>4</td><td>Karuna</td><td>6</td></tr>
+        <tr><td>5</td><td>Ajeet</td><td>5</td></tr>
+        <tr><td>6</td><td>Ranjeet</td><td>7</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🎯 All 5 LIKE Pattern Cases</h3>
+
+    <div class="pattern-cards">
+
+      <!-- Case 1 -->
+      <div class="pc p1">
+        <div class="case-num">Case 1</div>
+        <div class="case-title">Name starts with 'A'</div>
+        <div class="pat">A%</div>
+        <div class="match">First letter must be <strong>A</strong>, rest can be anything (any length).<br>
+        ✅ <strong>Arun</strong>, <strong>Amrit</strong>, <strong>Ajeet</strong><br>
+        ❌ Varun, Karuna, Ranjeet</div>
+      </div>
+
+      <!-- Case 2 -->
+      <div class="pc p2">
+        <div class="case-num">Case 2</div>
+        <div class="case-title">Name ends with 'n'</div>
+        <div class="pat">%n</div>
+        <div class="match">Last letter must be <strong>n</strong>, anything before it.<br>
+        ✅ <strong>Varun</strong>, <strong>Arun</strong><br>
+        ❌ Amrit, Karuna, Ajeet, Ranjeet</div>
+      </div>
+
+      <!-- Case 3 -->
+      <div class="pc p3">
+        <div class="case-num">Case 3</div>
+        <div class="case-title">Name contains 'ee'</div>
+        <div class="pat">%ee%</div>
+        <div class="match">'ee' must appear <strong>anywhere</strong> in the name. Anything before and after.<br>
+        ✅ <strong>Ajeet</strong>, <strong>Ranjeet</strong><br>
+        ❌ Varun, Arun, Amrit, Karuna</div>
+      </div>
+
+      <!-- Case 4 -->
+      <div class="pc p4">
+        <div class="case-num">Case 4</div>
+        <div class="case-title">Second letter is 'a'</div>
+        <div class="pat">_a%</div>
+        <div class="match">Exactly 1 char first (any), then <strong>a</strong>, then anything.<br>
+        ✅ <strong>Varun</strong>, <strong>Karuna</strong>, <strong>Ranjeet</strong><br>
+        ❌ Arun, Amrit, Ajeet</div>
+      </div>
+
+      <!-- Case 5 -->
+      <div class="pc p5">
+        <div class="case-num">Case 5</div>
+        <div class="case-title">Second letter 'a' AND total 5 chars</div>
+        <div class="pat">_a___</div>
+        <div class="match">Position 2 = 'a', total name = exactly 5 chars.<br>
+        ✅ <strong>Varun</strong> (V-a-r-u-n)<br>
+        ❌ Karuna (6 chars), Ranjeet (7 chars), Arun (4 chars)</div>
+      </div>
+
+    </div>
+
+    <h3>📝 SQL Queries — All 5 Cases</h3>
+    <div class="cb"><span class="ll">Oracle SQL — LIKE Patterns</span><pre><span class="cm">-- Case 1: Name starts with 'A'</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">emp</span> <span class="kw">WHERE</span> <span class="tb">name</span> <span class="kw">LIKE</span> <span class="str">'A%'</span><span class="op">;</span>
+<span class="cm">-- Output: Arun, Amrit, Ajeet</span>
+
+<span class="cm">-- Case 2: Name ends with 'n'</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">emp</span> <span class="kw">WHERE</span> <span class="tb">name</span> <span class="kw">LIKE</span> <span class="str">'%n'</span><span class="op">;</span>
+<span class="cm">-- Output: Varun, Arun</span>
+
+<span class="cm">-- Case 3: Name contains 'ee' anywhere</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">emp</span> <span class="kw">WHERE</span> <span class="tb">name</span> <span class="kw">LIKE</span> <span class="str">'%ee%'</span><span class="op">;</span>
+<span class="cm">-- Output: Ajeet, Ranjeet</span>
+
+<span class="cm">-- Case 4: Second letter is 'a' (any first char + a + anything)</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">emp</span> <span class="kw">WHERE</span> <span class="tb">name</span> <span class="kw">LIKE</span> <span class="str">'_a%'</span><span class="op">;</span>
+<span class="cm">-- Output: Varun, Karuna, Ranjeet</span>
+
+<span class="cm">-- Case 5: Second letter 'a' AND exactly 5 characters total</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">emp</span> <span class="kw">WHERE</span> <span class="tb">name</span> <span class="kw">LIKE</span> <span class="str">'_a___'</span><span class="op">;</span>
+<span class="cm">-- Output: Varun (1 underscore + a + 3 underscores = 5 chars total)</span></pre></div>
+
+    <h3>📊 Complete Output Table — All Cases</h3>
+    <div class="tw"><table class="ct2">
+      <thead><tr><th>Name</th><th>Length</th><th>Case 1<br>A%</th><th>Case 2<br>%n</th><th>Case 3<br>%ee%</th><th>Case 4<br>_a%</th><th>Case 5<br>_a___</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Varun</strong></td><td>5</td><td>❌</td><td>✅</td><td>❌</td><td>✅ (V<strong>a</strong>run)</td><td>✅</td></tr>
+        <tr><td><strong>Arun</strong></td><td>4</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td><td>❌ (4 chars)</td></tr>
+        <tr><td><strong>Amrit</strong></td><td>5</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌ (no 'a' at pos 2)</td></tr>
+        <tr><td><strong>Karuna</strong></td><td>6</td><td>❌</td><td>❌</td><td>❌</td><td>✅ (K<strong>a</strong>runa)</td><td>❌ (6 chars)</td></tr>
+        <tr><td><strong>Ajeet</strong></td><td>5</td><td>✅</td><td>❌</td><td>✅</td><td>❌</td><td>❌ (no 'a' at pos 2)</td></tr>
+        <tr><td><strong>Ranjeet</strong></td><td>7</td><td>❌</td><td>❌</td><td>✅</td><td>✅ (R<strong>a</strong>njeet)</td><td>❌ (7 chars)</td></tr>
+        <tr style="background:#dcfce7;font-weight:700"><td colspan="2">Output Count</td><td>3</td><td>2</td><td>2</td><td>3</td><td>1</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="cl cl-w">
+      <div class="ct">⚠️ Key Decision Rule</div>
+      <strong>Use %</strong> when the number of characters doesn't matter (zero or more, anything).<br>
+      <strong>Use _</strong> when you want to fix exactly one character position (fixes both the position and the count of 1 character).<br><br>
+      Example: <code>'_a___'</code> means exactly 5 characters total with 'a' in position 2.
+    </div>
+
+    <h3>🎯 Additional LIKE Patterns You Should Know</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Pattern</th><th>Meaning</th><th>Example Match</th></tr></thead><tbody>
+      <tr><td><code>'%'</code></td><td>Any name (matches everything)</td><td>All rows</td></tr>
+      <tr><td><code>'A%n'</code></td><td>Starts with A, ends with n</td><td>Arun</td></tr>
+      <tr><td><code>'____'</code></td><td>Exactly 4 characters</td><td>Arun</td></tr>
+      <tr><td><code>'%a%a%'</code></td><td>Contains 'a' at least twice</td><td>Karuna</td></tr>
+      <tr><td><code>'_____'</code></td><td>Exactly 5 characters</td><td>Varun, Amrit, Ajeet</td></tr>
+      <tr><td><code>'K%'</code></td><td>Starts with K</td><td>Karuna</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  PART B — SQL FUNCTIONS                -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="ns" id="functions">
+    <h2>⚙️ Part B: Single Row vs Multi Row Functions</h2>
+    <p>SQL has two major categories of functions — <strong>Single Row Functions</strong> (applied per row, return one output per row) and <strong>Multi Row Functions</strong> (applied across multiple rows, return one combined output). Understanding this distinction is crucial for GATE, Oracle Certification (OCA), and placement interviews.</p>
+
+    <h3>⚡ The Core Distinction</h3>
+    <div class="svmgrid">
+      <div class="svm sr">
+        <div class="svm-title tl">🔹 Single Row Functions</div>
+        <p>Applied to <strong>one row at a time</strong>. Returns <strong>one output per input row</strong>. If a table has 6 rows, a single row function returns 6 results.</p>
+        <div class="svm-eg">e.g., UPPER('varun') → 'VARUN'<br>Applied separately on each name row.</div>
+      </div>
+      <div class="svm mr">
+        <div class="svm-title bl">🔷 Multi Row Functions (Aggregate)</div>
+        <p>Applied across <strong>multiple rows</strong>. Returns <strong>one single output</strong> for all those rows combined, regardless of how many rows.</p>
+        <div class="svm-eg">e.g., SUM(salary) → 1,40,000<br>Adds all salary rows → one answer.</div>
+      </div>
+    </div>
+
+    <div class="cl cl-t">
+      <div class="ct">📌 Exam Tip</div>
+      Multi Row Functions = Aggregate Functions (MAX, MIN, COUNT, SUM, AVG) — already covered in Chapter 4. The focus of this chapter's Part B is on <strong>Single Row Functions</strong> and their sub-categories.
+    </div>
+
+    <h3>🗂️ Single Row Function Categories</h3>
+    <div class="fn-grid">
+      <div class="fn-cat c1">
+        <div class="fc-icon">🔢</div>
+        <div class="fc-name">Number Functions</div>
+        <div class="fc-fns">ROUND(n, d)<br>TRUNC(n, d)<br>MOD(a, b)</div>
+      </div>
+      <div class="fn-cat c2">
+        <div class="fc-icon">🔤</div>
+        <div class="fc-name">Character Functions</div>
+        <div class="fc-fns">LOWER / UPPER / INITCAP<br>CONCAT / SUBSTR<br>LENGTH / INSTR<br>LPAD / RPAD / TRIM / REPLACE</div>
+      </div>
+      <div class="fn-cat c3">
+        <div class="fc-icon">📅</div>
+        <div class="fc-name">Date Functions</div>
+        <div class="fc-fns">MONTHS_BETWEEN<br>ADD_MONTHS<br>NEXT_DAY / LAST_DAY<br>ROUND / TRUNC (dates)</div>
+      </div>
+      <div class="fn-cat c4">
+        <div class="fc-icon">🔧</div>
+        <div class="fc-name">General Functions</div>
+        <div class="fc-fns">NVL / NVL2<br>COALESCE<br>CASE / DECODE</div>
+      </div>
+      <div class="fn-cat c5">
+        <div class="fc-icon">🔄</div>
+        <div class="fc-name">Conversion Functions</div>
+        <div class="fc-fns">TO_CHAR<br>TO_NUMBER<br>TO_DATE</div>
+      </div>
+    </div>
+
+    <!-- NUMBER FUNCTIONS -->
+    <h3>🔢 1. Number Functions</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Function</th><th>Purpose</th><th>Example</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>ROUND(n, d)</code></td><td>Rounds number to d decimal places</td><td><code>ROUND(50.926, 2)</code></td><td><strong>50.93</strong> (6≥5 so rounds up)</td></tr>
+      <tr><td><code>TRUNC(n, d)</code></td><td>Truncates (cuts off) at d decimal places — no rounding</td><td><code>TRUNC(50.926, 2)</code></td><td><strong>50.92</strong> (just removes the 6)</td></tr>
+      <tr><td><code>MOD(a, b)</code></td><td>Returns remainder when a is divided by b</td><td><code>MOD(10, 3)</code></td><td><strong>1</strong> (10÷3 = 3 rem 1)</td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">Oracle SQL — Number Functions</span><pre><span class="kw">SELECT</span> <span class="fn">ROUND</span>(<span class="vl">50.926</span>, <span class="vl">2</span>) <span class="kw">FROM</span> dual<span class="op">;</span>   <span class="cm">-- Output: 50.93</span>
+<span class="kw">SELECT</span> <span class="fn">TRUNC</span>(<span class="vl">50.926</span>, <span class="vl">2</span>) <span class="kw">FROM</span> dual<span class="op">;</span>   <span class="cm">-- Output: 50.92</span>
+<span class="kw">SELECT</span> <span class="fn">MOD</span>(<span class="vl">10</span>, <span class="vl">3</span>)      <span class="kw">FROM</span> dual<span class="op">;</span>   <span class="cm">-- Output: 1</span></pre></div>
+
+    <!-- CHARACTER FUNCTIONS -->
+    <h3>🔤 2. Character Functions</h3>
+    <p>Character functions operate on string/text values. They are split into two sub-categories:</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Sub-Category</th><th>Function</th><th>Purpose</th><th>Example → Output</th></tr></thead><tbody>
+      <tr><td rowspan="3" style="font-weight:800;background:#f0fdfa;color:#0d9488">Case<br>Manipulation</td><td><code>LOWER(str)</code></td><td>Converts all chars to lowercase</td><td><code>LOWER('VARUN')</code> → <strong>varun</strong></td></tr>
+      <tr><td><code>UPPER(str)</code></td><td>Converts all chars to uppercase</td><td><code>UPPER('varun')</code> → <strong>VARUN</strong></td></tr>
+      <tr><td><code>INITCAP(str)</code></td><td>First letter of each word capitalized</td><td><code>INITCAP('hello world')</code> → <strong>Hello World</strong></td></tr>
+      <tr><td rowspan="7" style="font-weight:800;background:#eff6ff;color:#1d4ed8">Character<br>Manipulation</td><td><code>CONCAT(a, b)</code></td><td>Joins two strings into one</td><td><code>CONCAT('Gate','Smashers')</code> → <strong>GateSmashers</strong></td></tr>
+      <tr><td><code>SUBSTR(str, start, len)</code></td><td>Extracts a substring of given length</td><td><code>SUBSTR('GateSmashers',1,4)</code> → <strong>Gate</strong></td></tr>
+      <tr><td><code>LENGTH(str)</code></td><td>Returns number of characters</td><td><code>LENGTH('Varun')</code> → <strong>5</strong></td></tr>
+      <tr><td><code>INSTR(str, search)</code></td><td>Position of a substring in string</td><td><code>INSTR('GateSmashers','S')</code> → <strong>5</strong></td></tr>
+      <tr><td><code>LPAD(str, n, pad)</code></td><td>Left-pad string to n total length</td><td><code>LPAD('5',4,'0')</code> → <strong>0005</strong></td></tr>
+      <tr><td><code>RPAD(str, n, pad)</code></td><td>Right-pad string to n total length</td><td><code>RPAD('Hi',5,'*')</code> → <strong>Hi***</strong></td></tr>
+      <tr><td><code>TRIM(str)</code></td><td>Removes spaces / specific chars</td><td><code>TRIM(' Varun ')</code> → <strong>Varun</strong></td></tr>
+    </tbody></table></div>
+    <div class="cl cl-p">
+      <div class="ct">📌 Permanent vs Temporary</div>
+      These character functions do <strong>NOT permanently change</strong> the data in the table. They only change the display output when you run a SELECT query. The underlying data remains unchanged.
+    </div>
+
+    <!-- DATE FUNCTIONS -->
+    <h3>📅 3. Date Functions</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Function</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>MONTHS_BETWEEN(d1, d2)</code></td><td>Number of months between two dates</td><td><code>MONTHS_BETWEEN('01-JAN-2026','01-JUL-2025')</code> → 6</td></tr>
+      <tr><td><code>ADD_MONTHS(date, n)</code></td><td>Adds n months to a date</td><td><code>ADD_MONTHS('01-JAN-2026', 3)</code> → 01-APR-2026</td></tr>
+      <tr><td><code>NEXT_DAY(date, 'DAY')</code></td><td>Next occurrence of given day after date</td><td><code>NEXT_DAY('01-AUG-2026','MONDAY')</code></td></tr>
+      <tr><td><code>LAST_DAY(date)</code></td><td>Last day of the month of given date</td><td><code>LAST_DAY('01-JAN-2026')</code> → 31-JAN-2026</td></tr>
+      <tr><td><code>ROUND(date, 'MONTH')</code></td><td>Rounds date to nearest month</td><td>If past 15th → rounds to next month</td></tr>
+      <tr><td><code>TRUNC(date, 'MONTH')</code></td><td>Truncates to start of month</td><td>Always gives 1st of the month</td></tr>
+    </tbody></table></div>
+
+    <!-- GENERAL FUNCTIONS -->
+    <h3>🔧 4. General Functions (NULL Handling)</h3>
+    <p>General functions primarily help handle <strong>NULL values</strong> in SQL. NULL handling is a critical concept in Oracle SQL.</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Function</th><th>Purpose</th><th>Example → Output</th></tr></thead><tbody>
+      <tr><td><code>NVL(expr, replacement)</code></td><td>Replaces NULL with a given value</td><td><code>NVL(salary, 0)</code> → if salary is NULL, returns 0</td></tr>
+      <tr><td><code>NVL2(expr, val1, val2)</code></td><td>If NOT NULL → val1, if NULL → val2</td><td><code>NVL2(salary, 'Has Salary', 'No Salary')</code></td></tr>
+      <tr><td><code>COALESCE(e1, e2, ...)</code></td><td>Returns first non-NULL value from list</td><td><code>COALESCE(NULL, NULL, 500)</code> → 500</td></tr>
+      <tr><td><code>CASE WHEN...THEN...END</code></td><td>If/else logic inside a query</td><td>Conditional output based on column value</td></tr>
+      <tr><td><code>DECODE(col, v1, r1, ...)</code></td><td>Oracle-specific if/else shorthand</td><td><code>DECODE(dept,'HR','Human Res','Unknown')</code></td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">Oracle SQL — General Functions</span><pre><span class="cm">-- NVL: replace NULL salary with 0</span>
+<span class="kw">SELECT</span> name, <span class="fn">NVL</span>(salary, <span class="vl">0</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+
+<span class="cm">-- CASE: if/else conditional output</span>
+<span class="kw">SELECT</span> name,
+  <span class="kw">CASE</span> <span class="kw">WHEN</span> salary <span class="op">&gt;</span> <span class="vl">30000</span> <span class="kw">THEN</span> <span class="str">'High'</span>
+       <span class="kw">WHEN</span> salary <span class="op">&gt;</span> <span class="vl">15000</span> <span class="kw">THEN</span> <span class="str">'Mid'</span>
+       <span class="kw">ELSE</span> <span class="str">'Low'</span>
+  <span class="kw">END</span> <span class="kw">AS</span> salary_band
+<span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span>
+
+<span class="cm">-- DECODE: same as above using Oracle shorthand</span>
+<span class="kw">SELECT</span> name, <span class="fn">DECODE</span>(dept, <span class="str">'IT'</span>, <span class="str">'Tech Team'</span>, <span class="str">'HR'</span>, <span class="str">'HR Team'</span>, <span class="str">'Other'</span>) <span class="kw">FROM</span> <span class="tb">emp</span><span class="op">;</span></pre></div>
+
+    <!-- CONVERSION FUNCTIONS -->
+    <h3>🔄 5. Conversion Functions (Data Type Conversion)</h3>
+    <p>These functions convert values from one data type to another — similar to type casting in programming languages.</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Function</th><th>Converts</th><th>Example</th><th>Output</th></tr></thead><tbody>
+      <tr><td><code>TO_CHAR(value, format)</code></td><td>Number/Date → String</td><td><code>TO_CHAR(50000, '99,999')</code></td><td><strong>'50,000'</strong></td></tr>
+      <tr><td><code>TO_NUMBER(str, format)</code></td><td>String → Number</td><td><code>TO_NUMBER('50000')</code></td><td><strong>50000</strong></td></tr>
+      <tr><td><code>TO_DATE(str, format)</code></td><td>String → Date</td><td><code>TO_DATE('11-AUG-2026','DD-MON-YYYY')</code></td><td>Date value</td></tr>
+    </tbody></table></div>
+
+    <!-- FULL TAXONOMY -->
+    <h3>📋 Complete SQL Functions Taxonomy</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Category</th><th>Type</th><th>Key Functions</th><th>Applies On</th><th>Returns</th></tr></thead><tbody>
+      <tr><td>Number</td><td>Single Row</td><td>ROUND, TRUNC, MOD</td><td>1 row</td><td>1 output per row</td></tr>
+      <tr><td>Character</td><td>Single Row</td><td>UPPER, LOWER, CONCAT, SUBSTR, LENGTH…</td><td>1 row</td><td>1 output per row</td></tr>
+      <tr><td>Date</td><td>Single Row</td><td>MONTHS_BETWEEN, ADD_MONTHS, NEXT_DAY…</td><td>1 row</td><td>1 output per row</td></tr>
+      <tr><td>General</td><td>Single Row</td><td>NVL, NVL2, COALESCE, CASE, DECODE</td><td>1 row</td><td>1 output per row</td></tr>
+      <tr><td>Conversion</td><td>Single Row</td><td>TO_CHAR, TO_NUMBER, TO_DATE</td><td>1 row</td><td>1 output per row</td></tr>
+      <tr style="background:#eff6ff"><td><strong>Aggregate</strong></td><td><strong>Multi Row</strong></td><td><strong>MAX, MIN, COUNT, SUM, AVG</strong></td><td><strong>Multiple rows</strong></td><td><strong>1 combined output</strong></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- PYQ -->
+  <section class="pb">
+    <h4>🎯 Exam Focus — Key Q&amp;A</h4>
+    <p><strong>Q1: What is the difference between % and _ in LIKE?</strong><br>👉 <em>% matches zero or more characters of any kind. _ matches exactly one character. % is for unknown/variable length; _ is for fixing a specific position.</em></p>
+    <p><strong>Q2: How do you find names starting with 'A'?</strong><br>👉 <em>WHERE name LIKE 'A%' — A is fixed at position 1, % allows anything after.</em></p>
+    <p><strong>Q3: How to find names with exactly 5 characters?</strong><br>👉 <em>WHERE name LIKE '_____' (five underscores, each fixing exactly one character position)</em></p>
+    <p><strong>Q4: How to find names with 'a' as the second letter and exactly 5 characters total?</strong><br>👉 <em>WHERE name LIKE '_a___' — _ fixes position 1, a fixes position 2, ___ fix positions 3-4-5.</em></p>
+    <p><strong>Q5: What is the key difference between ROUND and TRUNC?</strong><br>👉 <em>ROUND rounds the number normally (≥5 rounds up). TRUNC simply cuts off at the specified decimal — no rounding ever occurs.</em></p>
+    <p><strong>Q6: What are Single Row Functions? Give one example from each category.</strong><br>👉 <em>Functions applied to one row at a time, returning one output per row. Examples: Number→ROUND, Char→UPPER, Date→ADD_MONTHS, General→NVL, Conversion→TO_CHAR.</em></p>
+    <p><strong>Q7: What is the difference between Single Row and Multi Row functions?</strong><br>👉 <em>Single row functions return one output per row (N rows → N results). Multi row functions (aggregate) operate on multiple rows and return one combined result (N rows → 1 result).</em></p>
+    <p><strong>Q8: What is INITCAP in Oracle SQL?</strong><br>👉 <em>INITCAP converts the first letter of every word in a string to uppercase. INITCAP('hello world') → 'Hello World'.</em></p>
+    <p><strong>Q9: What is NVL used for?</strong><br>👉 <em>NVL handles NULL values. NVL(salary, 0) replaces NULL salary with 0 in the output, without changing the actual stored data.</em></p>
+    <p><strong>Q10: What does the pattern '%ee%' match?</strong><br>👉 <em>It matches any string that contains 'ee' anywhere in the name — at the start, middle, or end. e.g., Ajeet, Ranjeet.</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

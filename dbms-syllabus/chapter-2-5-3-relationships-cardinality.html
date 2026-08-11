@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Chapter 2.5 (Part 2): Relationships & Cardinality — Detailed Gate Smashers notes on ER to Relational mapping, Primary Key rules for 1:1, 1:N, M:N, table reduction formulas, and PYQs.">
+  <meta name="robots" content="index, follow">
+  <title>Chapter 2.5 (Part 2): Relationships & Cardinality | DBMS Complete Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/chapter-2-5-3-relationships-cardinality.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --border: #e2e8f0;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.04), transparent 40%),
+        linear-gradient(rgba(241, 245, 249, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241, 245, 249, 0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px 24px; }
+    .brand { 
+      text-decoration: none; 
+      color: var(--primary); 
+      font-weight: 800; 
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ph-breadcrumb {
+      background: rgba(248, 250, 252, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-wrap: wrap;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ph-breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .ph-breadcrumb a:hover { color: var(--primary); }
+    .ph-breadcrumb .sep { color: #cbd5e1; font-size: 11px; }
+    .ph-breadcrumb .current { color: var(--text-main); font-weight: 600; }
+    .ph-breadcrumb .back-btn {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
+    }
+    .ph-breadcrumb .back-btn:hover { background: var(--bg); color: var(--text-main); transform: translateX(-2px); }
+
+    main.wrap { padding: 28px 24px 72px; }
+
+    /* Hero Banner */
+    .note-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    .note-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .note-hero h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; margin-bottom: 10px; }
+    .note-hero p { color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; }
+
+    /* Section Cards */
+    .note-section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+    .note-section h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .note-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 20px 0 10px;
+    }
+
+    .note-section p { color: #334155; margin-bottom: 14px; font-size: 1rem; }
+
+    /* Generated Image Box */
+    .img-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .img-caption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+      font-size: 0.975rem;
+    }
+    .callout-title { font-weight: 800; color: var(--primary-hover); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+    /* Styled List */
+    .list-styled {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .list-styled li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 0.975rem;
+      color: #334155;
+    }
+    .list-styled li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* ER Diagram Visual Badges & Symbols */
+    .er-symbol-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      vertical-align: middle;
+      margin: 2px 4px;
+    }
+    
+    .er-entity {
+      border: 2px solid #2563eb;
+      background: #ffffff;
+      color: #1e3a8a;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .er-relationship {
+      border: 2px solid #059669;
+      background: #ecfdf5;
+      color: #065f46;
+      border-radius: 6px;
+      padding: 4px 12px;
+    }
+
+    /* Comparison Table */
+    .comp-table-wrap { overflow-x: auto; margin: 24px 0; border-radius: 14px; border: 1px solid var(--border); }
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    table.comp-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 18px;
+      font-weight: 700;
+    }
+    table.comp-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.comp-table tr:nth-child(even) { background: #f8fafc; }
+    table.comp-table tr:hover { background: #eff6ff; }
+
+    /* PYQ Box */
+    .pyq-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1.5px solid #fde68a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 28px;
+    }
+    .pyq-box h4 { font-size: 1.05rem; font-weight: 800; color: #92400e; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .pyq-box p { font-size: 14px; color: #451a03; line-height: 1.5; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+    </div>
+  </header>
+
+  <nav class="ph-breadcrumb" aria-label="Breadcrumb">
+    <a href="../index.html">🏠 Practice Hub</a>
+    <span class="sep">›</span>
+    <a href="index.html">DBMS Syllabus</a>
+    <span class="sep">›</span>
+    <span class="current">Chapter 2.5 (Part 2): Relationships &amp; Cardinality</span>
+    <a class="back-btn" href="index.html">← Back to Syllabus</a>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- HERO BANNER -->
+    <section class="note-hero">
+      <span class="note-badge">Gate Smashers Lecture Notes · Unit 2 Chapter 2.5 (Part 2)</span>
+      <h1>Relationships &amp; Cardinality Constraints in DBMS</h1>
+      <p>Master ER-to-Relational mapping rules for <strong>1:1, 1:N, and M:N Cardinality Constraints</strong>. Learn how to determine Primary Keys for relationship tables and calculate the <strong>minimum number of tables required</strong>.</p>
+    </section>
+
+    <!-- SECTION 1: DEGREE & DESCRIPTIVE ATTRIBUTES -->
+    <section class="note-section">
+      <h2>💡 1. Fundamentals of Relationships in ER Modeling</h2>
+      
+      <h3>Degree of Relationship Set</h3>
+      <p>The <strong>Degree</strong> of a relationship set refers to the number of entity sets participating in that relationship:</p>
+      <ul class="list-styled">
+        <li><strong>Unary (Recursive) Relationship (Degree 1):</strong> Relationship within a single entity set (e.g. <code>Employee</code> <em>Manages</em> <code>Employee</code>).</li>
+        <li><strong>Binary Relationship (Degree 2):</strong> Relationship between 2 entity sets (e.g. <code>Student</code> <em>Studies</em> <code>Course</code>). Most common in exams!</li>
+        <li><strong>Ternary Relationship (Degree 3):</strong> Relationship between 3 entity sets (e.g. <code>Doctor</code>, <code>Patient</code>, and <code>Medicine</code> connected by <em>Prescribes</em>).</li>
+      </ul>
+
+      <h3>Descriptive Attributes</h3>
+      <p>Attributes associated directly with a <em>Relationship Set</em> rather than an entity set (e.g. <code>Date_of_Purchase</code> on the <em>Gives</em> relationship between <code>Customer</code> and <code>Order</code>).</p>
+    </section>
+
+    <!-- VISUAL DIAGRAM -->
+    <section class="note-section">
+      <h2>🖼️ Visual Diagram: ER to Relational Table Mapping Rules</h2>
+      <p>The diagram below illustrates the exact table mapping rules, primary key selection, and table reduction logic for 1:1, 1:N, and M:N relationships:</p>
+
+      <div class="img-box">
+        <img src="er_relationship_cardinality.jpg" alt="ER to Relational Table Mapping Rules Diagram (1:1, 1:N, M:N)">
+        <div class="img-caption">Figure 1: ER-to-Relational Table Reduction Rules for 1:1, 1:N, and M:N Cardinalities</div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: 1:1 RELATIONSHIP MAPPING -->
+    <section class="note-section">
+      <h2>1️⃣ 2. One-to-One (1:1) Relationship Mapping</h2>
+      <p>In a <strong>1:1 Relationship</strong>, an entity in set A is associated with at most one entity in set B, and vice versa (e.g. <code>Employee</code> -- [Manages] -- <code>Department</code>).</p>
+
+      <h3>Relational Mapping &amp; Primary Key Rules:</h3>
+      <ul class="list-styled">
+        <li><strong>Initial Tables (3 Tables):</strong> Table 1 (<code>Employee</code>), Table 2 (<code>Department</code>), Table 3 (<code>Manages</code> relationship table containing <code>EID</code> and <code>DID</code> as Foreign Keys).</li>
+        <li><strong>Primary Key of Relationship Table:</strong> In a 1:1 relationship, neither column contains duplicate entries! Therefore, <strong>EITHER <code>EID</code> OR <code>DID</code></strong> can serve as the Candidate Key / Primary Key.</li>
+        <li><strong>Table Reduction (Merging):</strong> Since either foreign key is unique, you can merge the relationship table into <strong>EITHER</strong> the <code>Employee</code> table <strong>OR</strong> the <code>Department</code> table.</li>
+        <li><strong>Minimum Relational Tables Required:</strong> <strong>2 Tables</strong>.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">⚡ Exam Shortcut for 1:1</div>
+        In 1:1 cardinality, 3 initial tables can ALWAYS be reduced to <strong>2 Minimum Tables</strong> by merging the relationship with either entity set!
+      </div>
+    </section>
+
+    <!-- SECTION 3: 1:N RELATIONSHIP MAPPING -->
+    <section class="note-section">
+      <h2>1️⃣➔N 3. One-to-Many (1:N) / Many-to-One (N:1) Relationship Mapping</h2>
+      <p>In a <strong>1:N Relationship</strong>, one entity in set A can be associated with many entities in set B, but an entity in set B is associated with at most one entity in set A (e.g. <code>Customer</code> -- [Gives] -- <code>Order</code>).</p>
+
+      <h3>Relational Mapping &amp; Primary Key Rules (Exam Favorite ⭐):</h3>
+      <ul class="list-styled">
+        <li><strong>Initial Tables (3 Tables):</strong> Table 1 (<code>Customer</code>), Table 2 (<code>Order</code>), Table 3 (<code>Gives</code> relationship table containing <code>Customer_ID</code> and <code>Order_No</code> as Foreign Keys).</li>
+        <li><strong>Primary Key of Relationship Table:</strong> The 1-side (<code>Customer_ID</code>) will repeat in the relationship table whenever a customer places multiple orders. However, the N-side (<code>Order_No</code>) is unique per order! Therefore, <strong>the Primary Key MUST be the Primary Key on the MANY (N) side (<code>Order_No</code>)</strong>.</li>
+        <li><strong>Table Reduction (Merging Rule):</strong> The relationship table can ONLY be merged into the table on the <strong>MANY (N) side</strong> (i.e. merge <code>Gives</code> into <code>Order</code>). You CANNOT merge into the 1-side (<code>Customer</code>) because it would cause row duplication!</li>
+        <li><strong>Minimum Relational Tables Required:</strong> <strong>2 Tables</strong>.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">🔑 Golden Rule for 1:N</div>
+        Always place the foreign key and merge the relationship table on the <strong>MANY (N) Side</strong>! Minimum tables required = <strong>2 Tables</strong>.
+      </div>
+    </section>
+
+    <!-- SECTION 4: M:N RELATIONSHIP MAPPING -->
+    <section class="note-section">
+      <h2>N ➔ M 4. Many-to-Many (M:N) Relationship Mapping</h2>
+      <p>In an <strong>M:N Relationship</strong>, an entity in set A can be associated with many entities in set B, and vice versa (e.g. <code>Student</code> -- [Studies] -- <code>Course</code>).</p>
+
+      <div class="callout">
+        <div class="callout-title">💡 Why Written M:N Instead of M:M?</div>
+        Written as $M:N$ to explicitly emphasize that the number of participating entities on side A ($M$) does not have to equal the number of entities on side B ($N$).
+      </div>
+
+      <h3>Relational Mapping &amp; Primary Key Rules (Exam Star ⭐):</h3>
+      <ul class="list-styled">
+        <li><strong>Initial Tables (3 Tables):</strong> Table 1 (<code>Student</code>), Table 2 (<code>Course</code>), Table 3 (<code>Studies</code> relationship table containing <code>Roll_No</code> and <code>Course_ID</code> as Foreign Keys).</li>
+        <li><strong>Primary Key of Relationship Table:</strong> Both <code>Roll_No</code> (a student taking multiple courses) and <code>Course_ID</code> (a course taken by multiple students) contain repeating values! Neither single attribute can be a Primary Key. Therefore, the Primary Key MUST be a <strong>Composite Primary Key combining BOTH foreign keys: <code>(Roll_No, Course_ID)</code></strong>.</li>
+        <li><strong>Table Reduction Rule:</strong> <strong>NO TABLE REDUCTION IS POSSIBLE!</strong> You cannot merge <code>Studies</code> into <code>Student</code> (violates <code>Roll_No</code> PK uniqueness) nor into <code>Course</code> (violates <code>Course_ID</code> PK uniqueness).</li>
+        <li><strong>Minimum Relational Tables Required:</strong> <strong>3 Tables</strong> (Must retain a separate relationship table).</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 5: PARTICIPATION CONSTRAINTS -->
+    <section class="note-section">
+      <h2>🔗 5. Participation Constraints (Total vs Partial)</h2>
+      
+      <ul class="list-styled">
+        <li><strong>Total Participation (Full / Mandatory):</strong> Every entity in the set must participate in at least one relationship instance. Represented by a <strong>Double Line</strong> in ER diagrams (e.g., Every <code>Order</code> MUST be given by a <code>Customer</code>).</li>
+        <li><strong>Partial Participation (Optional):</strong> Some entities may not participate in the relationship. Represented by a <strong>Single Line</strong> (e.g., Not all <code>Employees</code> manage a <code>Department</code>).</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">⚡ Impact on Table Merging</div>
+        When merging a relationship into an entity table, if participation is <em>Total</em>, foreign key columns will contain no <code>NULL</code> values. If participation is <em>Partial</em>, foreign key columns may contain <code>NULL</code> values for non-participating rows.
+      </div>
+    </section>
+
+    <!-- SUMMARY COMPARISON TABLE -->
+    <section class="note-section">
+      <h2>⚖️ Master Summary: ER to Relational Mapping Rules</h2>
+
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Cardinality Constraint</th>
+              <th>Primary Key of Relationship Table</th>
+              <th>Table Merging Rule</th>
+              <th>Minimum Relational Tables</th>
+              <th>Exam Memory Shortcut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1 : 1</strong></td>
+              <td>Either Primary Key (<code>PK_A</code> or <code>PK_B</code>)</td>
+              <td>Merge with EITHER Entity A or Entity B</td>
+              <td><strong>2 Tables</strong></td>
+              <td>Flexibility: Merge anywhere</td>
+            </tr>
+            <tr>
+              <td><strong>1 : N</strong></td>
+              <td>Primary Key on the <strong>MANY (N) Side</strong></td>
+              <td>Merge with Entity on the <strong>MANY (N) Side</strong></td>
+              <td><strong>2 Tables</strong></td>
+              <td>Always go to the <strong>MANY</strong> side</td>
+            </tr>
+            <tr>
+              <td><strong>M : N</strong></td>
+              <td><strong>Composite Key: <code>(PK_A, PK_B)</code></strong></td>
+              <td><strong>CANNOT MERGE</strong> (Separate table required)</td>
+              <td><strong>3 Tables</strong></td>
+              <td>No reduction possible (3 tables)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EXAM REVISION & PYQs -->
+    <section class="pyq-box">
+      <h4>🎯 GATE, UGC-NET &amp; IBPS SO IT Officer — Exam Focus PYQs</h4>
+      <p><strong>Q1: In a 1:N relationship set between Entity A (1 side) and Entity B (N side), what is the Primary Key of the relationship table?</strong><br>
+      👉 <em>Answer: The Primary Key of Entity B (the N side).</em></p>
+      
+      <p><strong>Q2: What is the MINIMUM number of tables required to represent an M:N binary relationship in an RDBMS?</strong><br>
+      👉 <em>Answer: 3 Tables (No reduction allowed).</em></p>
+
+      <p><strong>Q3: What is the MINIMUM number of tables required to represent a 1:1 relationship between two entity sets?</strong><br>
+      👉 <em>Answer: 2 Tables.</em></p>
+
+      <p><strong>Q4: In an M:N relationship table, how is the Primary Key defined?</strong><br>
+      👉 <em>Answer: As a Composite Primary Key combining the foreign keys from both participating entity sets.</em></p>
+    </section>
+
+  </main>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

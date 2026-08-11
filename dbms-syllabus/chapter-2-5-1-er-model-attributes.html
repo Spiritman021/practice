@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Chapter 2.5 (Part 1): ER Model & Attributes — Detailed Gate Smashers lecture notes on Entities, Relationships, Notations, Single/Multi-valued, Composite, Derived, Key attributes, and PYQs.">
+  <meta name="robots" content="index, follow">
+  <title>Chapter 2.5 (Part 1): ER Model & Attributes | DBMS Complete Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/chapter-2-5-1-er-model-attributes.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --border: #e2e8f0;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.04), transparent 40%),
+        linear-gradient(rgba(241, 245, 249, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241, 245, 249, 0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px 24px; }
+    .brand { 
+      text-decoration: none; 
+      color: var(--primary); 
+      font-weight: 800; 
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ph-breadcrumb {
+      background: rgba(248, 250, 252, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-wrap: wrap;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ph-breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .ph-breadcrumb a:hover { color: var(--primary); }
+    .ph-breadcrumb .sep { color: #cbd5e1; font-size: 11px; }
+    .ph-breadcrumb .current { color: var(--text-main); font-weight: 600; }
+    .ph-breadcrumb .back-btn {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
+    }
+    .ph-breadcrumb .back-btn:hover { background: var(--bg); color: var(--text-main); transform: translateX(-2px); }
+
+    main.wrap { padding: 28px 24px 72px; }
+
+    /* Hero Banner */
+    .note-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    .note-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .note-hero h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; margin-bottom: 10px; }
+    .note-hero p { color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; }
+
+    /* Section Cards */
+    .note-section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+    .note-section h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .note-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 20px 0 10px;
+    }
+
+    .note-section p { color: #334155; margin-bottom: 14px; font-size: 1rem; }
+
+    /* Generated Image Box */
+    .img-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .img-caption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+      font-size: 0.975rem;
+    }
+    .callout-title { font-weight: 800; color: var(--primary-hover); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+    /* Styled List */
+    .list-styled {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .list-styled li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 0.975rem;
+      color: #334155;
+    }
+    .list-styled li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* ER Diagram Visual Badges & Symbols */
+    .er-symbol-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      vertical-align: middle;
+      margin: 2px 4px;
+    }
+    
+    .er-entity {
+      border: 2px solid #2563eb;
+      background: #ffffff;
+      color: #1e3a8a;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .er-attribute {
+      border: 2px solid #2563eb;
+      border-radius: 999px;
+      padding: 3px 14px;
+      background: #ffffff;
+      color: #1e3a8a;
+    }
+
+    .er-relationship {
+      border: 2px solid #059669;
+      background: #ecfdf5;
+      color: #065f46;
+      border-radius: 6px;
+      padding: 4px 12px;
+    }
+
+    .er-pk-attr {
+      border-bottom: 2.5px solid #0f172a;
+      font-weight: 800;
+      color: #0f172a;
+      padding-bottom: 1px;
+    }
+
+    .er-partial-key {
+      border-bottom: 2.5px dashed #d97706;
+      color: #b45309;
+      font-weight: 700;
+      padding-bottom: 1px;
+    }
+
+    .er-multivalued {
+      border: 3.5px double #2563eb;
+      border-radius: 999px;
+      padding: 3px 14px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    .er-derived {
+      border: 2px dashed #059669;
+      border-radius: 999px;
+      padding: 3px 14px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-weight: 700;
+    }
+
+    /* Comparison Table */
+    .comp-table-wrap { overflow-x: auto; margin: 24px 0; border-radius: 14px; border: 1px solid var(--border); }
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    table.comp-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 18px;
+      font-weight: 700;
+    }
+    table.comp-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.comp-table tr:nth-child(even) { background: #f8fafc; }
+    table.comp-table tr:hover { background: #eff6ff; }
+
+    /* PYQ Box */
+    .pyq-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1.5px solid #fde68a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 28px;
+    }
+    .pyq-box h4 { font-size: 1.05rem; font-weight: 800; color: #92400e; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .pyq-box p { font-size: 14px; color: #451a03; line-height: 1.5; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+    </div>
+  </header>
+
+  <nav class="ph-breadcrumb" aria-label="Breadcrumb">
+    <a href="../index.html">🏠 Practice Hub</a>
+    <span class="sep">›</span>
+    <a href="index.html">DBMS Syllabus</a>
+    <span class="sep">›</span>
+    <span class="current">Chapter 2.5 (Part 1): ER Model &amp; Attributes</span>
+    <a class="back-btn" href="index.html">← Back to Syllabus</a>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- HERO BANNER -->
+    <section class="note-hero">
+      <span class="note-badge">Gate Smashers Lecture Notes · Unit 2 Chapter 2.5 (Part 1)</span>
+      <h1>ER Model &amp; Types of Attributes</h1>
+      <p>Master <strong>Entity-Relationship (ER) Modeling</strong>, why we use ER diagrams before coding, core elements (Entity, Attribute, Relationship), and all 6 Types of Attributes with exact diagram notations.</p>
+    </section>
+
+    <!-- SECTION 1: WHY ER MODEL & BLUEPRINT ANALOGY -->
+    <section class="note-section">
+      <h2>💡 1. What is the ER Model &amp; Why Do We Use It?</h2>
+      <p>The <strong>Entity-Relationship (ER) Model</strong> is a high-level conceptual data model used to visually represent data and its relationships before actual SQL table implementation.</p>
+
+      <div class="callout">
+        <div class="callout-title">🏠 The House Construction Analogy (Why ER Model?)</div>
+        Before building a house, you don't call builders directly to lay bricks. You consult an architect to draft a <strong>Blueprint</strong> based on your requirements.
+        <br><br>
+        <strong>What if you don't make a blueprint?</strong> Suppose the house is half-built, and you realize the kitchen is in the wrong room position. Demolishing half-built walls leads to massive financial loss and wasted effort!
+        <br><br>
+        <strong>Computer Science Parallel:</strong> When building software for a client (e.g. School Management System), developers do NOT immediately run <code>CREATE TABLE</code> or <code>ALTER TABLE</code> commands. Requirements change often! Modifying SQL code repeatedly is complex and error-prone. Instead, developers create an <strong>ER Diagram on paper</strong>, get client sign-off, and then pass it to coders for database creation.
+      </div>
+    </section>
+
+    <!-- SECTION 2: CORE ER ELEMENTS & SYMBOLS -->
+    <section class="note-section">
+      <h2>🧩 2. Core ER Model Elements &amp; Notations</h2>
+
+      <ul class="list-styled">
+        <li><strong>1. Entity:</strong> Any real-world object that has physical or conceptual existence (e.g. <code>Student</code>, <code>Course</code>).
+          <br><strong>ER Symbol:</strong> <span class="er-symbol-card er-entity">Student</span> <em>(Rectangle)</em>
+        </li>
+        <li><strong>2. Attribute:</strong> Characteristics or properties that describe an entity (e.g. <code>Roll_No</code>, <code>Name</code>, <code>Age</code>).
+          <br><strong>ER Symbol:</strong> <span class="er-symbol-card er-attribute">( Name )</span> <em>(Ellipse / Oval)</em>
+        </li>
+        <li><strong>3. Relationship (Association):</strong> Connection between two or more entities (e.g. Student <em>Studies</em> Course).
+          <br><strong>ER Symbol:</strong> <span class="er-symbol-card er-relationship">◇ Studies ◇</span> <em>(Diamond)</em>
+        </li>
+        <li><strong>4. Entity Type / Schema:</strong> The overall structural definition consisting of an entity name and its associated attribute set.</li>
+      </ul>
+    </section>
+
+    <!-- VISUAL DIAGRAM -->
+    <section class="note-section">
+      <h2>🖼️ Visual Diagram: ER Model Symbols &amp; Attribute Types</h2>
+      <p>The diagram below summarizes all ER diagram notations and attribute classifications based on the Gate Smashers lecture:</p>
+
+      <div class="img-box">
+        <img src="er_model_attributes_diagram.jpg" alt="ER Model Elements &amp; Types of Attributes Diagram">
+        <div class="img-caption">Figure 1: Complete Notation Guide for ER Entities, Relationships, and 6 Attribute Types</div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TYPES OF ATTRIBUTES DETAILED -->
+    <section class="note-section">
+      <h2>📌 3. Detailed Breakdown of Attribute Types</h2>
+
+      <h3>1. Single-Valued vs Multi-Valued Attributes 📱</h3>
+      <ul class="list-styled">
+        <li><strong>Single-Valued Attribute:</strong> Contains exactly ONE value for an entity instance (e.g., <code>Registration_Number</code>, <code>Gender</code>).
+          <br><strong>Notation:</strong> <span class="er-symbol-card er-attribute">( Gender )</span> <em>(Single Ellipse)</em>
+        </li>
+        <li><strong>Multi-Valued Attribute:</strong> Can hold MORE THAN ONE value for a single entity instance (e.g., a student having multiple <code>Mobile_Numbers</code> or multiple <code>Addresses</code>).
+          <br><strong>Notation:</strong> <span class="er-symbol-card er-multivalued">(( Mobile_No ))</span> <em>(Double Ellipse)</em>
+        </li>
+      </ul>
+
+      <h3>2. Simple vs Composite Attributes 👤</h3>
+      <ul class="list-styled">
+        <li><strong>Simple (Atomic) Attribute:</strong> Cannot be divided into smaller sub-components (e.g., <code>Age = 20</code>).</li>
+        <li><strong>Composite Attribute:</strong> Composed of multiple sub-attributes that can be divided further (e.g., <code>Name</code> → <code>First_Name</code>, <code>Middle_Name</code>, <code>Last_Name</code>; <code>Address</code> → <code>Street</code>, <code>City</code>, <code>State</code>, <code>Pincode</code>).</li>
+      </ul>
+
+      <h3>3. Stored vs Derived Attributes 📅</h3>
+      <ul class="list-styled">
+        <li><strong>Stored Attribute:</strong> Value is fixed and stored directly in the database (e.g., <code>Date_of_Birth</code>).</li>
+        <li><strong>Derived Attribute:</strong> Value is NOT stored directly; it is dynamically calculated from existing stored attributes (e.g., <code>Age</code> calculated by subtracting <code>DOB</code> from current date; <code>Course_End_Date</code> derived from <code>Start_Date</code> + <code>Duration</code>).
+          <br><strong>Notation:</strong> <span class="er-symbol-card er-derived">(: Age :)</span> <em>(Dotted / Dashed Ellipse)</em>
+        </li>
+      </ul>
+
+      <h3>4. Key vs Non-Key Attributes (Exam Star ⭐)</h3>
+      <ul class="list-styled">
+        <li><strong>Key Attribute:</strong> Uniquely identifies each record/row in an entity set with zero repetition (e.g., <code>Registration_Number</code>, <code>Roll_No</code>, <code>SSN</code>).
+          <br><strong>Notation:</strong> <span class="er-symbol-card er-attribute">( <span class="er-pk-attr">Reg_No</span> )</span> <em>(Underlined Text inside Ellipse)</em>
+        </li>
+        <li><strong>Non-Key Attribute:</strong> Values are not guaranteed to be unique and can repeat across records (e.g., <code>Name</code>, <code>Age</code>, <code>City</code>).</li>
+      </ul>
+
+      <h3>5. Required vs Optional Attributes 📋</h3>
+      <ul class="list-styled">
+        <li><strong>Required Attribute:</strong> Value is mandatory (Cannot be NULL, enforced using <code>NOT NULL</code> constraint, e.g. <code>Student_Name</code>).</li>
+        <li><strong>Optional Attribute:</strong> Value can be left blank or NULL (e.g., <code>Middle_Name</code>).</li>
+      </ul>
+
+      <h3>6. Complex Attribute 🔄</h3>
+      <p>An attribute that is both <strong>Composite AND Multi-Valued</strong> simultaneously (e.g., a student having multiple residential addresses, where each address is further divided into Street, City, and Pincode).</p>
+    </section>
+
+    <!-- SUMMARY TABLE -->
+    <section class="note-section">
+      <h2>⚖️ Summary Table: Attribute Types &amp; ER Notations</h2>
+
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Attribute Category</th>
+              <th>Key Definition</th>
+              <th>Real-Life Example</th>
+              <th>ER Diagram Notation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Key Attribute</strong></td>
+              <td>Uniquely identifies an entity instance</td>
+              <td><code>Registration_No</code>, <code>Roll_No</code></td>
+              <td><strong>Underlined Text inside Ellipse</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Multi-Valued</strong></td>
+              <td>Holds more than one value per entity</td>
+              <td><code>Mobile_Number</code>, <code>Phone_No</code></td>
+              <td><strong>Double Ellipse</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Derived Attribute</strong></td>
+              <td>Calculated dynamically from another attribute</td>
+              <td><code>Age</code> (from DOB)</td>
+              <td><strong>Dotted / Dashed Ellipse</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Composite Attribute</strong></td>
+              <td>Divided into sub-components</td>
+              <td><code>Name</code> (First, Middle, Last)</td>
+              <td>Branching Ellipses</td>
+            </tr>
+            <tr>
+              <td><strong>Simple / Stored</strong></td>
+              <td>Atomic fixed value</td>
+              <td><code>Date_of_Birth</code></td>
+              <td>Single Ellipse</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EXAM REVISION & PYQs -->
+    <section class="pyq-box">
+      <h4>🎯 GATE, UGC-NET &amp; IBPS SO IT Officer — Exam Focus Questions</h4>
+      <p><strong>Q1: How is a Multi-Valued attribute represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Double Ellipse <code>(( Mobile_No ))</code>.</em></p>
+      
+      <p><strong>Q2: How is a Derived attribute represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Dotted / Dashed Ellipse.</em></p>
+
+      <p><strong>Q3: How is a Primary Key / Key attribute represented in an ER Diagram?</strong><br>
+      👉 <em>Answer: Text with an Underline inside an Ellipse <code>( <u>Roll_No</u> )</code>.</em></p>
+
+      <p><strong>Q4: An attribute like Name which is divided into First_Name, Middle_Name, and Last_Name is called?</strong><br>
+      👉 <em>Answer: Composite Attribute.</em></p>
+
+      <p><strong>Q5: What symbol represents a Relationship in an ER Diagram?</strong><br>
+      👉 <em>Answer: Diamond <code>&lt; Relationship &gt;</code>.</em></p>
+    </section>
+
+  </main>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

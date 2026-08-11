@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 27 – Cryptography Basics: Symmetric, Asymmetric & Hashing | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on Cryptography fundamentals, Symmetric ciphers (AES), Asymmetric algorithms (RSA, Diffie-Hellman), and Hash functions (SHA-256)." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .crypto-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 27</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 27 · Network Security</div>
+    <h1 class="page-title">Cryptography Basics:<br/>Symmetric, Asymmetric & Hashing</h1>
+    <p class="page-subtitle">Master secret-key encryption (AES), public-key cryptography (RSA, Diffie-Hellman), cryptographic hash functions (SHA-256), and HMAC data integrity.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#crypto-terms"><span class="toc-num">27.1</span> Cryptography Terminology</a></li>
+      <li><a href="#symmetric-enc"><span class="toc-num">27.2</span> Symmetric Encryption (Secret-Key Ciphers)</a></li>
+      <li><a href="#asymmetric-enc"><span class="toc-num">27.3</span> Asymmetric Encryption (Public-Key Ciphers)</a></li>
+      <li><a href="#diffie-hellman"><span class="toc-num">27.4</span> Diffie-Hellman Key Exchange Algorithm</a></li>
+      <li><a href="#hash-functions"><span class="toc-num">27.5</span> Cryptographic Hash Functions & HMAC</a></li>
+      <li><a href="#crypto-compare"><span class="toc-num">27.6</span> Symmetric vs Asymmetric Comparison Master Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 27.1 Terminology -->
+  <div class="section" id="crypto-terms">
+    <div class="crypto-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">27.1 Cryptography Terminology</h3>
+      <ul class="note-list">
+        <li><strong>Plaintext (P):</strong> Original readable message data.</li>
+        <li><strong>Ciphertext (C):</strong> Encrypted unreadable message data.</li>
+        <li><strong>Encryption (E):</strong> Process of converting Plaintext to Ciphertext using a mathematical algorithm and Key ($C = E_K(P)$).</li>
+        <li><strong>Decryption (D):</strong> Process of recovering Plaintext from Ciphertext ($P = D_K(C)$).</li>
+        <li><strong>Key (K):</strong> Secret numerical parameter that controls the mathematical transformation.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 27.2 Symmetric -->
+  <div class="section" id="symmetric-enc">
+    <div class="section-header">
+      <div class="section-icon">🔑</div>
+      <div>
+        <div class="section-num">Section 27.2</div>
+        <h2 class="section-title">Symmetric Encryption (Secret-Key Ciphers)</h2>
+      </div>
+    </div>
+    <p>In <span class="hl">Symmetric Encryption</span>, the **SAME secret key** is used for both encryption and decryption.</p>
+
+    <!-- Symmetric Diagram SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 650 120" width="100%" style="max-width:620px">
+        <rect x="20" y="40" width="100" height="40" rx="6" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="70" y="65" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Plaintext</text>
+
+        <path d="M 120 60 L 220 60" stroke="#00d4aa" stroke-width="2"/>
+        <polygon points="225,60 215,54 215,66" fill="#00d4aa"/>
+        <text x="172" y="50" text-anchor="middle" fill="#00d4aa" font-size="9" font-weight="700" font-family="Inter">+ Secret Key</text>
+
+        <rect x="230" y="40" width="140" height="40" rx="6" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="300" y="65" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">AES Ciphertext</text>
+
+        <path d="M 370 60 L 470 60" stroke="#00d4aa" stroke-width="2"/>
+        <polygon points="475,60 465,54 465,66" fill="#00d4aa"/>
+        <text x="422" y="50" text-anchor="middle" fill="#00d4aa" font-size="9" font-weight="700" font-family="Inter">+ Secret Key</text>
+
+        <rect x="480" y="40" width="100" height="40" rx="6" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="530" y="65" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Plaintext</text>
+      </svg>
+    </div>
+
+    <h4 class="mini-title">Block Ciphers vs Stream Ciphers</h4>
+    <ul class="note-list">
+      <li><strong>Block Ciphers:</strong> Encrypts fixed-size blocks of plaintext (e.g. 128 bits) at a time. Examples: **AES-128 / AES-256** (Advanced Encryption Standard), DES (obsolete), 3DES, Blowfish.</li>
+      <li><strong>Stream Ciphers:</strong> Encrypts plaintext bit-by-bit or byte-by-byte in a continuous stream. Examples: **ChaCha20**, RC4 (obsolete).</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 27.3 Asymmetric -->
+  <div class="section" id="asymmetric-enc">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div>
+        <div class="section-num">Section 27.3</div>
+        <h2 class="section-title">Asymmetric Encryption (Public-Key Ciphers)</h2>
+      </div>
+    </div>
+    <p>In <span class="hl2">Asymmetric Encryption</span>, two mathematically linked keys are used: a **Public Key** (shared openly) and a **Private Key** (kept secret).</p>
+    <ul class="note-list">
+      <li><strong>To send a confidential message to Alice:</strong> Encrypt using Alice's <em>Public Key</em>. Only Alice can decrypt it using her <em>Private Key</em>.</li>
+      <li><strong>To digitally sign a message as Alice:</strong> Encrypt/Sign using Alice's <em>Private Key</em>. Anyone can verify it using Alice's <em>Public Key</em>.</li>
+    </ul>
+
+    <h4 class="mini-title">Key Asymmetric Algorithms</h4>
+    <ul class="note-list">
+      <li><strong>RSA (Rivest-Shamir-Adleman):</strong> Based on the mathematical difficulty of factoring large prime numbers (uses 2048 to 4096-bit keys).</li>
+      <li><strong>ECC (Elliptic Curve Cryptography):</strong> Based on algebraic structures of elliptic curves over finite fields. Offers <strong>equal security to RSA with drastically smaller key sizes</strong> (256-bit ECC key ≈ 3072-bit RSA key!).</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 27.4 Diffie-Hellman -->
+  <div class="section" id="diffie-hellman">
+    <div class="crypto-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">27.4 Diffie-Hellman Key Exchange Algorithm</h3>
+      <p>The <span class="hl2">Diffie-Hellman (DH / ECDHE)</span> key exchange algorithm allows two parties to securely negotiate a shared secret symmetric key over an insecure, eavesdropped public channel without sending the key itself!</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 27.5 Hashing -->
+  <div class="section" id="hash-functions">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 27.5</div>
+        <h2 class="section-title">Cryptographic Hash Functions & HMAC</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">Cryptographic Hash Function</span> is a one-way mathematical function that converts an arbitrary length input string into a fixed-length string of hex digits (the hash digest).</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">Core Properties of Hash Functions</div>
+        <div class="callout-text">
+          1. <strong>Deterministic:</strong> Same input always produces exact same hash.<br/>
+          2. <strong>One-Way (Pre-image Resistance):</strong> Impossible to reverse hash back to original plaintext.<br/>
+          3. <strong>Avalanche Effect:</strong> Changing 1 bit of input radically changes the output hash.<br/>
+          4. <strong>Collision Resistance:</strong> Computationally impossible to find two different inputs that produce the same output hash.
+      </div>
+    </div>
+
+    <p style="margin-top:14px;">Common standards: <strong>SHA-256 (Secure Hash Algorithm)</strong>, SHA-3, MD5 (deprecated due to collision vulnerabilities), and <strong>HMAC (Hash-based Message Authentication Code)</strong> which combines a secret key with a hash function for integrity & authenticity.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 27.6 Comparison -->
+  <div class="section" id="crypto-compare">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 27.6</div>
+        <h2 class="section-title">Symmetric vs Asymmetric Comparison Master Table</h2>
+      </div>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/cryptography_pki_digital_signatures.jpg" alt="Symmetric vs Asymmetric Encryption, Hash Functions, Digital Signatures, and PKI Chain of Trust Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 27.1 – Symmetric vs Asymmetric Key Flows, Cryptographic Hash Digest, Digital Signature Creation & PKI Chain of Trust</div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>Symmetric Encryption</th><th>Asymmetric Encryption</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Key Usage</td><td>1 Shared Secret Key</td><td>2 Keys (Public Key & Private Key)</td></tr>
+          <tr><td>Speed & Efficiency</td><td>Extremely Fast (High throughput)</td><td>Slow (100x to 1000x slower computationally)</td></tr>
+          <tr><td>Key Distribution</td><td>Difficult (How to send secret key securely?)</td><td>Easy (Public key shared openly with anyone)</td></tr>
+          <tr><td>Resource Requirement</td><td>Low CPU & RAM requirements</td><td>High CPU & RAM overhead</td></tr>
+          <tr><td>Primary Use Case</td><td>Bulk payload encryption (TLS data streams, disk storage)</td><td>Key Exchange, Digital Signatures, TLS Handshake</td></tr>
+          <tr><td>Typical Key Sizes</td><td>128 bits, 256 bits (AES)</td><td>2048 to 4096 bits (RSA), 256 bits (ECC)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="26-network-security-firewalls-ids-ips-dmz.html">← Ch 26: Firewalls & DMZ</a>
+      <a href="index.html">Home</a>
+      <a href="28-digital-signatures-pki-certificates-ssl-tls-vpn.html">Ch 28: Digital Signatures, TLS & VPN →</a>
+    </div>
+    Network Fundamentals · Chapter 27 · Cryptography & Hashing
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

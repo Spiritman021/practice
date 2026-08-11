@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="SQL Chapter 2: CREATE TABLE and ALTER Command — DDL syntax, Oracle implementation, schema viewing with DESC, ALTER add/drop/modify/rename with practical examples.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 2: CREATE TABLE &amp; ALTER | DBMS Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/sql-chapter-2-create-alter.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--tl:#0d9488;--tl2:#f0fdfa}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.04),transparent 40%),radial-gradient(circle at 90% 80%,rgba(99,102,241,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+    .hero{background:linear-gradient(135deg,#0f172a,#14532d 40%,#052e16 80%,#064e3b);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'DDL';position:absolute;right:-10px;top:-20px;font-size:140px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#bbf7d0;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--pl);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--pr);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .cl{border-left:4px solid var(--pr);background:var(--pl);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#1e3a8a}
+    .ct{font-weight:800;color:var(--ph);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    .ls{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .ls li{position:relative;padding-left:24px;font-size:.975rem;color:#334155}
+    .ls li::before{content:"➔";position:absolute;left:0;color:var(--pr);font-size:13px;font-weight:bold}
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#eff6ff}
+    .ac-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:20px 0}
+    .ac{border-radius:14px;padding:18px;border:1.5px solid;transition:transform .2s}
+    .ac:hover{transform:translateY(-3px)}
+    .ac .ai{font-size:24px;margin-bottom:8px}.ac .an{font-weight:800;font-size:1rem;margin-bottom:4px}.ac .ad{font-size:13px;opacity:.8}
+    .ac.add{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .ac.drop{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+    .ac.mod{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .ac.ren{background:#f5f3ff;border-color:#c4b5fd;color:#3b0764}
+    .ac.con{background:#fef3c7;border-color:#fbbf24;color:#78350f}
+    .out-box{background:#0f172a;border-radius:12px;padding:16px 20px;margin:14px 0;border-left:4px solid #10b981}
+    .out-box .ol{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-family:'Fira Code',monospace}
+    .out-box pre{font-family:'Fira Code',monospace;font-size:.88rem;color:#a3e635;line-height:1.5}
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin-bottom:0}
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#10b981,#2563eb);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <span class="cur">SQL — Chapter 2: CREATE TABLE &amp; ALTER</span>
+  <a class="bk" href="index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 2 · DDL</span>
+    <h1>CREATE TABLE &amp; ALTER Command</h1>
+    <p>Master the two foundational DDL commands with full Oracle syntax, practical implementation examples, schema inspection using DESC, and all five variations of ALTER (add, drop, modify, rename column, rename table, constraints).</p>
+    <div class="tags">
+      <span class="tag">🏗️ CREATE TABLE Syntax</span><span class="tag">📐 Schema Design</span>
+      <span class="tag">🔧 ALTER — Add/Drop/Modify/Rename</span><span class="tag">🔍 DESC Command</span>
+      <span class="tag">🗜️ Constraints on ALTER</span><span class="tag">☁️ Oracle Live SQL</span>
+    </div>
+  </section>
+
+  <!-- 1. CREATE TABLE -->
+  <section class="ns" id="create">
+    <h2>🏗️ 1. CREATE TABLE Command</h2>
+    <p><code>CREATE TABLE</code> is a <strong>DDL (Data Definition Language)</strong> command — the very first command you use in any RDBMS workflow because you must define a <strong>structure (schema)</strong> before storing any data.</p>
+
+    <div class="cl cl-s">
+      <div class="ct">📦 Why CREATE TABLE First?</div>
+      In RDBMS, data is always stored in <strong>tables (relations)</strong>. The table schema — column names and their data types — must be defined before any data can be inserted. This is unlike NoSQL (MongoDB) which is schema-less.
+    </div>
+
+    <h3>📐 Syntax</h3>
+    <div class="cb"><span class="ll">SQL — CREATE TABLE Syntax</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">table_name</span> (
+    <span class="tb">column1_name</span>  <span class="fn">datatype</span>,
+    <span class="tb">column2_name</span>  <span class="fn">datatype</span>,
+    <span class="tb">column3_name</span>  <span class="fn">datatype</span>
+)<span class="op">;</span>
+<span class="cm">-- NOTE: No comma after the LAST column — only a closing ) and semicolon.</span>
+<span class="cm">-- Table names with spaces (e.g., "student detail") will cause an ERROR.</span>
+<span class="cm">-- Use underscore instead: student_detail</span></pre></div>
+
+    <div class="cl cl-w">
+      <div class="ct">⚠️ Common Beginner Mistakes</div>
+      <ul class="ls" style="margin-top:6px">
+        <li>Do <strong>NOT</strong> put a comma after the last column — it will throw a syntax error.</li>
+        <li>Do <strong>NOT</strong> use spaces in table names: <code>student detail</code> → Error. Use <code>student_detail</code> instead.</li>
+        <li>Always end the statement with a <strong>semicolon</strong> (<code>;</code>).</li>
+      </ul>
+    </div>
+
+    <h3>🗄️ Oracle Data Types</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Data Type</th><th>Description</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>INT</code> / <code>NUMBER</code></td><td>Integer / numeric values. <code>NUMBER(p,s)</code> has precision p and scale s.</td><td><code>salary NUMBER(10,2)</code></td></tr>
+      <tr><td><code>VARCHAR2(n)</code></td><td>Variable-length string up to n characters. <strong>Oracle's preferred string type.</strong></td><td><code>name VARCHAR2(100)</code></td></tr>
+      <tr><td><code>CHAR(n)</code></td><td>Fixed-length string of exactly n characters. Padded with spaces.</td><td><code>gender CHAR(1)</code></td></tr>
+      <tr><td><code>DATE</code></td><td>Stores date and time. Default format: DD-MON-YYYY.</td><td><code>dob DATE</code></td></tr>
+      <tr><td><code>FLOAT</code></td><td>Floating-point numeric value.</td><td><code>gpa FLOAT</code></td></tr>
+    </tbody></table></div>
+
+    <div class="cl cl-p">
+      <div class="ct">📌 VARCHAR vs VARCHAR2 in Oracle</div>
+      Oracle recommends using <strong><code>VARCHAR2</code></strong> over <code>VARCHAR</code>. If you use <code>VARCHAR</code>, Oracle silently converts it to <code>VARCHAR2</code>. For portability and clarity, always use <code>VARCHAR2</code> in Oracle.
+    </div>
+
+    <h3>💡 Complete Example — Employee Table</h3>
+    <div class="cb"><span class="ll">Oracle SQL — CREATE TABLE</span><pre><span class="cm">-- Create an employee table with 3 columns</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">employee</span> (
+    <span class="tb">id</span>      <span class="fn">INT</span>,
+    <span class="tb">name</span>    <span class="fn">VARCHAR2</span>(<span class="vl">50</span>),
+    <span class="tb">salary</span>  <span class="fn">NUMBER</span>
+)<span class="op">;</span></pre></div>
+
+    <div class="out-box">
+      <div class="ol">Oracle Live SQL — Output</div>
+      <pre>Table created.</pre>
+    </div>
+
+    <h3>🔍 Viewing the Schema — DESC Command</h3>
+    <p>After creating a table, use the <code>DESC</code> (DESCRIBE) command to inspect its structure — column names, data types, sizes, and constraints.</p>
+    <div class="cb"><span class="ll">Oracle SQL — DESC</span><pre><span class="kw">DESC</span> <span class="tb">employee</span><span class="op">;</span>
+<span class="cm">-- or: DESCRIBE employee;</span></pre></div>
+    <div class="out-box">
+      <div class="ol">Schema Output (DESC employee)</div>
+      <pre>Name     Null?    Type
+-------- -------- ------------
+ID                NUMBER(38)
+NAME              VARCHAR2(50)
+SALARY            NUMBER(38)</pre>
+    </div>
+    <div class="cl cl-t">
+      <div class="ct">📋 Reading the DESC Output</div>
+      <ul class="ls" style="margin-top:6px">
+        <li><strong>Name:</strong> Column name</li>
+        <li><strong>Null?:</strong> Whether NOT NULL or PRIMARY KEY constraint is applied (blank = NULL allowed)</li>
+        <li><strong>Type:</strong> Data type and size. <code>NUMBER(10,2)</code> = precision 10, scale 2 (decimal places)</li>
+        <li><code>INT</code> defaults to <code>NUMBER(38)</code> in Oracle's internal representation</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. ALTER -->
+  <section class="ns" id="alter">
+    <h2>🔧 2. ALTER TABLE Command</h2>
+    <p><code>ALTER TABLE</code> is also a <strong>DDL command</strong>. It is used to make changes to the <strong>structure (schema)</strong> of an already existing table — <em>without</em> deleting it.</p>
+
+    <div class="cl">
+      <div class="ct">💡 When to Use ALTER vs CREATE?</div>
+      Use <code>CREATE</code> when building something new from scratch. Use <code>ALTER</code> when the table already exists and you need to modify its structure (add/remove/rename columns, change data types, apply/remove constraints).
+    </div>
+
+    <div class="ac-grid">
+      <div class="ac add"><div class="ai">➕</div><div class="an">ADD Column</div><div class="ad">Add one or more new columns to an existing table</div></div>
+      <div class="ac drop"><div class="ai">🗑️</div><div class="an">DROP Column</div><div class="ad">Remove an existing column from the table permanently</div></div>
+      <div class="ac mod"><div class="ai">✏️</div><div class="an">MODIFY Column</div><div class="ad">Change data type or increase/decrease column size</div></div>
+      <div class="ac ren"><div class="ai">🏷️</div><div class="an">RENAME Column / Table</div><div class="ad">Rename a column or even the whole table</div></div>
+      <div class="ac con"><div class="ai">🔑</div><div class="an">ADD / DROP Constraint</div><div class="ad">Add or remove PRIMARY KEY, FOREIGN KEY, NOT NULL, etc.</div></div>
+    </div>
+
+    <h3>➕ 2.1 ALTER TABLE — ADD Column</h3>
+    <p>Use <code>ADD</code> to append one or more new columns to an existing table. You <strong>must</strong> specify the data type — Oracle cannot infer it.</p>
+    <div class="cb"><span class="ll">Oracle SQL — ALTER ADD</span><pre><span class="cm">-- Add a single column</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">ADD</span> <span class="tb">address</span> <span class="fn">VARCHAR2</span>(<span class="vl">200</span>)<span class="op">;</span>
+
+<span class="cm">-- Add multiple columns at once (wrap in parentheses)</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">ADD</span> (<span class="tb">email</span>  <span class="fn">VARCHAR2</span>(<span class="vl">100</span>),
+     <span class="tb">phone</span>  <span class="fn">VARCHAR2</span>(<span class="vl">15</span>))<span class="op">;</span></pre></div>
+    <div class="out-box"><div class="ol">Output</div><pre>Table altered.</pre></div>
+
+    <h3>🗑️ 2.2 ALTER TABLE — DROP Column</h3>
+    <p>Use <code>DROP COLUMN</code> to permanently remove a column. You must include the keyword <code>COLUMN</code> — just <code>DROP</code> alone will not work for columns. No data type needed when dropping.</p>
+    <div class="cb"><span class="ll">Oracle SQL — ALTER DROP COLUMN</span><pre><span class="cm">-- Drop a single column (data type NOT needed)</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">DROP COLUMN</span> <span class="tb">address</span><span class="op">;</span>
+
+<span class="cm">-- Drop multiple columns</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">DROP</span> (<span class="tb">email</span>, <span class="tb">phone</span>)<span class="op">;</span></pre></div>
+    <div class="cl cl-d">
+      <div class="ct">⚠️ Warning: DROP COLUMN is Irreversible</div>
+      Dropping a column permanently removes it and all its data. There is no undo unless you have a backup. In production databases, only the DBA (Database Administrator) should perform this operation.
+    </div>
+
+    <h3>✏️ 2.3 ALTER TABLE — MODIFY Column</h3>
+    <p>Use <code>MODIFY</code> to change the data type or size of an existing column.</p>
+    <div class="cb"><span class="ll">Oracle SQL — ALTER MODIFY</span><pre><span class="cm">-- Change data type: id from INT/NUMBER to VARCHAR2</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">MODIFY</span> <span class="tb">id</span> <span class="fn">VARCHAR2</span>(<span class="vl">10</span>)<span class="op">;</span>
+
+<span class="cm">-- Increase the size of name column from 50 to 100</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">MODIFY</span> <span class="tb">name</span> <span class="fn">VARCHAR2</span>(<span class="vl">100</span>)<span class="op">;</span></pre></div>
+    <div class="cl cl-w">
+      <div class="ct">📌 Condition for MODIFY</div>
+      The new data type must be compatible with the existing data. For example, you can safely change <code>NUMBER</code> to <code>VARCHAR2</code> (numbers fit in strings), but changing <code>VARCHAR2</code> to <code>NUMBER</code> will fail if the column contains non-numeric data.
+    </div>
+
+    <h3>🏷️ 2.4 ALTER TABLE — RENAME Column &amp; Table</h3>
+    <div class="cb"><span class="ll">Oracle SQL — ALTER RENAME</span><pre><span class="cm">-- Rename a column: id → roll_number</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">RENAME COLUMN</span> <span class="tb">id</span> <span class="kw">TO</span> <span class="tb">roll_number</span><span class="op">;</span>
+
+<span class="cm">-- Rename the whole table: employee → employee_detail</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">RENAME TO</span> <span class="tb">employee_detail</span><span class="op">;</span></pre></div>
+
+    <h3>🔑 2.5 ALTER TABLE — ADD / DROP Constraints</h3>
+    <div class="cb"><span class="ll">Oracle SQL — ALTER Constraints</span><pre><span class="cm">-- Add a PRIMARY KEY constraint to roll_number</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">ADD PRIMARY KEY</span> (<span class="tb">roll_number</span>)<span class="op">;</span>
+
+<span class="cm">-- Add a NOT NULL constraint (using MODIFY in Oracle)</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">MODIFY</span> <span class="tb">name</span> <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span><span class="op">;</span>
+
+<span class="cm">-- Add a FOREIGN KEY constraint</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">ADD CONSTRAINT</span> <span class="tb">fk_dept</span>
+<span class="kw">FOREIGN KEY</span> (<span class="tb">dept_id</span>) <span class="kw">REFERENCES</span> <span class="tb">departments</span>(<span class="tb">dept_id</span>)<span class="op">;</span>
+
+<span class="cm">-- Drop the primary key constraint</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span>
+<span class="kw">DROP PRIMARY KEY</span><span class="op">;</span></pre></div>
+  </section>
+
+  <!-- 3. ALTER SUMMARY TABLE -->
+  <section class="ns" id="summary">
+    <h2>📊 3. ALTER TABLE — Complete Summary</h2>
+    <div class="tw"><table class="ct2"><thead><tr><th>Operation</th><th>Keyword</th><th>Must Include</th><th>Example</th></tr></thead><tbody>
+      <tr><td>Add a new column</td><td><code>ADD</code></td><td>Column name + Data type</td><td><code>ALTER TABLE t ADD col VARCHAR2(50);</code></td></tr>
+      <tr><td>Remove a column</td><td><code>DROP COLUMN</code></td><td>Column name only (no data type)</td><td><code>ALTER TABLE t DROP COLUMN col;</code></td></tr>
+      <tr><td>Change data type / size</td><td><code>MODIFY</code></td><td>Column name + new data type + size</td><td><code>ALTER TABLE t MODIFY col NUMBER(12);</code></td></tr>
+      <tr><td>Rename a column</td><td><code>RENAME COLUMN</code></td><td>Old name + <code>TO</code> + new name</td><td><code>ALTER TABLE t RENAME COLUMN old TO new;</code></td></tr>
+      <tr><td>Rename the table</td><td><code>RENAME TO</code></td><td>New table name</td><td><code>ALTER TABLE t RENAME TO new_name;</code></td></tr>
+      <tr><td>Add constraint</td><td><code>ADD</code> or <code>MODIFY</code></td><td>Constraint type + column(s)</td><td><code>ALTER TABLE t ADD PRIMARY KEY (id);</code></td></tr>
+      <tr><td>Remove constraint</td><td><code>DROP</code></td><td>Constraint name or type</td><td><code>ALTER TABLE t DROP PRIMARY KEY;</code></td></tr>
+    </tbody></table></div>
+
+    <h3>🔁 Complete Workflow Example</h3>
+    <div class="cb"><span class="ll">Oracle SQL — Full ALTER Workflow</span><pre><span class="cm">-- Step 1: Create the initial table</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">employee</span> (
+    <span class="tb">id</span>    <span class="fn">INT</span>,
+    <span class="tb">name</span>  <span class="fn">VARCHAR2</span>(<span class="vl">50</span>)
+)<span class="op">;</span>
+
+<span class="cm">-- Step 2: Add a new column</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">ADD</span> <span class="tb">address</span> <span class="fn">VARCHAR2</span>(<span class="vl">200</span>)<span class="op">;</span>
+
+<span class="cm">-- Step 3: Check schema after adding</span>
+<span class="kw">DESC</span> <span class="tb">employee</span><span class="op">;</span>    <span class="cm">-- shows id, name, address</span>
+
+<span class="cm">-- Step 4: Drop the address column</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">DROP COLUMN</span> <span class="tb">address</span><span class="op">;</span>
+
+<span class="cm">-- Step 5: Modify id's datatype from INT to VARCHAR2</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">MODIFY</span> <span class="tb">id</span> <span class="fn">VARCHAR2</span>(<span class="vl">10</span>)<span class="op">;</span>
+
+<span class="cm">-- Step 6: Increase name size from 50 to 100</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">MODIFY</span> <span class="tb">name</span> <span class="fn">VARCHAR2</span>(<span class="vl">100</span>)<span class="op">;</span>
+
+<span class="cm">-- Step 7: Rename column id to roll_number</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">RENAME COLUMN</span> <span class="tb">id</span> <span class="kw">TO</span> <span class="tb">roll_number</span><span class="op">;</span>
+
+<span class="cm">-- Step 8: Add PRIMARY KEY on roll_number</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">ADD PRIMARY KEY</span> (<span class="tb">roll_number</span>)<span class="op">;</span>
+
+<span class="cm">-- Step 9: Rename the table itself</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">employee</span> <span class="kw">RENAME TO</span> <span class="tb">emp11</span><span class="op">;</span>
+
+<span class="cm">-- Step 10: Verify final schema</span>
+<span class="kw">DESC</span> <span class="tb">emp11</span><span class="op">;</span></pre></div>
+
+    <div class="out-box">
+      <div class="ol">Final Schema — DESC emp11</div>
+      <pre>Name         Null?    Type
+------------ -------- ---------------
+ROLL_NUMBER  NOT NULL VARCHAR2(10)
+NAME                  VARCHAR2(100)</pre>
+    </div>
+  </section>
+
+  <!-- PYQ -->
+  <section class="pb">
+    <h4>🎯 Exam Focus — Key Q&amp;A</h4>
+    <p><strong>Q1: What category does CREATE TABLE belong to?</strong><br>👉 <em>DDL — Data Definition Language.</em></p>
+    <p><strong>Q2: What command is used to view the schema (structure) of a table in Oracle?</strong><br>👉 <em>DESC table_name; (or DESCRIBE table_name;)</em></p>
+    <p><strong>Q3: Which keyword is mandatory when dropping a column using ALTER?</strong><br>👉 <em>The keyword COLUMN is mandatory: ALTER TABLE t DROP COLUMN col_name;</em></p>
+    <p><strong>Q4: What is the difference between VARCHAR and VARCHAR2 in Oracle?</strong><br>👉 <em>Oracle recommends VARCHAR2. VARCHAR is silently converted to VARCHAR2. Always use VARCHAR2 in Oracle for safety.</em></p>
+    <p><strong>Q5: Can you add multiple columns in a single ALTER statement?</strong><br>👉 <em>Yes — wrap multiple column definitions in parentheses: ALTER TABLE t ADD (col1 TYPE, col2 TYPE);</em></p>
+    <p><strong>Q6: How do you rename a table in Oracle SQL?</strong><br>👉 <em>ALTER TABLE old_name RENAME TO new_name;</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

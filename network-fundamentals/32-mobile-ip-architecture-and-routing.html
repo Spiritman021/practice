@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 32 – Mobile IP Architecture, Tunneling & Routing | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on Mobile IP (RFC 5944) architecture: Home Agent, Foreign Agent, Care-of Address, IP-in-IP Encapsulation, and Triangular Routing." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .mip-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 32</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 32 · Wireless & Mobile Networks</div>
+    <h1 class="page-title">Mobile IP Architecture,<br/>Tunneling & Routing</h1>
+    <p class="page-subtitle">Master Mobile IP (RFC 5944) mechanics, Home Agent & Foreign Agent roles, Care-of Address (CoA) assignment, IP-in-IP encapsulation, and Triangular Routing solutions.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#mip-problem"><span class="toc-num">32.1</span> The Mobility Routing Problem</a></li>
+      <li><a href="#mip-entities"><span class="toc-num">32.2</span> Key Mobile IP Entities & Addresses</a></li>
+      <li><a href="#mip-operation"><span class="toc-num">32.3</span> Mobile IP 3-Step Operation Sequence</a></li>
+      <li><a href="#tunneling"><span class="toc-num">32.4</span> Tunneling & IP-in-IP Encapsulation</a></li>
+      <li><a href="#triangular-routing"><span class="toc-num">32.5</span> Triangular Routing & Route Optimization</a></li>
+      <li><a href="#unit9-summary"><span class="toc-num">32.6</span> Unit 9 Wireless & Mobile Summary Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 32.1 Problem -->
+  <div class="section" id="mip-problem">
+    <div class="mip-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">32.1 The Mobility Routing Problem</h3>
+      <p>Standard IP routing relies on an IP address performing two roles: **Node Identifier** and **Location Pointer**. When a mobile host moves to a new subnet, changing its IP address breaks active TCP connections, while keeping its old IP prevents internet routers from routing packets to its new physical location.</p>
+      <p><span class="hl">Mobile IP (RFC 5944)</span> solves this problem by separating the node's **permanent identity** from its **temporary location address**.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 32.2 Entities -->
+  <div class="section" id="mip-entities">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 32.2</div>
+        <h2 class="section-title">Key Mobile IP Entities & Addresses</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Entity / Address</th><th>Abbreviation</th><th>Role & Function</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Mobile Node</strong></td><td>MN</td><td>The mobile end-device (e.g. laptop, smartphone) that changes its network attachment point.</td></tr>
+          <tr><td><strong>Home Agent</strong></td><td>HA</td><td>A router on the Mobile Node's home network that maintains location tracking and tunnels packets to the MN's current location.</td></tr>
+          <tr><td><strong>Foreign Agent</strong></td><td>FA</td><td>A router on the visited foreign network that assists the MN in receiving tunneled packets.</td></tr>
+          <tr><td><strong>Correspondent Node</strong></td><td>CN</td><td>The remote peer host communicating with the Mobile Node.</td></tr>
+          <tr><td><strong>Home Address</strong></td><td>HoA</td><td>Permanent 32-bit IP address assigned to the MN on its home network (remains constant).</td></tr>
+          <tr><td><strong>Care-of Address</strong></td><td>CoA</td><td>Temporary IP address assigned to the MN while roaming on a foreign network. (Foreign Agent CoA vs Co-located CoA).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 32.3 Operation -->
+  <div class="section" id="mip-operation">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 32.3</div>
+        <h2 class="section-title">Mobile IP 3-Step Operation Sequence</h2>
+      </div>
+    </div>
+
+    <ol class="note-list" style="margin-left:20px;">
+      <li><strong>1. Agent Discovery:</strong> Home Agents and Foreign Agents periodically broadcast <code>Agent Advertisement</code> messages. When an MN receives an advertisement from an FA, it realizes it has moved to a foreign network.</li>
+      <li><strong>2. Registration:</strong> The MN obtains a Care-of Address (CoA) from the FA, then sends a <code>Registration Request</code> to its Home Agent (HA) updating its current location binding. The HA returns a <code>Registration Reply</code>.</li>
+      <li><strong>3. Tunneling & Packet Delivery:</strong> When a Correspondent Node (CN) sends packets to the MN's permanent Home Address, the HA intercepts them and tunnels them to the CoA.</li>
+    </ol>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 32.4 Tunneling -->
+  <div class="section" id="tunneling">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 32.4</div>
+        <h2 class="section-title">Tunneling & IP-in-IP Encapsulation</h2>
+      </div>
+    </div>
+    <p>The Home Agent uses <span class="hl2">IP-in-IP Encapsulation (RFC 2003)</span> to forward packets to the Mobile Node:</p>
+
+    <!-- IP-in-IP Diagram SVG -->
+    <div class="diagram-box">
+      <svg viewBox="0 0 650 110" width="100%" style="max-width:620px">
+        <rect x="20" y="35" width="220" height="40" rx="4" fill="#131d35" stroke="#4f8ef7" stroke-width="1.5"/>
+        <text x="130" y="60" text-anchor="middle" fill="#4f8ef7" font-size="11" font-weight="700" font-family="Inter">Outer IP Header (Src: HA, Dst: CoA)</text>
+
+        <rect x="240" y="35" width="220" height="40" rx="4" fill="#1a2545" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="350" y="60" text-anchor="middle" fill="#00d4aa" font-size="11" font-weight="700" font-family="Inter">Inner IP Header (Src: CN, Dst: HoA)</text>
+
+        <rect x="460" y="35" width="170" height="40" rx="4" fill="#131d35" stroke="#f7a34f" stroke-width="1.5"/>
+        <text x="545" y="60" text-anchor="middle" fill="#f7a34f" font-size="11" font-weight="700" font-family="Inter">TCP Payload Data</text>
+      </svg>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 32.5 Triangular Routing -->
+  <div class="section" id="triangular-routing">
+    <div class="mip-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">32.5 Triangular Routing & Route Optimization</h3>
+      <p>In standard Mobile IP, inbound packets follow a **Triangular Route** (CN &rarr; HA &rarr; FA &rarr; MN), while outbound packets travel directly (MN &rarr; CN). This creates inefficient latency!</p>
+
+      <h4 class="mini-title">Route Optimization Solution</h4>
+      <p>Route Optimization allows the Correspondent Node (CN) to learn the Mobile Node's current Care-of Address directly. Once learned, the CN tunnels packets directly to the CoA (CN &rarr; CoA &rarr; MN), eliminating the Home Agent bottleneck!</p>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/mobile_ip_triangular_routing.jpg" alt="Mobile IP Architecture, IP-in-IP Tunneling Encapsulation, and Triangular Routing vs Route Optimization Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 32.1 – Mobile IP Network Architecture (HA, FA, CoA), IP-in-IP Encapsulation Header & Triangular Routing vs Route Optimization</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 32.6 Summary -->
+  <div class="section" id="unit9-summary">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 32.6</div>
+        <h2 class="section-title">Unit 9 Wireless & Mobile Summary Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Technology</th><th>Standard</th><th>Max Speed</th><th>Primary Scope / Use Case</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Wi-Fi 7</strong></td><td>IEEE 802.11be</td><td>46 Gbps</td><td>Ultra-high-speed Wireless LAN (WLAN)</td></tr>
+          <tr><td><strong>Bluetooth BLE</strong></td><td>IEEE 802.15.1</td><td>2 Mbps</td><td>Short-range Personal Area Network (WPAN) & IoT</td></tr>
+          <tr><td><strong>5G Mobile</strong></td><td>3GPP 5G NR</td><td>20 Gbps</td><td>Global Cellular Broadband, URLLC, & mMTC IoT</td></tr>
+          <tr><td><strong>Mobile IP</strong></td><td>RFC 5944</td><td>N/A (Protocol)</td><td>Seamless IP session roaming across subnets</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="31-cellular-network-generations-2g-3g-4g-5g.html">← Ch 31: Cellular 2G to 5G</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 32 · Mobile IP Architecture
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

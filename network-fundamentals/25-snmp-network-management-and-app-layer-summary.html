@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 25 – SNMP & Application Layer Master Summary | Network Fundamentals</title>
+  <meta name="description" content="Detailed guide on SNMP architecture, Manager/Agent MIB OID operations, SNMPv1-v3, and complete Application Layer Protocols master reference table." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .snmp-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 25</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 25 · Application Layer</div>
+    <h1 class="page-title">SNMP & Application Layer<br/>Master Reference</h1>
+    <p class="page-subtitle">Master SNMP network monitoring (MIB, OID, Traps, Manager-Agent architecture) and explore the complete Application Layer protocols master table.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#snmp-intro"><span class="toc-num">25.1</span> SNMP Architecture Overview</a></li>
+      <li><a href="#mib-oid"><span class="toc-num">25.2</span> MIB (Management Information Base) & OID Structure</a></li>
+      <li><a href="#snmp-ops"><span class="toc-num">25.3</span> SNMP Operations & Message Types</a></li>
+      <li><a href="#snmp-versions"><span class="toc-num">25.4</span> SNMPv1 vs SNMPv2c vs SNMPv3</a></li>
+      <li><a href="#master-table"><span class="toc-num">25.5</span> Application Layer Protocols Master Reference Table</a></li>
+    </ul>
+  </div>
+
+  <!-- 25.1 SNMP Intro -->
+  <div class="section" id="snmp-intro">
+    <div class="snmp-card">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">25.1 SNMP Architecture Overview</h3>
+      <p><span class="hl">SNMP (Simple Network Management Protocol)</span> is an application-layer protocol used to monitor, configure, and manage network devices (routers, switches, firewalls, servers).</p>
+
+      <h4 class="mini-title">Core SNMP Components</h4>
+      <ul class="note-list">
+        <li><strong>NMS (Network Management Station / Manager):</strong> Central management system running monitoring software (e.g. Nagios, Zabbix, SolarWinds). Queries agents and receives alerts.</li>
+        <li><strong>SNMP Agent:</strong> Software module running on managed network devices (routers, switches). Collects local status metrics and responds to manager queries.</li>
+        <li><strong>MIB (Management Information Base):</strong> Virtual database containing hierarchical data variables supported by the managed device.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 25.2 MIB OID -->
+  <div class="section" id="mib-oid">
+    <div class="section-header">
+      <div class="section-icon">🌳</div>
+      <div>
+        <div class="section-num">Section 25.2</div>
+        <h2 class="section-title">MIB (Management Information Base) & OID Structure</h2>
+      </div>
+    </div>
+    <p>MIB data variables are organized in a **hierarchical tree structure**. Every variable is uniquely identified by an **OID (Object Identifier)** string of numbers separated by dots.</p>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">OID Example Breakdown</div>
+        <div class="callout-text" style="font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--accent3);">
+          .1.3.6.1.2.1.1.5.0 &nbsp;&rarr;&nbsp; iso.org.dod.internet.mgmt.mib-2.system.sysName.0
+        </div>
+        <p style="margin-top:8px;">This specific OID retrieves the hostname (<code>sysName</code>) of the managed router/switch.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 25.3 SNMP Ops -->
+  <div class="section" id="snmp-ops">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 25.3</div>
+        <h2 class="section-title">SNMP Operations & Message Types</h2>
+      </div>
+    </div>
+    <p>SNMP operates over **UDP Ports 161 (Manager-to-Agent requests)** and **UDP Port 162 (Unsolicited Agent Traps)**:</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>SNMP Operation</th><th>Initiator</th><th>UDP Port</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>GetRequest</strong></td><td>Manager &rarr; Agent</td><td>161</td><td>Retrieves the value of a specific MIB OID variable.</td></tr>
+          <tr><td><strong>GetNextRequest</strong></td><td>Manager &rarr; Agent</td><td>161</td><td>Retrieves the next sequential OID variable in the MIB tree.</td></tr>
+          <tr><td><strong>SetRequest</strong></td><td>Manager &rarr; Agent</td><td>161</td><td>Modifies/configures a MIB variable on the managed device.</td></tr>
+          <tr><td><strong>GetResponse</strong></td><td>Agent &rarr; Manager</td><td>161</td><td>Returns requested values or status results to the Manager.</td></tr>
+          <tr><td><strong>Trap</strong></td><td>Agent &rarr; Manager</td><td>162</td><td><strong>Unsolicited alert</strong> sent immediately by Agent upon critical event (e.g., Interface Down, Power Supply Failure).</td></tr>
+          <tr><td><strong>InformRequest</strong></td><td>Manager &rarr; Manager</td><td>162</td><td>Acknowledged alert message sent between managers.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 25.4 SNMP Versions -->
+  <div class="section" id="snmp-versions">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div>
+        <div class="section-num">Section 25.4</div>
+        <h2 class="section-title">SNMPv1 vs SNMPv2c vs SNMPv3</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Version</th><th>Authentication</th><th>Encryption</th><th>Key Features</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>SNMPv1</strong></td><td>Community String (Plaintext password)</td><td>None (Unencrypted)</td><td>Original version; weak security.</td></tr>
+          <tr><td><strong>SNMPv2c</strong></td><td>Community String (Plaintext password)</td><td>None (Unencrypted)</td><td>Added <code>GetBulkRequest</code> for fast table retrieval.</td></tr>
+          <tr><td><strong>SNMPv3</strong></td><td>User-based Security Model (USM)</td><td>AES / DES Payload Encryption</td><td>Secure modern standard with full authentication & encryption.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/email_smtp_pop3_imap_snmp.jpg" alt="End-to-End Email Delivery (SMTP vs POP3 vs IMAP) and SNMP Manager-Agent Architecture Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 25.1 – End-to-End Email Delivery Architecture (SMTP, POP3, IMAP) & SNMP Manager-Agent MIB Architecture</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 25.5 Master Table -->
+  <div class="section" id="master-table">
+    <div class="section-header">
+      <div class="section-icon">📚</div>
+      <div>
+        <div class="section-num">Section 25.5</div>
+        <h2 class="section-title">Application Layer Protocols Master Reference Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Protocol</th><th>Transport</th><th>Default Port(s)</th><th>Primary Function / Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HTTP</strong></td><td>TCP</td><td>80</td><td>Unencrypted web page transfer.</td></tr>
+          <tr><td><strong>HTTPS</strong></td><td>TCP</td><td>443</td><td>TLS-encrypted secure web page transfer.</td></tr>
+          <tr><td><strong>FTP</strong></td><td>TCP</td><td>20 (Data), 21 (Control)</td><td>Reliable bulk file transfer.</td></tr>
+          <tr><td><strong>TFTP</strong></td><td>UDP</td><td>69</td><td>Lightweight file transfer without authentication.</td></tr>
+          <tr><td><strong>DNS</strong></td><td>UDP / TCP</td><td>53</td><td>Domain Name to IP Address resolution.</td></tr>
+          <tr><td><strong>DHCP</strong></td><td>UDP</td><td>67 (Server), 68 (Client)</td><td>Automated dynamic IP address configuration.</td></tr>
+          <tr><td><strong>SMTP</strong></td><td>TCP</td><td>25, 587</td><td>Email submission and server-to-server relay.</td></tr>
+          <tr><td><strong>POP3</strong></td><td>TCP</td><td>110 (Plain), 995 (SSL)</td><td>Email retrieval (download & delete).</td></tr>
+          <tr><td><strong>IMAP</strong></td><td>TCP</td><td>143 (Plain), 993 (SSL)</td><td>Email synchronization across multiple devices.</td></tr>
+          <tr><td><strong>Telnet</strong></td><td>TCP</td><td>23</td><td>Unencrypted remote terminal CLI session.</td></tr>
+          <tr><td><strong>SSH</strong></td><td>TCP</td><td>22</td><td>Encrypted secure remote terminal CLI session.</td></tr>
+          <tr><td><strong>SNMP</strong></td><td>UDP</td><td>161 (Poll), 162 (Trap)</td><td>Network device monitoring and management.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="24-dns-dhcp-email-protocols-smtp-pop3-imap.html">← Ch 24: DNS & Email</a>
+      <a href="index.html">🏠 Home Index</a>
+    </div>
+    Network Fundamentals · Chapter 25 · SNMP & Application Master Summary
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

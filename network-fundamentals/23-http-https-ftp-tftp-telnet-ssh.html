@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 23 – HTTP, HTTPS, FTP, TFTP, Telnet & SSH Protocols | Network Fundamentals</title>
+  <meta name="description" content="In-depth guide on Application Layer protocols: HTTP/HTTPS methods & status codes, FTP active/passive modes, TFTP, Telnet vs SSH." />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .proto-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 22px; margin-bottom: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-back">← Back</a>
+      <span class="nav-title">Network Fundamentals</span>
+      <span class="nav-badge">Chapter 23</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <div class="chapter-tag">Chapter 23 · Application Layer</div>
+    <h1 class="page-title">HTTP, HTTPS, FTP, TFTP,<br/>Telnet & SSH Protocols</h1>
+    <p class="page-subtitle">Master web communication (HTTP methods & status codes), TLS security (HTTPS), file transfer modes (FTP/TFTP), and remote access (Telnet vs SSH).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#url-structure"><span class="toc-num">23.1</span> WWW & URL Anatomy</a></li>
+      <li><a href="#http-protocol"><span class="toc-num">23.2</span> HTTP Protocol & Request-Response Cycle</a></li>
+      <li><a href="#http-methods"><span class="toc-num">23.3</span> HTTP Request Methods</a></li>
+      <li><a href="#status-codes"><span class="toc-num">23.4</span> HTTP Response Status Codes Master Table</a></li>
+      <li><a href="#https-sec"><span class="toc-num">23.5</span> HTTP vs HTTPS (TLS Encryption)</a></li>
+      <li><a href="#ftp-tftp"><span class="toc-num">23.6</span> FTP (Active/Passive) & TFTP Protocols</a></li>
+      <li><a href="#telnet-ssh"><span class="toc-num">23.7</span> Telnet vs SSH (Secure Remote Shell)</a></li>
+    </ul>
+  </div>
+
+  <!-- 23.1 URL -->
+  <div class="section" id="url-structure">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 23.1</div>
+        <h2 class="section-title">WWW & URL Anatomy</h2>
+      </div>
+    </div>
+    <p>A <span class="hl">URL (Uniform Resource Locator)</span> specifies the exact address of a web resource on the World Wide Web.</p>
+
+    <div class="callout key">
+      <div class="callout-icon">🔍</div>
+      <div class="callout-body">
+        <div class="callout-title">URL Structure Breakdown</div>
+        <div class="callout-text" style="font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--accent);">
+          https :// www.example.com : 443 / pages / index.html ? user=123 # section2
+        </div>
+        <ul class="note-list" style="margin-top:10px;">
+          <li><strong>Scheme / Protocol:</strong> <code>https</code> (specifies communication protocol).</li>
+          <li><strong>Host / Domain Name:</strong> <code>www.example.com</code> (resolved to IP address by DNS).</li>
+          <li><strong>Port Number:</strong> <code>:443</code> (optional; default 80 for HTTP, 443 for HTTPS).</li>
+          <li><strong>Path:</strong> <code>/pages/index.html</code> (path to target file on web server).</li>
+          <li><strong>Query Parameters:</strong> <code>?user=123</code> (key-value pairs sent to server).</li>
+          <li><strong>Fragment / Anchor:</strong> <code>#section2</code> (client-side bookmark location).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.2 HTTP -->
+  <div class="section" id="http-protocol">
+    <div class="section-header">
+      <div class="section-icon">📄</div>
+      <div>
+        <div class="section-num">Section 23.2</div>
+        <h2 class="section-title">HTTP Protocol & Request-Response Cycle</h2>
+      </div>
+    </div>
+    <p><span class="hl">HTTP (Hypertext Transfer Protocol)</span> is an application-layer, stateless, request-response protocol running over TCP (Port 80).</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.3 HTTP Methods -->
+  <div class="section" id="http-methods">
+    <div class="proto-box">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent);">23.3 HTTP Request Methods</h3>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr><th>HTTP Method</th><th>Purpose</th><th>Idempotent?</th><th>Safe?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>GET</strong></td><td>Retrieves data from server without altering state.</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td><strong>POST</strong></td><td>Submits data to server to create a new resource.</td><td>No</td><td>No</td></tr>
+            <tr><td><strong>PUT</strong></td><td>Replaces an existing resource or creates it if non-existent.</td><td>Yes</td><td>No</td></tr>
+            <tr><td><strong>DELETE</strong></td><td>Removes specified resource from server.</td><td>Yes</td><td>No</td></tr>
+            <tr><td><strong>PATCH</strong></td><td>Applies partial modifications to a resource.</td><td>No</td><td>No</td></tr>
+            <tr><td><strong>HEAD</strong></td><td>Retrieves HTTP response headers only (no payload body).</td><td>Yes</td><td>Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.4 Status Codes -->
+  <div class="section" id="status-codes">
+    <div class="section-header">
+      <div class="section-icon">🚦</div>
+      <div>
+        <div class="section-num">Section 23.4</div>
+        <h2 class="section-title">HTTP Response Status Codes Master Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Code Category</th><th>Status Code</th><th>Reason Phrase</th><th>Meaning & Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>2xx Success</strong></td><td><code>200 OK</code></td><td>Success</td><td>Request succeeded; server returned requested data.</td></tr>
+          <tr><td><strong>2xx Success</strong></td><td><code>201 Created</code></td><td>Created</td><td>Request succeeded; new resource created successfully.</td></tr>
+          <tr><td><strong>3xx Redirection</strong></td><td><code>301 Moved</code></td><td>Moved Permanently</td><td>Resource permanently relocated to a new URL.</td></tr>
+          <tr><td><strong>3xx Redirection</strong></td><td><code>302 Found</code></td><td>Temporary Redirect</td><td>Resource temporarily located at another URL.</td></tr>
+          <tr><td><strong>4xx Client Error</strong></td><td><code>400 Bad Request</code></td><td>Bad Request</td><td>Server cannot process request due to malformed syntax.</td></tr>
+          <tr><td><strong>4xx Client Error</strong></td><td><code>401 Unauthorized</code></td><td>Unauthorized</td><td>Authentication required / invalid credentials.</td></tr>
+          <tr><td><strong>4xx Client Error</strong></td><td><code>403 Forbidden</code></td><td>Forbidden</td><td>Server understood request but refuses to authorize access.</td></tr>
+          <tr><td><strong>4xx Client Error</strong></td><td><code>404 Not Found</code></td><td>Not Found</td><td>Target resource does not exist on server.</td></tr>
+          <tr><td><strong>5xx Server Error</strong></td><td><code>500 Internal Error</code></td><td>Internal Server Error</td><td>Generic server-side error occurred while fulfilling request.</td></tr>
+          <tr><td><strong>5xx Server Error</strong></td><td><code>502 Bad Gateway</code></td><td>Bad Gateway</td><td>Server received invalid response from upstream gateway.</td></tr>
+          <tr><td><strong>5xx Server Error</strong></td><td><code>503 Unavailable</code></td><td>Service Unavailable</td><td>Server overloaded or down for maintenance.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Generated Infographic -->
+    <div class="diagram-box">
+      <img src="images/http_https_ftp_ssh_protocols.jpg" alt="HTTP/HTTPS Request-Response, Status Codes, FTP Active/Passive, and Telnet vs SSH Infographic" style="width:100%; max-width:720px; border-radius:12px; border:1px solid var(--border);" />
+      <div class="diagram-caption">Fig 23.1 – HTTP/HTTPS Request Lifecycle & Status Codes, FTP Active vs Passive Modes & Telnet vs SSH Security</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.5 HTTPS -->
+  <div class="section" id="https-sec">
+    <div class="section-header">
+      <div class="section-icon">🔒</div>
+      <div>
+        <div class="section-num">Section 23.5</div>
+        <h2 class="section-title">HTTP vs HTTPS (TLS Encryption)</h2>
+      </div>
+    </div>
+    <p><span class="hl2">HTTPS (HTTP Secure)</span> encrypts HTTP communication using **TLS (Transport Layer Security)** over **TCP Port 443**.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr><th>Feature</th><th>HTTP</th><th>HTTPS</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Port Number</td><td>TCP Port 80</td><td>TCP Port 443</td></tr>
+          <tr><td>Security</td><td>Plaintext (vulnerable to eavesdropping & MITM attacks)</td><td>Encrypted (TLS symmetric + asymmetric encryption)</td></tr>
+          <tr><td>Certificate Required</td><td>No</td><td>Yes (SSL/TLS Digital Certificate issued by CA)</td></tr>
+          <tr><td>Data Integrity</td><td>No checksum integrity checks</td><td>Digital Signature & Message Authentication Code (MAC)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.6 FTP TFTP -->
+  <div class="section" id="ftp-tftp">
+    <div class="proto-box">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent3);">23.6 FTP (Active/Passive) & TFTP Protocols</h3>
+      
+      <h4 class="mini-title">1. FTP (File Transfer Protocol - TCP 20/21)</h4>
+      <p>FTP uses <strong>two separate TCP connections</strong> (In-band control, Out-of-band data):</p>
+      <ul class="note-list">
+        <li><strong>Control Connection (TCP Port 21):</strong> Used for sending commands and authentication credentials. Remains open throughout session.</li>
+        <li><strong>Data Connection (TCP Port 20 / Ephemeral):</strong> Opened dynamically whenever a file is uploaded or downloaded.</li>
+      </ul>
+
+      <p style="margin-top:10px;"><strong>Active Mode vs Passive Mode:</strong></p>
+      <ul class="note-list">
+        <li><strong>Active FTP:</strong> Client connects to Port 21; Server initiates data connection back to client from Port 20. (Fails behind client firewalls/NAT!).</li>
+        <li><strong>Passive FTP (PASV):</strong> Client connects to Port 21; Server opens random unprivileged port and client initiates data connection to server. (Firewall friendly).</li>
+      </ul>
+
+      <h4 class="mini-title" style="margin-top:16px;">2. TFTP (Trivial File Transfer Protocol - UDP 69)</h4>
+      <p>A minimal, lightweight file transfer protocol using <strong>UDP Port 69</strong>. Does NOT support authentication, directory listing, or encryption. Used for booting diskless workstations (PXE boot) and flashing router firmware.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- 23.7 Telnet SSH -->
+  <div class="section" id="telnet-ssh">
+    <div class="proto-box">
+      <h3 style="font-size:20px; font-weight:800; color:var(--accent4);">23.7 Telnet vs SSH (Secure Remote Shell)</h3>
+
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr><th>Feature</th><th>Telnet</th><th>SSH (Secure Shell)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Port Number</td><td>TCP Port 23</td><td>TCP Port 22</td></tr>
+            <tr><td>Data Transmission</td><td>Unencrypted plain text (Passwords sent in cleartext)</td><td>Fully encrypted tunnel (AES/RSA/ECC cryptography)</td></tr>
+            <tr><td>Security Status</td><td>Obsolete & insecure</td><td>Industry standard for secure remote administration</td></tr>
+            <tr><td>Authentication</td><td>Basic username/password</td><td>Public key cryptography or password authentication</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="22-session-and-presentation-layers.html">← Ch 22: Session & Presentation</a>
+      <a href="index.html">Home</a>
+      <a href="24-dns-dhcp-email-protocols-smtp-pop3-imap.html">Ch 24: DNS, DHCP & Email →</a>
+    </div>
+    Network Fundamentals · Chapter 23 · HTTP, HTTPS, FTP & SSH
+  </div>
+</footer>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

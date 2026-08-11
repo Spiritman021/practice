@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="SQL Chapter 1: Introduction to SQL — History, features, DDL/DML/DCL/TCL overview, constraints, operators, joins &amp; syllabus priority map for GATE, IBPS SO, and Placements.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 1: Introduction to SQL | DBMS Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/sql-chapter-1-introduction.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.04),transparent 40%),radial-gradient(circle at 90% 80%,rgba(99,102,241,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+    .hero{background:linear-gradient(135deg,#0f172a,#1e293b 40%,#1e3a8a 80%,#312e81);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'SQL';position:absolute;right:-10px;top:-20px;font-size:140px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#cbd5e1;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--pl);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--pr);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .cl{border-left:4px solid var(--pr);background:var(--pl);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#1e3a8a}
+    .ct{font-weight:800;color:var(--ph);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-o{border-left-color:var(--or);background:var(--or2);color:#431407}.cl-o .ct{color:var(--or)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    .ls{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .ls li{position:relative;padding-left:24px;font-size:.975rem;color:#334155}
+    .ls li::before{content:"➔";position:absolute;left:0;color:var(--pr);font-size:13px;font-weight:bold}
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#eff6ff}
+    .cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;margin:20px 0}
+    .cc{border-radius:14px;padding:18px 16px;text-align:center;border:1.5px solid;transition:transform .2s ease,box-shadow .2s ease}
+    .cc:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .cc .ci{font-size:26px;margin-bottom:8px}.cc .cn{font-size:1.05rem;font-weight:800;margin-bottom:4px}.cc .cd{font-size:12px;opacity:.8;line-height:1.4}
+    .cc.ddl{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}.cc.dml{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .cc.dcl{background:#fef3c7;border-color:#fbbf24;color:#78350f}.cc.tcl{background:#f5f3ff;border-color:#c4b5fd;color:#3b0764}
+    .tl{position:relative;padding-left:32px;margin:20px 0}
+    .tl::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#2563eb,#7c3aed,#0d9488);border-radius:2px}
+    .ti{position:relative;margin-bottom:22px}
+    .ti::before{content:'';position:absolute;left:-26px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--pr);border:2px solid white;box-shadow:0 0 0 2px var(--pr)}
+    .ty{display:inline-block;background:var(--pr);color:white;font-weight:800;font-size:12px;padding:2px 10px;border-radius:6px;margin-bottom:5px}
+    .tc{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:14px 18px;font-size:.955rem;color:#334155}
+    .tc strong{color:var(--tm)}
+    .br{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .bj{padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;border:1.5px solid}
+    .b-bl{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.b-gn{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+    .b-pu{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}.b-tl{background:#f0fdfa;color:#0f766e;border-color:#99f6e4}
+    .b-or{background:#fff7ed;color:#c2410c;border-color:#fed7aa}.b-rd{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+    .dc{background:#f8fafc;border:1px solid #cbd5e1;border-radius:16px;padding:24px;margin:24px 0;text-align:center}
+    .dt{font-size:13px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+    .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:20px 0}
+    .sc{background:white;border:1.5px solid var(--bd);border-radius:14px;padding:16px 18px;transition:transform .2s ease}
+    .sc:hover{transform:translateY(-2px)}
+    .st{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:5px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+    .st.cr{background:#fef2f2;color:#991b1b}.st.hi{background:#fffbeb;color:#92400e}.st.md{background:#eff6ff;color:#1e40af}
+    .sp{font-weight:800;font-size:1rem;margin-bottom:5px;color:var(--tm)}.ss{font-size:13px;color:var(--mu);line-height:1.5}
+    .qr{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;border-radius:16px;padding:22px 24px;margin:20px 0}
+    .qr h4{font-weight:800;margin-bottom:12px;color:#93c5fd;font-size:1rem}
+    .qrow{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;font-size:14px}
+    .ql{color:#fde68a;font-weight:700;min-width:90px;font-family:'Fira Code',monospace}.qv{color:#e2e8f0}
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin-bottom:0}
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#2563eb,#7c3aed);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <span class="cur">SQL — Chapter 1: Introduction to SQL</span>
+  <a class="bk" href="index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 1</span>
+    <h1>Introduction to SQL</h1>
+    <p>Master what SQL is, its history from 1970 to today, two core language features (Domain-Specific &amp; Declarative), all SQL command categories (DDL, DML, DCL, TCL), constraints, operators, joins, and a full syllabus priority map.</p>
+    <div class="tags">
+      <span class="tag">🏛️ History of SQL</span><span class="tag">📋 DDL / DML / DCL / TCL</span>
+      <span class="tag">🔑 Constraints</span><span class="tag">⚙️ Operators &amp; Clauses</span>
+      <span class="tag">🔗 Joins &amp; Subqueries</span><span class="tag">🎯 GATE · IBPS SO · Placements</span>
+    </div>
+  </section>
+
+  <!-- 1. WHAT IS SQL -->
+  <section class="ns" id="what-is-sql">
+    <h2>💡 1. What is SQL?</h2>
+    <p><strong>SQL</strong> stands for <strong>Structured Query Language</strong>. It is the standard language for communication between a <strong>User</strong> and a <strong>Relational Database</strong> that stores structured (table-based) data.</p>
+    <div class="cl"><div class="ct">🗣️ Analogy: Language for Communication</div>
+    Just as humans use Hindi or English to communicate with each other, a user uses <strong>SQL</strong> to communicate with a database. SQL is the bridge between the user (who wants data) and the database (which holds the data).</div>
+
+    <div class="dc">
+      <div class="dt">SQL — Communication Bridge Between User and Database</div>
+      <svg viewBox="0 0 700 140" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker>
+          <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#10b981"/></marker>
+        </defs>
+        <rect x="20" y="25" width="145" height="85" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+        <text x="92" y="55" text-anchor="middle" font-weight="700" font-size="13" fill="#1e3a8a">👤 User</text>
+        <text x="92" y="73" text-anchor="middle" font-size="11" fill="#3b82f6">(Wants Data)</text>
+        <text x="92" y="90" text-anchor="middle" font-size="10" fill="#3b82f6">App / Terminal</text>
+        <line x1="167" y1="67" x2="245" y2="67" stroke="#2563eb" stroke-width="2" marker-end="url(#a1)"/>
+        <text x="206" y="58" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">SQL Query</text>
+        <rect x="247" y="30" width="206" height="74" rx="14" fill="#312e81" stroke="#7c3aed" stroke-width="2"/>
+        <text x="350" y="62" text-anchor="middle" font-weight="900" font-size="22" fill="#a5b4fc" font-family="'Fira Code',monospace">SQL</text>
+        <text x="350" y="83" text-anchor="middle" font-size="11" fill="#c4b5fd">Structured Query Language</text>
+        <line x1="455" y1="67" x2="525" y2="67" stroke="#10b981" stroke-width="2" marker-end="url(#a2)"/>
+        <text x="490" y="58" text-anchor="middle" font-size="11" fill="#10b981" font-weight="700">Result Set</text>
+        <ellipse cx="595" cy="45" rx="68" ry="20" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+        <path d="M 527 45 L 527 97 A 68 20 0 0 0 663 97 L 663 45" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+        <ellipse cx="595" cy="97" rx="68" ry="20" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+        <text x="595" y="72" text-anchor="middle" font-weight="800" font-size="12" fill="#166534">🗄️ Database</text>
+        <text x="595" y="89" text-anchor="middle" font-size="10" fill="#166534">(Tables / Relations)</text>
+      </svg>
+    </div>
+
+    <h3>🗂️ Why "Structured"?</h3>
+    <p>The word <strong>"Structured"</strong> refers to the data model: data is always stored in <strong>fixed, predefined Tables (also called Relations)</strong>. Because the structure (schema) must be created before inserting data, we call this <em>structured data</em>. That is also why this subject is often called <strong>RDBMS — Relational Database Management System</strong>.</p>
+    <div class="br">
+      <span class="bj b-bl">📌 SQL = Structured Query Language</span>
+      <span class="bj b-gn">📌 Structured = Data in Tables</span>
+      <span class="bj b-pu">📌 Table = Relation</span>
+      <span class="bj b-tl">📌 Subject = RDBMS</span>
+    </div>
+  </section>
+
+  <!-- 2. HISTORY -->
+  <section class="ns" id="history">
+    <h2>🏛️ 2. History &amp; Evolution of SQL</h2>
+    <p>The evolution of SQL spans over 50 years and is a regularly tested topic in competitive exams.</p>
+    <div class="tl">
+      <div class="ti">
+        <div class="ty">1970</div>
+        <div class="tc"><strong>Dr. E.F. Codd</strong> (IBM) — <em>"Father of DBMS"</em> — published his landmark paper on the <strong>Relational Model</strong>, proposing storage of data in <strong>tables (relations)</strong> and retrieval via mathematical operations.</div>
+      </div>
+      <div class="ti">
+        <div class="ty">Early 1970s</div>
+        <div class="tc">E.F. Codd proved his model using two mathematical tools:<ul class="ls" style="margin-top:8px"><li><strong>Relational Algebra</strong> — Procedural: SELECT (σ), PROJECT (π), JOIN (⋈)</li><li><strong>Tuple Relational Calculus</strong> — Declarative: describes <em>what</em> to retrieve</li></ul></div>
+      </div>
+      <div class="ti">
+        <div class="ty">Mid 1970s</div>
+        <div class="tc"><strong>IBM</strong> implemented the relational model as a real query language, initially named <strong>SEQUEL</strong> — <em>Simple English Query Language</em>.</div>
+      </div>
+      <div class="ti">
+        <div class="ty">Late 1970s</div>
+        <div class="tc">SEQUEL was shortened to <strong>SQL</strong> (Structured Query Language). All keywords — <code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>, <code>GROUP BY</code>, <code>JOIN</code> — are based on natural <strong>English words</strong>, making SQL human-readable.</div>
+      </div>
+      <div class="ti">
+        <div class="ty">1980s – 1990s</div>
+        <div class="tc">Major commercial RDBMS products emerged: <strong>Oracle</strong> (dominant), <strong>IBM DB2</strong>, <strong>Microsoft SQL Server</strong>, and open-source <strong>MySQL</strong>.</div>
+      </div>
+      <div class="ti">
+        <div class="ty">Today</div>
+        <div class="tc">Only <strong>~10% of data on Earth is structured</strong>. The remaining ~90% is unstructured (images, video, text) handled by <strong>NoSQL</strong> systems (MongoDB, Cassandra, Spark). But SQL remains the <em>essential foundation</em> every developer must master first.</div>
+      </div>
+    </div>
+    <div class="cl cl-w"><div class="ct">⭐ Frequently Tested in Exams</div>
+    <strong>Father of DBMS:</strong> Dr. E.F. Codd &nbsp;|&nbsp; <strong>Year:</strong> 1970 &nbsp;|&nbsp; <strong>Original SQL name:</strong> SEQUEL (Simple English Query Language)</div>
+  </section>
+
+  <!-- 3. FEATURES -->
+  <section class="ns" id="features">
+    <h2>⚙️ 3. Key Features of SQL</h2>
+    <h3>🔹 Feature 1: Domain-Specific Language (DSL)</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Type</th><th>Definition</th><th>Examples</th></tr></thead><tbody>
+      <tr><td><strong>General-Purpose Language (GPL)</strong></td><td>Can be used across many different domains</td><td>C, C++, Java, Python</td></tr>
+      <tr><td><strong>Domain-Specific Language (DSL)</strong></td><td>Designed for and restricted to <em>one</em> specific domain only</td><td><strong>SQL</strong>, HTML, MATLAB, LaTeX</td></tr>
+    </tbody></table></div>
+    <div class="cl cl-p"><div class="ct">🎯 Why SQL is a DSL</div>
+    SQL can <em>only</em> be used with <strong>Relational Databases</strong> where data is in tables. You cannot build a mobile UI or an OS with SQL. Its domain is strictly: query and manipulate structured/tabular data inside RDBMS.</div>
+
+    <h3>🔹 Feature 2: Declarative Language</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Paradigm</th><th>What You Must Specify</th><th>Examples</th></tr></thead><tbody>
+      <tr><td><strong>Procedural</strong></td><td>WHAT to do + HOW to do it (step-by-step logic)</td><td>C, C++, PL/SQL</td></tr>
+      <tr><td><strong>Declarative</strong></td><td>Only WHAT to do — the DBMS handles HOW internally</td><td><strong>SQL</strong>, HTML, CSS</td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — Declarative</span><pre><span class="cm">-- State WHAT you want. The DBMS figures out HOW internally.</span>
+<span class="kw">SELECT</span> <span class="tb">name</span>, <span class="tb">address</span>
+<span class="kw">FROM</span>   <span class="tb">students</span>
+<span class="kw">WHERE</span>  <span class="tb">address</span> <span class="op">=</span> <span class="str">'Delhi'</span><span class="op">;</span>
+<span class="cm">-- No loops, no file reading, no algorithm needed from the user.</span></pre></div>
+    <div class="cb"><span class="ll">C — Procedural (Equivalent)</span><pre><span class="cm">// Must specify every step of HOW to scan records manually</span>
+<span class="kw">for</span> (<span class="vl">int</span> i <span class="op">=</span> <span class="vl">0</span>; i <span class="op">&lt;</span> total; i<span class="op">++</span>) {
+    <span class="kw">if</span> (strcmp(s[i].address, <span class="str">"Delhi"</span>) <span class="op">==</span> <span class="vl">0</span>)
+        printf(<span class="str">"%s %s\n"</span>, s[i].name, s[i].address);
+}</pre></div>
+    <div class="cl cl-o"><div class="ct">⚠️ PL/SQL is Procedural — Not Pure SQL</div>
+    PL/SQL adds procedures, functions, triggers, cursors to SQL. <strong>Pure SQL = Declarative. PL/SQL = Procedural add-on.</strong></div>
+  </section>
+
+  <!-- 4. COMMAND TYPES -->
+  <section class="ns" id="commands">
+    <h2>📋 4. Types of SQL Commands</h2>
+    <div class="cg">
+      <div class="cc ddl"><div class="ci">🏗️</div><div class="cn">DDL</div><div class="cd">Data Definition Language<br>Manages <strong>structure / schema</strong></div></div>
+      <div class="cc dml"><div class="ci">✏️</div><div class="cn">DML</div><div class="cd">Data Manipulation Language<br>Manages <strong>actual data rows</strong></div></div>
+      <div class="cc dcl"><div class="ci">🔐</div><div class="cn">DCL</div><div class="cd">Data Control Language<br>Manages <strong>access / privileges</strong></div></div>
+      <div class="cc tcl"><div class="ci">🔄</div><div class="cn">TCL</div><div class="cd">Transaction Control Language<br>Manages <strong>transaction lifecycle</strong></div></div>
+    </div>
+
+    <h3>🏗️ 4.1 DDL — Data Definition Language</h3>
+    <p>DDL commands deal with the <strong>schema (structure)</strong> — they define, modify, or remove the table structure itself, not the data inside it.</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Command</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>CREATE</code></td><td>Creates a new table, database, view, or index</td><td><code>CREATE TABLE students (...)</code></td></tr>
+      <tr><td><code>ALTER</code></td><td>Modifies existing table structure (add/drop/modify column)</td><td><code>ALTER TABLE students ADD email VARCHAR(50)</code></td></tr>
+      <tr><td><code>DROP</code></td><td>Permanently removes table structure and all its data</td><td><code>DROP TABLE students</code></td></tr>
+      <tr><td><code>TRUNCATE</code></td><td>Removes all rows but keeps the structure intact</td><td><code>TRUNCATE TABLE students</code></td></tr>
+      <tr><td><code>RENAME</code></td><td>Renames an existing table</td><td><code>RENAME TABLE students TO learners</code></td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — DDL</span><pre><span class="cm">-- CREATE: Define the schema</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">students</span> (
+    <span class="tb">student_id</span>  <span class="fn">INT</span>           <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">name</span>        <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,
+    <span class="tb">address</span>     <span class="fn">VARCHAR2</span>(<span class="vl">200</span>),
+    <span class="tb">age</span>         <span class="fn">INT</span>           <span class="kw">CHECK</span> (<span class="tb">age</span> <span class="op">&gt;</span> <span class="vl">0</span>)
+)<span class="op">;</span>
+
+<span class="cm">-- ALTER: Add a column</span>
+<span class="kw">ALTER TABLE</span> <span class="tb">students</span> <span class="kw">ADD</span> <span class="tb">email</span> <span class="fn">VARCHAR2</span>(<span class="vl">150</span>)<span class="op">;</span>
+
+<span class="cm">-- TRUNCATE: Remove all rows, keep structure</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="tb">students</span><span class="op">;</span>
+
+<span class="cm">-- DROP: Remove everything — irreversible!</span>
+<span class="kw">DROP TABLE</span> <span class="tb">students</span><span class="op">;</span></pre></div>
+
+    <h3>✏️ 4.2 DML — Data Manipulation Language</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Command</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>SELECT</code></td><td>Retrieves / fetches rows from table(s)</td><td><code>SELECT * FROM students</code></td></tr>
+      <tr><td><code>INSERT</code></td><td>Adds new rows into the table</td><td><code>INSERT INTO students VALUES (...)</code></td></tr>
+      <tr><td><code>UPDATE</code></td><td>Modifies existing data values</td><td><code>UPDATE students SET age=21 WHERE id=5</code></td></tr>
+      <tr><td><code>DELETE</code></td><td>Removes specific rows (supports WHERE)</td><td><code>DELETE FROM students WHERE id=5</code></td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — DML</span><pre><span class="kw">INSERT INTO</span> <span class="tb">students</span> (<span class="tb">student_id</span>,<span class="tb">name</span>,<span class="tb">address</span>,<span class="tb">age</span>)
+<span class="kw">VALUES</span> (<span class="vl">101</span>, <span class="str">'Rahul Sharma'</span>, <span class="str">'Delhi'</span>, <span class="vl">20</span>)<span class="op">;</span>
+
+<span class="kw">SELECT</span> <span class="tb">name</span>, <span class="tb">address</span> <span class="kw">FROM</span> <span class="tb">students</span> <span class="kw">WHERE</span> <span class="tb">address</span> <span class="op">=</span> <span class="str">'Delhi'</span><span class="op">;</span>
+
+<span class="kw">UPDATE</span> <span class="tb">students</span> <span class="kw">SET</span> <span class="tb">age</span> <span class="op">=</span> <span class="vl">21</span> <span class="kw">WHERE</span> <span class="tb">student_id</span> <span class="op">=</span> <span class="vl">101</span><span class="op">;</span>
+
+<span class="kw">DELETE FROM</span> <span class="tb">students</span> <span class="kw">WHERE</span> <span class="tb">student_id</span> <span class="op">=</span> <span class="vl">101</span><span class="op">;</span></pre></div>
+    <div class="cl cl-w"><div class="ct">⚠️ Classic Exam Trap — TRUNCATE vs DELETE</div>
+    <ul class="ls" style="margin-top:6px">
+      <li><code>TRUNCATE</code> → <strong>DDL</strong>. Cannot rollback. Removes ALL rows. Resets auto-increment. Faster.</li>
+      <li><code>DELETE</code> → <strong>DML</strong>. Can rollback. Supports <code>WHERE</code>. Row-by-row deletion. Slower.</li>
+    </ul></div>
+
+    <h3>🔐 4.3 DCL — Data Control Language</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Command</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>GRANT</code></td><td>Gives specific privileges to a user</td><td><code>GRANT SELECT ON students TO john</code></td></tr>
+      <tr><td><code>REVOKE</code></td><td>Takes back previously granted privileges</td><td><code>REVOKE SELECT ON students FROM john</code></td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — DCL</span><pre><span class="kw">GRANT</span>  <span class="fn">SELECT</span>, <span class="fn">INSERT</span> <span class="kw">ON</span> <span class="tb">students</span> <span class="kw">TO</span> <span class="str">'employee_john'</span><span class="op">;</span>
+<span class="kw">REVOKE</span> <span class="fn">SELECT</span>, <span class="fn">INSERT</span> <span class="kw">ON</span> <span class="tb">students</span> <span class="kw">FROM</span> <span class="str">'employee_john'</span><span class="op">;</span></pre></div>
+
+    <h3>🔄 4.4 TCL — Transaction Control Language</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Command</th><th>Purpose</th><th>Analogy</th></tr></thead><tbody>
+      <tr><td><code>COMMIT</code></td><td>Permanently saves all changes in the current transaction</td><td>✅ "Confirm Payment"</td></tr>
+      <tr><td><code>ROLLBACK</code></td><td>Undoes all changes back to the last COMMIT</td><td>↩️ Cancelling a failed transfer</td></tr>
+      <tr><td><code>SAVEPOINT</code></td><td>Creates a named checkpoint within a transaction</td><td>💾 Download checkpoint at 50%</td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — TCL (Bank Transfer)</span><pre><span class="kw">BEGIN</span> TRANSACTION<span class="op">;</span>
+<span class="kw">UPDATE</span> <span class="tb">accounts</span> <span class="kw">SET</span> <span class="tb">balance</span><span class="op">=</span><span class="tb">balance</span><span class="op">-</span><span class="vl">5000</span> <span class="kw">WHERE</span> <span class="tb">account_id</span><span class="op">=</span><span class="str">'ACC_A'</span><span class="op">;</span>
+<span class="kw">SAVEPOINT</span> sp_debit<span class="op">;</span>
+<span class="kw">UPDATE</span> <span class="tb">accounts</span> <span class="kw">SET</span> <span class="tb">balance</span><span class="op">=</span><span class="tb">balance</span><span class="op">+</span><span class="vl">5000</span> <span class="kw">WHERE</span> <span class="tb">account_id</span><span class="op">=</span><span class="str">'ACC_B'</span><span class="op">;</span>
+<span class="kw">COMMIT</span><span class="op">;</span>           <span class="cm">-- both steps OK → save permanently</span>
+<span class="cm">-- ROLLBACK;      -- if anything fails → undo everything</span></pre></div>
+  </section>
+
+  <!-- 5. CONSTRAINTS -->
+  <section class="ns" id="constraints">
+    <h2>🔑 5. Constraints in SQL</h2>
+    <p>Constraints are <strong>rules enforced on columns</strong> to maintain data accuracy and integrity. Applied during DDL, validated during DML.</p>
+    <div class="tw"><table class="ct2"><thead><tr><th>Constraint</th><th>Purpose</th><th>Key Rule</th></tr></thead><tbody>
+      <tr><td><code>PRIMARY KEY</code></td><td>Uniquely identifies each row</td><td>Unique + NOT NULL. Only <strong>one</strong> per table.</td></tr>
+      <tr><td><code>FOREIGN KEY</code></td><td>Links to another table's primary key</td><td>Ensures Referential Integrity</td></tr>
+      <tr><td><code>UNIQUE</code></td><td>All values in column must be distinct</td><td>CAN be NULL (unlike PK). Multiple per table.</td></tr>
+      <tr><td><code>NOT NULL</code></td><td>Column cannot store NULL</td><td>Mandatory field</td></tr>
+      <tr><td><code>CHECK</code></td><td>Validates a custom condition</td><td>e.g., <code>age &gt; 0</code>, <code>marks &lt;= 100</code></td></tr>
+      <tr><td><code>DEFAULT</code></td><td>Auto-fills a default value when none is provided</td><td>e.g., <code>status DEFAULT 'active'</code></td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — Constraints</span><pre><span class="kw">CREATE TABLE</span> <span class="tb">employees</span> (
+    <span class="tb">emp_id</span>   <span class="fn">INT</span>            <span class="kw">PRIMARY KEY</span>,
+    <span class="tb">name</span>     <span class="fn">VARCHAR2</span>(<span class="vl">100</span>) <span class="kw">NOT NULL</span>,
+    <span class="tb">email</span>    <span class="fn">VARCHAR2</span>(<span class="vl">150</span>) <span class="kw">UNIQUE</span>,
+    <span class="tb">age</span>      <span class="fn">INT</span>            <span class="kw">CHECK</span> (<span class="tb">age</span> <span class="op">&gt;=</span> <span class="vl">18</span>),
+    <span class="tb">dept_id</span>  <span class="fn">INT</span>            <span class="kw">REFERENCES</span> <span class="tb">departments</span>(<span class="tb">dept_id</span>),
+    <span class="tb">status</span>   <span class="fn">VARCHAR2</span>(<span class="vl">20</span>)  <span class="kw">DEFAULT</span> <span class="str">'active'</span>
+)<span class="op">;</span></pre></div>
+  </section>
+
+  <!-- 6. OPERATORS & CLAUSES -->
+  <section class="ns" id="operators">
+    <h2>🔢 6. Operators, Clauses &amp; Aggregate Functions</h2>
+    <h3>⚙️ Important Operators</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Operator</th><th>Description</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>LIKE</code></td><td>Pattern matching. <code>%</code>=any string, <code>_</code>=one char</td><td><code>WHERE name LIKE 'Ra%'</code></td></tr>
+      <tr><td><code>BETWEEN</code></td><td>Range check (inclusive on both ends)</td><td><code>WHERE age BETWEEN 18 AND 25</code></td></tr>
+      <tr><td><code>IN</code></td><td>Value matches any item in a list</td><td><code>WHERE city IN ('Delhi','Mumbai')</code></td></tr>
+      <tr><td><code>NOT IN</code></td><td>Value matches none in the list</td><td><code>WHERE city NOT IN ('Delhi')</code></td></tr>
+      <tr><td><code>EXISTS</code></td><td>TRUE if subquery returns ≥1 row</td><td><code>WHERE EXISTS (SELECT ...)</code></td></tr>
+      <tr><td><code>IS NULL</code></td><td>Checks for NULL values</td><td><code>WHERE email IS NULL</code></td></tr>
+    </tbody></table></div>
+    <h3>📊 Key Clauses</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Clause</th><th>Purpose</th><th>Position</th></tr></thead><tbody>
+      <tr><td><code>WHERE</code></td><td>Filters rows before grouping</td><td>After FROM</td></tr>
+      <tr><td><code>GROUP BY</code></td><td>Groups rows for aggregation</td><td>After WHERE</td></tr>
+      <tr><td><code>HAVING</code></td><td>Filters groups (WHERE cannot use aggregates)</td><td>After GROUP BY</td></tr>
+      <tr><td><code>ORDER BY</code></td><td>Sorts result ASC/DESC</td><td>Near end</td></tr>
+      <tr><td><code>DISTINCT</code></td><td>Removes duplicate rows</td><td>After SELECT</td></tr>
+    </tbody></table></div>
+    <h3>📈 Aggregate Functions</h3>
+    <div class="br">
+      <span class="bj b-bl"><code>COUNT()</code></span><span class="bj b-gn"><code>SUM()</code></span>
+      <span class="bj b-pu"><code>AVG()</code></span><span class="bj b-or"><code>MAX()</code></span><span class="bj b-rd"><code>MIN()</code></span>
+    </div>
+    <div class="cb"><span class="ll">SQL — All Clauses Together</span><pre><span class="kw">SELECT</span>   <span class="tb">department</span>, <span class="fn">COUNT</span>(<span class="tb">emp_id</span>) <span class="kw">AS</span> total, <span class="fn">AVG</span>(<span class="tb">salary</span>) <span class="kw">AS</span> avg_sal
+<span class="kw">FROM</span>     <span class="tb">employees</span>
+<span class="kw">WHERE</span>    <span class="tb">status</span> <span class="op">=</span> <span class="str">'active'</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span>
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(<span class="tb">salary</span>) <span class="op">&gt;</span> <span class="vl">50000</span>
+<span class="kw">ORDER BY</span> avg_sal <span class="kw">DESC</span><span class="op">;</span>
+<span class="cm">-- Logical Execution Order:</span>
+<span class="cm">-- FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</span></pre></div>
+  </section>
+
+  <!-- 7. JOINS -->
+  <section class="ns" id="joins">
+    <h2>🔗 7. Joins &amp; Nested Queries (Highest Priority)</h2>
+    <div class="cl cl-d"><div class="ct">⭐⭐⭐ Most Important SQL Topic — GATE + Placements + IBPS SO</div>
+    <strong>Joins and Subqueries</strong> are the most tested SQL topic in both competitive exams and placement interviews. Master this chapter — it is non-negotiable.</div>
+    <div class="tw"><table class="ct2"><thead><tr><th>Join Type</th><th>Returns</th><th>Priority</th></tr></thead><tbody>
+      <tr><td><code>INNER JOIN</code></td><td>Only matching rows from both tables</td><td>⭐⭐⭐ Critical</td></tr>
+      <tr><td><code>LEFT OUTER JOIN</code></td><td>All left rows + matched right (NULL if no match)</td><td>⭐⭐⭐ Critical</td></tr>
+      <tr><td><code>RIGHT OUTER JOIN</code></td><td>All right rows + matched left (NULL if no match)</td><td>⭐⭐ High</td></tr>
+      <tr><td><code>FULL OUTER JOIN</code></td><td>All rows from both tables (NULL where no match)</td><td>⭐⭐ High</td></tr>
+      <tr><td><code>CROSS JOIN</code></td><td>Cartesian product (every row × every row)</td><td>⭐ Medium</td></tr>
+      <tr><td><code>SELF JOIN</code></td><td>Table joined with itself (e.g., employee–manager)</td><td>⭐⭐ High</td></tr>
+    </tbody></table></div>
+    <div class="cb"><span class="ll">SQL — Joins</span><pre><span class="cm">-- INNER JOIN: students with their department names</span>
+<span class="kw">SELECT</span> <span class="tb">s.name</span>, <span class="tb">d.dept_name</span>
+<span class="kw">FROM</span>   <span class="tb">students</span> <span class="tb">s</span>
+<span class="kw">INNER JOIN</span> <span class="tb">departments</span> <span class="tb">d</span> <span class="kw">ON</span> <span class="tb">s.dept_id</span> <span class="op">=</span> <span class="tb">d.dept_id</span><span class="op">;</span>
+
+<span class="cm">-- LEFT JOIN: All students, even those without a dept</span>
+<span class="kw">SELECT</span> <span class="tb">s.name</span>, <span class="tb">d.dept_name</span>
+<span class="kw">FROM</span>   <span class="tb">students</span> <span class="tb">s</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">departments</span> <span class="tb">d</span> <span class="kw">ON</span> <span class="tb">s.dept_id</span> <span class="op">=</span> <span class="tb">d.dept_id</span><span class="op">;</span>
+
+<span class="cm">-- Correlated Subquery: employees above dept average salary</span>
+<span class="kw">SELECT</span> <span class="tb">e1.name</span>, <span class="tb">e1.salary</span>
+<span class="kw">FROM</span>   <span class="tb">employees</span> <span class="tb">e1</span>
+<span class="kw">WHERE</span>  <span class="tb">e1.salary</span> <span class="op">&gt;</span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="tb">e2.salary</span>)
+                    <span class="kw">FROM</span> <span class="tb">employees</span> <span class="tb">e2</span>
+                    <span class="kw">WHERE</span> <span class="tb">e2.dept_id</span> <span class="op">=</span> <span class="tb">e1.dept_id</span>)<span class="op">;</span></pre></div>
+  </section>
+
+  <!-- 8. SYLLABUS MAP -->
+  <section class="ns" id="syllabus">
+    <h2>🗺️ 8. SQL Syllabus — Topic Priority Map</h2>
+    <div class="sg">
+      <div class="sc"><span class="st cr">🔴 Critical</span><div class="sp">Joins &amp; Subqueries</div><div class="ss">INNER, LEFT, RIGHT, FULL, CROSS, SELF JOIN · Nested &amp; Correlated Queries · EXISTS</div></div>
+      <div class="sc"><span class="st cr">🔴 Critical</span><div class="sp">DDL &amp; DML Commands</div><div class="ss">CREATE, ALTER, DROP, TRUNCATE · SELECT, INSERT, UPDATE, DELETE · Differences</div></div>
+      <div class="sc"><span class="st cr">🔴 Critical</span><div class="sp">Keys &amp; Constraints</div><div class="ss">Primary, Foreign, Candidate, Unique · NOT NULL, CHECK, DEFAULT</div></div>
+      <div class="sc"><span class="st hi">🟡 High Yield</span><div class="sp">Aggregate Functions</div><div class="ss">COUNT, SUM, AVG, MAX, MIN · GROUP BY · HAVING vs WHERE</div></div>
+      <div class="sc"><span class="st hi">🟡 High Yield</span><div class="sp">Operators &amp; Clauses</div><div class="ss">LIKE, BETWEEN, IN, NOT IN · IS NULL · SQL Execution Order</div></div>
+      <div class="sc"><span class="st hi">🟡 High Yield</span><div class="sp">DCL &amp; TCL</div><div class="ss">GRANT, REVOKE · COMMIT, ROLLBACK, SAVEPOINT · ACID connection</div></div>
+      <div class="sc"><span class="st md">🔵 Standard</span><div class="sp">PL/SQL (Advanced)</div><div class="ss">Triggers · Cursors · Stored Procedures · Functions</div></div>
+      <div class="sc"><span class="st md">🔵 Standard</span><div class="sp">Views &amp; Indexes</div><div class="ss">CREATE VIEW · B+ Tree Index · Clustered vs Non-Clustered</div></div>
+    </div>
+    <div class="qr">
+      <h4>⚡ Quick Reference Cheatsheet</h4>
+      <div class="qrow"><span class="ql">DDL</span><span class="qv">CREATE · ALTER · DROP · TRUNCATE · RENAME</span></div>
+      <div class="qrow"><span class="ql">DML</span><span class="qv">SELECT · INSERT · UPDATE · DELETE</span></div>
+      <div class="qrow"><span class="ql">DCL</span><span class="qv">GRANT · REVOKE</span></div>
+      <div class="qrow"><span class="ql">TCL</span><span class="qv">COMMIT · ROLLBACK · SAVEPOINT</span></div>
+      <div class="qrow"><span class="ql">Clauses</span><span class="qv">WHERE · GROUP BY · HAVING · ORDER BY · DISTINCT · LIMIT</span></div>
+      <div class="qrow"><span class="ql">Operators</span><span class="qv">LIKE · BETWEEN · IN · NOT IN · EXISTS · IS NULL</span></div>
+      <div class="qrow"><span class="ql">Exec Order</span><span class="qv">FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</span></div>
+    </div>
+  </section>
+
+  <!-- PYQ -->
+  <section class="pb">
+    <h4>🎯 Exam Focus — Key Q&amp;A</h4>
+    <p><strong>Q1: Who is the Father of DBMS and when?</strong><br>👉 <em>Dr. E.F. Codd (IBM), 1970, published paper on the Relational Model.</em></p>
+    <p><strong>Q2: What was SQL originally called?</strong><br>👉 <em>SEQUEL — Simple English Query Language.</em></p>
+    <p><strong>Q3: SQL is classified as which two types of language?</strong><br>👉 <em>Domain-Specific Language (only RDBMS) + Declarative Language (WHAT, not HOW).</em></p>
+    <p><strong>Q4: TRUNCATE vs DELETE difference?</strong><br>👉 <em>TRUNCATE = DDL, no rollback, removes all rows, resets auto-increment. DELETE = DML, supports rollback &amp; WHERE clause.</em></p>
+    <p><strong>Q5: Correct SQL execution order?</strong><br>👉 <em>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</em></p>
+    <p><strong>Q6: Can PRIMARY KEY have NULL values?</strong><br>👉 <em>No. PRIMARY KEY = Unique + NOT NULL. UNIQUE key can have one NULL.</em></p>
+    <p><strong>Q7: Difference between WHERE and HAVING?</strong><br>👉 <em>WHERE filters rows before grouping. HAVING filters groups after GROUP BY. Aggregate functions cannot go in WHERE.</em></p>
+    <p><strong>Q8: Which DCL command removes privileges?</strong><br>👉 <em>REVOKE.</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

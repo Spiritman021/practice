@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="SQL Chapter 3: ALTER vs UPDATE and DELETE vs DROP vs TRUNCATE — key differences, diagrams, Oracle examples, and exam tips for GATE, IBPS SO, and placements.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 3: ALTER vs UPDATE | DELETE vs DROP vs TRUNCATE | DBMS Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/sql-chapter-3-comparisons.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--tl:#0d9488;--tl2:#f0fdfa}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(37,99,235,.04),transparent 40%),radial-gradient(circle at 90% 80%,rgba(99,102,241,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none;transition:color .15s}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s ease}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+    .hero{background:linear-gradient(135deg,#450a0a,#7f1d1d 40%,#991b1b 70%,#b91c1c);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'VS';position:absolute;right:-10px;top:-20px;font-size:140px;font-weight:900;color:rgba(255,255,255,.04);pointer-events:none;font-family:'Fira Code',monospace}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#fecaca;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.35rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--pl);display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.1rem;font-weight:700;color:var(--pr);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .cl{border-left:4px solid var(--pr);background:var(--pl);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#1e3a8a}
+    .ct{font-weight:800;color:var(--ph);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    .ls{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .ls li{position:relative;padding-left:24px;font-size:.975rem;color:#334155}
+    .ls li::before{content:"➔";position:absolute;left:0;color:var(--pr);font-size:13px;font-weight:bold}
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd)}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover{background:#eff6ff}
+    .vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+    @media(max-width:640px){.vs-grid{grid-template-columns:1fr}}
+    .vs-card{border-radius:16px;padding:22px;border:2px solid}
+    .vs-card h4{font-weight:800;font-size:1.05rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .vs-card .vc-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;font-size:.95rem}
+    .vs-card .vc-label{font-weight:700;min-width:90px;font-size:.85rem;opacity:.8}
+    .vs-card.alter{background:#eff6ff;border-color:#93c5fd;color:#1e3a8a}
+    .vs-card.update{background:#f0fdf4;border-color:#86efac;color:#14532d}
+    .vs-card.del{background:#fff7ed;border-color:#fed7aa;color:#431407}
+    .vs-card.drp{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+    .vs-card.trunc{background:#f5f3ff;border-color:#c4b5fd;color:#2e1065}
+    .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0}
+    @media(max-width:700px){.three-col{grid-template-columns:1fr}}
+    .tc-card{border-radius:14px;padding:18px;border:1.5px solid;text-align:center}
+    .tc-card .ti{font-size:28px;margin-bottom:8px}.tc-card .tn{font-weight:800;font-size:1.05rem;margin-bottom:8px}
+    .tc-card .td{font-size:13px;line-height:1.5}
+    .tc-card.del{background:#fff7ed;border-color:#fed7aa;color:#431407}
+    .tc-card.drp{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+    .tc-card.trunc{background:#f5f3ff;border-color:#c4b5fd;color:#2e1065}
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin-bottom:0}
+    .dc{background:#f8fafc;border:1px solid #cbd5e1;border-radius:16px;padding:24px;margin:24px 0;text-align:center}
+    .dt{font-size:13px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ef4444,#7c3aed);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <span class="cur">SQL — Chapter 3: ALTER vs UPDATE | DELETE vs DROP vs TRUNCATE</span>
+  <a class="bk" href="index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 3 · Comparisons</span>
+    <h1>ALTER vs UPDATE &amp; DELETE vs DROP vs TRUNCATE</h1>
+    <p>Master the most commonly confused SQL command pairs. Understand exactly what each command affects — structure vs. data — and why these distinctions matter for GATE, IBPS SO, and placement interviews.</p>
+    <div class="tags">
+      <span class="tag">⚖️ ALTER vs UPDATE</span><span class="tag">🗑️ DELETE vs DROP vs TRUNCATE</span>
+      <span class="tag">📋 DDL vs DML</span><span class="tag">↩️ Rollback &amp; Recovery</span>
+      <span class="tag">🎯 GATE · IBPS SO · Placements</span>
+    </div>
+  </section>
+
+  <!-- PART 1: ALTER vs UPDATE -->
+  <section class="ns" id="alter-vs-update">
+    <h2>⚖️ Part 1: ALTER vs UPDATE</h2>
+    <p>These two commands are the most commonly confused in SQL. The key to understanding them lies in one simple rule: <strong>ALTER operates on structure. UPDATE operates on data.</strong></p>
+
+    <div class="cl">
+      <div class="ct">🧠 Mental Model — The Golden Rule</div>
+      Think of a table as a <strong>spreadsheet</strong>:
+      <ul class="ls" style="margin-top:8px">
+        <li><strong>ALTER</strong> changes the <em>column headers</em> (structure/schema) — adds/removes/renames columns, changes data types</li>
+        <li><strong>UPDATE</strong> changes the <em>cell values</em> (data) — modifies values in existing rows</li>
+      </ul>
+    </div>
+
+    <div class="dc">
+      <div class="dt">Structure (Schema) vs Data — What Each Command Touches</div>
+      <svg viewBox="0 0 700 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- Table visual -->
+        <rect x="100" y="20" width="500" height="160" rx="12" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+        <!-- Header row (schema) -->
+        <rect x="100" y="20" width="500" height="45" rx="12" fill="#0f172a"/>
+        <rect x="100" y="50" width="500" height="15" fill="#0f172a"/>
+        <text x="230" y="47" text-anchor="middle" font-weight="800" font-size="13" fill="#fde68a">Id</text>
+        <text x="400" y="47" text-anchor="middle" font-weight="800" font-size="13" fill="#fde68a">Name</text>
+        <text x="560" y="47" text-anchor="middle" font-weight="800" font-size="13" fill="#fde68a">Salary</text>
+        <!-- ALTER label -->
+        <rect x="102" y="22" width="496" height="41" rx="10" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="350" y="16" text-anchor="middle" font-weight="800" font-size="12" fill="#2563eb">← ALTER changes this region (Schema) →</text>
+        <!-- Data rows -->
+        <line x1="100" y1="95" x2="600" y2="95" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="230" y="87" text-anchor="middle" font-size="13" fill="#334155">1</text>
+        <text x="400" y="87" text-anchor="middle" font-size="13" fill="#334155">A</text>
+        <text x="560" y="87" text-anchor="middle" font-size="13" fill="#334155">10,000</text>
+        <line x1="100" y1="120" x2="600" y2="120" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="230" y="112" text-anchor="middle" font-size="13" fill="#334155">2</text>
+        <text x="400" y="112" text-anchor="middle" font-size="13" fill="#334155">B</text>
+        <text x="560" y="112" text-anchor="middle" font-size="13" fill="#334155">20,000</text>
+        <line x1="100" y1="145" x2="600" y2="145" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="230" y="137" text-anchor="middle" font-size="13" fill="#334155">3</text>
+        <text x="400" y="137" text-anchor="middle" font-size="13" fill="#334155">C</text>
+        <text x="560" y="137" text-anchor="middle" font-size="13" fill="#334155">30,000</text>
+        <!-- UPDATE label -->
+        <rect x="102" y="66" width="496" height="110" rx="0" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="350" y="186" text-anchor="middle" font-weight="800" font-size="12" fill="#10b981">← UPDATE changes this region (Data) →</text>
+        <!-- Column dividers -->
+        <line x1="320" y1="20" x2="320" y2="180" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="490" y1="20" x2="490" y2="180" stroke="#e2e8f0" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="vs-grid">
+      <div class="vs-card alter">
+        <h4>🏗️ ALTER</h4>
+        <div class="vc-row"><span class="vc-label">Category</span><span>DDL (Data Definition Language)</span></div>
+        <div class="vc-row"><span class="vc-label">Affects</span><span>Table <strong>structure / schema</strong> only</span></div>
+        <div class="vc-row"><span class="vc-label">Changes</span><span>Column names, data types, sizes, table name, constraints</span></div>
+        <div class="vc-row"><span class="vc-label">Data?</span><span>Does NOT change any data values</span></div>
+        <div class="vc-row"><span class="vc-label">Rollback?</span><span>No (DDL commits automatically in Oracle)</span></div>
+      </div>
+      <div class="vs-card update">
+        <h4>✏️ UPDATE</h4>
+        <div class="vc-row"><span class="vc-label">Category</span><span>DML (Data Manipulation Language)</span></div>
+        <div class="vc-row"><span class="vc-label">Affects</span><span>Table <strong>data (cell values)</strong> only</span></div>
+        <div class="vc-row"><span class="vc-label">Changes</span><span>Values inside rows — salary, name, id, etc.</span></div>
+        <div class="vc-row"><span class="vc-label">Schema?</span><span>Does NOT change any schema/structure</span></div>
+        <div class="vc-row"><span class="vc-label">Rollback?</span><span>Yes — can ROLLBACK before COMMIT</span></div>
+      </div>
+    </div>
+
+    <h3>📝 ALTER — What It Can Do (Structure Changes)</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Operation</th><th>Example</th></tr></thead><tbody>
+      <tr><td>Add a new column</td><td><code>ALTER TABLE employee ADD email VARCHAR2(100);</code></td></tr>
+      <tr><td>Remove an existing column</td><td><code>ALTER TABLE employee DROP COLUMN email;</code></td></tr>
+      <tr><td>Change column data type</td><td><code>ALTER TABLE employee MODIFY id VARCHAR2(10);</code></td></tr>
+      <tr><td>Change column size</td><td><code>ALTER TABLE employee MODIFY name VARCHAR2(50);</code></td></tr>
+      <tr><td>Rename a column</td><td><code>ALTER TABLE employee RENAME COLUMN id TO emp_id;</code></td></tr>
+      <tr><td>Rename the table</td><td><code>ALTER TABLE employee RENAME TO emp_detail;</code></td></tr>
+    </tbody></table></div>
+
+    <h3>📝 UPDATE — Syntax &amp; Examples (Data Changes)</h3>
+    <div class="cb"><span class="ll">Oracle SQL — UPDATE</span><pre><span class="cm">-- Syntax:</span>
+<span class="kw">UPDATE</span> <span class="tb">table_name</span>
+<span class="kw">SET</span>    <span class="tb">column_name</span> <span class="op">=</span> new_value
+[<span class="kw">WHERE</span> condition]<span class="op">;</span>
+
+<span class="cm">-- Example 1: Double ALL employees' salaries (no WHERE = affects all rows)</span>
+<span class="kw">UPDATE</span> <span class="tb">employee</span>
+<span class="kw">SET</span>    <span class="tb">salary</span> <span class="op">=</span> <span class="tb">salary</span> <span class="op">*</span> <span class="vl">2</span><span class="op">;</span>
+
+<span class="cm">-- Example 2: Double salary of ONLY employee with id = 1 (WHERE = specific row)</span>
+<span class="kw">UPDATE</span> <span class="tb">employee</span>
+<span class="kw">SET</span>    <span class="tb">salary</span> <span class="op">=</span> <span class="tb">salary</span> <span class="op">*</span> <span class="vl">2</span>
+<span class="kw">WHERE</span>  <span class="tb">id</span> <span class="op">=</span> <span class="vl">1</span><span class="op">;</span>
+
+<span class="cm">-- Example 3: Update multiple columns at once</span>
+<span class="kw">UPDATE</span> <span class="tb">employee</span>
+<span class="kw">SET</span>    <span class="tb">salary</span> <span class="op">=</span> <span class="vl">50000</span>, <span class="tb">name</span> <span class="op">=</span> <span class="str">'Rahul'</span>
+<span class="kw">WHERE</span>  <span class="tb">id</span> <span class="op">=</span> <span class="vl">2</span><span class="op">;</span></pre></div>
+
+    <div class="cl cl-w">
+      <div class="ct">⚠️ UPDATE without WHERE = Danger!</div>
+      If you run <code>UPDATE employee SET salary = 0;</code> without a WHERE clause, <strong>all rows</strong> in the table will be updated. Always double-check your WHERE condition before running UPDATE in production.
+    </div>
+  </section>
+
+  <!-- PART 2: DELETE vs DROP vs TRUNCATE -->
+  <section class="ns" id="delete-drop-truncate">
+    <h2>🗑️ Part 2: DELETE vs DROP vs TRUNCATE</h2>
+    <p>These three commands all "remove" something from the database — but <em>what</em> they remove and <em>how</em> they do it are very different.</p>
+
+    <div class="three-col">
+      <div class="tc-card del">
+        <div class="ti">✏️</div>
+        <div class="tn">DELETE</div>
+        <div class="td"><strong>DML Command</strong><br>Removes specific rows (with WHERE) or all rows (without WHERE)<br><br>✅ Rollback possible<br>✅ WHERE clause supported<br>⚠️ Slower (row-by-row + log)</div>
+      </div>
+      <div class="tc-card drp">
+        <div class="ti">💥</div>
+        <div class="tn">DROP</div>
+        <div class="td"><strong>DDL Command</strong><br>Removes the entire table — structure AND data, permanently<br><br>❌ No rollback<br>❌ No WHERE clause<br>❌ Table ceases to exist</div>
+      </div>
+      <div class="tc-card trunc">
+        <div class="ti">⚡</div>
+        <div class="tn">TRUNCATE</div>
+        <div class="td"><strong>DDL Command</strong><br>Removes ALL rows but keeps the table structure intact<br><br>❌ No rollback<br>❌ No WHERE clause<br>✅ Faster (table-level lock)</div>
+      </div>
+    </div>
+
+    <h3>🔍 Deep Dive — DELETE</h3>
+    <p><code>DELETE</code> is a <strong>DML</strong> command that removes one or more rows from a table. It supports a <code>WHERE</code> clause for selective deletion and creates a <strong>transaction log</strong>, enabling rollback.</p>
+    <div class="cb"><span class="ll">Oracle SQL — DELETE</span><pre><span class="cm">-- Delete ALL rows (table structure remains)</span>
+<span class="kw">DELETE FROM</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Output: 3 rows deleted.</span>
+
+<span class="cm">-- Delete a specific row (using WHERE)</span>
+<span class="kw">DELETE FROM</span> <span class="tb">student</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> <span class="op">=</span> <span class="vl">1</span><span class="op">;</span>
+<span class="cm">-- Output: 1 row deleted.</span>
+
+<span class="cm">-- After deleting, you can ROLLBACK (before COMMIT)</span>
+<span class="kw">ROLLBACK</span><span class="op">;</span>   <span class="cm">-- Restores deleted rows from the transaction log</span>
+
+<span class="cm">-- To permanently save the deletion:</span>
+<span class="kw">COMMIT</span><span class="op">;</span></pre></div>
+
+    <h3>🔍 Deep Dive — DROP</h3>
+    <p><code>DROP TABLE</code> is a <strong>DDL</strong> command that permanently removes the entire table — both the structure and all data inside it. After DROP, the table no longer exists. No rollback is possible.</p>
+    <div class="cb"><span class="ll">Oracle SQL — DROP TABLE</span><pre><span class="kw">DROP TABLE</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Output: Table dropped.</span>
+
+<span class="cm">-- After DROP, the table is gone:</span>
+<span class="kw">DESC</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Error: ORA-04043: object student does not exist</span></pre></div>
+    <div class="cl cl-d">
+      <div class="ct">☠️ DROP is the Most Dangerous DDL Command</div>
+      DROP permanently removes the table and all its data. There is NO built-in rollback. This is why DROP access is typically restricted to the DBA (Database Administrator) only. Data is the most valuable asset of any organization.
+    </div>
+
+    <h3>🔍 Deep Dive — TRUNCATE</h3>
+    <p><code>TRUNCATE</code> is a <strong>DDL</strong> command that deletes <strong>all rows</strong> from a table instantly, using a table-level lock. The table structure (schema) remains intact and can be reused. No rollback is possible, and no WHERE clause is supported.</p>
+    <div class="cb"><span class="ll">Oracle SQL — TRUNCATE</span><pre><span class="kw">TRUNCATE TABLE</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Output: Table truncated.</span>
+
+<span class="cm">-- After TRUNCATE, table structure still exists:</span>
+<span class="kw">DESC</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Output: Id (NUMBER), Name (VARCHAR2) — columns shown, no rows</span>
+
+<span class="cm">-- ROLLBACK after TRUNCATE? NO — it's DDL, no log created</span></pre></div>
+  </section>
+
+  <!-- MASTER COMPARISON TABLE -->
+  <section class="ns" id="comparison">
+    <h2>📊 Master Comparison Table</h2>
+    <div class="tw"><table class="ct2">
+      <thead><tr><th>Feature</th><th>DELETE</th><th>TRUNCATE</th><th>DROP</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Command Category</strong></td><td>DML</td><td>DDL</td><td>DDL</td></tr>
+        <tr><td><strong>What is Removed</strong></td><td>Specific rows (or all rows)</td><td>All rows only</td><td>Entire table (structure + data)</td></tr>
+        <tr><td><strong>Table Structure After</strong></td><td>✅ Exists (empty or partial)</td><td>✅ Exists (empty)</td><td>❌ Gone permanently</td></tr>
+        <tr><td><strong>WHERE Clause</strong></td><td>✅ Supported</td><td>❌ Not supported</td><td>❌ Not applicable</td></tr>
+        <tr><td><strong>Rollback Possible?</strong></td><td>✅ Yes (before COMMIT)</td><td>❌ No</td><td>❌ No</td></tr>
+        <tr><td><strong>Transaction Log</strong></td><td>✅ Created (enables recovery)</td><td>❌ Not created</td><td>❌ Not created</td></tr>
+        <tr><td><strong>Speed</strong></td><td>🐢 Slower (row-by-row + log)</td><td>⚡ Fast (table-level lock)</td><td>⚡ Instant</td></tr>
+        <tr><td><strong>Auto-increment Reset</strong></td><td>❌ Not reset</td><td>✅ Resets to 1</td><td>❌ Not applicable</td></tr>
+        <tr><td><strong>Computer Analogy</strong></td><td>Moving files to Recycle Bin (recoverable)</td><td>Permanently deleting all files (Shift+Delete)</td><td>Deleting the folder itself</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="cl cl-w">
+      <div class="ct">⭐ The Recycle Bin Analogy — Remember This!</div>
+      <ul class="ls" style="margin-top:6px">
+        <li><strong>DELETE</strong> = Moving files to the Recycle Bin. You can restore (ROLLBACK) anytime before emptying.</li>
+        <li><strong>TRUNCATE</strong> = Shift+Delete on all files. Instantly gone, no recycle bin, no recovery.</li>
+        <li><strong>DROP</strong> = Deleting the entire folder (not just the files). The container itself is destroyed.</li>
+      </ul>
+    </div>
+
+    <h3>🔍 Why is DELETE Slower than TRUNCATE?</h3>
+    <div class="cl cl-t">
+      <div class="ct">📖 Internal Mechanism Explanation</div>
+      <ul class="ls" style="margin-top:6px">
+        <li><strong>DELETE:</strong> Applies a row-level lock → deletes rows one by one → writes each deleted row to a <em>transaction log</em> (so ROLLBACK is possible) → then removes from table. More steps = slower.</li>
+        <li><strong>TRUNCATE:</strong> Applies a <em>table-level lock</em> → deallocates the entire data pages in one operation → no row-by-row log written. Fewer steps = dramatically faster on large tables.</li>
+      </ul>
+    </div>
+
+    <div class="cb"><span class="ll">Oracle SQL — DELETE with WHERE (Selective Deletion)</span><pre><span class="cm">-- Student table: Id=1 (A), Id=2 (B), Id=3 (C)</span>
+
+<span class="cm">-- Delete only student with Id=1 (A remains untouched: B and C)</span>
+<span class="kw">DELETE FROM</span> <span class="tb">student</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> <span class="op">=</span> <span class="vl">1</span><span class="op">;</span>
+
+<span class="cm">-- Check what remains:</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">student</span><span class="op">;</span>
+<span class="cm">-- Result: 2 | B | ... and 3 | C | ... (row 1 deleted)</span>
+
+<span class="cm">-- TRUNCATE has no WHERE — deletes EVERYTHING:</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="tb">student</span><span class="op">;</span>   <span class="cm">-- All rows gone, cannot add WHERE</span></pre></div>
+  </section>
+
+  <!-- QUICK SUMMARY -->
+  <section class="ns" id="summary">
+    <h2>⚡ Quick Decision Guide</h2>
+    <div class="tw"><table class="ct2">
+      <thead><tr><th>I want to...</th><th>Use this command</th><th>Category</th></tr></thead>
+      <tbody>
+        <tr><td>Delete <strong>specific rows</strong> based on a condition</td><td><code>DELETE FROM t WHERE ...</code></td><td>DML</td></tr>
+        <tr><td>Delete <strong>all rows</strong> but keep the table (recoverable)</td><td><code>DELETE FROM t;</code></td><td>DML</td></tr>
+        <tr><td>Delete <strong>all rows</strong> fast and permanently (no rollback)</td><td><code>TRUNCATE TABLE t;</code></td><td>DDL</td></tr>
+        <tr><td>Remove the <strong>entire table</strong> including its structure</td><td><code>DROP TABLE t;</code></td><td>DDL</td></tr>
+        <tr><td>Change a <strong>data value</strong> in existing rows</td><td><code>UPDATE t SET col=val WHERE ...</code></td><td>DML</td></tr>
+        <tr><td>Change the <strong>table structure</strong> (add/remove/rename column)</td><td><code>ALTER TABLE t ...</code></td><td>DDL</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- PYQ -->
+  <section class="pb">
+    <h4>🎯 Exam Focus — Key Q&amp;A</h4>
+    <p><strong>Q1: What is the fundamental difference between ALTER and UPDATE?</strong><br>👉 <em>ALTER changes the table structure (schema) — DDL. UPDATE changes data values inside rows — DML.</em></p>
+    <p><strong>Q2: Which three commands are DDL and which is DML among DELETE, DROP, TRUNCATE?</strong><br>👉 <em>DROP and TRUNCATE are DDL. DELETE is DML.</em></p>
+    <p><strong>Q3: After TRUNCATE, can you ROLLBACK?</strong><br>👉 <em>No. TRUNCATE is a DDL command — it does not write a transaction log, so rollback is not possible.</em></p>
+    <p><strong>Q4: After DELETE (without COMMIT), can you ROLLBACK?</strong><br>👉 <em>Yes. DELETE is DML and writes a transaction log. You can ROLLBACK before COMMIT to restore the deleted rows.</em></p>
+    <p><strong>Q5: What is the difference between TRUNCATE and DROP?</strong><br>👉 <em>TRUNCATE removes all rows but keeps the table structure. DROP removes both the rows and the table structure permanently.</em></p>
+    <p><strong>Q6: Why is TRUNCATE faster than DELETE?</strong><br>👉 <em>TRUNCATE uses a table-level lock and deallocates data pages in one go without writing row-level logs. DELETE deletes row-by-row and logs each deletion for rollback support, making it slower.</em></p>
+    <p><strong>Q7: Can you use WHERE with TRUNCATE?</strong><br>👉 <em>No. TRUNCATE always removes ALL rows. For selective row deletion, use DELETE with a WHERE clause.</em></p>
+    <p><strong>Q8: What is the computer analogy for DELETE vs TRUNCATE?</strong><br>👉 <em>DELETE = Moving files to Recycle Bin (recoverable). TRUNCATE = Shift+Delete (permanent, no recycle bin).</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>

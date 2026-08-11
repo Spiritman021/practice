@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chapter 2.5 (Part 4): EER & ER Conversion — DBMS Notes on Generalization, Specialization, Aggregation, ER to Table Conversion, Enhanced ER Model, Subclass/Superclass, Disjoint/Overlapping.">
+  <title>Chapter 2.5 (Part 4): EER & ER Conversion | DBMS Complete Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc; --text-main: #0f172a; --text-muted: #475569;
+      --primary: #2563eb; --primary-hover: #1d4ed8; --primary-light: #eff6ff;
+      --border: #e2e8f0; --card-bg: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background-color: var(--bg); color: var(--text-main);
+      min-height: 100vh; line-height: 1.6;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(37,99,235,0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99,102,241,0.04), transparent 40%),
+        linear-gradient(rgba(241,245,249,0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241,245,249,0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+    header { position:sticky; top:0; background:rgba(255,255,255,0.85); backdrop-filter:blur(12px); border-bottom:1px solid rgba(226,232,240,0.8); z-index:50; }
+    .wrap { max-width:1000px; margin:0 auto; padding:16px 24px; }
+    .brand { text-decoration:none; color:var(--primary); font-weight:800; font-size:1.25rem; letter-spacing:-0.5px; display:flex; align-items:center; gap:10px; }
+    .ph-breadcrumb { background:rgba(248,250,252,0.8); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:10px 24px; display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; flex-wrap:wrap; max-width:1000px; margin:0 auto; }
+    .ph-breadcrumb a { color:var(--text-muted); text-decoration:none; transition:color 0.15s; }
+    .ph-breadcrumb a:hover { color:var(--primary); }
+    .ph-breadcrumb .sep { color:#cbd5e1; font-size:11px; }
+    .ph-breadcrumb .current { color:var(--text-main); font-weight:600; }
+    .ph-breadcrumb .back-btn { margin-left:auto; background:#fff; border:1px solid var(--border); border-radius:8px; padding:5px 14px; color:var(--text-muted); font-weight:600; font-size:12.5px; text-decoration:none; box-shadow:0 1px 2px rgba(0,0,0,0.04); transition:all 0.2s ease; }
+    .ph-breadcrumb .back-btn:hover { background:var(--bg); color:var(--text-main); transform:translateX(-2px); }
+    main.wrap { padding:28px 24px 72px; }
+
+    .note-hero { background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e3a8a 100%); color:#fff; border-radius:20px; padding:32px; margin-bottom:28px; box-shadow:0 10px 25px -5px rgba(15,23,42,0.2); }
+    .note-badge { display:inline-block; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; margin-bottom:12px; letter-spacing:0.5px; text-transform:uppercase; }
+    .note-hero h1 { font-size:clamp(1.75rem,3.5vw,2.5rem); font-weight:800; margin-bottom:10px; }
+    .note-hero p { color:#cbd5e1; font-size:1.05rem; line-height:1.6; }
+
+    .note-section { background:#fff; border:1px solid var(--border); border-radius:18px; padding:28px; margin-bottom:28px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.02); }
+    .note-section h2 { font-size:1.35rem; font-weight:800; color:var(--text-main); margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid var(--primary-light); display:flex; align-items:center; gap:10px; }
+    .note-section h3 { font-size:1.1rem; font-weight:700; color:var(--primary); margin:20px 0 10px; }
+    .note-section p { color:#334155; margin-bottom:14px; font-size:1rem; }
+
+    .callout { border-left:4px solid var(--primary); background:var(--primary-light); padding:16px 20px; border-radius:0 12px 12px 0; margin:18px 0; font-size:0.975rem; color:#334155; }
+    .callout-title { font-weight:800; color:var(--primary-hover); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .callout-green { border-left-color:#059669; background:#ecfdf5; }
+    .callout-green .callout-title { color:#065f46; }
+    .callout-amber { border-left-color:#d97706; background:#fffbeb; }
+    .callout-amber .callout-title { color:#92400e; }
+
+    .list-styled { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .list-styled li { position:relative; padding-left:24px; font-size:0.975rem; color:#334155; }
+    .list-styled li::before { content:"➔"; position:absolute; left:0; color:var(--primary); font-size:13px; font-weight:bold; }
+
+    /* SVG diagram container */
+    .svg-wrap { background:#f8fafc; border:1px solid #cbd5e1; border-radius:16px; padding:20px; overflow-x:auto; margin:20px 0; text-align:center; }
+    .svg-wrap svg { font-family:'Outfit','Inter',sans-serif; max-width:100%; }
+    .svg-caption { font-size:13px; font-weight:700; color:var(--text-muted); margin-top:10px; }
+
+    .comp-table-wrap { overflow-x:auto; margin:24px 0; border-radius:14px; border:1px solid var(--border); }
+    table.comp-table { width:100%; border-collapse:collapse; font-size:14px; text-align:left; }
+    table.comp-table th { background:#0f172a; color:#fff; padding:14px 18px; font-weight:700; }
+    table.comp-table td { padding:12px 18px; border-bottom:1px solid var(--border); }
+    table.comp-table tr:nth-child(even) { background:#f8fafc; }
+    table.comp-table tr:hover { background:#eff6ff; }
+
+    .pyq-box { background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%); border:1.5px solid #fde68a; border-radius:16px; padding:20px; margin-top:28px; }
+    .pyq-box h4 { font-size:1.05rem; font-weight:800; color:#92400e; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+    .pyq-box p { font-size:14px; color:#451a03; line-height:1.5; margin-bottom:8px; }
+
+    .pill { display:inline-block; padding:3px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+    .pill-blue { background:#dbeafe; color:#1e40af; }
+    .pill-green { background:#dcfce7; color:#166534; }
+    .pill-amber { background:#fef3c7; color:#92400e; }
+    .pill-red { background:#fee2e2; color:#991b1b; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+  </div>
+</header>
+
+<nav class="ph-breadcrumb" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a>
+  <span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a>
+  <span class="sep">›</span>
+  <span class="current">Chapter 2.5 (Part 4): EER &amp; ER Conversion</span>
+  <a class="back-btn" href="index.html">← Back to Syllabus</a>
+</nav>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="note-hero">
+    <span class="note-badge">Unit 2 · Chapter 2.5 (Part 4) · High-Yield 🔥</span>
+    <h1>EER &amp; ER Conversion</h1>
+    <p>Master <strong>Generalization, Specialization, Aggregation</strong>, ER to Relational Table conversion rules, and the <strong>Enhanced ER (EER) Model</strong> — subclass/superclass, disjoint/overlapping, total/partial specialization.</p>
+  </section>
+
+  <!-- ============================================================
+       SECTION 1: SPECIALIZATION
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🔽 1. Specialization (Top-Down Approach)</h2>
+
+    <p><strong>Specialization</strong> is a <strong>top-down</strong> design process where you start with a <strong>general entity (Superclass)</strong> and break it into more specific subgroups called <strong>Subclasses</strong> based on distinguishing characteristics.</p>
+
+    <div class="callout">
+      <div class="callout-title">🏫 Real-Life Analogy</div>
+      Start with a general entity <code>PERSON</code>. Then specialize into <code>EMPLOYEE</code> (who has a salary) and <code>STUDENT</code> (who has a roll number). Both share common attributes like Name, Age, Address — these stay in the superclass. Only unique attributes go in the subclass.
+    </div>
+
+    <ul class="list-styled">
+      <li><strong>Superclass</strong> = The parent entity with common/general attributes (e.g. <code>PERSON</code> with Name, Age, Address).</li>
+      <li><strong>Subclass</strong> = The child entity with specific/extra attributes (e.g. <code>EMPLOYEE</code> with Emp_ID, Salary; <code>STUDENT</code> with Roll_No, GPA).</li>
+      <li><strong>Inheritance</strong>: Subclass automatically inherits ALL attributes of the superclass.</li>
+      <li>Represented by an <strong>ISA triangle</strong> (reads "is a") in ER diagrams — e.g. "Employee IS A Person".</li>
+    </ul>
+
+    <!-- SPECIALIZATION SVG DIAGRAM -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 425" width="700" height="425">
+
+        <!-- PERSON attributes (top) -->
+        <!-- Name -->
+        <line x1="290" y1="85" x2="200" y2="45" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="175" cy="35" rx="52" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="175" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155">Name</text>
+
+        <!-- Age -->
+        <line x1="350" y1="85" x2="350" y2="57" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="350" cy="35" rx="44" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="350" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155">Age</text>
+
+        <!-- Address -->
+        <line x1="410" y1="85" x2="500" y2="45" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="525" cy="35" rx="56" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="525" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155">Address</text>
+
+        <!-- PERSON superclass -->
+        <rect x="250" y="85" width="200" height="50" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+        <text x="350" y="110" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="800" fill="#0f172a">PERSON</text>
+
+        <!-- Line from PERSON down to ISA triangle -->
+        <line x1="350" y1="135" x2="350" y2="175" stroke="#475569" stroke-width="2"/>
+
+        <!-- ISA Triangle -->
+        <polygon points="350,175 300,235 400,235" fill="#eff6ff" stroke="#2563eb" stroke-width="2.2"/>
+        <text x="350" y="213" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#1e3a8a">ISA</text>
+
+        <!-- Disjoint circle label -->
+        <circle cx="350" cy="235" r="10" fill="#2563eb"/>
+        <text x="350" y="236" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="800" fill="#fff">d</text>
+
+        <!-- Line to EMPLOYEE (left) -->
+        <line x1="320" y1="242" x2="165" y2="295" stroke="#475569" stroke-width="2"/>
+        <!-- Line to STUDENT (right) -->
+        <line x1="380" y1="242" x2="535" y2="295" stroke="#475569" stroke-width="2"/>
+
+        <!-- EMPLOYEE subclass -->
+        <rect x="80" y="295" width="170" height="50" rx="4" fill="#ffffff" stroke="#059669" stroke-width="2.2"/>
+        <text x="165" y="320" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#065f46">EMPLOYEE</text>
+
+        <!-- STUDENT subclass -->
+        <rect x="450" y="295" width="170" height="50" rx="4" fill="#ffffff" stroke="#7c3aed" stroke-width="2.2"/>
+        <text x="535" y="320" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#5b21b6">STUDENT</text>
+
+        <!-- EMPLOYEE unique attributes -->
+        <line x1="120" y1="345" x2="70" y2="380" stroke="#059669" stroke-width="1.6"/>
+        <ellipse cx="55" cy="390" rx="44" ry="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.6"/>
+        <text x="55" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#065f46">Emp_ID</text>
+        <line x1="43" y1="395" x2="67" y2="395" stroke="#065f46" stroke-width="2"/><!-- underline PK -->
+
+        <line x1="165" y1="345" x2="165" y2="380" stroke="#059669" stroke-width="1.6"/>
+        <ellipse cx="165" cy="390" rx="44" ry="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.6"/>
+        <text x="165" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#065f46">Salary</text>
+
+        <!-- STUDENT unique attributes -->
+        <line x1="495" y1="345" x2="458" y2="380" stroke="#7c3aed" stroke-width="1.6"/>
+        <ellipse cx="455" cy="390" rx="46" ry="20" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.6"/>
+        <text x="455" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#5b21b6">Roll_No</text>
+        <line x1="434" y1="395" x2="476" y2="395" stroke="#5b21b6" stroke-width="2"/><!-- underline PK -->
+
+        <line x1="575" y1="345" x2="605" y2="380" stroke="#7c3aed" stroke-width="1.6"/>
+        <ellipse cx="617" cy="390" rx="38" ry="20" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.6"/>
+        <text x="617" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#5b21b6">GPA</text>
+
+        <!-- Direction label -->
+        <text x="10" y="210" font-size="11" font-weight="700" fill="#2563eb">TOP-DOWN</text>
+        <text x="10" y="224" font-size="11" font-weight="700" fill="#2563eb">↓ Specialize</text>
+      </svg>
+      <div class="svg-caption">Figure 1: Specialization — PERSON superclass → EMPLOYEE + STUDENT subclasses (ISA, Disjoint "d")</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2: GENERALIZATION
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🔼 2. Generalization (Bottom-Up Approach)</h2>
+
+    <p><strong>Generalization</strong> is the <strong>reverse of Specialization</strong>. It is a <strong>bottom-up</strong> process: you start with multiple <strong>specific entities</strong> (like <code>CAR</code> and <code>TRUCK</code>), identify their <em>common attributes</em>, and merge them into a single <strong>general superclass</strong> (like <code>VEHICLE</code>).</p>
+
+    <div class="callout callout-green">
+      <div class="callout-title">🚗 Real-Life Analogy</div>
+      You have two entities: <code>CAR</code> (with Model, Seating_Capacity) and <code>TRUCK</code> (with Model, Payload_Tons). Both share <code>Vehicle_ID</code>, <code>Model</code>, <code>Speed</code>. So you <strong>generalize</strong> them upward into a <code>VEHICLE</code> superclass that holds the shared attributes.
+    </div>
+
+    <ul class="list-styled">
+      <li><strong>Direction:</strong> <em>Specific entities → General superclass</em> (bottom-up).</li>
+      <li><strong>Purpose:</strong> Reduces data redundancy by pulling shared attributes up into a common superclass.</li>
+      <li><strong>Result:</strong> Same ISA diagram as Specialization — only the <em>design direction</em> differs.</li>
+      <li>Generalization and Specialization produce the <strong>same final ER diagram</strong>; the difference is only in the <em>thought process</em> (top-down vs bottom-up).</li>
+    </ul>
+
+    <!-- GENERALIZATION SVG -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 425" width="700" height="425">
+
+        <!-- VEHICLE superclass shared attributes (top) -->
+        <!-- V_ID (PK) -->
+        <line x1="280" y1="90" x2="235" y2="45" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="215" cy="35" rx="46" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="215" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#0f172a">V_ID</text>
+        <line x1="197" y1="39" x2="233" y2="39" stroke="#0f172a" stroke-width="2"/><!-- PK underline -->
+
+        <!-- Model -->
+        <line x1="350" y1="90" x2="350" y2="57" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="350" cy="35" rx="48" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="350" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155">Model</text>
+
+        <!-- Speed -->
+        <line x1="420" y1="90" x2="465" y2="45" stroke="#475569" stroke-width="1.6"/>
+        <ellipse cx="485" cy="35" rx="46" ry="22" fill="#fff" stroke="#475569" stroke-width="1.6"/>
+        <text x="485" y="35" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155">Speed</text>
+
+        <!-- VEHICLE superclass -->
+        <rect x="250" y="90" width="200" height="50" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+        <text x="350" y="115" text-anchor="middle" dominant-baseline="middle" font-size="16" font-weight="800" fill="#0f172a">VEHICLE</text>
+
+        <!-- Line from VEHICLE down to ISA triangle -->
+        <line x1="350" y1="140" x2="350" y2="175" stroke="#2563eb" stroke-width="2.2"/>
+
+        <!-- ISA Triangle -->
+        <polygon points="350,175 300,235 400,235" fill="#eff6ff" stroke="#2563eb" stroke-width="2.2"/>
+        <text x="350" y="213" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#1e3a8a">ISA</text>
+
+        <!-- Disjoint circle label -->
+        <circle cx="350" cy="235" r="10" fill="#2563eb"/>
+        <text x="350" y="236" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="800" fill="#fff">d</text>
+
+        <!-- Line up from CAR (left) -->
+        <line x1="165" y1="295" x2="320" y2="242" stroke="#475569" stroke-width="2"/>
+        <!-- Line up from TRUCK (right) -->
+        <line x1="535" y1="295" x2="380" y2="242" stroke="#475569" stroke-width="2"/>
+
+        <!-- CAR subclass -->
+        <rect x="80" y="295" width="170" height="50" rx="4" fill="#ffffff" stroke="#059669" stroke-width="2.2"/>
+        <text x="165" y="320" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#065f46">CAR</text>
+
+        <!-- TRUCK subclass -->
+        <rect x="450" y="295" width="170" height="50" rx="4" fill="#ffffff" stroke="#7c3aed" stroke-width="2.2"/>
+        <text x="535" y="320" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#5b21b6">TRUCK</text>
+
+        <!-- CAR unique attribute -->
+        <line x1="165" y1="345" x2="165" y2="380" stroke="#059669" stroke-width="1.6"/>
+        <ellipse cx="165" cy="390" rx="46" ry="20" fill="#ecfdf5" stroke="#059669" stroke-width="1.6"/>
+        <text x="165" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#065f46">Seats</text>
+
+        <!-- TRUCK unique attribute -->
+        <line x1="535" y1="345" x2="535" y2="380" stroke="#7c3aed" stroke-width="1.6"/>
+        <ellipse cx="535" cy="390" rx="48" ry="20" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.6"/>
+        <text x="535" y="391" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#5b21b6">Payload</text>
+
+        <!-- Direction label -->
+        <text x="10" y="210" font-size="11" font-weight="700" fill="#059669">BOTTOM-UP</text>
+        <text x="10" y="224" font-size="11" font-weight="700" fill="#059669">↑ Generalize</text>
+      </svg>
+      <div class="svg-caption">Figure 2: Generalization — CAR + TRUCK → merged into VEHICLE superclass (bottom-up)</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3: AGGREGATION
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🔗 3. Aggregation</h2>
+
+    <p><strong>Aggregation</strong> is used when a <strong>relationship itself needs to participate in another relationship</strong>. In a standard ER diagram, you cannot directly connect a relationship to another relationship. Aggregation solves this by treating a <em>relationship set + its entities</em> as a <strong>higher-level abstract entity</strong>.</p>
+
+    <div class="callout callout-amber">
+      <div class="callout-title">🏢 Classic Example: Works_On needs a Manager</div>
+      An <code>EMPLOYEE</code> <strong>WORKS_ON</strong> a <code>PROJECT</code>. This is a normal relationship. But now the company also wants to track <strong>which MANAGER supervises this "Employee–Project" assignment</strong>. A manager doesn't supervise just an employee or just a project — they supervise the <em>entire Work assignment</em>. So the <strong>WORKS_ON relationship</strong> is aggregated into a box and connected to <code>MANAGER</code>.
+    </div>
+
+    <!-- AGGREGATION SVG -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 740 310" width="740" height="310">
+
+        <!-- Aggregation outer dashed box -->
+        <rect x="30" y="30" width="460" height="210" rx="10" fill="rgba(37,99,235,0.04)" stroke="#2563eb" stroke-width="2" stroke-dasharray="8,4"/>
+        <!-- Aggregation label inside box at bottom -->
+        <text x="260" y="222" text-anchor="middle" font-size="11.5" font-weight="700" fill="#2563eb">«Aggregation» — treated as a single higher-level entity</text>
+
+        <!-- EMPLOYEE entity -->
+        <rect x="50" y="125" width="130" height="46" rx="3" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+        <text x="115" y="148" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#0f172a">EMPLOYEE</text>
+
+        <!-- Line EMPLOYEE → WORKS_ON -->
+        <line x1="180" y1="148" x2="240" y2="148" stroke="#475569" stroke-width="1.8"/>
+
+        <!-- WORKS_ON diamond -->
+        <polygon points="290,123 340,148 290,173 240,148" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="290" y="148" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="800" fill="#065f46">WORKS_ON</text>
+
+        <!-- Line WORKS_ON → PROJECT -->
+        <line x1="340" y1="148" x2="390" y2="148" stroke="#475569" stroke-width="1.8"/>
+
+        <!-- PROJECT entity -->
+        <rect x="390" y="125" width="90" height="46" rx="3" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+        <text x="435" y="148" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#0f172a">PROJECT</text>
+
+        <!-- Hours attribute on WORKS_ON -->
+        <line x1="290" y1="123" x2="290" y2="82" stroke="#475569" stroke-width="1.5"/>
+        <ellipse cx="290" cy="65" rx="44" ry="19" fill="#fff" stroke="#475569" stroke-width="1.5"/>
+        <text x="290" y="66" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#334155">Hours</text>
+
+        <!-- Line from aggregation box → MANAGES diamond -->
+        <line x1="490" y1="148" x2="560" y2="148" stroke="#d97706" stroke-width="2.2"/>
+        <polygon points="557,143 567,148 557,153" fill="#d97706"/>
+
+        <!-- MANAGES diamond -->
+        <polygon points="610,123 660,148 610,173 560,148" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+        <text x="610" y="148" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="800" fill="#92400e">MANAGES</text>
+
+        <!-- MANAGER entity -->
+        <rect x="550" y="40" width="120" height="46" rx="3" fill="#fff" stroke="#d97706" stroke-width="2"/>
+        <text x="610" y="63" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#92400e">MANAGER</text>
+        <line x1="610" y1="86" x2="610" y2="123" stroke="#d97706" stroke-width="1.8"/>
+
+        <!-- Legend labels at bottom -->
+        <text x="40" y="268" font-size="11.5" fill="#475569" font-weight="600">Standard ER: EMPLOYEE ── WORKS_ON ── PROJECT</text>
+        <text x="40" y="286" font-size="11.5" fill="#d97706" font-weight="700">Aggregation: Entire WORKS_ON block ── MANAGES ── MANAGER</text>
+      </svg>
+      <div class="svg-caption">Figure 3: Aggregation — WORKS_ON relationship block aggregated and connected to MANAGER via MANAGES</div>
+    </div>
+
+    <ul class="list-styled">
+      <li><strong>When to use:</strong> When a relationship must itself participate in another relationship (ternary+ scenarios).</li>
+      <li><strong>ER Notation:</strong> The aggregated block is drawn with a <strong>large dashed rectangle</strong> surrounding the relationship and its entities.</li>
+      <li><strong>Advantage:</strong> Avoids creating ternary (3-way) relationships which are harder to implement in SQL.</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4: EER MODEL — DISJOINT vs OVERLAPPING
+  ============================================================ -->
+  <section class="note-section">
+    <h2>🧬 4. Enhanced ER (EER) Model — Disjoint vs Overlapping</h2>
+
+    <p>The <strong>EER Model</strong> extends the standard ER Model with concepts like <strong>subclass/superclass hierarchies</strong> and constraints on how subclasses relate to the superclass.</p>
+
+    <h3>A. Disjoint (Exclusive) Constraint — <code>d</code></h3>
+    <div class="callout">
+      <div class="callout-title">📌 Disjoint Constraint</div>
+      An entity instance in the superclass can belong to <strong>AT MOST ONE subclass</strong> at a time. The subclasses are <em>mutually exclusive</em>.
+      <br><br>
+      <strong>Symbol:</strong> <span class="pill pill-blue">d</span> inside a circle at the ISA split point.
+      <br><strong>Example:</strong> A <code>VEHICLE</code> can be <em>either</em> a <code>CAR</code> <em>or</em> a <code>TRUCK</code> — never both simultaneously.
+    </div>
+
+    <h3>B. Overlapping Constraint — <code>o</code></h3>
+    <div class="callout callout-green">
+      <div class="callout-title">📌 Overlapping Constraint</div>
+      An entity instance in the superclass can belong to <strong>MORE THAN ONE subclass</strong> simultaneously. The subclasses can overlap.
+      <br><br>
+      <strong>Symbol:</strong> <span class="pill pill-green">o</span> inside a circle at the ISA split point.
+      <br><strong>Example:</strong> A <code>PERSON</code> can be <em>both</em> a <code>STUDENT</code> AND an <code>EMPLOYEE</code> at the same time (part-time student who also works).
+    </div>
+
+    <h3>C. Total vs Partial Specialization</h3>
+    <ul class="list-styled">
+      <li><strong>Total Specialization (Double Line ══):</strong> Every entity in the superclass MUST belong to at least one subclass. No entity can exist without being in a subclass. <br><em>Example: Every <code>VEHICLE</code> must be either a CAR or TRUCK — no plain uncategorized vehicle allowed.</em></li>
+      <li><strong>Partial Specialization (Single Line ─):</strong> An entity in the superclass MAY or MAY NOT belong to any subclass. <br><em>Example: Some <code>PERSON</code> entities may be neither EMPLOYEE nor STUDENT (e.g. a retired person with no current role).</em></li>
+    </ul>
+
+    <!-- EER DIAGRAM: Disjoint vs Overlapping side by side -->
+    <div class="svg-wrap">
+      <svg viewBox="0 0 700 320" width="700" height="320">
+
+        <!-- ====== LEFT: DISJOINT ====== -->
+        <text x="162" y="18" text-anchor="middle" font-size="13" font-weight="800" fill="#1e3a8a">DISJOINT (d) — Mutually Exclusive</text>
+
+        <!-- VEHICLE superclass -->
+        <rect x="62" y="30" width="200" height="46" rx="3" fill="#fff" stroke="#0f172a" stroke-width="2.2"/>
+        <text x="162" y="53" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#0f172a">VEHICLE</text>
+
+        <!-- double line (total specialization) -->
+        <line x1="162" y1="76" x2="162" y2="100" stroke="#475569" stroke-width="2.2"/>
+        <line x1="158" y1="76" x2="158" y2="100" stroke="#475569" stroke-width="2.2"/>
+
+        <!-- ISA triangle -->
+        <polygon points="162,100 112,160 212,160" fill="#eff6ff" stroke="#2563eb" stroke-width="2.2"/>
+        <text x="162" y="138" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="800" fill="#1e3a8a">ISA</text>
+
+        <!-- d circle -->
+        <circle cx="162" cy="161" r="11" fill="#2563eb"/>
+        <text x="162" y="162" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="800" fill="#fff">d</text>
+
+        <!-- lines to subclasses -->
+        <line x1="140" y1="172" x2="90" y2="216" stroke="#475569" stroke-width="1.8"/>
+        <line x1="184" y1="172" x2="234" y2="216" stroke="#475569" stroke-width="1.8"/>
+
+        <!-- CAR -->
+        <rect x="40" y="216" width="100" height="42" rx="3" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="90" y="237" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#065f46">CAR</text>
+
+        <!-- TRUCK -->
+        <rect x="184" y="216" width="100" height="42" rx="3" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+        <text x="234" y="237" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#92400e">TRUCK</text>
+
+        <!-- Note -->
+        <rect x="40" y="272" width="244" height="36" rx="6" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
+        <text x="162" y="288" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">❌ A VEHICLE is EITHER car OR truck</text>
+        <text x="162" y="302" text-anchor="middle" font-size="11" font-weight="700" fill="#991b1b">— NEVER both simultaneously</text>
+
+        <!-- ====== DIVIDER ====== -->
+        <line x1="350" y1="10" x2="350" y2="315" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- ====== RIGHT: OVERLAPPING ====== -->
+        <text x="532" y="18" text-anchor="middle" font-size="13" font-weight="800" fill="#065f46">OVERLAPPING (o) — Can belong to both</text>
+
+        <!-- PERSON superclass -->
+        <rect x="432" y="30" width="200" height="46" rx="3" fill="#fff" stroke="#0f172a" stroke-width="2.2"/>
+        <text x="532" y="53" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="800" fill="#0f172a">PERSON</text>
+
+        <!-- single line (partial specialization) -->
+        <line x1="532" y1="76" x2="532" y2="100" stroke="#475569" stroke-width="2.2"/>
+
+        <!-- ISA triangle -->
+        <polygon points="532,100 482,160 582,160" fill="#ecfdf5" stroke="#059669" stroke-width="2.2"/>
+        <text x="532" y="138" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="800" fill="#065f46">ISA</text>
+
+        <!-- o circle -->
+        <circle cx="532" cy="161" r="11" fill="#059669"/>
+        <text x="532" y="162" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="800" fill="#fff">o</text>
+
+        <!-- lines to subclasses -->
+        <line x1="510" y1="172" x2="460" y2="216" stroke="#475569" stroke-width="1.8"/>
+        <line x1="554" y1="172" x2="604" y2="216" stroke="#475569" stroke-width="1.8"/>
+
+        <!-- STUDENT -->
+        <rect x="410" y="216" width="100" height="42" rx="3" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+        <text x="460" y="237" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#1e3a8a">STUDENT</text>
+
+        <!-- EMPLOYEE -->
+        <rect x="554" y="216" width="110" height="42" rx="3" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+        <text x="609" y="237" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="800" fill="#5b21b6">EMPLOYEE</text>
+
+        <!-- Note -->
+        <rect x="410" y="272" width="254" height="36" rx="6" fill="#dcfce7" stroke="#86efac" stroke-width="1"/>
+        <text x="532" y="288" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">✅ A PERSON can be BOTH student</text>
+        <text x="532" y="302" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">AND employee simultaneously</text>
+
+      </svg>
+      <div class="svg-caption">Figure 4: EER — Disjoint (d) vs Overlapping (o) | Total (double line ══) vs Partial (single line ─) Specialization</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5: ER TO RELATIONAL TABLE CONVERSION RULES
+  ============================================================ -->
+  <section class="note-section">
+    <h2>⚙️ 5. ER to Relational Table Conversion Rules</h2>
+    <p>Every ER construct has a specific rule for converting to RDBMS relational tables. These rules are frequently tested in GATE &amp; UGC-NET.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>ER Construct</th>
+            <th>Conversion Rule</th>
+            <th>Min Tables</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Strong Entity</strong></td>
+            <td>One table per entity. Primary Key = Key Attribute.</td>
+            <td><span class="pill pill-blue">1 Table</span></td>
+          </tr>
+          <tr>
+            <td><strong>Weak Entity</strong></td>
+            <td>Merge Weak Entity + Identifying Relationship into ONE table. Composite PK = Owner PK + Partial Key.</td>
+            <td><span class="pill pill-blue">2 Tables</span></td>
+          </tr>
+          <tr>
+            <td><strong>1:1 Relationship</strong></td>
+            <td>Add FK to either entity table. Merge relationship table into either side.</td>
+            <td><span class="pill pill-green">2 Tables</span></td>
+          </tr>
+          <tr>
+            <td><strong>1:N Relationship</strong></td>
+            <td>Add FK on the MANY (N) side. Merge relationship table only into N-side.</td>
+            <td><span class="pill pill-green">2 Tables</span></td>
+          </tr>
+          <tr>
+            <td><strong>M:N Relationship</strong></td>
+            <td>Create separate relationship table. Composite PK = FK1 + FK2. Cannot merge.</td>
+            <td><span class="pill pill-amber">3 Tables</span></td>
+          </tr>
+          <tr>
+            <td><strong>Multi-Valued Attribute</strong></td>
+            <td>Create separate table for multi-valued attribute. Composite PK = Entity PK + attribute value.</td>
+            <td><span class="pill pill-amber">+1 Extra Table</span></td>
+          </tr>
+          <tr>
+            <td><strong>Generalization / Specialization</strong></td>
+            <td><strong>Method 1 (Single Table):</strong> One table for superclass + all subclass attributes (NULL for irrelevant).<br><strong>Method 2 (Multiple Tables):</strong> One table per subclass inheriting PK of superclass.</td>
+            <td><span class="pill pill-blue">1 or N Tables</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Specialization → Table Conversion (2 Methods)</h3>
+
+    <!-- METHOD 1: Single Table -->
+    <div class="callout">
+      <div class="callout-title">📋 Method 1: Single Table Approach</div>
+      Merge everything into <strong>one table</strong>. Use a <code>type</code> discriminator column. Subclass-specific attributes will be NULL for non-members.
+      <div style="overflow-x:auto; margin-top:12px; border-radius:10px; border:1px solid #cbd5e1;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead><tr style="background:#1e293b; color:#94a3b8;">
+            <th style="padding:8px 12px;"><u>Person_ID</u> [PK]</th><th style="padding:8px 12px;">Name</th><th style="padding:8px 12px;">Age</th><th style="padding:8px 12px;">Type</th><th style="padding:8px 12px;">Salary</th><th style="padding:8px 12px;">Roll_No</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:8px 12px; font-family:monospace; color:#2563eb; font-weight:700;">P1</td><td style="padding:8px 12px;">Varun</td><td style="padding:8px 12px;">25</td><td style="padding:8px 12px;"><span class="pill pill-green">EMPLOYEE</span></td><td style="padding:8px 12px;">₹50,000</td><td style="padding:8px 12px; color:#94a3b8;">NULL</td></tr>
+            <tr style="background:#f8fafc;"><td style="padding:8px 12px; font-family:monospace; color:#2563eb; font-weight:700;">P2</td><td style="padding:8px 12px;">Ravi</td><td style="padding:8px 12px;">20</td><td style="padding:8px 12px;"><span class="pill pill-blue">STUDENT</span></td><td style="padding:8px 12px; color:#94a3b8;">NULL</td><td style="padding:8px 12px;">2021CS001</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <strong>Drawback:</strong> Many NULL values waste storage.
+    </div>
+
+    <!-- METHOD 2: Multiple Tables -->
+    <div class="callout callout-green">
+      <div class="callout-title">📋 Method 2: Multiple Table Approach</div>
+      One table per subclass, each inheriting the <strong>superclass PK as its own PK + FK</strong>.
+      <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:12px;">
+        <div style="flex:1; min-width:200px; overflow-x:auto; border-radius:10px; border:1px solid #86efac;">
+          <div style="background:#166534; color:#fff; padding:6px 12px; font-size:12px; font-weight:700; border-radius:9px 9px 0 0;">EMPLOYEE Table</div>
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead><tr style="background:#dcfce7; color:#166534;">
+              <th style="padding:7px 10px;"><u>Person_ID</u> [PK,FK]</th><th style="padding:7px 10px;">Salary</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:7px 10px; font-family:monospace; font-weight:700; color:#2563eb;">P1</td><td style="padding:7px 10px;">₹50,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="flex:1; min-width:200px; overflow-x:auto; border-radius:10px; border:1px solid #93c5fd;">
+          <div style="background:#1e3a8a; color:#fff; padding:6px 12px; font-size:12px; font-weight:700; border-radius:9px 9px 0 0;">STUDENT Table</div>
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead><tr style="background:#dbeafe; color:#1e3a8a;">
+              <th style="padding:7px 10px;"><u>Person_ID</u> [PK,FK]</th><th style="padding:7px 10px;">Roll_No</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:7px 10px; font-family:monospace; font-weight:700; color:#2563eb;">P2</td><td style="padding:7px 10px;">2021CS001</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <strong>Advantage:</strong> No NULL values. Clean and normalized.
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 6: QUICK COMPARISON TABLE
+  ============================================================ -->
+  <section class="note-section">
+    <h2>⚖️ 6. Quick Comparison: Specialization vs Generalization vs Aggregation</h2>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>🔽 Specialization</th>
+            <th>🔼 Generalization</th>
+            <th>🔗 Aggregation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Direction</strong></td>
+            <td>Top-Down</td>
+            <td>Bottom-Up</td>
+            <td>Combines relationship + entities</td>
+          </tr>
+          <tr>
+            <td><strong>Starting Point</strong></td>
+            <td>General Superclass</td>
+            <td>Specific Subclass entities</td>
+            <td>Existing Relationship Set</td>
+          </tr>
+          <tr>
+            <td><strong>Goal</strong></td>
+            <td>Create specific subclasses</td>
+            <td>Create a common superclass</td>
+            <td>Allow relationship to participate in another relationship</td>
+          </tr>
+          <tr>
+            <td><strong>ER Symbol</strong></td>
+            <td>ISA Triangle + lines going down</td>
+            <td>ISA Triangle + lines going up</td>
+            <td>Dashed rectangle around relationship + entities</td>
+          </tr>
+          <tr>
+            <td><strong>Real Example</strong></td>
+            <td>PERSON → EMPLOYEE, STUDENT</td>
+            <td>CAR + TRUCK → VEHICLE</td>
+            <td>WORKS_ON → MANAGES → MANAGER</td>
+          </tr>
+          <tr>
+            <td><strong>Final Diagram</strong></td>
+            <td colspan="2" style="text-align:center; font-weight:700; color:#059669;">Same ISA Hierarchy Diagram (only design process differs!)</td>
+            <td>Aggregation box in ER Diagram</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PYQs -->
+  <section class="pyq-box">
+    <h4>🎯 GATE, UGC-NET &amp; IBPS SO IT Officer — Exam Focus PYQs</h4>
+
+    <p><strong>Q1: What is the difference between Specialization and Generalization?</strong><br>
+    👉 <em>Specialization is top-down (superclass → subclasses); Generalization is bottom-up (subclasses → superclass). Both produce the same ISA diagram.</em></p>
+
+    <p><strong>Q2: When is Aggregation used in ER modeling?</strong><br>
+    👉 <em>When a relationship set itself must participate in another relationship. The relationship + its entities are wrapped in a dashed box (aggregated) and treated as a higher-level entity.</em></p>
+
+    <p><strong>Q3: What does "d" and "o" mean in the EER diagram ISA circle?</strong><br>
+    👉 <em>"d" = Disjoint (an entity belongs to at most ONE subclass). "o" = Overlapping (an entity can belong to MULTIPLE subclasses simultaneously).</em></p>
+
+    <p><strong>Q4: What is Total vs Partial Specialization?</strong><br>
+    👉 <em>Total (double line ══): Every superclass entity MUST be in at least one subclass. Partial (single line ─): A superclass entity may NOT belong to any subclass.</em></p>
+
+    <p><strong>Q5: How many tables are needed for an M:N relationship?</strong><br>
+    👉 <em>Minimum 3 tables: 2 entity tables + 1 relationship table (with composite PK = FK1 + FK2). Cannot be merged.</em></p>
+
+    <p><strong>Q6: In the Specialization/Generalization table conversion, what is the drawback of the Single Table method?</strong><br>
+    👉 <em>Many NULL values are stored for attributes that don't apply to all subclass members, wasting storage.</em></p>
+  </section>
+
+</main>
+
+<script src="../ask-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Chapters 2.1 - 2.4: Traditional Data Models in DBMS — Learn Hierarchical, Network, Relational, and Object-Oriented Models with AI visual diagrams, tables, and IBPS SO IT Officer PYQs.">
+  <meta name="robots" content="index, follow">
+  <title>Chapters 2.1–2.4: Traditional Data Models | DBMS Complete Syllabus</title>
+  <link rel="canonical" href="https://spiritman021.github.io/practice/dbms-syllabus/chapter-2-1-4-data-models.html">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --border: #e2e8f0;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.04), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.04), transparent 40%),
+        linear-gradient(rgba(241, 245, 249, 0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(241, 245, 249, 0.6) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px 24px; }
+    .brand { 
+      text-decoration: none; 
+      color: var(--primary); 
+      font-weight: 800; 
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ph-breadcrumb {
+      background: rgba(248, 250, 252, 0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      flex-wrap: wrap;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .ph-breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .ph-breadcrumb a:hover { color: var(--primary); }
+    .ph-breadcrumb .sep { color: #cbd5e1; font-size: 11px; }
+    .ph-breadcrumb .current { color: var(--text-main); font-weight: 600; }
+    .ph-breadcrumb .back-btn {
+      margin-left: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
+    }
+    .ph-breadcrumb .back-btn:hover { background: var(--bg); color: var(--text-main); transform: translateX(-2px); }
+
+    main.wrap { padding: 28px 24px 72px; }
+
+    /* Hero Banner */
+    .note-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+    .note-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .note-hero h1 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; margin-bottom: 10px; }
+    .note-hero p { color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; }
+
+    /* Section Cards */
+    .note-section {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+    .note-section h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .note-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 20px 0 10px;
+    }
+
+    .note-section p { color: #334155; margin-bottom: 14px; font-size: 1rem; }
+
+    /* Generated Image Box */
+    .img-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .img-caption {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0;
+      font-size: 0.975rem;
+    }
+    .callout-title { font-weight: 800; color: var(--primary-hover); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+    /* Styled List */
+    .list-styled {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .list-styled li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 0.975rem;
+      color: #334155;
+    }
+    .list-styled li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* Comparison Table */
+    .comp-table-wrap { overflow-x: auto; margin: 24px 0; border-radius: 14px; border: 1px solid var(--border); }
+    table.comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+    table.comp-table th {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 14px 18px;
+      font-weight: 700;
+    }
+    table.comp-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.comp-table tr:nth-child(even) { background: #f8fafc; }
+    table.comp-table tr:hover { background: #eff6ff; }
+
+    /* PYQ Box */
+    .pyq-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1.5px solid #fde68a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 28px;
+    }
+    .pyq-box h4 { font-size: 1.05rem; font-weight: 800; color: #92400e; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .pyq-box p { font-size: 14px; color: #451a03; line-height: 1.5; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">🗄️ DBMS Complete Syllabus</a>
+    </div>
+  </header>
+
+  <nav class="ph-breadcrumb" aria-label="Breadcrumb">
+    <a href="../index.html">🏠 Practice Hub</a>
+    <span class="sep">›</span>
+    <a href="index.html">DBMS Syllabus</a>
+    <span class="sep">›</span>
+    <span class="current">Chapters 2.1–2.4: Traditional Data Models</span>
+    <a class="back-btn" href="index.html">← Back to Syllabus</a>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- HERO -->
+    <section class="note-hero">
+      <span class="note-badge">Unit 2 · Chapters 2.1 – 2.4</span>
+      <h1>Traditional Data Models in DBMS</h1>
+      <p>Master the 4 fundamental data modeling paradigms: Hierarchical Model (Tree), Network Model (Graph), Relational Model (Tables), and Object-Oriented / Object-Relational Models for IBPS SO IT Officer.</p>
+    </section>
+
+    <!-- GENERATED DIAGRAM ILLUSTRATION -->
+    <section class="note-section">
+      <h2>🖼️ Visual Diagram: Comparing the 4 Data Models</h2>
+      <p>The diagram below highlights the structural differences across all four data models:</p>
+
+      <div class="img-box">
+        <img src="data_models_comparison.jpg" alt="Comparison of the 4 Data Models in DBMS Diagram">
+        <div class="img-caption">Figure 1: Tree vs Graph vs Tables vs Object-Oriented Paradigms</div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: 2.1 HIERARCHICAL MODEL -->
+    <section class="note-section">
+      <h2>🌲 2.1 Hierarchical Data Model (Tree Structure)</h2>
+      <p>Developed in the late 1960s, the <strong>Hierarchical Model</strong> organizes data into a <strong>Tree-like structure</strong> consisting of parent-child records.</p>
+
+      <div class="callout">
+        <div class="callout-title">📌 Key Characteristics (Exam Favorite ⭐)</div>
+        <ul class="list-styled" style="margin-top:8px;">
+          <li><strong>Root Node:</strong> A single top-level record node with no parent.</li>
+          <li><strong>Parent-Child Relationship:</strong> Parent node can have <em>multiple child nodes</em>, but <strong>each child node can have EXACTLY ONE parent node</strong>.</li>
+          <li><strong>Supported Ratios:</strong> Supports <strong>1:1</strong> and <strong>1:N (One-to-Many)</strong> relationships only!</li>
+          <li><strong>Historical Example:</strong> IBM's <strong>IMS (Information Management System)</strong>, created in 1968 for the Apollo moon mission.</li>
+        </ul>
+      </div>
+
+      <p><strong>Major Limitation:</strong> Cannot represent <strong>M:N (Many-to-Many)</strong> relationships directly without duplicating child records or using complex physical pointers.</p>
+    </section>
+
+    <!-- SECTION 2: 2.2 NETWORK MODEL -->
+    <section class="note-section">
+      <h2>🕸️ 2.2 Network Data Model (Graph Structure)</h2>
+      <p>Standardized by the <strong>CODASYL DBTG (Conference on Data Systems Languages)</strong> committee in 1969, the <strong>Network Model</strong> organizes data as a <strong>Graph structure</strong>.</p>
+
+      <div class="callout">
+        <div class="callout-title">📌 Key Characteristics</div>
+        <ul class="list-styled" style="margin-top:8px;">
+          <li><strong>Owner &amp; Member Records:</strong> Relationships are expressed as set types containing <em>Owner Records</em> and <em>Member Records</em>.</li>
+          <li><strong>M:N Relationship Support:</strong> A child node (Member) can have <strong>MULTIPLE parent nodes (Owners)</strong>!</li>
+          <li><strong>Supported Ratios:</strong> Natively supports <strong>1:1, 1:N, and M:N</strong> relationships.</li>
+        </ul>
+      </div>
+
+      <p><strong>Major Limitation:</strong> Complex pointer navigation (currency indicators). Any change to the database structure requires modifying low-level application pointers.</p>
+    </section>
+
+    <!-- SECTION 3: 2.3 RELATIONAL MODEL -->
+    <section class="note-section">
+      <h2>📊 2.3 Relational Data Model (Table Structure)</h2>
+      <p>Proposed by <strong>Dr. E.F. Codd of IBM in 1970</strong>, the <strong>Relational Model</strong> organizes data in 2-dimensional <strong>Tables (Relations)</strong> consisting of <strong>Rows (Tuples)</strong> and <strong>Columns (Attributes)</strong>.</p>
+
+      <div class="callout">
+        <div class="callout-title">📌 Key Characteristics</div>
+        <ul class="list-styled" style="margin-top:8px;">
+          <li><strong>Tabular View:</strong> Data and relationships are represented purely as tables without low-level physical pointers.</li>
+          <li><strong>Mathematical Foundation:</strong> Built on First-Order Predicate Logic and Set Theory.</li>
+          <li><strong>Declarative Querying:</strong> Manipulated using standard <strong>SQL</strong> and <strong>Relational Algebra</strong>.</li>
+          <li><strong>Primary &amp; Foreign Keys:</strong> Establishes relationships seamlessly using key values.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 4: 2.4 OBJECT-ORIENTED & OBJECT-RELATIONAL MODEL -->
+    <section class="note-section">
+      <h2>🧩 2.4 Object-Oriented (OODBMS) &amp; Object-Relational (ORDBMS) Models</h2>
+
+      <h3>1. Object-Oriented Database Model (OODBMS) 📦</h3>
+      <p>Combines database storage capabilities with Object-Oriented Programming (OOP) concepts:</p>
+      <ul class="list-styled">
+        <li>Data is stored as <strong>Objects</strong> containing attributes (state) and methods (behavior).</li>
+        <li>Supports <strong>Classes, Encapsulation, Inheritance, and Polymorphism</strong>.</li>
+        <li>Ideal for complex CAD/CAM, GIS mapping, and multimedia applications.</li>
+      </ul>
+
+      <h3>2. Object-Relational Database Model (ORDBMS) 🔀</h3>
+      <p>A hybrid data model that extends standard Relational tables with Object-Oriented capabilities (User-Defined Types, array fields, inherited tables, and stored methods). Examples: <strong>PostgreSQL</strong>, <strong>Oracle Database</strong>.</p>
+    </section>
+
+    <!-- COMPARISON TABLE -->
+    <section class="note-section">
+      <h2>⚖️ Direct Comparison Table: The 4 Data Models</h2>
+
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Feature / Parameter</th>
+              <th>🌲 Hierarchical Model</th>
+              <th>🕸️ Network Model</th>
+              <th>📊 Relational Model</th>
+              <th>📦 Object-Oriented Model</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Underlying Structure</strong></td>
+              <td>Tree (Root &amp; Children)</td>
+              <td>Graph (Owner &amp; Member)</td>
+              <td>2D Tables (Tuples &amp; Attributes)</td>
+              <td>Objects, Classes &amp; Methods</td>
+            </tr>
+            <tr>
+              <td><strong>Supported Relationships</strong></td>
+              <td>1:1 and 1:N only</td>
+              <td>1:1, 1:N, and M:N</td>
+              <td>1:1, 1:N, and M:N (via FK)</td>
+              <td>1:1, 1:N, M:N &amp; Inheritance</td>
+            </tr>
+            <tr>
+              <td><strong>Parent Limit per Child</strong></td>
+              <td><strong>Exactly ONE parent</strong></td>
+              <td><strong>Multiple parents</strong></td>
+              <td>Key references (FKs)</td>
+              <td>Inheritance hierarchy</td>
+            </tr>
+            <tr>
+              <td><strong>Query Style</strong></td>
+              <td>Procedural tree traversal</td>
+              <td>Procedural pointer navigation</td>
+              <td><strong>Declarative SQL</strong></td>
+              <td>Object Query Language (OQL)</td>
+            </tr>
+            <tr>
+              <td><strong>Major Advantage</strong></td>
+              <td>Fast 1:N lookups</td>
+              <td>Flexible M:N modeling</td>
+              <td>High Data Independence &amp; SQL</td>
+              <td>Reusability &amp; Complex Types</td>
+            </tr>
+            <tr>
+              <td><strong>Classic Example</strong></td>
+              <td>IBM IMS</td>
+              <td>IDMS, CODASYL DBTG</td>
+              <td>Oracle, MySQL, SQL Server</td>
+              <td>ObjectStore, db4o, PostgreSQL</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EXAM REVISION & PYQs -->
+    <section class="pyq-box">
+      <h4>🎯 IBPS SO IT Officer — Exam Focus &amp; Past PYQ Cues</h4>
+      <p><strong>Q1: IBM's IMS (Information Management System) is an example of which data model?</strong><br>
+      👉 <em>Answer: Hierarchical Data Model (Tree structure).</em></p>
+      
+      <p><strong>Q2: In a Hierarchical Data Model, a child record can have how many parent records?</strong><br>
+      👉 <em>Answer: Exactly ONE parent record.</em></p>
+
+      <p><strong>Q3: Which data model represents data as a Graph using Owner and Member records?</strong><br>
+      👉 <em>Answer: Network Data Model (CODASYL).</em></p>
+
+      <p><strong>Q4: Who proposed the Relational Data Model in 1970?</strong><br>
+      👉 <em>Answer: Dr. E.F. Codd.</em></p>
+    </section>
+
+  </main>
+
+  <script src="../ask-ai.js" defer></script>
+</body>
+</html>

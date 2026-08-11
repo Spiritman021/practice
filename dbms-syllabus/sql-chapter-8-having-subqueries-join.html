@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SQL Chapter 8: HAVING clause with nested subqueries, and a deep comparison of Nested Subquery vs Correlated Subquery vs JOIN — same query written 3 ways with complexity analysis.">
+  <meta name="robots" content="index, follow">
+  <title>SQL Chapter 8: HAVING &amp; Subqueries vs JOIN | DBMS Syllabus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f8fafc;--tm:#0f172a;--mu:#475569;--pr:#2563eb;--ph:#1d4ed8;--pl:#eff6ff;--bd:#e2e8f0;--dn:#ef4444;--sc:#10b981;--wn:#f59e0b;--pu:#7c3aed;--pu2:#f5f3ff;--or:#ea580c;--or2:#fff7ed;--tl:#0d9488;--tl2:#f0fdfa;--pk:#db2777;--pk2:#fdf2f8;--in:#0891b2;--in2:#ecfeff;--ns-col:#ea580c;--co-col:#7c3aed;--jn-col:#0d9488}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tm);min-height:100vh;line-height:1.6;
+      background-image:radial-gradient(circle at 10% 20%,rgba(234,88,12,.05),transparent 40%),radial-gradient(circle at 90% 80%,rgba(13,148,136,.04),transparent 40%),linear-gradient(rgba(241,245,249,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(241,245,249,.6) 1px,transparent 1px);
+      background-size:auto,auto,24px 24px,24px 24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(226,232,240,.8);z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+    .wrap{max-width:1000px;margin:0 auto;padding:16px 24px}
+    .brand{text-decoration:none;color:var(--pr);font-weight:800;font-size:1.25rem;letter-spacing:-.5px}
+    .bc{background:rgba(248,250,252,.8);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+    .bc a{color:var(--mu);text-decoration:none}.bc a:hover{color:var(--pr)}
+    .bc .sep{color:#cbd5e1;font-size:11px}.bc .cur{color:var(--tm);font-weight:600}
+    .bc .bk{margin-left:auto;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;color:var(--mu);font-weight:600;font-size:12.5px;text-decoration:none;transition:all .2s}
+    .bc .bk:hover{background:var(--bg);color:var(--tm);transform:translateX(-2px)}
+    main.wrap{padding:28px 24px 72px}
+
+    /* ── HERO ── */
+    .hero{background:linear-gradient(135deg,#431407 0%,#9a3412 30%,#ea580c 65%,#f97316 100%);color:#fff;border-radius:20px;padding:36px 32px;margin-bottom:28px;box-shadow:0 10px 25px -5px rgba(15,23,42,.25);position:relative;overflow:hidden}
+    .hero::before{content:'8';position:absolute;right:-10px;top:-20px;font-size:200px;font-weight:900;color:rgba(255,255,255,.03);pointer-events:none;font-family:'Fira Code',monospace;line-height:1}
+    .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase}
+    .hero h1{font-size:clamp(1.75rem,3.5vw,2.4rem);font-weight:800;margin-bottom:10px}
+    .hero p{color:#fed7aa;font-size:1.05rem;line-height:1.6;max-width:680px}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:#e2e8f0}
+
+    /* ── PART NAV ── */
+    .part-nav{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+    .pn{flex:1;min-width:200px;background:#fff;border:2px solid;border-radius:14px;padding:16px 20px;text-decoration:none;color:var(--tm);transition:all .2s;display:flex;align-items:center;gap:12px}
+    .pn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+    .pn.p1{border-color:var(--or)}.pn.p2{border-color:var(--ns-col)}.pn.p3{border-color:var(--co-col)}.pn.p4{border-color:var(--jn-col)}
+    .pn-icon{font-size:24px;flex-shrink:0}.pn-text{font-weight:800;font-size:.92rem;color:var(--tm)}
+    .pn-sub{font-size:11.5px;color:var(--mu);font-weight:500}
+
+    /* ── SECTION ── */
+    .ns{background:#fff;border:1px solid var(--bd);border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 4px 6px -1px rgba(0,0,0,.02)}
+    .ns h2{font-size:1.3rem;font-weight:800;color:var(--tm);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #fff7ed;display:flex;align-items:center;gap:10px}
+    .ns h3{font-size:1.05rem;font-weight:700;color:var(--or);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+    .ns p{color:#334155;margin-bottom:14px;font-size:1rem}
+    .ns.s-ns h2{border-bottom-color:#fff7ed}.ns.s-co h2{border-bottom-color:var(--pu2)}.ns.s-jn h2{border-bottom-color:var(--tl2)}.ns.s-ns h3{color:var(--ns-col)}.ns.s-co h3{color:var(--co-col)}.ns.s-jn h3{color:var(--jn-col)}
+
+    /* ── CALLOUTS ── */
+    .cl{border-left:4px solid var(--or);background:var(--or2);padding:16px 20px;border-radius:0 12px 12px 0;margin:18px 0;font-size:.975rem;color:#431407}
+    .ct{font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-size:1rem;color:var(--or)}
+    .cl-s{border-left-color:var(--sc);background:#f0fdf4;color:#052e16}.cl-s .ct{color:#166534}
+    .cl-w{border-left-color:var(--wn);background:#fffbeb;color:#451a03}.cl-w .ct{color:#92400e}
+    .cl-d{border-left-color:var(--dn);background:#fef2f2;color:#450a0a}.cl-d .ct{color:#991b1b}
+    .cl-p{border-left-color:var(--pu);background:var(--pu2);color:#2e1065}.cl-p .ct{color:var(--pu)}
+    .cl-t{border-left-color:var(--tl);background:var(--tl2);color:#042f2e}.cl-t .ct{color:var(--tl)}
+    .cl-b{border-left-color:var(--pr);background:var(--pl);color:#1e3a8a}.cl-b .ct{color:var(--pr)}
+
+    /* ── CODE ── */
+    code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 7px;font-family:'Fira Code',monospace;font-size:.88em;color:#be185d}
+    .cb{background:#0f172a;border-radius:14px;padding:20px 24px;margin:18px 0;overflow-x:auto;position:relative}
+    .cb .ll{position:absolute;top:10px;right:16px;font-family:'Fira Code',monospace;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .cb pre{font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.7;color:#e2e8f0;white-space:pre}
+    .kw{color:#93c5fd;font-weight:700}.fn{color:#c4b5fd}.str{color:#86efac}.cm{color:#475569;font-style:italic}.vl{color:#fca5a5}.tb{color:#fde68a}.op{color:#67e8f9}
+    /* method-specific highlights */
+    .ns-hl{color:#fb923c;font-weight:800}.co-hl{color:#c4b5fd;font-weight:800}.jn-hl{color:#5eead4;font-weight:800}
+
+    /* ── TABLES ── */
+    .tw{overflow-x:auto;margin:24px 0;border-radius:14px;border:1px solid var(--bd)}
+    table.ct2{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+    table.ct2 th{background:#0f172a;color:#fff;padding:14px 18px;font-weight:700}
+    table.ct2 td{padding:12px 18px;border-bottom:1px solid var(--bd);vertical-align:top}
+    table.ct2 tr:nth-child(even){background:#f8fafc}
+    table.ct2 tr:hover td{background:#fff7ed}
+
+    /* ── DATA TABLES ── */
+    .dt-wrap{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}
+    .dt{flex:1;min-width:200px}
+    .dt .dt-title{font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding:8px 14px;border-radius:8px 8px 0 0;color:#fff}
+    .dt .dt-title.emp{background:#1e3a8a}.dt .dt-title.dept{background:#065f46}
+    .dt table{width:100%;border-collapse:collapse;border:1px solid var(--bd);border-top:none}
+    .dt th{background:#f1f5f9;padding:8px 12px;font-weight:700;font-size:13px;text-align:left;border-bottom:1px solid var(--bd)}
+    .dt td{padding:8px 12px;font-family:'Fira Code',monospace;font-size:13px;border-bottom:1px solid var(--bd)}
+    .dt tr.no-dept td{color:#94a3b8;font-style:italic}
+    .dt tr.match td{background:#dcfce7;font-weight:700}
+
+    /* ── METHOD COMPARISON CARDS ── */
+    .method-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:20px 0}
+    .mc{border-radius:16px;padding:22px;border:2px solid}
+    .mc.ns-c{background:#fff7ed;border-color:#fed7aa}
+    .mc.co-c{background:var(--pu2);border-color:#c4b5fd}
+    .mc.jn-c{background:var(--tl2);border-color:#5eead4}
+    .mc .mc-head{font-weight:800;font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .mc.ns-c .mc-head{color:var(--ns-col)}.mc.co-c .mc-head{color:var(--co-col)}.mc.jn-c .mc-head{color:var(--jn-col)}
+    .mc .mc-approach{font-size:.88rem;font-weight:700;padding:3px 10px;border-radius:6px;display:inline-block;margin-bottom:10px}
+    .mc.ns-c .mc-approach{background:#fed7aa;color:#431407}.mc.co-c .mc-approach{background:#ddd6fe;color:#3b0764}.mc.jn-c .mc-approach{background:#ccfbf1;color:#042f2e}
+    .mc p{font-size:.9rem;color:#334155;margin-bottom:8px}
+    .mc .mc-key{font-size:.85rem;font-weight:700;margin-top:8px}
+    .mc.ns-c .mc-key{color:var(--ns-col)}.mc.co-c .mc-key{color:var(--co-col)}.mc.jn-c .mc-key{color:var(--jn-col)}
+
+    /* ── ROW TRACE ── */
+    .trace{background:#0f172a;border-radius:14px;padding:18px 22px;margin:14px 0}
+    .trace .tr-title{font-family:'Fira Code',monospace;font-size:.8rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+    .tr-row{display:flex;align-items:center;gap:10px;margin:6px 0;flex-wrap:wrap}
+    .tr-val{font-family:'Fira Code',monospace;font-size:.88rem;background:#1e293b;padding:4px 10px;border-radius:6px;color:#e2e8f0}
+    .tr-op{font-size:.85rem;color:#64748b;font-weight:700}
+    .tr-res{font-size:.85rem;font-weight:800;padding:3px 8px;border-radius:5px}
+    .tr-yes{background:#166534;color:#86efac}.tr-no{background:#7f1d1d;color:#fca5a5}
+
+    /* ── COMPLEXITY BADGE ── */
+    .cx-grid{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+    .cx{flex:1;min-width:160px;border-radius:12px;padding:14px 18px;text-align:center;border:1.5px solid}
+    .cx.c-ns{background:#fff7ed;border-color:#fdba74}.cx.c-co{background:var(--pu2);border-color:#c4b5fd}.cx.c-jn{background:var(--tl2);border-color:#5eead4}
+    .cx .cx-name{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .cx.c-ns .cx-name{color:var(--ns-col)}.cx.c-co .cx-name{color:var(--co-col)}.cx.c-jn .cx-name{color:var(--jn-col)}
+    .cx .cx-val{font-family:'Fira Code',monospace;font-size:1.3rem;font-weight:900;color:var(--tm)}
+    .cx .cx-note{font-size:.8rem;color:var(--mu);margin-top:4px}
+
+    /* ── PYQ ── */
+    .pb{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fde68a;border-radius:16px;padding:22px 24px;margin-top:10px}
+    .pb h4{font-size:1.05rem;font-weight:800;color:#92400e;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .pb p{font-size:14px;color:#451a03;line-height:1.6;margin-bottom:10px}.pb p:last-child{margin:0}
+
+    #sb{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#ea580c,#f59e0b,#7c3aed,#0d9488);z-index:9999;width:0%;transition:width .1s linear}
+    @media(max-width:640px){.hero{padding:24px 20px}main.wrap{padding:20px 16px 60px}.method-3{grid-template-columns:1fr}.part-nav{flex-direction:column}}
+  </style>
+</head>
+<body>
+<div id="sb"></div>
+<header><div class="wrap"><a class="brand" href="index.html">🗄️ DBMS Complete Syllabus Hub</a></div></header>
+<nav class="bc" aria-label="Breadcrumb">
+  <a href="../index.html">🏠 Practice Hub</a><span class="sep">›</span>
+  <a href="index.html">DBMS Syllabus</a><span class="sep">›</span>
+  <a href="sql-index.html">SQL Chapters</a><span class="sep">›</span>
+  <span class="cur">Chapter 8: HAVING &amp; Nested vs Correlated vs JOIN</span>
+  <a class="bk" href="sql-index.html">← Back</a>
+</nav>
+<main class="wrap">
+
+  <section class="hero">
+    <span class="badge">SQL · Chapter 8</span>
+    <h1>HAVING Clause, Subqueries &amp; JOIN — One Query, Three Ways</h1>
+    <p>Extend GROUP BY with HAVING for group-level filtering, write a nested subquery to find employees in low-count departments, then solve the exact same problem three different ways — Nested, Correlated, and JOIN — with a full complexity comparison.</p>
+    <div class="tags">
+      <span class="tag">📊 HAVING clause</span><span class="tag">🪆 Nested Subquery — IN</span>
+      <span class="tag">🔄 Correlated Subquery — EXISTS</span><span class="tag">🔗 JOIN — Cross Product</span>
+      <span class="tag">⚡ m×n complexity analysis</span>
+    </div>
+  </section>
+
+  <div class="part-nav">
+    <a href="#having" class="pn p1"><span class="pn-icon">📊</span><div><div class="pn-text">Part A — HAVING + Nested Query</div><div class="pn-sub">dept count &lt; 2 → employee name</div></div></a>
+    <a href="#nested" class="pn p2"><span class="pn-icon">🪆</span><div><div class="pn-text">Part B — Nested Subquery</div><div class="pn-sub">Bottom-up · IN keyword · 1 exec</div></div></a>
+    <a href="#correlated" class="pn p3"><span class="pn-icon">🔄</span><div><div class="pn-text">Part C — Correlated Subquery</div><div class="pn-sub">Top-down · EXISTS · m×n execs</div></div></a>
+    <a href="#join" class="pn p4"><span class="pn-icon">🔗</span><div><div class="pn-text">Part D — JOIN</div><div class="pn-sub">Cross product + condition · fastest</div></div></a>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PART A — HAVING + NESTED QUERY        -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns" id="having">
+    <h2>📊 Part A: HAVING Clause &amp; Nested Query — Step by Step</h2>
+    <p>This section builds directly on Chapter 7's GROUP BY. We add a HAVING filter to find departments with fewer than 2 employees, then extend it with a <strong>nested subquery</strong> to find the actual employee names working in those departments.</p>
+
+    <h3>📋 Working Data — EMP Table</h3>
+    <div class="dt-wrap">
+      <div class="dt">
+        <div class="dt-title emp">employee table</div>
+        <table><thead><tr><th>Eid</th><th>Name</th><th>City</th><th>Department</th></tr></thead><tbody>
+          <tr><td>1</td><td>Ram</td><td>Delhi</td><td>HR</td></tr>
+          <tr><td>2</td><td>Amrit</td><td>Delhi</td><td>Marketing</td></tr>
+          <tr><td>3</td><td>Ravi</td><td>Delhi</td><td>HR</td></tr>
+          <tr><td>4</td><td>Nitin</td><td>Mumbai</td><td>Marketing</td></tr>
+          <tr><td>5</td><td>Varun</td><td>Delhi</td><td>IT</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <h3>❓ Problem — Step 1: Find Departments With &lt; 2 Employees</h3>
+    <p>Goal: Print the department names where the number of employees is <em>less than 2</em>.</p>
+    <div class="cl">
+      <div class="ct">💡 Why Not WHERE?</div>
+      <code>WHERE</code> filters individual rows <em>before</em> grouping. It has no concept of "count per group." To filter on an aggregate result (like COUNT), you <strong>must use HAVING</strong> — which runs after GROUP BY, at the group level.
+    </div>
+    <div class="cb"><span class="ll">Step 1 — Find low-count departments</span><pre><span class="kw">SELECT</span>   <span class="tb">department</span>
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">GROUP BY</span> <span class="tb">department</span>
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&lt;</span> <span class="vl">2</span><span class="op">;</span>
+
+<span class="cm">-- After GROUP BY:  HR(2), Marketing(2), IT(1)</span>
+<span class="cm">-- HAVING count &lt; 2: Only IT passes (count=1)</span>
+<span class="cm">-- Output: IT</span></pre></div>
+
+    <h3>❓ Problem — Step 2: Find Employee Names in Those Departments</h3>
+    <p>Now extend the query: print the <strong>names of employees</strong> who work in a department where the employee count is less than 2.</p>
+    <p>The inner query gives us the department name (IT). We use that as input to the outer query to fetch employee names.</p>
+    <div class="cb"><span class="ll">Step 2 — Full Nested Query</span><pre><span class="kw">SELECT</span>   ename
+<span class="kw">FROM</span>     <span class="tb">employee</span>
+<span class="kw">WHERE</span>    department <span class="kw">IN</span> (
+             <span class="kw">SELECT</span>   <span class="tb">department</span>
+             <span class="kw">FROM</span>     <span class="tb">employee</span>
+             <span class="kw">GROUP BY</span> <span class="tb">department</span>
+             <span class="kw">HAVING</span>   <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&lt;</span> <span class="vl">2</span>
+         )<span class="op">;</span>
+
+<span class="cm">-- Inner query executes first → Output: {IT}</span>
+<span class="cm">-- Outer query: WHERE department IN ('IT')</span>
+<span class="cm">-- Checks each row: HR∈{IT}? No · Marketing∈{IT}? No · IT∈{IT}? Yes</span>
+<span class="cm">-- Final output: Varun</span></pre></div>
+
+    <h3>🔬 Row-by-Row Trace</h3>
+    <div class="trace">
+      <div class="tr-title">Inner query output → {IT}</div>
+      <div class="tr-row"><span class="tr-val">Ram · HR</span><span class="tr-op">HR ∈ {IT}?</span><span class="tr-res tr-no">❌ No</span></div>
+      <div class="tr-row"><span class="tr-val">Amrit · Marketing</span><span class="tr-op">Marketing ∈ {IT}?</span><span class="tr-res tr-no">❌ No</span></div>
+      <div class="tr-row"><span class="tr-val">Ravi · HR</span><span class="tr-op">HR ∈ {IT}?</span><span class="tr-res tr-no">❌ No</span></div>
+      <div class="tr-row"><span class="tr-val">Nitin · Marketing</span><span class="tr-op">Marketing ∈ {IT}?</span><span class="tr-res tr-no">❌ No</span></div>
+      <div class="tr-row"><span class="tr-val">Varun · IT</span><span class="tr-op">IT ∈ {IT}?</span><span class="tr-res tr-yes">✅ Yes → Varun printed</span></div>
+    </div>
+
+    <div class="cl cl-t">
+      <div class="ct">📌 WHERE vs HAVING — Final Summary</div>
+      <strong>WHERE</strong> — Applied on rows, before grouping. Cannot use COUNT/SUM/AVG.<br>
+      <strong>HAVING</strong> — Applied on groups, after GROUP BY. Must use aggregate functions.<br>
+      <strong>WHERE + GROUP BY + HAVING together</strong>: WHERE filters rows first → GROUP BY groups them → HAVING filters those groups.
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- THE CORE SCENARIO                     -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns">
+    <h2>🎯 The Core Scenario — One Query, Three Methods</h2>
+    <p><strong>Query:</strong> Find the complete details of all employees who work <em>in any department</em>.</p>
+    <p>We'll solve this with Nested Subquery, Correlated Subquery, and JOIN — and compare how each method works internally.</p>
+
+    <h3>📋 Working Data — Both Tables</h3>
+    <div class="dt-wrap">
+      <div class="dt">
+        <div class="dt-title emp">emp table</div>
+        <table><thead><tr><th>E_id</th><th>Ename</th></tr></thead><tbody>
+          <tr class="match"><td>1</td><td>A</td></tr>
+          <tr class="match"><td>2</td><td>B</td></tr>
+          <tr class="match"><td>3</td><td>C</td></tr>
+          <tr class="no-dept"><td>4</td><td>D</td></tr>
+          <tr class="no-dept"><td>5</td><td>E</td></tr>
+        </tbody></table>
+      </div>
+      <div class="dt">
+        <div class="dt-title dept">dept table</div>
+        <table><thead><tr><th>Deptnum</th><th>Dept Name</th><th>E_id</th></tr></thead><tbody>
+          <tr><td>D1</td><td>IT</td><td>1</td></tr>
+          <tr><td>D2</td><td>HR</td><td>2</td></tr>
+          <tr><td>D3</td><td>Marketing</td><td>3</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <p style="font-size:.9rem;color:var(--mu)">Employees 1, 2, 3 are assigned to departments. Employees 4 and 5 are on bench (no department). Expected output: <strong>A, B, C</strong> (complete rows).</p>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PART B — NESTED SUBQUERY              -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns s-ns" id="nested">
+    <h2>🪆 Part B: Nested Subquery (Simple Subquery)</h2>
+    <p>A nested subquery (also called a simple subquery or regular subquery) is a query <strong>inside another query</strong>. The inner query runs completely first, returns a result, and then the outer query uses that result. This is a <strong>bottom-up</strong> approach.</p>
+
+    <h3>⚙️ How It Works</h3>
+    <div class="cl cl-b">
+      <div class="ct" style="color:var(--ns-col)">📌 Bottom-Up Approach</div>
+      <strong>Step 1:</strong> Inner query executes <em>once</em> and produces a result set.<br>
+      <strong>Step 2:</strong> Outer query uses that result set (via <code>IN</code>) to filter its rows.<br><br>
+      Inner query does NOT know about the outer query. They are independent.
+    </div>
+
+    <div class="cb"><span class="ll">Method 1 — Nested Subquery</span><pre><span class="kw">SELECT</span>  <span class="op">*</span>
+<span class="kw">FROM</span>    <span class="tb">emp</span>
+<span class="kw">WHERE</span>   E_id <span class="kw">IN</span> (
+            <span class="ns-hl">SELECT</span> <span class="ns-hl">E_id</span>   <span class="cm">← Inner query — runs FIRST, ONCE</span>
+            <span class="ns-hl">FROM</span>   <span class="ns-hl">dept</span>    <span class="cm">← Gets E_id from dept table</span>
+        )<span class="op">;</span>
+
+<span class="cm">-- Inner query executes: SELECT E_id FROM dept → {1, 2, 3}</span>
+<span class="cm">-- Outer query: SELECT * FROM emp WHERE E_id IN (1, 2, 3)</span>
+<span class="cm">-- Compare each emp row's E_id against {1,2,3}</span>
+<span class="cm">-- Output: rows for 1(A), 2(B), 3(C)</span></pre></div>
+
+    <h3>🔬 Row-by-Row Trace</h3>
+    <div class="trace">
+      <div class="tr-title">Inner query → {1, 2, 3} (runs once)</div>
+      <div class="tr-row"><span class="tr-val">1 · A</span><span class="tr-op">1 IN {1,2,3}?</span><span class="tr-res tr-yes">✅ Yes → print row</span></div>
+      <div class="tr-row"><span class="tr-val">2 · B</span><span class="tr-op">2 IN {1,2,3}?</span><span class="tr-res tr-yes">✅ Yes → print row</span></div>
+      <div class="tr-row"><span class="tr-val">3 · C</span><span class="tr-op">3 IN {1,2,3}?</span><span class="tr-res tr-yes">✅ Yes → print row</span></div>
+      <div class="tr-row"><span class="tr-val">4 · D</span><span class="tr-op">4 IN {1,2,3}?</span><span class="tr-res tr-no">❌ No → skip</span></div>
+      <div class="tr-row"><span class="tr-val">5 · E</span><span class="tr-op">5 IN {1,2,3}?</span><span class="tr-res tr-no">❌ No → skip</span></div>
+    </div>
+
+    <h3>⚠️ IN vs = — When to Use Which</h3>
+    <div class="tw"><table class="ct2"><thead><tr><th>Operator</th><th>Use When</th><th>Example</th></tr></thead><tbody>
+      <tr><td><code>=</code></td><td>Inner query returns exactly <strong>1 value</strong></td><td><code>WHERE id = (SELECT MAX(id) FROM emp)</code></td></tr>
+      <tr><td><code>IN</code></td><td>Inner query returns <strong>multiple values</strong> (a set)</td><td><code>WHERE id IN (SELECT id FROM dept)</code></td></tr>
+    </tbody></table></div>
+
+    <div class="cx-grid">
+      <div class="cx c-ns">
+        <div class="cx-name">Inner Query Executions</div>
+        <div class="cx-val">1×</div>
+        <div class="cx-note">Inner runs once, result stored</div>
+      </div>
+      <div class="cx c-ns">
+        <div class="cx-name">Comparisons</div>
+        <div class="cx-val">m × |result|</div>
+        <div class="cx-note">m = rows in emp</div>
+      </div>
+      <div class="cx c-ns">
+        <div class="cx-name">Space Usage</div>
+        <div class="cx-val">Low</div>
+        <div class="cx-note">Only stores inner result</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PART C — CORRELATED SUBQUERY          -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns s-co" id="correlated">
+    <h2>🔄 Part C: Correlated Subquery</h2>
+    <p>In a correlated subquery, the <strong>inner query references a column from the outer query</strong>. This means the inner query cannot run independently — it must be re-evaluated for <em>each row</em> of the outer query. This is a <strong>top-down</strong> approach.</p>
+
+    <h3>⚙️ How It Works</h3>
+    <div class="cl cl-p">
+      <div class="ct" style="color:var(--co-col)">📌 Top-Down Approach</div>
+      <strong>Step 1:</strong> Pick the first row from the outer table (emp).<br>
+      <strong>Step 2:</strong> Run the inner query using that row's value.<br>
+      <strong>Step 3:</strong> If EXISTS returns TRUE → include outer row in result.<br>
+      <strong>Step 4:</strong> Repeat for every row in the outer table.<br><br>
+      Inner query runs <strong>once per outer row</strong>. Total executions = number of rows in emp.
+    </div>
+
+    <div class="cb"><span class="ll">Method 2 — Correlated Subquery</span><pre><span class="kw">SELECT</span>  <span class="op">*</span>
+<span class="kw">FROM</span>    <span class="tb">emp</span> e
+<span class="kw">WHERE</span>   <span class="kw">EXISTS</span> (
+            <span class="co-hl">SELECT</span> <span class="vl">1</span>              <span class="cm">← Inner query — runs per OUTER ROW</span>
+            <span class="co-hl">FROM</span>   <span class="co-hl">dept</span> <span class="co-hl">d</span>
+            <span class="co-hl">WHERE</span>  <span class="co-hl">d.E_id</span> <span class="op">=</span> <span class="co-hl">e.E_id</span>  <span class="cm">← References outer table 'e'!</span>
+        )<span class="op">;</span>
+
+<span class="cm">-- For each row in emp, inner query checks: does dept have this E_id?</span>
+<span class="cm">-- EXISTS returns TRUE if inner query returns at least 1 row</span>
+<span class="cm">-- Row included if EXISTS = TRUE</span></pre></div>
+
+    <h3>🔬 Row-by-Row Trace</h3>
+    <div class="trace">
+      <div class="tr-title">Inner query runs ONCE PER OUTER ROW</div>
+      <div class="tr-row"><span class="tr-val">Outer: 1·A</span><span class="tr-op">EXISTS (dept WHERE E_id=1)?</span><span class="tr-res tr-yes">✅ True → print row</span></div>
+      <div class="tr-row"><span class="tr-val">Outer: 2·B</span><span class="tr-op">EXISTS (dept WHERE E_id=2)?</span><span class="tr-res tr-yes">✅ True → print row</span></div>
+      <div class="tr-row"><span class="tr-val">Outer: 3·C</span><span class="tr-op">EXISTS (dept WHERE E_id=3)?</span><span class="tr-res tr-yes">✅ True → print row</span></div>
+      <div class="tr-row"><span class="tr-val">Outer: 4·D</span><span class="tr-op">EXISTS (dept WHERE E_id=4)?</span><span class="tr-res tr-no">❌ False → skip</span></div>
+      <div class="tr-row"><span class="tr-val">Outer: 5·E</span><span class="tr-op">EXISTS (dept WHERE E_id=5)?</span><span class="tr-res tr-no">❌ False → skip</span></div>
+    </div>
+
+    <div class="cx-grid">
+      <div class="cx c-co">
+        <div class="cx-name">Inner Query Executions</div>
+        <div class="cx-val">m×</div>
+        <div class="cx-note">Runs once per outer row (m=5 here)</div>
+      </div>
+      <div class="cx c-co">
+        <div class="cx-name">Total Comparisons</div>
+        <div class="cx-val">m × n</div>
+        <div class="cx-note">5 outer × 3 inner = 15 comparisons</div>
+      </div>
+      <div class="cx c-co">
+        <div class="cx-name">Space Usage</div>
+        <div class="cx-val">Low</div>
+        <div class="cx-note">No extra buffer table needed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PART D — JOIN                         -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns s-jn" id="join">
+    <h2>🔗 Part D: JOIN (Cross Product + Condition)</h2>
+    <p>A JOIN combines both tables into one temporary large table (cross product) and then filters using a condition. Unlike correlated subquery, it processes both tables together at once.</p>
+
+    <h3>⚙️ How It Works</h3>
+    <div class="cl cl-t">
+      <div class="ct">📌 Cross Product → Filter</div>
+      <strong>Step 1:</strong> Create a temporary buffer table = cross product of emp × dept (m×n rows).<br>
+      <strong>Step 2:</strong> Apply the join condition (<code>emp.E_id = dept.E_id</code>) on this buffer.<br>
+      <strong>Step 3:</strong> Matching rows are the final result.<br><br>
+      Both tables are loaded once into a big buffer. All comparisons happen on that single buffer — like moving everyone into one big room.
+    </div>
+
+    <div class="cb"><span class="ll">Method 3 — JOIN</span><pre><span class="kw">SELECT</span>  e.<span class="op">*</span>
+<span class="kw">FROM</span>    <span class="tb">emp</span> e, <span class="tb">dept</span> d            <span class="cm">← Both tables loaded (cross product)</span>
+<span class="kw">WHERE</span>   <span class="jn-hl">e.E_id</span> <span class="op">=</span> <span class="jn-hl">d.E_id</span><span class="op">;</span>        <span class="cm">← Filter condition on combined table</span>
+
+<span class="cm">-- Modern syntax (equivalent):</span>
+<span class="kw">SELECT</span>  e.<span class="op">*</span>
+<span class="kw">FROM</span>    <span class="tb">emp</span> e
+<span class="kw">INNER JOIN</span> <span class="tb">dept</span> d <span class="kw">ON</span> e.E_id <span class="op">=</span> d.E_id<span class="op">;</span>
+
+<span class="cm">-- Cross product first: 5 × 3 = 15 temporary rows in buffer</span>
+<span class="cm">-- Then filter where emp.E_id = dept.E_id</span>
+<span class="cm">-- Matching: (1,A)·D1, (2,B)·D2, (3,C)·D3</span>
+<span class="cm">-- Output: rows for A, B, C</span></pre></div>
+
+    <h3>📦 Cross Product Visualization (5×3 = 15 rows)</h3>
+    <div class="cl cl-s">
+      <div class="ct">🏠 The "One Big Room" Analogy</div>
+      <strong>Correlated:</strong> Move person 1 from room A to room B to compare with all 3 people there. Bring them back. Move person 2. Repeat. This is slow due to repeated I/O.<br><br>
+      <strong>JOIN:</strong> Move ALL 5 people from room A and ALL 3 from room B into ONE big room. Do all 15 comparisons right there. Faster, but needs a bigger room (more space/memory).
+    </div>
+
+    <div class="cx-grid">
+      <div class="cx c-jn">
+        <div class="cx-name">Buffer Table Size</div>
+        <div class="cx-val">m × n</div>
+        <div class="cx-note">5 × 3 = 15 rows temporarily</div>
+      </div>
+      <div class="cx c-jn">
+        <div class="cx-name">Total Comparisons</div>
+        <div class="cx-val">m × n</div>
+        <div class="cx-note">But done in one pass on buffer</div>
+      </div>
+      <div class="cx c-jn">
+        <div class="cx-name">Space Usage</div>
+        <div class="cx-val">Higher</div>
+        <div class="cx-note">Buffer = m×n rows (worth it for speed)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- COMPARISON TABLE                      -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="ns">
+    <h2>⚡ Final Comparison — All Three Methods</h2>
+
+    <div class="method-3">
+      <div class="mc ns-c">
+        <div class="mc-head">🪆 Nested Subquery</div>
+        <span class="mc-approach">Bottom-Up</span>
+        <p>Inner query runs <strong>once</strong>. Result handed to outer query as a static list. Uses <code>IN</code> (for multiple values) or <code>=</code> (for single value).</p>
+        <div class="mc-key">✅ Best when: Inner query result is small and independent of outer</div>
+      </div>
+      <div class="mc co-c">
+        <div class="mc-head">🔄 Correlated Subquery</div>
+        <span class="mc-approach">Top-Down</span>
+        <p>Inner query runs <strong>once per outer row</strong>. References outer table inside inner query. Uses <code>EXISTS</code>. m×n comparisons total.</p>
+        <div class="mc-key">✅ Best when: Inner result depends on current outer row</div>
+      </div>
+      <div class="mc jn-c">
+        <div class="mc-head">🔗 JOIN</div>
+        <span class="mc-approach">Cross Product + Filter</span>
+        <p>Both tables combined into a buffer (m×n rows). Condition applied on buffer. Uses more space but faster in practice due to single I/O pass.</p>
+        <div class="mc-key">✅ Best when: Performance matters; space is not constrained</div>
+      </div>
+    </div>
+
+    <div class="tw"><table class="ct2"><thead><tr><th>Feature</th><th>🪆 Nested Subquery</th><th>🔄 Correlated</th><th>🔗 JOIN</th></tr></thead><tbody>
+      <tr><td>Inner query runs</td><td>Once (fixed)</td><td>Once per outer row (m times)</td><td>N/A — cross product</td></tr>
+      <tr><td>Total comparisons</td><td>m comparisons (after inner result)</td><td>m × n</td><td>m × n (but in one batch)</td></tr>
+      <tr><td>Can inner see outer?</td><td>❌ No — independent</td><td>✅ Yes — references outer</td><td>✅ Yes — joined together</td></tr>
+      <tr><td>Keyword used</td><td><code>IN</code> / <code>=</code></td><td><code>EXISTS</code></td><td><code>JOIN … ON</code> or comma</td></tr>
+      <tr><td>Space usage</td><td>Low (stores inner result)</td><td>Low (no buffer)</td><td>Higher (m×n buffer)</td></tr>
+      <tr><td>I/O cost</td><td>Low (inner runs once)</td><td>High (inner runs m times)</td><td>Low (single cross product)</td></tr>
+      <tr><td>Speed (in practice)</td><td>Fast for small inner result</td><td>Slowest for large tables</td><td>Fastest for large tables</td></tr>
+      <tr><td>Same output?</td><td colspan="3" style="text-align:center;font-weight:800;color:#166534">✅ Yes — All 3 give identical results</td></tr>
+    </tbody></table></div>
+
+    <div class="cl cl-w">
+      <div class="ct">⚠️ Space is Cheap, Time is Expensive</div>
+      In modern systems, storage is cheap but query time directly affects user experience. That's why JOIN is often preferred over correlated subquery for large datasets — even though it uses more memory, it avoids repeated I/O operations by processing everything in one batch.
+    </div>
+  </section>
+
+  <!-- PYQ Q&A -->
+  <section class="pb">
+    <h4>🎯 Interview &amp; Exam — Key Q&amp;A</h4>
+    <p><strong>Q1: Why can't you use WHERE COUNT(*) &lt; 2? Why use HAVING?</strong><br>👉 <em>WHERE runs before GROUP BY (step 3) and cannot use aggregate functions. COUNT(*) is an aggregate result that exists only after grouping. HAVING runs after GROUP BY (step 5) and is the correct clause for group-level conditions.</em></p>
+    <p><strong>Q2: What is a nested subquery? How is execution order different from correlated?</strong><br>👉 <em>Nested: inner query runs once independently, gives a result, outer uses it (bottom-up). Correlated: inner runs once per outer row and references the outer query (top-down). Nested is more efficient when the inner result is reusable.</em></p>
+    <p><strong>Q3: When do you use IN vs = in a subquery?</strong><br>👉 <em>Use = when inner query returns exactly one value. Use IN when inner query returns multiple values (a set). Using = with a multi-row result throws an error.</em></p>
+    <p><strong>Q4: What is a correlated subquery? What keyword does it use?</strong><br>👉 <em>A subquery that references columns from the outer query. The inner query cannot run independently — it re-executes for each outer row. It typically uses EXISTS (returns true/false) rather than IN.</em></p>
+    <p><strong>Q5: How does JOIN differ from a nested subquery?</strong><br>👉 <em>JOIN performs a cross product of both tables into a temporary buffer (m×n rows) and then applies the condition in one pass. Nested subquery runs the inner query once and uses the result list. JOIN uses more space but avoids repeated I/O.</em></p>
+    <p><strong>Q6: What is the number of comparisons in a correlated subquery vs JOIN (m rows in emp, n rows in dept)?</strong><br>👉 <em>Both do m×n comparisons total. But correlated does it in m separate inner query executions (high I/O), while JOIN does it in one batch on the buffer (lower I/O, faster).</em></p>
+    <p><strong>Q7: What does EXISTS return?</strong><br>👉 <em>EXISTS returns TRUE if the inner query returns at least one row, and FALSE if it returns no rows. It's used in correlated subqueries to check whether a matching record exists in the related table.</em></p>
+    <p><strong>Q8: Do nested subquery, correlated, and JOIN give the same result?</strong><br>👉 <em>Yes — for the same logical query (find employees working in any department), all three methods return identical results. The difference is only in how they work internally (performance and readability).</em></p>
+    <p><strong>Q9: Why is JOIN generally faster than correlated subquery for large tables?</strong><br>👉 <em>Correlated subquery repeatedly reads the inner table (m times), causing high I/O. JOIN reads both tables once, creates a buffer, and processes all comparisons in one batch — much more I/O-efficient.</em></p>
+    <p><strong>Q10: What happens to employees with no department (4·D and 5·E) in all 3 methods?</strong><br>👉 <em>All 3 methods correctly exclude them. Nested: 4 and 5 are not IN {1,2,3}. Correlated: EXISTS returns false (no match in dept). JOIN: no matching dept row, so they don't appear after the condition filter.</em></p>
+  </section>
+
+</main>
+<script src="../ask-ai.js" defer></script>
+<script>window.addEventListener('scroll',()=>{const s=document.documentElement;document.getElementById('sb').style.width=((s.scrollTop/(s.scrollHeight-s.clientHeight))*100)+'%'});</script>
+</body>
+</html>
