@@ -1,7 +1,8 @@
-const CACHE_NAME = 'practice-hub-v72';
+const CACHE_NAME = 'practice-hub-v73';
 const urlsToCache = [
   './',
   './index.html',
+  './daksh-quants-maths-book.html',
   './pages/computer/computer.html',
   './pages/computer/dbms.html',
   './pages/computer/dbms-topic-1-introduction.html',
