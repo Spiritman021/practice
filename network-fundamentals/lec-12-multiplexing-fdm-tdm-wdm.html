@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 12 – Multiplexing Techniques (FDM, TDM, WDM &amp; Spread Spectrum) | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Multiplexing Techniques – FDM (Guard Bands), WDM (Prisms/DWDM), TDM (Synchronous vs Statistical), Spread Spectrum (FHSS &amp; DSSS) with 10 PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 12 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 12</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 12</span>
+    <h1 class="page-title">Multiplexing Techniques<br>(FDM, TDM, WDM &amp; Spread Spectrum)</h1>
+    <p class="page-subtitle">
+      Master Media Sharing &amp; Bandwidth Optimization – Frequency Division Multiplexing (FDM &amp; Guard Bands),
+      Wavelength Division Multiplexing (WDM &amp; DWDM Fiber Optics), Time Division Multiplexing (Synchronous vs. Statistical TDM),
+      and Spread Spectrum (FHSS &amp; DSSS). Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT Core High-Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.06</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> What is Multiplexing? (MUX vs DEMUX)</a></li>
+      <li><a href="#fdm"><span class="toc-num">02</span> Frequency Division Multiplexing (FDM &amp; Guard Bands)</a></li>
+      <li><a href="#wdm"><span class="toc-num">03</span> Wavelength Division Multiplexing (WDM &amp; DWDM Fiber Optics)</a></li>
+      <li><a href="#tdm"><span class="toc-num">04</span> Time Division Multiplexing (Synchronous vs. Statistical TDM)</a></li>
+      <li><a href="#spread-spectrum"><span class="toc-num">05</span> Spread Spectrum (FHSS &amp; DSSS)</a></li>
+      <li><a href="#comparison"><span class="toc-num">06</span> Master Comparison Matrix (FDM vs TDM vs WDM)</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is Multiplexing? (MUX vs DEMUX)</h2>
+      </div>
+    </div>
+
+    <p><strong>Multiplexing</strong> is the process of combining multiple signal streams into a single composite signal for transmission over a shared physical channel (medium).</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">💡</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Highway Analogy</div>
+        <p>Multiple lanes of cars (input data streams) merging onto a single multi-lane superhighway (shared high-capacity medium), and then separating back to local roads at their destination.</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Sender Side</div>
+        <div class="info-card-title">Multiplexer (MUX)</div>
+        <div class="info-card-desc">Combines $N$ input lines into 1 single physical link.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Receiver Side</div>
+        <div class="info-card-title">Demultiplexer (DEMUX)</div>
+        <div class="info-card-desc">Separates the composite stream back into $N$ individual output lines.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: FDM ══════ -->
+  <div class="section" id="fdm">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Frequency Division Multiplexing (FDM)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Core Concept</div>
+
+    <p>FDM is an <strong>analog multiplexing technique</strong> where the total available bandwidth of a physical medium is divided into non-overlapping frequency bands. Each channel carries a separate signal modulated onto different carrier frequencies.</p>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Feature 1</div>
+        <div class="info-card-title">Signal Type</div>
+        <div class="info-card-desc">Uses <strong>analog signals</strong> (modulated via AM, FM, or QAM).</div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Feature 2</div>
+        <div class="info-card-title">🛡️ Guard Bands</div>
+        <div class="info-card-desc">Narrow unused frequency spaces left between channels to prevent overlap and <strong>crosstalk interference</strong>.</div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Feature 3</div>
+        <div class="info-card-title">Applications</div>
+        <div class="info-card-desc">AM/FM Radio broadcasting, Cable Television (CATV), ADSL telephone lines.</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Total FDM Bandwidth Formula</div>
+      <div class="formula-main">$$B_{\text{total}} = (N \times B_{\text{channel}}) + ((N - 1) \times B_{\text{guard}})$$</div>
+      <div class="formula-note">$N$ = number of channels &nbsp;|&nbsp; $B_{\text{channel}}$ = bandwidth per channel &nbsp;|&nbsp; $B_{\text{guard}}$ = guard band width</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: WDM ══════ -->
+  <div class="section" id="wdm">
+    <div class="section-header">
+      <div class="section-icon">✨</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Wavelength Division Multiplexing (WDM &amp; DWDM)</h2>
+      </div>
+    </div>
+
+    <p>WDM is an <strong>analog optical multiplexing technique</strong> used exclusively in fiber optic cables. It combines multiple light beams of different wavelengths ($\lambda_1, \lambda_2, \dots, \lambda_n$) into a single optical fiber using optical <strong>prisms or diffraction gratings</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Variant 1</div>
+        <div class="info-card-title">CWDM (Coarse WDM)</div>
+        <div class="info-card-desc">Wavelength channel spacing is wider ($\ge 20\text{ nm}$). Typically supports up to 8–18 channels.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Variant 2</div>
+        <div class="info-card-title">DWDM (Dense WDM)</div>
+        <div class="info-card-desc">Ultra-narrow channel spacing ($0.8\text{ nm}$ or $0.4\text{ nm}$). Supports hundreds of simultaneous high-speed 100G/400G channels per fiber!</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: TDM ══════ -->
+  <div class="section" id="tdm">
+    <div class="section-header">
+      <div class="section-icon">⏱️</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Time Division Multiplexing (Synchronous vs. Statistical TDM)</h2>
+      </div>
+    </div>
+
+    <p>TDM is a <strong>digital multiplexing technique</strong> where time is divided into units called <strong>time slots</strong>. Multiple digital data streams share the total channel bandwidth by taking turns sending data in their allocated time slots.</p>
+
+    <div class="cards-grid">
+      <!-- Synchronous TDM -->
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">TDM Type 1</div>
+        <div class="info-card-title">1. Synchronous TDM</div>
+        <div class="info-card-desc">
+          - Each input device is assigned a <strong>fixed time slot</strong> in every frame.<br>
+          - <strong>Limitation:</strong> If a device has no data to send, its time slot remains <strong>empty and wasted</strong>.<br>
+          - <strong>Frame Duration:</strong> $T_{\text{frame}} = T_{\text{slot}} \times N$.<br>
+          - <em>Example:</em> T-1 ($1.544\text{ Mbps}$) and E-1 ($2.048\text{ Mbps}$) digital trunks in PSTN telephony.
+        </div>
+      </div>
+
+      <!-- Statistical TDM -->
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">TDM Type 2</div>
+        <div class="info-card-title">2. Statistical (Asynchronous) TDM</div>
+        <div class="info-card-desc">
+          - Time slots are allocated <strong>dynamically on-demand ONLY to active input lines</strong>.<br>
+          - <strong>Eliminates empty slots</strong>, maximizing bandwidth efficiency!<br>
+          - Requires an <strong>address header</strong> attached to each slot to identify the destination.<br>
+          - <em>Example:</em> Packet-switched networks, IP routers.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: SPREAD SPECTRUM ══════ -->
+  <div class="section" id="spread-spectrum">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Spread Spectrum (FHSS &amp; DSSS)</h2>
+      </div>
+    </div>
+
+    <p>Spread Spectrum expands the bandwidth of a signal to make it immune to jamming, eavesdropping, and multipath interference.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Technique 1</div>
+        <div class="info-card-title">FHSS (Frequency Hopping)</div>
+        <div class="info-card-desc">Signal hops rapidly across different carrier frequencies according to a pseudorandom PN sequence. Used in <strong>Bluetooth</strong>.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Technique 2</div>
+        <div class="info-card-title">DSSS (Direct Sequence)</div>
+        <div class="info-card-desc">Each data bit is multiplied by a high-speed code sequence called a <strong>chipping code</strong>. Used in <strong>Wi-Fi 802.11b &amp; CDMA</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: COMPARISON ══════ -->
+  <div class="section" id="comparison">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Master Comparison Matrix (FDM vs TDM vs WDM)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>FDM (Frequency Division)</th>
+            <th>TDM (Time Division)</th>
+            <th>WDM (Wavelength Division)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Signal Type</strong></td>
+            <td><strong>Analog signals</strong></td>
+            <td><strong>Digital (and analog) signals</strong></td>
+            <td><strong>Optical light signals (Analog)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Domain Division</strong></td>
+            <td>Frequency spectrum split into channels</td>
+            <td>Time duration split into slots</td>
+            <td>Light spectrum split into wavelengths ($\lambda$)</td>
+          </tr>
+          <tr>
+            <td><strong>Interference Prevention</strong></td>
+            <td><strong>Guard Bands</strong> (frequency spacing)</td>
+            <td><strong>Guard Times</strong> (slot intervals)</td>
+            <td>Wavelength spacing ($\Delta \lambda$)</td>
+          </tr>
+          <tr>
+            <td><strong>Key Component</strong></td>
+            <td>Filters &amp; Modulators</td>
+            <td>Framers &amp; Commutators</td>
+            <td><strong>Optical Prisms / Diffraction Gratings</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Primary Application</strong></td>
+            <td>FM Radio Broadcasting, Cable TV</td>
+            <td>PSTN Telephony (T-1), IP Routers</td>
+            <td>Fiber Optic Transcontinental Networks</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>FDM Total Bandwidth</strong></td>
+            <td>$$B_{\text{total}} = (N \times B_{\text{chan}}) + ((N-1) \times B_{\text{guard}})$$</td>
+            <td>$N$ = channels, $B_{\text{guard}}$ = guard band width</td>
+          </tr>
+          <tr>
+            <td><strong>Synchronous TDM Frame Rate</strong></td>
+            <td>$$\text{Frame Rate} = \text{Signal Rate per Line}$$</td>
+            <td>1 frame contains 1 slot from each line</td>
+          </tr>
+          <tr>
+            <td><strong>Synchronous TDM Bit Rate</strong></td>
+            <td>$$\text{Bit Rate}_{\text{link}} = \text{Frame Rate} \times \text{Bits per Frame}$$</td>
+            <td>Link bit rate is $N \times$ line bit rate</td>
+          </tr>
+          <tr>
+            <td><strong>Time Slot Duration</strong></td>
+            <td>$$T_{\text{slot}} = \frac{T_{\text{frame}}}{N}$$</td>
+            <td>Duration allocated per channel slot</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">FDM Guard Bands</span>
+      </div>
+      <div class="mcq-question">In Frequency Division Multiplexing (FDM), what is the purpose of placing "Guard Bands" between adjacent channels?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. To boost signal power</li>
+        <li class="mcq-option correct">B. To prevent channel overlap and crosstalk interference ✓</li>
+        <li class="mcq-option">C. To convert analog signals to digital</li>
+        <li class="mcq-option">D. To store frame sequence numbers</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Guard bands are narrow unused frequency ranges inserted between FDM channels to prevent overlap and inter-channel crosstalk.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">WDM Optical Hardware</span>
+      </div>
+      <div class="mcq-question">Which optical component is used in Wavelength Division Multiplexing (WDM) to combine and separate light signals of different wavelengths?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Repeater</li>
+        <li class="mcq-option correct">B. Prism / Diffraction Grating ✓</li>
+        <li class="mcq-option">C. Modulator</li>
+        <li class="mcq-option">D. Commutator</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Prism / Diffraction Grating</strong><br>
+        WDM uses optical prisms or diffraction gratings to combine light beams at the MUX and split them at the DEMUX based on wavelength ($\lambda$).
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Statistical TDM Efficiency</span>
+      </div>
+      <div class="mcq-question">Why is Statistical (Asynchronous) TDM more bandwidth-efficient than Synchronous TDM?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Statistical TDM uses optical signals</li>
+        <li class="mcq-option correct">B. Time slots are allocated dynamically only to active lines rather than reserving slots for idle lines ✓</li>
+        <li class="mcq-option">C. Statistical TDM does not require framing</li>
+        <li class="mcq-option">D. Synchronous TDM requires guard bands</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Synchronous TDM reserves a fixed time slot for every input line (wasting slots if idle). Statistical TDM allocates slots dynamically on-demand only when a line has data to transmit.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">FHSS Application</span>
+      </div>
+      <div class="mcq-question">Frequency Hopping Spread Spectrum (FHSS) rapidly switches carrier frequencies according to a pseudorandom sequence. Which short-range wireless standard uses FHSS?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Bluetooth ✓</li>
+        <li class="mcq-option">B. Ethernet 802.3</li>
+        <li class="mcq-option">C. Satellite TV</li>
+        <li class="mcq-option">D. ADSL</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Bluetooth</strong><br>
+        Bluetooth uses FHSS, hopping across 79 channels in the $2.4\text{ GHz}$ ISM band 1600 times per second to avoid interference.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">FDM Bandwidth Calculation</span>
+      </div>
+      <div class="mcq-question">Five channels, each with a bandwidth of $100\text{ kHz}$, are multiplexed together using FDM. If a guard band of $10\text{ kHz}$ is required between channels, what is the total link bandwidth required?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 500 kHz</li>
+        <li class="mcq-option correct">B. 540 kHz ✓</li>
+        <li class="mcq-option">C. 550 kHz</li>
+        <li class="mcq-option">D. 600 kHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 540 kHz</strong><br>
+        5 channels require 4 guard bands ($N-1 = 4$).<br>
+        $B_{\text{total}} = (5 \times 100\text{ kHz}) + (4 \times 10\text{ kHz}) = 500 + 40 = \mathbf{540\text{ kHz}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">TDM Domain Type</span>
+      </div>
+      <div class="mcq-question">Time Division Multiplexing (TDM) is primarily categorized as what type of multiplexing technique?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Digital Multiplexing Technique ✓</li>
+        <li class="mcq-option">B. Analog Frequency Technique</li>
+        <li class="mcq-option">C. Optical Prism Technique</li>
+        <li class="mcq-option">D. Baseband Filter Technique</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Digital Multiplexing Technique</strong><br>
+        TDM interleaves digital bits or bytes into distinct time slots. FDM and WDM are analog multiplexing techniques.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Synchronous TDM Bit Rate</span>
+      </div>
+      <div class="mcq-question">Four $1\text{ Mbps}$ digital connections are multiplexed using Synchronous TDM. If 1 bit is taken from each line per frame, what is the output link bit rate?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1 Mbps</li>
+        <li class="mcq-option correct">B. 4 Mbps ✓</li>
+        <li class="mcq-option">C. 8 Mbps</li>
+        <li class="mcq-option">D. 16 Mbps</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 4 Mbps</strong><br>
+        Output link bit rate = $N \times \text{Input Bit Rate} = 4 \times 1\text{ Mbps} = \mathbf{4\text{ Mbps}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">DSSS Chipping Code</span>
+      </div>
+      <div class="mcq-question">In Direct Sequence Spread Spectrum (DSSS), each data bit is combined with a high-speed code sequence known as a:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Chipping Code ✓</li>
+        <li class="mcq-option">B. Parity Bit</li>
+        <li class="mcq-option">C. Guard Band</li>
+        <li class="mcq-option">D. Frame Check Sequence</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Chipping Code</strong><br>
+        In DSSS, each bit is multiplied by a pseudorandom **chipping code** (e.g. 11-bit Barker code in 802.11b Wi-Fi).
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Statistical TDM Address Header</span>
+      </div>
+      <div class="mcq-question">Why does each slot in Statistical (Asynchronous) TDM require an explicit channel address header?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Because signals are analog</li>
+        <li class="mcq-option correct">B. Because time slots are not fixed; the address identifies which input line sent the data ✓</li>
+        <li class="mcq-option">C. To calculate CRC error codes</li>
+        <li class="mcq-option">D. To measure propagation delay</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Since slots are not assigned in a fixed order in Statistical TDM, each slot must carry a small address header so the receiver knows which destination line to deliver the data to.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">PSTN TDM Application</span>
+      </div>
+      <div class="mcq-question">The Public Switched Telephone Network (PSTN) T-1 carrier system multiplexes 24 voice channels onto a single line using which multiplexing method?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. FDM</li>
+        <li class="mcq-option">B. WDM</li>
+        <li class="mcq-option correct">C. Synchronous TDM ✓</li>
+        <li class="mcq-option">D. DSSS</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Synchronous TDM</strong><br>
+        The T-1 carrier system uses Synchronous TDM to multiplex 24 voice channels ($24 \times 64\text{ kbps} + 8\text{ kbps framing} = 1.544\text{ Mbps}$).
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-11-analog-to-analog-modulation-and-multiplexing.html">← Lec 11</a>
+      <a href="13-flow-control-and-multiple-access-protocols.html">Lec 13 →</a>
+    </div>
+    <p>Lec 12 · Multiplexing Techniques (FDM, TDM, WDM &amp; Spread Spectrum) · IBPS SO IT Notes · Based on Forouzan Chapter 6</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

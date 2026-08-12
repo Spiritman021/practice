@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 9 – Digital-to-Analog Conversion &amp; Constellation Diagrams | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Digital-to-Analog Conversion – ASK, FSK, PSK, QAM, Constellation Diagrams (In-phase &amp; Quadrature), Bandwidth formulas, V-series modems &amp; PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 9 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 09</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 09</span>
+    <h1 class="page-title">Digital-to-Analog Conversion &amp;<br>Constellation Diagrams</h1>
+    <p class="page-subtitle">
+      Master Digital-to-Analog Modulation – Binary ASK, FSK, PSK, QAM, Constellation Diagrams (In-phase $I$ &amp; Quadrature $Q$ axes),
+      Bandwidth formulas ($B = (1+d)S$), Bit Rate vs. Baud Rate ($S = N/r$), V-series Modem standards. Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Numerical Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.05</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Taxonomy of Digital-to-Analog Conversion</a></li>
+      <li><a href="#ask"><span class="toc-num">02</span> Amplitude Shift Keying (ASK &amp; BASK)</a></li>
+      <li><a href="#fsk"><span class="toc-num">03</span> Frequency Shift Keying (FSK &amp; BFSK)</a></li>
+      <li><a href="#psk"><span class="toc-num">04</span> Phase Shift Keying (BPSK, QPSK, 8-PSK)</a></li>
+      <li><a href="#qam"><span class="toc-num">05</span> Quadrature Amplitude Modulation (QAM) &amp; Constellations</a></li>
+      <li><a href="#modems"><span class="toc-num">06</span> V-Series Modem Standards (V.32, V.34, V.90 56K)</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Taxonomy of Digital-to-Analog Conversion</h2>
+      </div>
+    </div>
+
+    <p>Digital-to-Analog conversion is the process of changing one of the characteristics of an analog carrier wave (amplitude, frequency, or phase) based on information in digital binary data.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">ASK (Amplitude Shift Keying)</div>
+        <div class="info-card-desc">Modifies carrier amplitude. Simple, but vulnerable to noise.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">FSK (Frequency Shift Keying)</div>
+        <div class="info-card-desc">Modifies carrier frequency ($f_1$ vs $f_2$). Noise resistant.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 3</div>
+        <div class="info-card-title">PSK (Phase Shift Keying)</div>
+        <div class="info-card-desc">Modifies carrier phase angles. High noise immunity.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 4</div>
+        <div class="info-card-title">QAM (Quadrature AM)</div>
+        <div class="info-card-desc">Modifies BOTH amplitude AND phase simultaneously. Highest data density.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: ASK ══════ -->
+  <div class="section" id="ask">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Amplitude Shift Keying (ASK &amp; BASK)</h2>
+      </div>
+    </div>
+
+    <p>In Binary ASK (BASK), also called **On-Off Keying (OOK)**, a binary `1` is represented by transmitting a carrier frequency signal ($A_1 \cos(2\pi f_c t)$), and a binary `0` is represented by zero voltage ($0\text{V}$).</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ ASK Bandwidth Formula</div>
+      <div class="formula-main">$$B = (1 + d) \times S$$</div>
+      <div class="formula-note">$S$ = Baud Rate (signal rate in bauds) &nbsp;|&nbsp; $d$ = factor related to filtering process ($0 \le d \le 1$)</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: FSK ══════ -->
+  <div class="section" id="fsk">
+    <div class="section-header">
+      <div class="section-icon">🔊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Frequency Shift Keying (FSK &amp; BFSK)</h2>
+      </div>
+    </div>
+
+    <p>In Binary FSK (BFSK), the carrier frequency shifts between two values: binary `1` is transmitted at frequency $f_1 = f_c + \Delta f$, and binary `0` is transmitted at frequency $f_2 = f_c - \Delta f$. Peak amplitude remains constant!</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ BFSK Bandwidth Formula</div>
+      <div class="formula-main">$$B = (1 + d) \times S + 2\Delta f = (1 + d) \times S + (f_1 - f_2)$$</div>
+      <div class="formula-note">$2\Delta f$ = difference between the two carrier frequencies $f_1 - f_2$</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: PSK ══════ -->
+  <div class="section" id="psk">
+    <div class="section-header">
+      <div class="section-icon">🌀</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Phase Shift Keying (BPSK, QPSK, 8-PSK)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Top Numerical Concept</div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Scheme 1</div>
+        <div class="info-card-title">BPSK (Binary PSK)</div>
+        <div class="info-card-desc">Uses 2 phase angles ($0^\circ$ for `1`, $180^\circ$ for `0`). Carries **1 bit/symbol** ($r=1$). $S = N$.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Scheme 2</div>
+        <div class="info-card-title">QPSK (Quadrature PSK / 4-PSK)</div>
+        <div class="info-card-desc">Uses 4 phase angles ($45^\circ, 135^\circ, 225^\circ, 315^\circ$). Carries **2 bits/symbol** ($r=2$). $S = N / 2$.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Scheme 3</div>
+        <div class="info-card-title">8-PSK</div>
+        <div class="info-card-desc">Uses 8 phase angles ($0^\circ, 45^\circ, 90^\circ, \dots$). Carries **3 bits/symbol** ($r=3$). $S = N / 3$.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: QAM & CONSTELLATIONS ══════ -->
+  <div class="section" id="qam">
+    <div class="section-header">
+      <div class="section-icon">🌌</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">QAM &amp; Constellation Diagrams</h2>
+      </div>
+    </div>
+
+    <p>A **Constellation Diagram** maps signal symbols in a 2D polar plot:</p>
+    <ul>
+      <li><strong>X-axis (Horizontal):</strong> In-Phase Component ($I$).</li>
+      <li><strong>Y-axis (Vertical):</strong> Quadrature Component ($Q$).</li>
+      <li><strong>Distance from origin:</strong> Peak amplitude of symbol.</li>
+      <li><strong>Angle with X-axis:</strong> Phase shift angle ($\phi$).</li>
+    </ul>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Modulation Scheme</th>
+            <th>Constellation Points ($M$)</th>
+            <th>Bits per Symbol ($r = \log_2 M$)</th>
+            <th>Baud Rate Formula</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>BPSK / BASK</strong></td>
+            <td>2 points</td>
+            <td>1 bit / symbol</td>
+            <td>$S = N$</td>
+          </tr>
+          <tr>
+            <td><strong>QPSK / 4-QAM</strong></td>
+            <td>4 points</td>
+            <td>2 bits / symbol</td>
+            <td>$S = N / 2$</td>
+          </tr>
+          <tr>
+            <td><strong>8-PSK / 8-QAM</strong></td>
+            <td>8 points</td>
+            <td>3 bits / symbol</td>
+            <td>$S = N / 3$</td>
+          </tr>
+          <tr>
+            <td><strong>16-QAM</strong></td>
+            <td>16 points ($4 \times 4$ grid)</td>
+            <td>4 bits / symbol</td>
+            <td>$S = N / 4$</td>
+          </tr>
+          <tr>
+            <td><strong>64-QAM</strong></td>
+            <td>64 points ($8 \times 8$ grid)</td>
+            <td>6 bits / symbol</td>
+            <td>$S = N / 6$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: MODEMS ══════ -->
+  <div class="section" id="modems">
+    <div class="section-header">
+      <div class="section-icon">📟</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">V-Series Modem Standards</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Modem Standard</th>
+            <th>Bit Rate (bps)</th>
+            <th>Modulation Scheme Used</th>
+            <th>Baud Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>V.32</strong></td>
+            <td>9600 bps</td>
+            <td>32-QAM (Trellis Coded)</td>
+            <td>2400 baud ($r=4$)</td>
+          </tr>
+          <tr>
+            <td><strong>V.32bis</strong></td>
+            <td>14,400 bps (14.4 kbps)</td>
+            <td>128-QAM</td>
+            <td>2400 baud ($r=6$)</td>
+          </tr>
+          <tr>
+            <td><strong>V.34bis</strong></td>
+            <td>33,600 bps (33.6 kbps)</td>
+            <td>1664-QAM</td>
+            <td>2400 baud</td>
+          </tr>
+          <tr>
+            <td><strong>V.90 (56K)</strong></td>
+            <td>56,000 bps (56 kbps down)</td>
+            <td>Asymmetric PCM digital trunking</td>
+            <td>8000 samples/sec</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bits per Symbol</strong></td>
+            <td>$$r = \log_2(M)$$</td>
+            <td>$M$ = constellation points</td>
+          </tr>
+          <tr>
+            <td><strong>Bit Rate / Baud Rate</strong></td>
+            <td>$$S = \frac{N}{r} = \frac{N}{\log_2 M}$$</td>
+            <td>$N$ = bps, $S$ = baud</td>
+          </tr>
+          <tr>
+            <td><strong>ASK / PSK Bandwidth</strong></td>
+            <td>$$B = (1+d) \times S$$</td>
+            <td>$S$ = baud rate, $d \ge 0$</td>
+          </tr>
+          <tr>
+            <td><strong>BFSK Bandwidth</strong></td>
+            <td>$$B = (1+d)S + 2\Delta f$$</td>
+            <td>$2\Delta f = f_1 - f_2$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">64-QAM Bits per Symbol</span>
+      </div>
+      <div class="mcq-question">How many bits per symbol element are transmitted in a 64-QAM digital-to-analog modulation scheme?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4 bits</li>
+        <li class="mcq-option correct">B. 6 bits ✓</li>
+        <li class="mcq-option">C. 8 bits</li>
+        <li class="mcq-option">D. 12 bits</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 6 bits</strong><br>
+        Formula: $r = \log_2(M) = \log_2(64) = \mathbf{6\text{ bits per symbol}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">QPSK Baud Rate</span>
+      </div>
+      <div class="mcq-question">A QPSK (Quadrature Phase Shift Keying) signal transmits at a bit rate of $12\text{ Mbps}$. What is the baud rate of the signal?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 6 Mbaud ✓</li>
+        <li class="mcq-option">B. 12 Mbaud</li>
+        <li class="mcq-option">C. 24 Mbaud</li>
+        <li class="mcq-option">D. 3 Mbaud</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 6 Mbaud</strong><br>
+        QPSK carries $r = \log_2(4) = 2\text{ bits/symbol}$.<br>
+        $\text{Baud Rate } S = \frac{N}{r} = \frac{12}{2} = \mathbf{6\text{ Mbaud}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Constellation Axes</span>
+      </div>
+      <div class="mcq-question">In a constellation diagram used for digital-to-analog modulation, the horizontal axis represents:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. In-Phase Component ($I$) ✓</li>
+        <li class="mcq-option">B. Quadrature Component ($Q$)</li>
+        <li class="mcq-option">C. Frequency Shift</li>
+        <li class="mcq-option">D. Noise Margin</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — In-Phase Component ($I$)</strong><br>
+        Horizontal axis = In-Phase component ($I$). Vertical axis = Quadrature component ($Q$).
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">BASK Concept</span>
+      </div>
+      <div class="mcq-question">Binary Amplitude Shift Keying (BASK) is also commonly referred to as:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Frequency Modulation</li>
+        <li class="mcq-option correct">B. On-Off Keying (OOK) ✓</li>
+        <li class="mcq-option">C. Phase Inversion</li>
+        <li class="mcq-option">D. Pulse Code Modulation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — On-Off Keying (OOK)</strong><br>
+        In BASK, binary 1 turns the carrier wave ON, and binary 0 turns the carrier wave OFF (On-Off Keying).
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">ASK Bandwidth Calculation</span>
+      </div>
+      <div class="mcq-question">An ASK signal has a baud rate of $2000\text{ bauds}$. With $d=0$, what is the minimum bandwidth required for transmission?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1000 Hz</li>
+        <li class="mcq-option correct">B. 2000 Hz (2 kHz) ✓</li>
+        <li class="mcq-option">C. 4000 Hz</li>
+        <li class="mcq-option">D. 8000 Hz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 2000 Hz (2 kHz)</strong><br>
+        $B = (1+d) \times S = (1+0) \times 2000 = \mathbf{2000\text{ Hz}} = 2\text{ kHz}$.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">BPSK Constellation Points</span>
+      </div>
+      <div class="mcq-question">How many constellation points are located on the constellation diagram for BPSK (Binary PSK)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 2 points ($0^\circ$ and $180^\circ$) ✓</li>
+        <li class="mcq-option">B. 4 points</li>
+        <li class="mcq-option">C. 8 points</li>
+        <li class="mcq-option">D. 16 points</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 2 points</strong><br>
+        BPSK uses 2 phase shifts ($0^\circ$ and $180^\circ$) lying on the horizontal axis of the constellation diagram.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">V.32 Modem Scheme</span>
+      </div>
+      <div class="mcq-question">The V.32 modem standard achieves $9600\text{ bps}$ over standard telephone lines operating at $2400\text{ baud}$ by using which modulation technique?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. BPSK</li>
+        <li class="mcq-option">B. QPSK</li>
+        <li class="mcq-option correct">C. 32-QAM ✓</li>
+        <li class="mcq-option">D. BASK</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 32-QAM</strong><br>
+        V.32 uses 32-QAM (with 4 data bits + 1 trellis error bit per symbol = $r=4$) at $2400\text{ baud} \implies 2400 \times 4 = \mathbf{9600\text{ bps}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">BFSK Bandwidth Extra Term</span>
+      </div>
+      <div class="mcq-question">Why does Binary FSK (BFSK) require more total bandwidth than Binary ASK (BASK)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. FSK requires extra bandwidth proportional to the frequency separation $2\Delta f$ between $f_1$ and $f_2$ ✓</li>
+        <li class="mcq-option">B. FSK carries twice as many bits per symbol</li>
+        <li class="mcq-option">C. FSK operates at higher baud rates</li>
+        <li class="mcq-option">D. FSK is an analog-to-analog modulation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        BFSK bandwidth is $B = (1+d)S + 2\Delta f$. The additional $2\Delta f$ term accounts for the physical frequency separation between carrier $f_1$ and carrier $f_2$.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Constellation Vector Distance</span>
+      </div>
+      <div class="mcq-question">In a constellation diagram, the length of the vector from the origin to a constellation point represents the symbol's:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Peak Amplitude ✓</li>
+        <li class="mcq-option">B. Phase Angle</li>
+        <li class="mcq-option">C. Frequency</li>
+        <li class="mcq-option">D. Wavelength</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Peak Amplitude</strong><br>
+        The distance from the origin to a point represents peak amplitude; the angle with the positive horizontal axis represents phase.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">56K Modem Asymmetry</span>
+      </div>
+      <div class="mcq-question">Why do traditional 56K telephone modems (V.90) achieve 56 kbps for downloads but are limited to 33.6 kbps for uploads?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Uploads use ASK while downloads use FSK</li>
+        <li class="mcq-option correct">B. Downloads avoid quantization noise by connecting directly to the ISP's digital PCM trunk ✓</li>
+        <li class="mcq-option">C. Telephone cables are one-way only</li>
+        <li class="mcq-option">D. 56K modems use full-duplex FM</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        V.90 modems achieve 56 kbps downstream because the ISP is connected directly to the telephone company's digital PCM switch, bypassing one A/D quantization step. Upstream still undergoes A/D conversion at the local loop, limiting it to 33.6 kbps.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-08-modulation-and-demodulation.html">← Lec 08</a>
+      <a href="10-transmission-modes-signals-multiplexing.html">Lec 10 →</a>
+    </div>
+    <p>Lec 09 · Digital-to-Analog Conversion &amp; Constellation Diagrams · IBPS SO IT Notes · Based on Forouzan Chapter 5</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

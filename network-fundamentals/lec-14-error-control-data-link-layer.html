@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 14 – Error Control in Data Link Layer | CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Error Control in Data Link Layer – Block Coding, Hamming Distance, CRC, Parity, Checksum, ARQ Protocols with PYQ questions." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 14 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* Analogy banner */
+    .analogy-box {
+      background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(79,142,247,0.07));
+      border: 1px solid rgba(0,212,170,0.3); border-radius: 14px;
+      padding: 20px 24px; margin: 18px 0;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .analogy-icon { font-size: 26px; flex-shrink: 0; }
+    .analogy-body .analogy-title { font-size: 13px; font-weight: 800; color: var(--accent3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .analogy-body p { margin-bottom: 0; font-size: 14px; }
+
+    /* Protocol comparison table */
+    .arq-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0;
+    }
+    @media(max-width:640px) { .arq-grid { grid-template-columns: 1fr; } }
+    .arq-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .arq-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .arq-card.sw::before { background: var(--accent4); }
+    .arq-card.gbn::before { background: var(--accent); }
+    .arq-card.sr::before { background: var(--accent3); }
+    .arq-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .arq-name { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+    .arq-card.sw .arq-name { color: var(--accent4); }
+    .arq-card.gbn .arq-name { color: var(--accent); }
+    .arq-card.sr .arq-name { color: var(--accent3); }
+    .arq-desc { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.6; }
+    .arq-tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; display: inline-block; }
+    .arq-card.sw .arq-tag { background: rgba(247,163,79,0.15); color: var(--accent4); border: 1px solid rgba(247,163,79,0.25); }
+    .arq-card.gbn .arq-tag { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.25); }
+    .arq-card.sr .arq-tag { background: rgba(0,212,170,0.15); color: var(--accent3); border: 1px solid rgba(0,212,170,0.25); }
+
+    /* Bit diagram */
+    .bit-row {
+      display: flex; gap: 6px; margin: 14px 0; align-items: center; flex-wrap: wrap;
+    }
+    .bit {
+      width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700;
+    }
+    .bit.data { background: rgba(79,142,247,0.18); border: 1.5px solid rgba(79,142,247,0.4); color: var(--accent); }
+    .bit.redundant { background: rgba(240,92,136,0.18); border: 1.5px solid rgba(240,92,136,0.4); color: var(--accent5); }
+    .bit.parity { background: rgba(247,163,79,0.18); border: 1.5px solid rgba(247,163,79,0.4); color: var(--accent4); }
+    .bit-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-right: 6px; }
+    .bit-arrow { font-size: 20px; color: var(--text3); }
+
+    /* Steps */
+    .step-list { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+    .step-item { display: flex; gap: 16px; align-items: flex-start; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff;
+    }
+    .step-content { flex: 1; padding-top: 4px; }
+    .step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .ibps-dot.fill { background: var(--accent5); }
+    .ibps-dot.empty { background: var(--border); }
+
+    /* Quick Recap */
+    .recap-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; margin: 18px 0;
+    }
+    .recap-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+      transition: all 0.25s;
+    }
+    .recap-item:hover { border-color: var(--accent2); }
+    .recap-icon { font-size: 22px; margin-bottom: 8px; }
+    .recap-name { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .recap-val { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+    /* CRC visual */
+    .crc-flow {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0;
+    }
+    .crc-box {
+      padding: 10px 16px; border-radius: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700;
+      border: 1.5px solid;
+    }
+    .crc-data { background: rgba(79,142,247,0.12); border-color: rgba(79,142,247,0.4); color: var(--accent); }
+    .crc-gen { background: rgba(247,163,79,0.12); border-color: rgba(247,163,79,0.4); color: var(--accent4); }
+    .crc-rem { background: rgba(0,212,170,0.12); border-color: rgba(0,212,170,0.4); color: var(--accent3); }
+    .crc-op { color: var(--text3); font-size: 20px; }
+
+    /* Section badge */
+    .sec-badge {
+      display: inline-block; font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 3px 10px; border-radius: 100px; margin-bottom: 12px;
+    }
+    .sec-badge.error-det { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+    .sec-badge.error-corr { background: rgba(0,212,170,0.15); color: var(--accent3); border: 1px solid rgba(0,212,170,0.3); }
+    .sec-badge.arq { background: rgba(247,163,79,0.15); color: var(--accent4); border: 1px solid rgba(247,163,79,0.3); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 14</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Data Link Layer · Chapter 10</span>
+    <h1 class="page-title">Error Control in<br>Data Link Layer</h1>
+    <p class="page-subtitle">
+      Understand how the Data Link Layer detects &amp; corrects transmission errors —
+      Block Coding, Hamming Distance, CRC, Parity, Checksum, and ARQ Protocols.
+      All concepts verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.10</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">01</span> Why Error Control? (The Big Picture)</a></li>
+      <li><a href="#types"><span class="toc-num">02</span> Types of Errors – Single Bit vs Burst</a></li>
+      <li><a href="#block-coding"><span class="toc-num">03</span> Block Coding – Datawords & Codewords</a></li>
+      <li><a href="#hamming"><span class="toc-num">04</span> Hamming Distance (Most Asked!)</a></li>
+      <li><a href="#parity"><span class="toc-num">05</span> Parity Check – Simple & 2D</a></li>
+      <li><a href="#crc"><span class="toc-num">06</span> Cyclic Redundancy Check (CRC)</a></li>
+      <li><a href="#checksum"><span class="toc-num">07</span> Checksum (Internet Protocol)</a></li>
+      <li><a href="#arq"><span class="toc-num">08</span> ARQ Protocols – Stop-Wait, Go-Back-N, SR</a></li>
+      <li><a href="#formulas"><span class="toc-num">09</span> All Formulas at a Glance</a></li>
+      <li><a href="#pyq"><span class="toc-num">10</span> IBPS SO IT PYQ Practice</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: INTRO ══════ -->
+  <div class="section" id="intro">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Why Error Control? The Big Picture</h2>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">📬</div>
+      <div class="analogy-body">
+        <div class="analogy-title">🇮🇳 Real-World Analogy</div>
+        <p>Imagine sending a letter, but the postal service might tear or smudge some words. To verify your letter arrived correctly, you add a "summary" at the end. The receiver checks that summary — if it matches, the letter is intact. That's exactly what Error Control does at the Data Link Layer!</p>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Core Principle</div>
+        <div class="callout-text">Data can be corrupted during transmission over physical media (noise, interference). The Data Link Layer adds <strong>redundant (extra) bits</strong> to data so the receiver can detect or even correct errors — without asking for retransmission.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Two Goals of Error Control</h3>
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Goal 1</div>
+        <div class="info-card-title">🔍 Error Detection</div>
+        <div class="info-card-desc">Find out whether the received data is the same as sent data. Does NOT correct — just raises a flag. The receiver asks sender to re-send.
+          <br><br><strong>Techniques:</strong> Parity, CRC, Checksum
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Goal 2</div>
+        <div class="info-card-title">🔧 Error Correction</div>
+        <div class="info-card-desc">Not only detect, but also <em>fix</em> the error at receiver side — no need to ask for retransmission!
+          <br><br><strong>Technique:</strong> Hamming Code (adds more redundant bits)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: TYPES OF ERRORS ══════ -->
+  <div class="section" id="types">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Types of Errors</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top: 3px solid var(--accent);">
+        <div class="info-card-label">Type 1 – Less Common</div>
+        <div class="info-card-title">🔴 Single-Bit Error</div>
+        <div class="info-card-desc">Only <strong>one bit</strong> changes in a data unit. If 0 was sent, 1 is received (or vice versa).
+          <br><br>Rare in real networks. Mainly seen in parallel transmission.
+        </div>
+      </div>
+      <div class="info-card" style="border-top: 3px solid var(--accent5);">
+        <div class="info-card-label">Type 2 – Most Common</div>
+        <div class="info-card-title">🔴🔴 Burst Error</div>
+        <div class="info-card-desc"><strong>Two or more bits</strong> in a data unit are corrupted. The length of burst = from first corrupted bit to last corrupted bit.
+          <br><br>Common in serial transmission due to electrical interference.
+        </div>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">📻</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Analogy</div>
+        <p>Single-bit error = one letter smudged in a book. Burst error = a whole paragraph blurred due to water damage. Burst errors are far more common and need stronger detection!</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: BLOCK CODING ══════ -->
+  <div class="section" id="block-coding">
+    <div class="section-header">
+      <div class="section-icon">🧱</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Block Coding – Datawords &amp; Codewords</h2>
+      </div>
+    </div>
+
+    <p>Block coding is the <strong>foundation</strong> of error detection and correction. Here's how it works:</p>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Split the message into k-bit blocks → called <span class="hl">Datawords</span></div>
+          <div class="step-desc">Each block has k bits. These are your original data units.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Add r redundant bits to each dataword → creates <span class="hl2">Codeword</span></div>
+          <div class="step-desc">The codeword has n = k + r bits. These extra r bits help detect/correct errors.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Receiver checks codeword validity</div>
+          <div class="step-desc">Receiver uses the same algorithm — if the codeword is valid, data is error-free; if invalid, an error occurred.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Key Formula</div>
+      <div class="formula-main">n = k + r</div>
+      <div class="formula-note">n = codeword length &nbsp;|&nbsp; k = dataword length &nbsp;|&nbsp; r = number of redundant bits</div>
+    </div>
+
+    <div class="bit-row">
+      <span class="bit-label">Dataword (k bits):</span>
+      <div class="bit data">1</div>
+      <div class="bit data">0</div>
+      <div class="bit data">1</div>
+      <div class="bit data">1</div>
+      <span class="bit-arrow">→</span>
+      <span class="bit-label">Codeword (n bits):</span>
+      <div class="bit data">1</div>
+      <div class="bit data">0</div>
+      <div class="bit data">1</div>
+      <div class="bit data">1</div>
+      <div class="bit redundant">0</div>
+      <span style="font-size:11px;color:var(--text3);font-style:italic;">(r=1 redundant bit)</span>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <div class="callout-title">IBPS SO IT Tip</div>
+        <div class="callout-text">In IBPS SO IT questions, they often give you k and n and ask for r, or vice versa. Just remember: <strong>r = n − k</strong>. If dataword has 4 bits and codeword has 7 bits, then r = 7 − 4 = 3 redundant bits.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: HAMMING DISTANCE ══════ -->
+  <div class="section" id="hamming">
+    <div class="section-header">
+      <div class="section-icon">📏</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Hamming Distance ⭐ Most Asked!</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Very High Frequency</div>
+    <div class="ibps-meter">
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">🔤</div>
+      <div class="analogy-body">
+        <div class="analogy-title">What is Hamming Distance?</div>
+        <p>Count how many bits are <strong>different</strong> between two binary words of the same length. Like counting how many letters differ between "CAT" and "COT" (answer: 1 — only middle letter differs). For bits: 0010 vs 0100 → positions 2 and 3 differ → Hamming distance = 2.</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">How to Calculate Hamming Distance</h3>
+    <p>XOR the two words and count the number of 1s in the result. The count of 1s = Hamming distance.</p>
+
+    <div class="diagram-box">
+      <div style="display:flex;flex-direction:column;gap:8px;font-family:'JetBrains Mono',monospace;font-size:15px;text-align:left;max-width:320px;margin:0 auto;">
+        <div><span style="color:var(--accent);">1 0 1 0 1</span> &nbsp;← Word 1</div>
+        <div><span style="color:var(--accent2);">1 1 1 1 0</span> &nbsp;← Word 2</div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;">
+          <span style="color:var(--accent5);">0 1 0 1 1</span> &nbsp;← XOR result
+        </div>
+        <div style="color:var(--accent4);margin-top:6px;">Three 1s → Hamming Distance = <strong>3</strong></div>
+      </div>
+      <div class="diagram-caption">XOR approach to find Hamming Distance</div>
+    </div>
+
+    <h3 class="sub-title">Minimum Hamming Distance (d<sub>min</sub>)</h3>
+    <p>In a set of codewords, the <strong>Minimum Hamming Distance</strong> is the smallest Hamming distance between any two valid codewords. This is the most important property of a code scheme.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">🔴 For Error DETECTION (detect up to s errors)</div>
+      <div class="formula-main">d<sub>min</sub> = s + 1</div>
+      <div class="formula-note">To detect up to s errors → minimum Hamming distance must be at least s+1</div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">🟢 For Error CORRECTION (correct up to t errors)</div>
+      <div class="formula-main">d<sub>min</sub> = 2t + 1</div>
+      <div class="formula-note">To correct up to t errors → minimum Hamming distance must be at least 2t+1</div>
+    </div>
+
+    <h3 class="sub-title">Worked Examples (Exam-Style)</h3>
+
+    <div class="callout warn">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Example 1: Detection</div>
+        <div class="callout-text">
+          Q: A code has d<sub>min</sub> = 4. How many errors can it detect?<br>
+          A: Use s = d<sub>min</sub> − 1 = 4 − 1 = <strong>3 errors</strong> can be detected.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Example 2: Correction</div>
+        <div class="callout-text">
+          Q: A code has d<sub>min</sub> = 4. How many errors can it correct?<br>
+          A: Use t = (d<sub>min</sub> − 1) / 2 = (4 − 1) / 2 = 1.5 → floor = <strong>1 error</strong> can be corrected.<br>
+          <em>Note: d<sub>min</sub> must be odd for full correction capability. Even d<sub>min</sub> wastes capacity.</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Example 3: Find d<sub>min</sub> for 5-error correction</div>
+        <div class="callout-text">
+          Q: What minimum Hamming distance is needed to correct up to 5 errors?<br>
+          A: d<sub>min</sub> = 2t + 1 = 2(5) + 1 = <strong>11</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: PARITY CHECK ══════ -->
+  <div class="section" id="parity">
+    <div class="section-header">
+      <div class="section-icon">✔️</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Parity Check – Simple &amp; 2D</h2>
+      </div>
+    </div>
+
+    <div class="sec-badge error-det">Error Detection Only</div>
+
+    <h3 class="sub-title">Simple Parity Check (1D Parity)</h3>
+    <p>The simplest error detection method. A single <strong>parity bit</strong> is added to make the total number of 1s either Even (even parity) or Odd (odd parity).</p>
+
+    <div class="formula-box">
+      <div class="formula-label">Simple Parity Code</div>
+      <div class="formula-main">n = k + 1 &nbsp;&nbsp;|&nbsp;&nbsp; d<sub>min</sub> = 2</div>
+      <div class="formula-note">One extra parity bit → can detect odd number of errors only</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">What it CAN detect</div>
+        <div class="info-card-title">✅ Odd number of errors</div>
+        <div class="info-card-desc">1 error, 3 errors, 5 errors… If an odd number of bits flip, the parity will be wrong and the error is caught.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">What it CANNOT detect</div>
+        <div class="info-card-title">❌ Even number of errors</div>
+        <div class="info-card-desc">2 errors, 4 errors… Two flipped bits cancel each other out — parity stays the same and error is missed!</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">2D Parity Check (Two-Dimensional)</h3>
+    <p>Data is arranged in a <strong>grid (rows and columns)</strong>. Parity bit is added for each row AND each column. This allows detecting AND correcting single-bit errors.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">📊</div>
+      <div class="analogy-body">
+        <div class="analogy-title">2D Parity: Think like a Sudoku row+column check!</div>
+        <p>If one bit is wrong, the error shows up in both its row parity AND column parity — giving us the exact position of the error. Then we flip that bit to fix it!</p>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <div class="callout-title">IBPS SO IT Key Point</div>
+        <div class="callout-text"><strong>Simple parity: detects odd errors only.</strong> 2D parity: can detect and correct single-bit errors AND detect (not always correct) burst errors. Simple parity C(5,4) means 5-bit codeword from 4-bit dataword.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: CRC ══════ -->
+  <div class="section" id="crc">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Cyclic Redundancy Check (CRC)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Most Frequently Asked</div>
+    <div class="ibps-meter">
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+    </div>
+
+    <div class="sec-badge error-det">Error Detection (Very Powerful)</div>
+
+    <p>CRC is the most powerful and widely used error detection technique. It is based on <strong>binary division (modulo-2 division)</strong>. It is used at the Data Link Layer.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">➗</div>
+      <div class="analogy-body">
+        <div class="analogy-title">CRC in Plain English</div>
+        <p>Sender divides data by a "secret code" (generator polynomial). The <strong>remainder</strong> is appended to data. Receiver divides received data by same "secret code". If remainder = 0 → no error. If remainder ≠ 0 → error detected!</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">CRC – Step by Step (Sender Side)</h3>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Append zeros to the data</div>
+          <div class="step-desc">If generator has degree r (r+1 bits), append r zeros to the data message.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Divide (Modulo-2 Division)</div>
+          <div class="step-desc">Divide the augmented data by the generator polynomial using XOR operations (no carry/borrow in modulo-2).</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Get the Remainder (CRC bits)</div>
+          <div class="step-desc">The remainder of this division becomes the CRC (Frame Check Sequence – FCS).</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Append CRC to original data</div>
+          <div class="step-desc">Replace those r appended zeros with the actual CRC remainder. Send this complete frame.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="crc-flow">
+      <div class="crc-box crc-data">Data Bits</div>
+      <div class="crc-op">÷</div>
+      <div class="crc-box crc-gen">Generator (G(x))</div>
+      <div class="crc-op">=</div>
+      <div class="crc-box crc-rem">Remainder (CRC)</div>
+    </div>
+
+    <h3 class="sub-title">CRC – Receiver Side</h3>
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Receive the full frame (data + CRC)</div>
+          <div class="step-desc">The entire received frame is divided by the same generator polynomial.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Check the Remainder (Syndrome)</div>
+          <div class="step-desc">
+            <strong>Remainder = 0:</strong> No error detected. Data accepted.<br>
+            <strong>Remainder ≠ 0:</strong> Error detected! Frame rejected/retransmit requested.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">⚙️</div>
+      <div class="callout-body">
+        <div class="callout-title">Properties of a Good Generator Polynomial</div>
+        <div class="callout-text">
+          A CRC generator polynomial must:<br>
+          1. Have <strong>at least two terms</strong><br>
+          2. Coefficient of x<sup>0</sup> must be <strong>1</strong><br>
+          3. Should NOT divide x<sup>t</sup> + 1 (for t between 2 and n-1)<br>
+          4. Should have the factor <strong>(x + 1)</strong> — to detect all odd-numbered errors<br>
+          <br>
+          <em>Note: Errors that are divisible by g(x) are NOT detected by CRC.</em>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Standard CRC</th>
+            <th>Generator Polynomial</th>
+            <th>Usage</th>
+            <th>Bits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>CRC-8</td><td>x⁸ + x² + x + 1</td><td>ATM headers</td><td>8</td></tr>
+          <tr><td>CRC-16</td><td>x¹⁶ + x¹⁵ + x² + 1</td><td>HDLC, USB</td><td>16</td></tr>
+          <tr><td>CRC-32</td><td>x³² + ... + 1</td><td>Ethernet, ZIP, PNG</td><td>32</td></tr>
+          <tr><td>CRC-CCITT</td><td>x¹⁶ + x¹² + x⁵ + 1</td><td>X.25, V.34, ISDN</td><td>16</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHECKSUM ══════ -->
+  <div class="section" id="checksum">
+    <div class="section-header">
+      <div class="section-icon">🧮</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Checksum</h2>
+      </div>
+    </div>
+
+    <div class="sec-badge error-det">Error Detection — Used by Internet Protocols</div>
+
+    <p>Checksum is used in the <strong>Internet layer protocols</strong> (IP, TCP, UDP) — NOT at Data Link Layer. But Forouzan discusses it here to complete the error-detection topic.</p>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Sender Steps</div>
+        <div class="info-card-title">📤 How to Send</div>
+        <div class="info-card-desc">
+          1. Divide message into 16-bit segments<br>
+          2. Add all segments using <strong>one's complement</strong> arithmetic<br>
+          3. Take complement of the final sum → this is the <strong>checksum</strong><br>
+          4. Append checksum to message and send
+        </div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Receiver Steps</div>
+        <div class="info-card-title">📥 How to Verify</div>
+        <div class="info-card-desc">
+          1. Divide received message + checksum into 16-bit segments<br>
+          2. Add all segments using <strong>one's complement</strong> arithmetic<br>
+          3. Take complement of result<br>
+          4. If result = <strong>0</strong> → Accept! If result ≠ 0 → Error!
+        </div>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <div class="callout-title">IBPS SO IT Key Distinction</div>
+        <div class="callout-text">Parity &amp; CRC → used at <strong>Data Link Layer</strong>. Checksum → used at <strong>Transport Layer (TCP/UDP) and Network Layer (IP)</strong>. This is a frequently tested distinction in IBPS SO IT exams!</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: ARQ ══════ -->
+  <div class="section" id="arq">
+    <div class="section-header">
+      <div class="section-icon">🔁</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">ARQ Protocols – Error Control via Retransmission</h2>
+      </div>
+    </div>
+
+    <div class="sec-badge arq">ARQ = Automatic Repeat reQuest</div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">📡</div>
+      <div class="analogy-body">
+        <div class="analogy-title">What is ARQ?</div>
+        <p>When error is detected, instead of correcting it, the receiver asks the sender to <strong>resend</strong> the corrupted frame. ARQ combines error detection + retransmission. It's like saying "Sorry, I didn't catch that — could you repeat?" in a phone call!</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">3 Types of ARQ Protocols</h3>
+    <div class="arq-grid">
+      <div class="arq-card sw">
+        <div class="arq-name">⏸ Stop-and-Wait ARQ</div>
+        <div class="arq-desc">Sender sends ONE frame at a time. Waits for ACK before sending next frame. Simplest but most inefficient — wastes bandwidth while waiting.</div>
+        <div>
+          <span class="arq-tag">Window Size = 1</span>
+        </div>
+        <br>
+        <div style="font-size:12px;color:var(--text3);">
+          ✅ Simple to implement<br>
+          ❌ Very slow, low efficiency<br>
+          ❌ Half-bandwidth wasted in waiting
+        </div>
+      </div>
+      <div class="arq-card gbn">
+        <div class="arq-name">🔙 Go-Back-N ARQ</div>
+        <div class="arq-desc">Sender can send multiple frames (window size = 2ⁿ−1). If error in frame i: sender goes BACK to frame i and retransmits ALL frames from i onwards.</div>
+        <div>
+          <span class="arq-tag">Sender window: 2ⁿ⁻¹ | Receiver window: 1</span>
+        </div>
+        <br>
+        <div style="font-size:12px;color:var(--text3);">
+          ✅ Better than Stop-Wait<br>
+          ❌ Wastes bandwidth (retransmits correct frames)<br>
+          ❌ Receiver window = 1 (can't buffer)
+        </div>
+      </div>
+      <div class="arq-card sr">
+        <div class="arq-name">🎯 Selective Repeat ARQ</div>
+        <div class="arq-desc">Sender can send multiple frames. If error in frame i: ONLY frame i is retransmitted. Receiver buffers correct out-of-order frames.</div>
+        <div>
+          <span class="arq-tag">Sender = Receiver window: 2ⁿ⁻¹</span>
+        </div>
+        <br>
+        <div style="font-size:12px;color:var(--text3);">
+          ✅ Most efficient<br>
+          ✅ Minimum retransmissions<br>
+          ❌ Complex, needs large receiver buffer
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">ARQ Protocol Comparison Table</h3>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Stop-and-Wait</th>
+            <th>Go-Back-N</th>
+            <th>Selective Repeat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sender Window Size</td>
+            <td>1</td>
+            <td>2ⁿ⁻¹</td>
+            <td>2ⁿ⁻¹</td>
+          </tr>
+          <tr>
+            <td>Receiver Window Size</td>
+            <td>1</td>
+            <td>1</td>
+            <td>2ⁿ⁻¹</td>
+          </tr>
+          <tr>
+            <td>On Error: Retransmit</td>
+            <td>Only that 1 frame</td>
+            <td>Error frame + all after</td>
+            <td>Only error frame</td>
+          </tr>
+          <tr>
+            <td>Efficiency</td>
+            <td>Lowest</td>
+            <td>Medium</td>
+            <td>Highest</td>
+          </tr>
+          <tr>
+            <td>Buffer at Receiver</td>
+            <td>Not needed</td>
+            <td>Not needed (discards)</td>
+            <td>Large buffer needed</td>
+          </tr>
+          <tr>
+            <td>Complexity</td>
+            <td>Simple</td>
+            <td>Moderate</td>
+            <td>Complex</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Important: ARQ is Error CONTROL, not just Error DETECTION</div>
+        <div class="callout-text">Stop-and-Wait ARQ is a <strong>flow control and error control technique</strong>. When asked in IBPS SO IT "Stop-and-wait ARQ is a ___ technique" → Answer is <strong>Error Control</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 9: ALL FORMULAS ══════ -->
+  <div class="section" id="formulas">
+    <div class="section-header">
+      <div class="section-icon">📐</div>
+      <div>
+        <div class="section-num">Section 09</div>
+        <h2 class="section-title">All Formulas at a Glance 🗂️</h2>
+      </div>
+    </div>
+
+    <div class="recap-grid">
+      <div class="recap-item">
+        <div class="recap-icon">🧱</div>
+        <div class="recap-name">Block Coding</div>
+        <div class="recap-val">n = k + r</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🔍</div>
+        <div class="recap-name">Error Detection</div>
+        <div class="recap-val">d_min = s + 1</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🔧</div>
+        <div class="recap-name">Error Correction</div>
+        <div class="recap-val">d_min = 2t + 1</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">✔️</div>
+        <div class="recap-name">Simple Parity</div>
+        <div class="recap-val">n=k+1, d_min=2</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">⏸</div>
+        <div class="recap-name">Stop-Wait Window</div>
+        <div class="recap-val">Sender = Receiver = 1</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🔙</div>
+        <div class="recap-name">Go-Back-N</div>
+        <div class="recap-val">Sender = 2ⁿ⁻¹, Rx = 1</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🎯</div>
+        <div class="recap-name">Selective Repeat</div>
+        <div class="recap-val">Sender = Rx = 2ⁿ⁻¹</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🔄</div>
+        <div class="recap-name">CRC Syndrome</div>
+        <div class="recap-val">s(x)=0 → No error</div>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Technique</th>
+            <th>Layer</th>
+            <th>Type</th>
+            <th>Key Property</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Simple Parity</td><td>Data Link</td><td>Detection</td><td>Detects odd errors only</td></tr>
+          <tr><td>2D Parity</td><td>Data Link</td><td>Detection + Correction</td><td>Corrects single-bit errors</td></tr>
+          <tr><td>CRC</td><td>Data Link</td><td>Detection</td><td>Best burst error detection</td></tr>
+          <tr><td>Hamming Code</td><td>Data Link</td><td>Correction</td><td>Corrects single-bit errors</td></tr>
+          <tr><td>Checksum</td><td>Network/Transport</td><td>Detection</td><td>Used in IP, TCP, UDP</td></tr>
+          <tr><td>ARQ Protocols</td><td>Data Link</td><td>Error Control</td><td>Retransmission-based</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 10: IBPS SO IT PYQ ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 10</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <div class="callout-icon">📌</div>
+      <div class="callout-body">
+        <div class="callout-title">How to Use This Section</div>
+        <div class="callout-text">These questions are sourced from IBPS SO IT Officer previous year papers and similar competitive exams. Try answering each question before revealing the answer. All answers are verified from the Forouzan textbook (same source as Lec 14).</div>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">CRC – Error Detection</span>
+      </div>
+      <div class="mcq-question">Error detection at the Data Link Layer is typically achieved by:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Bit stuffing</li>
+        <li class="mcq-option correct">B. Cyclic Redundancy Codes (CRC) ✓</li>
+        <li class="mcq-option">C. Hamming codes</li>
+        <li class="mcq-option">D. Equalization</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — CRC</strong><br>
+        CRC is the standard error detection method at Data Link Layer. Hamming codes are used for error <em>correction</em>. Bit stuffing is used for framing (flag synchronization), not error detection. Equalization is a physical layer concept.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Hamming Distance – Detection Formula</span>
+      </div>
+      <div class="mcq-question">To guarantee detection of up to 5 errors, the minimum Hamming distance must be:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 5</li>
+        <li class="mcq-option correct">B. 6 ✓</li>
+        <li class="mcq-option">C. 11</li>
+        <li class="mcq-option">D. 10</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 6</strong><br>
+        Formula: d<sub>min</sub> = s + 1 = 5 + 1 = <strong>6</strong><br>
+        Trick: Option C (11) is for correcting 5 errors, not detecting. Don't confuse detection and correction formulas!
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Hamming Distance – Correction Formula</span>
+      </div>
+      <div class="mcq-question">To guarantee correction of up to 5 errors in all cases, the minimum Hamming distance in a block code must be:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 5</li>
+        <li class="mcq-option">B. 6</li>
+        <li class="mcq-option correct">C. 11 ✓</li>
+        <li class="mcq-option">D. None of the above</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 11</strong><br>
+        Formula: d<sub>min</sub> = 2t + 1 = 2(5) + 1 = <strong>11</strong><br>
+        Remember: Error CORRECTION formula uses 2t+1 (the "2" makes it harder). Error detection just needs s+1.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Parity Check</span>
+      </div>
+      <div class="mcq-question">A simple parity check code can detect:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. All types of errors</li>
+        <li class="mcq-option correct">B. An odd number of errors ✓</li>
+        <li class="mcq-option">C. An even number of errors</li>
+        <li class="mcq-option">D. Burst errors only</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Odd number of errors</strong><br>
+        Simple parity has d<sub>min</sub> = 2, so it can detect up to s = d<sub>min</sub> − 1 = 1 error. But more specifically, parity check detects <em>any odd number of errors</em> (1, 3, 5, …). If 2 bits flip, parity remains valid and error is missed.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">ARQ Protocols</span>
+      </div>
+      <div class="mcq-question">Stop-and-Wait ARQ is a _______ technique.</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Line discipline</li>
+        <li class="mcq-option">B. Flow control</li>
+        <li class="mcq-option correct">C. Error control ✓</li>
+        <li class="mcq-option">D. Session management</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Error Control</strong><br>
+        ARQ (Automatic Repeat reQuest) is an error control protocol. Stop-and-Wait ARQ uses acknowledgments and timeouts to achieve reliable frame delivery. It detects errors via CRC and requests retransmission.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">CRC Properties</span>
+      </div>
+      <div class="mcq-question">In CRC, if syndrome s(x) = 0 after division at receiver, it means:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. No error OR undetected error ✓</li>
+        <li class="mcq-option">B. Always no error</li>
+        <li class="mcq-option">C. Error detected</li>
+        <li class="mcq-option">D. Frame discarded</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        When s(x) = 0: either (a) no bit is corrupted, OR (b) some bits are corrupted but the error pattern is divisible by g(x) — decoder fails to detect. When s(x) ≠ 0: one or more bits are definitely corrupted. This is a subtle but important point from the textbook.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Go-Back-N ARQ</span>
+      </div>
+      <div class="mcq-question">In Go-Back-N ARQ with n=3 (3-bit sequence number), what is the maximum sender window size?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 3</li>
+        <li class="mcq-option">B. 4</li>
+        <li class="mcq-option correct">C. 7 ✓</li>
+        <li class="mcq-option">D. 8</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 7</strong><br>
+        Formula: Sender Window = 2ⁿ − 1 = 2³ − 1 = 8 − 1 = <strong>7</strong><br>
+        For Selective Repeat with n=3: Window = 2ⁿ⁻¹ = 2² = 4<br>
+        Remember: Go-Back-N uses 2ⁿ−1; Selective Repeat uses 2ⁿ⁻¹.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Network Layer vs Data Link</span>
+      </div>
+      <div class="mcq-question">Which of the following is NOT a function of the Data Link Layer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Framing</li>
+        <li class="mcq-option">B. Error detection and correction</li>
+        <li class="mcq-option correct">C. Network (IP) addressing ✓</li>
+        <li class="mcq-option">D. Flow control</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Network addressing</strong><br>
+        Network/IP addressing is the function of the <strong>Network Layer (Layer 3)</strong>. Data Link Layer (Layer 2) handles: Framing, Physical Addressing (MAC), Error Detection, Error Correction, Flow Control, and Access Control.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Hamming Code dmin=4</span>
+      </div>
+      <div class="mcq-question">A code scheme has a Hamming distance d<sub>min</sub> = 4. What is the error detection and correction capability?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Detect 4 errors, Correct 2 errors</li>
+        <li class="mcq-option">B. Detect 2 errors, Correct 2 errors</li>
+        <li class="mcq-option correct">C. Detect 3 errors, Correct 1 error ✓</li>
+        <li class="mcq-option">D. Detect 4 errors, Correct 1 error</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C</strong><br>
+        Detection: s = d<sub>min</sub> − 1 = 4 − 1 = <strong>3 errors</strong><br>
+        Correction: t = floor((d<sub>min</sub>−1)/2) = floor(3/2) = <strong>1 error</strong><br>
+        Note: Error correction codes need <em>odd</em> minimum distance (3, 5, 7…). d<sub>min</sub>=4 wastes some correction capability.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Block Coding – n, k, r</span>
+      </div>
+      <div class="mcq-question">In block coding, if a dataword is 4 bits and the codeword is 7 bits, how many redundant bits are added?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4</li>
+        <li class="mcq-option">B. 7</li>
+        <li class="mcq-option">C. 11</li>
+        <li class="mcq-option correct">D. 3 ✓</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: D — 3</strong><br>
+        Formula: r = n − k = 7 − 4 = <strong>3 redundant bits</strong><br>
+        This is the classic C(7,4) Hamming code — 4 data bits + 3 parity/redundant bits = 7-bit codeword. This code can correct 1 error (d<sub>min</sub> = 3).
+      </div>
+    </div>
+
+  </div><!-- end PYQ section -->
+
+  <hr class="divider" />
+
+  <!-- Quick Revision Box -->
+  <div class="callout key" style="margin-bottom:60px;">
+    <div class="callout-icon">🚀</div>
+    <div class="callout-body">
+      <div class="callout-title">Quick Exam Revision – Remember These!</div>
+      <div class="callout-text">
+        <strong>1.</strong> Error DETECTION: d<sub>min</sub> = s + 1 &nbsp;|&nbsp; <strong>2.</strong> Error CORRECTION: d<sub>min</sub> = 2t + 1<br>
+        <strong>3.</strong> CRC → Best for burst errors, Data Link Layer<br>
+        <strong>4.</strong> Parity → Detects odd errors only. Simple parity: d<sub>min</sub>=2<br>
+        <strong>5.</strong> Checksum → Network &amp; Transport Layer (NOT Data Link)<br>
+        <strong>6.</strong> Go-Back-N: sender window = 2ⁿ−1, receiver window = 1<br>
+        <strong>7.</strong> Selective Repeat: both windows = 2ⁿ⁻¹<br>
+        <strong>8.</strong> ARQ = Error Control technique (retransmission-based)<br>
+        <strong>9.</strong> n = k + r (codeword = dataword + redundant bits)<br>
+        <strong>10.</strong> CRC: if s(x) = 0 → no error detected; if s(x) ≠ 0 → error!
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="12-framing-error-detection-correction.html">← Lec 12</a>
+      <a href="13-flow-control-and-multiple-access-protocols.html">Lec 13 →</a>
+    </div>
+    <p>Lec 14 · Error Control in Data Link Layer · IBPS SO IT Notes · Based on Forouzan Chapter 10</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll progress bar
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+
+  // Smooth hover effects on cards
+  document.querySelectorAll('.arq-card, .info-card, .recap-item').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+      this.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    });
+  });
+</script>
+</body>
+</html>

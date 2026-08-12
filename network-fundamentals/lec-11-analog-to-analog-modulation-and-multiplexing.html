@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 11 – Analog-to-Analog Modulation &amp; Multiplexing | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Analog-to-Analog Modulation – AM, FM, PM bandwidth formulas, Radio Band Allocations, FDM Guard Bands, WDM Fiber Optics, TDM (Synchronous vs Statistical) &amp; PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 11 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 11</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 11</span>
+    <h1 class="page-title">Analog-to-Analog Modulation &amp;<br>Multiplexing Techniques</h1>
+    <p class="page-subtitle">
+      Master Bandpass Modulation &amp; Media Sharing – Amplitude Modulation (AM), Frequency Modulation (FM), Phase Modulation (PM),
+      Bandwidth formulas ($B_{\text{AM}} = 2f_m$, $B_{\text{FM}} \approx 10f_m$), Radio Frequency Allocations,
+      and Multiplexing (FDM Guard Bands, WDM Fiber Optics, TDM Synchronous vs. Statistical). Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT Core Topic</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.05 &amp; Ch.06</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Why Analog-to-Analog Modulation?</a></li>
+      <li><a href="#am"><span class="toc-num">02</span> Amplitude Modulation (AM) &amp; $530\text{--}1700\text{ kHz}$ Band</a></li>
+      <li><a href="#fm"><span class="toc-num">03</span> Frequency Modulation (FM) &amp; $88\text{--}108\text{ MHz}$ Band</a></li>
+      <li><a href="#pm"><span class="toc-num">04</span> Phase Modulation (PM)</a></li>
+      <li><a href="#multiplexing"><span class="toc-num">05</span> Multiplexing Overview (FDM, WDM, TDM)</a></li>
+      <li><a href="#fdm-guardband"><span class="toc-num">06</span> FDM &amp; Guard Bands Deep Dive</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Why Analog-to-Analog Modulation?</h2>
+      </div>
+    </div>
+
+    <p>Analog-to-analog modulation is used when a low-frequency analog signal (such as human voice or audio) needs to be transmitted over a high-frequency bandpass channel (such as free space/air radio channels).</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Modulation 1</div>
+        <div class="info-card-title">📻 AM (Amplitude Modulation)</div>
+        <div class="info-card-desc">Modifies carrier amplitude. Simple, requires low bandwidth ($2f_m$).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Modulation 2</div>
+        <div class="info-card-title">📻 FM (Frequency Modulation)</div>
+        <div class="info-card-desc">Modifies carrier frequency ($f_c \pm \Delta f$). Excellent noise immunity, higher bandwidth ($10f_m$).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Modulation 3</div>
+        <div class="info-card-title">📻 PM (Phase Modulation)</div>
+        <div class="info-card-desc">Modifies carrier phase proportional to derivative of modulating amplitude.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: AM ══════ -->
+  <div class="section" id="am">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Amplitude Modulation (AM)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Core Bandwidth Calculation Topic</div>
+
+    <p>In AM, the high-frequency carrier wave's amplitude is varied proportional to the modulating audio signal, forming an <strong>envelope</strong>.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ AM Bandwidth Formula</div>
+      <div class="formula-main">$$B_{\text{AM}} = 2 \times B_{\text{signal}} = 2 \times f_m$$</div>
+      <div class="formula-note">$f_m$ = maximum frequency of the modulating audio signal</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">AM Radio Station Worked Example</div>
+        <div class="callout-text">
+          - Audio signal bandwidth $f_m = 5\text{ kHz}$.<br>
+          - Required total AM station bandwidth $B_{\text{AM}} = 2 \times 5\text{ kHz} = \mathbf{10\text{ kHz}}$.<br>
+          - <strong>AM Band Allocation:</strong> $530\text{ kHz}$ to $1700\text{ kHz}$ (each station allocated $10\text{ kHz}$).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: FM ══════ -->
+  <div class="section" id="fm">
+    <div class="section-header">
+      <div class="section-icon">🔊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Frequency Modulation (FM)</h2>
+      </div>
+    </div>
+
+    <p>In FM, the frequency of the carrier signal is varied in proportion to the modulating audio signal amplitude. Carrier amplitude remains strictly constant!</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ FM Bandwidth Formula (Carson's Rule)</div>
+      <div class="formula-main">$$B_{\text{FM}} = 2(1 + \beta) f_m \approx 10 \times f_m$$</div>
+      <div class="formula-note">$\beta = \Delta f / f_m$ = modulation index &nbsp;|&nbsp; Requires $\approx 10\times$ signal frequency!</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">FM Radio Station Worked Example</div>
+        <div class="callout-text">
+          - Stereo audio signal bandwidth $f_m = 20\text{ kHz}$.<br>
+          - Required total FM station bandwidth $B_{\text{FM}} = 10 \times 20\text{ kHz} = \mathbf{200\text{ kHz}} = \mathbf{0.2\text{ MHz}}$.<br>
+          - <strong>FM Band Allocation:</strong> $88\text{ MHz}$ to $108\text{ MHz}$ (each station allocated $200\text{ kHz}$).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: PM ══════ -->
+  <div class="section" id="pm">
+    <div class="section-header">
+      <div class="section-icon">🌀</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Phase Modulation (PM)</h2>
+      </div>
+    </div>
+
+    <p>In PM, the phase of the carrier wave is varied proportional to the modulating signal voltage. Phase changes manifest as frequency shifts proportional to the instantaneous derivative of modulating amplitude.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ PM Bandwidth Formula</div>
+      <div class="formula-main">$$B_{\text{PM}} = 2(1 + \beta) f_m$$</div>
+      <div class="formula-note">Similar high bandwidth requirement to FM.</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: MULTIPLEXING OVERVIEW ══════ -->
+  <div class="section" id="multiplexing">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Multiplexing Overview (FDM, WDM, TDM)</h2>
+      </div>
+    </div>
+
+    <p><strong>Multiplexing</strong> is the set of techniques that allows the simultaneous transmission of multiple signals across a single data link.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Multiplexing Technique</th>
+            <th>Domain Type</th>
+            <th>Division Criterion</th>
+            <th>Primary Media &amp; Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>FDM</strong> (Frequency Division)</td>
+            <td>Analog</td>
+            <td>Bandwidth split into non-overlapping frequency bands.</td>
+            <td>AM/FM radio, Cable TV, ADSL modems.</td>
+          </tr>
+          <tr>
+            <td><strong>WDM</strong> (Wavelength Division)</td>
+            <td>Analog (Optical)</td>
+            <td>Light combined into different wavelengths (colors).</td>
+            <td>Fiber Optic high-speed backbones (prisms).</td>
+          </tr>
+          <tr>
+            <td><strong>TDM</strong> (Time Division)</td>
+            <td>Digital</td>
+            <td>Time divided into discrete time slots per channel.</td>
+            <td>T-1 / E-1 digital telephony trunks, LANs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: FDM & GUARD BANDS ══════ -->
+  <div class="section" id="fdm-guardband">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">FDM &amp; Guard Bands Deep Dive</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Concept 1</div>
+        <div class="info-card-title">🛡️ Guard Bands</div>
+        <div class="info-card-desc">Small, unused frequency buffers left between adjacent channels in FDM to prevent signal overlap and <strong>crosstalk interference</strong>.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Concept 2</div>
+        <div class="info-card-title">⏱️ Synchronous vs Statistical TDM</div>
+        <div class="info-card-desc">
+          - <strong>Synchronous TDM:</strong> Fixed time slot pre-allocated to each device (wastes bandwidth if idle).<br>
+          - <strong>Statistical TDM:</strong> Time slots allocated dynamically on-demand to active devices.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AM Bandwidth</strong></td>
+            <td>$$B_{\text{AM}} = 2 \times f_m$$</td>
+            <td>Double audio signal bandwidth ($530\text{--}1700\text{ kHz}$)</td>
+          </tr>
+          <tr>
+            <td><strong>FM Bandwidth</strong></td>
+            <td>$$B_{\text{FM}} \approx 10 \times f_m$$</td>
+            <td>Carson's Rule ($88\text{--}108\text{ MHz}$)</td>
+          </tr>
+          <tr>
+            <td><strong>AM Channel Bandwidth</strong></td>
+            <td>$$10\text{ kHz per station}$$</td>
+            <td>Standard AM station allocation</td>
+          </tr>
+          <tr>
+            <td><strong>FM Channel Bandwidth</strong></td>
+            <td>$$200\text{ kHz} = 0.2\text{ MHz}$$</td>
+            <td>Standard FM station allocation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">AM Bandwidth Calculation</span>
+      </div>
+      <div class="mcq-question">If an audio signal has a maximum frequency of $4\text{ kHz}$, what is the required channel bandwidth for an Amplitude Modulated (AM) transmission?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4 kHz</li>
+        <li class="mcq-option correct">B. 8 kHz ✓</li>
+        <li class="mcq-option">C. 16 kHz</li>
+        <li class="mcq-option">D. 40 kHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 8 kHz</strong><br>
+        $B_{\text{AM}} = 2 \times f_m = 2 \times 4\text{ kHz} = \mathbf{8\text{ kHz}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">FM Channel Bandwidth</span>
+      </div>
+      <div class="mcq-question">Each commercial FM radio station broadcast channel in the $88\text{--}108\text{ MHz}$ band is allocated a total bandwidth of:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 10 kHz</li>
+        <li class="mcq-option correct">B. 200 kHz (0.2 MHz) ✓</li>
+        <li class="mcq-option">C. 1 MHz</li>
+        <li class="mcq-option">D. 50 kHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 200 kHz (0.2 MHz)</strong><br>
+        FM radio stations require approximately $10 \times f_m = 10 \times 20\text{ kHz} = \mathbf{200\text{ kHz}}$ ($0.2\text{ MHz}$) per station.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">FDM Guard Bands</span>
+      </div>
+      <div class="mcq-question">In Frequency Division Multiplexing (FDM), what is the purpose of placing "Guard Bands" between adjacent channels?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. To amplify signals</li>
+        <li class="mcq-option correct">B. To prevent channel overlap and crosstalk interference ✓</li>
+        <li class="mcq-option">C. To convert analog to digital</li>
+        <li class="mcq-option">D. To store frame data</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Guard bands are narrow unused frequency ranges inserted between FDM channels to prevent overlap and inter-channel crosstalk.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">WDM Light Medium</span>
+      </div>
+      <div class="mcq-question">Wavelength Division Multiplexing (WDM) is an analog multiplexing technique designed specifically for which medium?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. UTP Cable</li>
+        <li class="mcq-option">B. Coaxial Cable</li>
+        <li class="mcq-option correct">C. Fiber Optic Cable ✓</li>
+        <li class="mcq-option">D. Satellite Dishes</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Fiber Optic Cable</strong><br>
+        WDM combines multiple light beam signals of different wavelengths (colors) into a single fiber optic cable using optical prisms.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">AM Commercial Frequency Band</span>
+      </div>
+      <div class="mcq-question">Commercial AM radio broadcasting operates within which frequency spectrum band?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 530 kHz to 1700 kHz (MF Band) ✓</li>
+        <li class="mcq-option">B. 88 MHz to 108 MHz (VHF Band)</li>
+        <li class="mcq-option">C. 3 GHz to 30 GHz (SHF Band)</li>
+        <li class="mcq-option">D. 3 kHz to 30 kHz (VLF Band)</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 530 kHz to 1700 kHz</strong><br>
+        AM radio operates in the Medium Frequency (MF) band from $530\text{--}1700\text{ kHz}$. FM radio operates from $88\text{--}108\text{ MHz}$.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">FM Noise Immunity</span>
+      </div>
+      <div class="mcq-question">Frequency Modulation (FM) is superior to Amplitude Modulation (AM) in sound quality primarily because:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. FM has superior immunity to electrical noise spikes ✓</li>
+        <li class="mcq-option">B. FM requires less bandwidth than AM</li>
+        <li class="mcq-option">C. FM uses lower carrier frequencies</li>
+        <li class="mcq-option">D. FM signals travel through walls while AM cannot</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        Most natural electrical noise affects signal amplitude. Since FM keeps carrier amplitude constant and encodes data in frequency variations, it rejects amplitude noise effectively.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Statistical TDM Efficiency</span>
+      </div>
+      <div class="mcq-question">Why is Statistical (Asynchronous) TDM more bandwidth-efficient than Synchronous TDM?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Statistical TDM uses optical prisms</li>
+        <li class="mcq-option correct">B. Time slots are allocated dynamically only to active lines rather than reserving slots for idle lines ✓</li>
+        <li class="mcq-option">C. Statistical TDM does not use time slots</li>
+        <li class="mcq-option">D. Synchronous TDM uses guard bands</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Synchronous TDM reserves a fixed slot for every channel (wasting slots if idle). Statistical TDM allocates slots dynamically on-demand only when a line has data to send.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">AM Envelope Concept</span>
+      </div>
+      <div class="mcq-question">In Amplitude Modulation (AM), the shape outlining the peaks of the high-frequency carrier wave is called the:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Envelope ✓</li>
+        <li class="mcq-option">B. Sideband</li>
+        <li class="mcq-option">C. Guard Band</li>
+        <li class="mcq-option">D. Constellation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Envelope</strong><br>
+        The modulating signal forms the outer **envelope** of the carrier wave in AM.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">FDM Division Parameter</span>
+      </div>
+      <div class="mcq-question">In Frequency Division Multiplexing (FDM), multiple signals share a single medium by dividing its:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Transmission Time</li>
+        <li class="mcq-option correct">B. Available Frequency Bandwidth ✓</li>
+        <li class="mcq-option">C. Phase Angles</li>
+        <li class="mcq-option">D. Voltage Levels</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Frequency Bandwidth</strong><br>
+        FDM divides the total frequency spectrum into distinct non-overlapping frequency bands.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Carson's Rule Ratio</span>
+      </div>
+      <div class="mcq-question">According to Carson's Rule, the total bandwidth of an FM signal is approximately how many times the bandwidth of the modulating audio signal?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 2 times</li>
+        <li class="mcq-option">B. 5 times</li>
+        <li class="mcq-option correct">C. 10 times ✓</li>
+        <li class="mcq-option">D. 100 times</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 10 times</strong><br>
+        $B_{\text{FM}} \approx 10 \times f_m$. (e.g., $20\text{ kHz}$ audio requires $200\text{ kHz}$ FM bandwidth).
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-10-analog-to-digital-conversion-and-transmission-modes.html">← Lec 10</a>
+      <a href="12-framing-error-detection-correction.html">Lec 12 →</a>
+    </div>
+    <p>Lec 11 · Analog-to-Analog Modulation &amp; Multiplexing · IBPS SO IT Notes · Based on Forouzan Chapters 5 &amp; 6</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

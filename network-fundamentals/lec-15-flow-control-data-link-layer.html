@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 15 – Flow Control & Framing in Data Link Layer | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Flow Control & Framing in Data Link Layer – Bit/Byte Stuffing, Stop-and-Wait, Go-Back-N, Selective Repeat, Efficiency Formulas, Piggybacking, HDLC, PPP with PYQ practice." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 15 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* Analogy banner */
+    .analogy-box {
+      background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(79,142,247,0.07));
+      border: 1px solid rgba(0,212,170,0.3); border-radius: 14px;
+      padding: 20px 24px; margin: 18px 0;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .analogy-icon { font-size: 26px; flex-shrink: 0; }
+    .analogy-body .analogy-title { font-size: 13px; font-weight: 800; color: var(--accent3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .analogy-body p { margin-bottom: 0; font-size: 14px; }
+
+    /* Bit/Byte visual */
+    .stuffing-flow {
+      display: flex; flex-direction: column; gap: 12px; margin: 18px 0;
+      background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+    }
+    .stuff-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+    .stuff-label { font-size: 12px; font-weight: 700; color: var(--text3); min-width: 110px; font-sans: 'Inter'; }
+    .bit-box { padding: 6px 12px; border-radius: 6px; border: 1px solid; font-weight: 700; }
+    .bit-data { background: rgba(79,142,247,0.15); border-color: rgba(79,142,247,0.3); color: var(--accent); }
+    .bit-flag { background: rgba(247,163,79,0.15); border-color: rgba(247,163,79,0.3); color: var(--accent4); }
+    .bit-stuffed { background: rgba(240,92,136,0.2); border-color: rgba(240,92,136,0.4); color: var(--accent5); }
+
+    /* Protocol cards */
+    .arq-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0;
+    }
+    @media(max-width:640px) { .arq-grid { grid-template-columns: 1fr; } }
+    .arq-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .arq-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .arq-card.sw::before { background: var(--accent4); }
+    .arq-card.gbn::before { background: var(--accent); }
+    .arq-card.sr::before { background: var(--accent3); }
+    .arq-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .arq-name { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+    .arq-card.sw .arq-name { color: var(--accent4); }
+    .arq-card.gbn .arq-name { color: var(--accent); }
+    .arq-card.sr .arq-name { color: var(--accent3); }
+    .arq-desc { font-size: 13px; color: var(--text2); margin-bottom: 10px; line-height: 1.6; }
+    .arq-tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; display: inline-block; }
+    .arq-card.sw .arq-tag { background: rgba(247,163,79,0.15); color: var(--accent4); border: 1px solid rgba(247,163,79,0.25); }
+    .arq-card.gbn .arq-tag { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.25); }
+    .arq-card.sr .arq-tag { background: rgba(0,212,170,0.15); color: var(--accent3); border: 1px solid rgba(0,212,170,0.25); }
+
+    /* Steps */
+    .step-list { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+    .step-item { display: flex; gap: 16px; align-items: flex-start; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800; color: #fff;
+    }
+    .step-content { flex: 1; padding-top: 4px; }
+    .step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+    .ibps-dot.empty { background: var(--border); }
+
+    /* Quick Recap */
+    .recap-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 12px; margin: 18px 0;
+    }
+    .recap-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+      transition: all 0.25s;
+    }
+    .recap-item:hover { border-color: var(--accent2); }
+    .recap-icon { font-size: 22px; margin-bottom: 8px; }
+    .recap-name { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .recap-val { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 15</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Data Link Layer · Chapter 11</span>
+    <h1 class="page-title">Flow Control &amp; Framing<br>in Data Link Layer</h1>
+    <p class="page-subtitle">
+      Master Data Link Control responsibilities — Framing (Bit Stuffing &amp; Byte Stuffing), Flow Control mechanisms,
+      Sliding Window Efficiency ($\eta$), Stop-and-Wait, Go-Back-N, Selective Repeat, Piggybacking, HDLC &amp; PPP.
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.11</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Data Link Control Responsibilities</a></li>
+      <li><a href="#framing"><span class="toc-num">02</span> Framing – Byte Stuffing &amp; Bit Stuffing</a></li>
+      <li><a href="#flow-concept"><span class="toc-num">03</span> Why Flow Control? (Speed Mismatch)</a></li>
+      <li><a href="#stop-wait"><span class="toc-num">04</span> Stop-and-Wait ARQ &amp; Efficiency Formula</a></li>
+      <li><a href="#gbn"><span class="toc-num">05</span> Go-Back-N ARQ (Sliding Window &amp; Cumulative ACK)</a></li>
+      <li><a href="#sr"><span class="toc-num">06</span> Selective Repeat ARQ (NAK &amp; Buffering)</a></li>
+      <li><a href="#piggybacking"><span class="toc-num">07</span> Piggybacking &amp; Protocol Comparison</a></li>
+      <li><a href="#hdlc-ppp"><span class="toc-num">08</span> HDLC &amp; PPP Protocols</a></li>
+      <li><a href="#formulas"><span class="toc-num">09</span> All Formulas &amp; Master Cheat Sheet</a></li>
+      <li><a href="#pyq"><span class="toc-num">10</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Data Link Control Responsibilities</h2>
+      </div>
+    </div>
+
+    <p>The Data Link Layer (Layer 2) is responsible for <strong>node-to-node (hop-to-hop) frame delivery</strong>. The combination of its core functions is known as <strong>Data Link Control (DLC)</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">DLC Function 1</div>
+        <div class="info-card-title">📦 Framing</div>
+        <div class="info-card-desc">Packs bits from Network Layer into distinct packets called <strong>frames</strong> using start and end flag delimiters.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">DLC Function 2</div>
+        <div class="info-card-title">🌊 Flow Control</div>
+        <div class="info-card-desc">Prevents a fast sender from overwhelming a slow receiver by matching sender/receiver transmission speeds.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">DLC Function 3</div>
+        <div class="info-card-title">🛡️ Error Control</div>
+        <div class="info-card-desc">Detects and retransmits lost or corrupted frames using ARQ protocols and acknowledgments (ACK/NAK).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: FRAMING ══════ -->
+  <div class="section" id="framing">
+    <div class="section-header">
+      <div class="section-icon">🖼️</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Framing – Byte Stuffing vs Bit Stuffing</h2>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">✉️</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Framing Analogy</div>
+        <p>Like putting a letter inside an envelope. The envelope acts as a <strong>delimiter (flag)</strong> so the postal worker knows where one letter ends and another begins. If your letter text contains the phrase "END OF LETTER", you must "escape" it so the worker isn't tricked!</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Byte Stuffing (Character-Oriented Protocols)</h3>
+    <p>Used when data is viewed as 8-bit bytes. A special 1-byte <code>FLAG</code> marks the frame boundary. If the data contains a byte identical to <code>FLAG</code> or <code>ESC</code>, an extra <code>ESC</code> byte is inserted (stuffed) before it.</p>
+
+    <div class="stuffing-flow">
+      <div class="stuff-row">
+        <span class="stuff-label">Original Data:</span>
+        <span class="bit-box bit-data">A</span>
+        <span class="bit-box bit-flag">FLAG</span>
+        <span class="bit-box bit-data">B</span>
+      </div>
+      <div class="stuff-row">
+        <span class="stuff-label">Stuffed Frame:</span>
+        <span class="bit-box bit-flag">FLAG</span>
+        <span class="bit-box bit-data">A</span>
+        <span class="bit-box bit-stuffed">ESC</span>
+        <span class="bit-box bit-flag">FLAG</span>
+        <span class="bit-box bit-data">B</span>
+        <span class="bit-box bit-flag">FLAG</span>
+      </div>
+    </div>
+
+    <h3 class="sub-title">2. Bit Stuffing (Bit-Oriented Protocols e.g. HDLC)</h3>
+    <p>Used when data is a continuous bit stream. Flag delimiter is <code>01111110</code> (six 1s). Whenever the sender encounters <strong>five consecutive 1s</strong> in data, it automatically stuffs a <code>0</code> bit after them.</p>
+
+    <div class="callout key">
+      <div class="callout-icon">⚡</div>
+      <div class="callout-body">
+        <div class="callout-title">Bit Stuffing Rule (Must Remember for IBPS SO)</div>
+        <div class="callout-text">
+          <strong>Sender side:</strong> If data has <code>0111111</code> (five 1s) → insert <code>0</code> → becomes <code>01111101</code>.<br>
+          <strong>Receiver side:</strong> If receiver sees five 1s followed by a <code>0</code> → removes (unstuffs) the <code>0</code>. If it sees six 1s followed by a <code>0</code> → it's a <code>FLAG</code>!
+        </div>
+      </div>
+    </div>
+
+    <div class="stuffing-flow">
+      <div class="stuff-row">
+        <span class="stuff-label">Input Data:</span>
+        <span style="font-family:'JetBrains Mono';color:var(--text)">0 0 0 1 1 1 1 1 1 0 1</span>
+      </div>
+      <div class="stuff-row">
+        <span class="stuff-label">Stuffed Stream:</span>
+        <span style="font-family:'JetBrains Mono';color:var(--accent)">0 0 0 1 1 1 1 1 </span>
+        <span style="font-family:'JetBrains Mono';color:var(--accent5);font-weight:800;background:rgba(240,92,136,0.2);padding:2px 6px;border-radius:4px;">0</span>
+        <span style="font-family:'JetBrains Mono';color:var(--accent)"> 1 0 1</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: FLOW CONTROL CONCEPT ══════ -->
+  <div class="section" id="flow-concept">
+    <div class="section-header">
+      <div class="section-icon">🌊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Flow Control Concept – Preventing Receiver Overflow</h2>
+      </div>
+    </div>
+
+    <p>Flow control is a set of procedures that tells the sender how much data it can transmit before it must wait for an acknowledgment from the receiver.</p>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Problem</div>
+        <div class="info-card-title">⚠️ Receiver Buffer Overflow</div>
+        <div class="info-card-desc">Sender CPU / link speed > Receiver CPU / memory speed. Without flow control, receiver's buffer overflows and incoming frames are lost.</div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Solution</div>
+        <div class="info-card-title">✅ Feedback Mechanism</div>
+        <div class="info-card-desc">Receiver sends **ACKs (Acknowledgments)** or window updates to grant the sender permission to send more data.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: STOP-AND-WAIT ══════ -->
+  <div class="section" id="stop-wait">
+    <div class="section-header">
+      <div class="section-icon">⏸️</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Stop-and-Wait ARQ &amp; Efficiency</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Numerical Frequency</div>
+    <div class="ibps-meter">
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+      <div class="ibps-dot fill"></div><div class="ibps-dot fill"></div>
+    </div>
+
+    <p>In Stop-and-Wait ARQ, the sender transmits **one frame** and then **stops and waits** for an acknowledgment (ACK) before transmitting the next frame.</p>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Sequence Numbers (Modulo-2)</div>
+          <div class="step-desc">Uses 1-bit sequence numbers: alternating 0 and 1 to distinguish duplicate frames.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">ACK Numbering</div>
+          <div class="step-desc">ACK number announces the **next frame expected** in modulo-2 arithmetic (e.g. ACK 1 means frame 0 received, expecting frame 1).</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Timer &amp; Retransmission</div>
+          <div class="step-desc">Sender keeps a copy of the frame and starts a timer. If timer expires before ACK arrives, the sender retransmits the copy.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Efficiency ($\eta$) Formula for Stop-and-Wait</h3>
+    <div class="formula-box">
+      <div class="formula-label">⚡ Efficiency Formula</div>
+      <div class="formula-main">$$\eta = \frac{T_t}{T_t + 2T_p} = \frac{1}{1 + 2a}$$</div>
+      <div class="formula-note">
+        T<sub>t</sub> = Transmission time (L/B) &nbsp;|&nbsp; T<sub>p</sub> = Propagation time (Distance/Speed)<br>
+        $a = \frac{T_p}{T_t}$ &nbsp;|&nbsp; $\text{Throughput} = \eta \times \text{Bandwidth}$
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Exam Shortcut</div>
+        <div class="callout-text">
+          If T<sub>p</sub> is very large compared to T<sub>t</sub> (e.g., satellite links where a > 100), Stop-and-Wait efficiency drops close to 0%! That's why we need <strong>Sliding Window protocols (Go-Back-N / Selective Repeat)</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: GO-BACK-N ══════ -->
+  <div class="section" id="gbn">
+    <div class="section-header">
+      <div class="section-icon">🔙</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Go-Back-N ARQ (Sliding Window)</h2>
+      </div>
+    </div>
+
+    <p>To improve efficiency, Go-Back-N allows the sender to transmit multiple frames without waiting for individual ACKs, up to a maximum window size $W_s$.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">Go-Back-N Window Sizes</div>
+      <div class="formula-main">W_s = 2^m - 1 &nbsp;&nbsp;|&nbsp;&nbsp; W_r = 1</div>
+      <div class="formula-note">m = sequence number field bits &nbsp;|&nbsp; Receiver window is ALWAYS 1</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">ACK Type</div>
+        <div class="info-card-title">📦 Cumulative ACK</div>
+        <div class="info-card-desc">ACK N acknowledges all frames up to N−1. If ACK 3 arrives, it acknowledges frame 0, frame 1, and frame 2 in one go!</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">On Loss</div>
+        <div class="info-card-title">⚠️ Retransmit All</div>
+        <div class="info-card-desc">If frame i is lost, receiver discards all out-of-order frames (since $W_r=1$). Sender timer expires and retransmits frame i AND all frames sent after it!</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">Go-Back-N Efficiency</div>
+      <div class="formula-main">$$\eta = \min\left(1, \frac{W_s}{1 + 2a}\right) = \frac{2^m - 1}{1 + 2a}$$</div>
+      <div class="formula-note">Optimal window size to achieve 100% efficiency: $W_s = 1 + 2a$</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: SELECTIVE REPEAT ══════ -->
+  <div class="section" id="sr">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Selective Repeat ARQ</h2>
+      </div>
+    </div>
+
+    <p>Selective Repeat overcomes the inefficiency of Go-Back-N by retransmitting **ONLY the corrupted or lost frame**.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">Selective Repeat Window Sizes</div>
+      <div class="formula-main">$$W_s = 2^{m-1} \quad | \quad W_r = 2^{m-1}$$</div>
+      <div class="formula-note">Sender and Receiver windows are EQUAL: $W_s = W_r = 2^{m-1}$</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Receiver Action</div>
+        <div class="info-card-title">📥 Out-of-Order Buffering</div>
+        <div class="info-card-desc">Receiver has a buffer size $W_r$. Out-of-order frames are accepted and stored until missing frame arrives.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Error Signal</div>
+        <div class="info-card-title">🚨 NAK (Negative ACK)</div>
+        <div class="info-card-desc">Receiver sends a NAK for the missing frame. Sender immediately retransmits only that specific frame.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: PIGGYBACKING & COMPARISON ══════ -->
+  <div class="section" id="piggybacking">
+    <div class="section-header">
+      <div class="section-icon">🐷</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Piggybacking &amp; Protocol Comparison</h2>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">✉️</div>
+      <div class="analogy-body">
+        <div class="analogy-title">What is Piggybacking?</div>
+        <p>Combining data and acknowledgment into a single frame during bidirectional communication. Instead of sending a standalone ACK frame, the receiver attaches (piggybacks) the ACK onto its own outgoing data frame. Saves bandwidth!</p>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Master Comparison of Flow Control Protocols</h3>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Stop-and-Wait ARQ</th>
+            <th>Go-Back-N ARQ</th>
+            <th>Selective Repeat ARQ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sender Window ($W_s$)</td>
+            <td>1</td>
+            <td>$2^m - 1$</td>
+            <td>$2^{m-1}$</td>
+          </tr>
+          <tr>
+            <td>Receiver Window ($W_r$)</td>
+            <td>1</td>
+            <td>1</td>
+            <td>$2^{m-1}$</td>
+          </tr>
+          <tr>
+            <td>ACK Type</td>
+            <td>Individual ACK</td>
+            <td>Cumulative ACK</td>
+            <td>Selective ACK / NAK</td>
+          </tr>
+          <tr>
+            <td>Retransmission</td>
+            <td>1 frame</td>
+            <td>N frames (from lost frame)</td>
+            <td>Only 1 lost frame</td>
+          </tr>
+          <tr>
+            <td>Receiver Buffer</td>
+            <td>Not required</td>
+            <td>Not required</td>
+            <td>Required (size $W_r$)</td>
+          </tr>
+          <tr>
+            <td>Efficiency ($\eta$)</td>
+            <td>$\frac{1}{1+2a}$</td>
+            <td>$\frac{W_s}{1+2a}$</td>
+            <td>$\frac{W_s}{1+2a}$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: HDLC & PPP ══════ -->
+  <div class="section" id="hdlc-ppp">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">HDLC &amp; PPP Protocols</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Standard DLC</div>
+        <div class="info-card-title">🔹 HDLC (High-level Data Link Control)</div>
+        <div class="info-card-desc">
+          - <strong>Bit-oriented</strong> protocol<br>
+          - Supports point-to-point and multipoint links<br>
+          - Frame Types: <strong>I-frames</strong> (Information), <strong>S-frames</strong> (Supervisory: ACK/NAK), <strong>U-frames</strong> (Unnumbered: Management)
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Internet DLC</div>
+        <div class="info-card-title">🔸 PPP (Point-to-Point Protocol)</div>
+        <div class="info-card-desc">
+          - <strong>Byte-oriented</strong> protocol<br>
+          - Used for point-to-point connections (DSL, dial-up)<br>
+          - Components: LCP (Link Control Protocol), NCP (Network Control Protocol), Authentication (PAP/CHAP)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 9: FORMULAS & CHEAT SHEET ══════ -->
+  <div class="section" id="formulas">
+    <div class="section-header">
+      <div class="section-icon">📐</div>
+      <div>
+        <div class="section-num">Section 09</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet 🗂️</h2>
+      </div>
+    </div>
+
+    <div class="recap-grid">
+      <div class="recap-item">
+        <div class="recap-icon">⏱️</div>
+        <div class="recap-name">Transmission Time</div>
+        <div class="recap-val">$T_t = \frac{L}{\text{Bandwidth}}$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🚀</div>
+        <div class="recap-name">Propagation Time</div>
+        <div class="recap-val">$T_p = \frac{\text{Distance}}{\text{Speed}}$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">📊</div>
+        <div class="recap-name">Parameter a</div>
+        <div class="recap-val">$a = \frac{T_p}{T_t}$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">⏸️</div>
+        <div class="recap-name">Stop-Wait Efficiency</div>
+        <div class="recap-val">$\eta = \frac{1}{1 + 2a}$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🔙</div>
+        <div class="recap-name">Go-Back-N Window</div>
+        <div class="recap-val">$W_s = 2^m - 1, W_r = 1$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">🎯</div>
+        <div class="recap-name">Selective Repeat</div>
+        <div class="recap-val">$W_s = W_r = 2^{m-1}$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">💡</div>
+        <div class="recap-name">Optimal Window</div>
+        <div class="recap-val">$W_{\text{opt}} = 1 + 2a$</div>
+      </div>
+      <div class="recap-item">
+        <div class="recap-icon">⚡</div>
+        <div class="recap-name">Throughput</div>
+        <div class="recap-val">$\eta \times \text{Bandwidth}$</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 10: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 10</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Bit Stuffing</span>
+      </div>
+      <div class="mcq-question">In a bit-oriented protocol, if the sender wants to send the bit string 011111101, what will be the stuffed bit string sent on the link?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 011111101</li>
+        <li class="mcq-option correct">B. 0111110101 ✓</li>
+        <li class="mcq-option">C. 011111001</li>
+        <li class="mcq-option">D. 011111110</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 0111110101</strong><br>
+        Bit stuffing rule: After five consecutive 1s, a 0 is inserted.<br>
+        Data: 0 1 1 1 1 1 (five 1s) → insert 0 → 0 1 1 1 1 1 <strong>0</strong> 1 0 1.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Go-Back-N Window Size</span>
+      </div>
+      <div class="mcq-question">What is the receiver window size in Go-Back-N ARQ protocol?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 1 ✓</li>
+        <li class="mcq-option">B. 2ⁿ − 1</li>
+        <li class="mcq-option">C. 2ⁿ⁻¹</li>
+        <li class="mcq-option">D. N</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 1</strong><br>
+        In Go-Back-N ARQ, the receiver window size $W_r$ is ALWAYS 1. It only accepts frames in exact sequential order and discards out-of-order frames.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Selective Repeat Window Size</span>
+      </div>
+      <div class="mcq-question">If 4 bits are reserved for sequence numbers ($m=4$), what is the maximum sender window size in Selective Repeat ARQ?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 15</li>
+        <li class="mcq-option">B. 16</li>
+        <li class="mcq-option correct">C. 8 ✓</li>
+        <li class="mcq-option">D. 7</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 8</strong><br>
+        Formula for Selective Repeat: $W_s = 2^{m-1} = 2^{4-1} = 2^3 = 8$.<br>
+        (Note: For Go-Back-N it would be $2^4 - 1 = 15$).
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Piggybacking</span>
+      </div>
+      <div class="mcq-question">The technique of attaching an acknowledgment to an outgoing data frame is called:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Bit stuffing</li>
+        <li class="mcq-option">B. Pipelining</li>
+        <li class="mcq-option correct">C. Piggybacking ✓</li>
+        <li class="mcq-option">D. Framing</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Piggybacking</strong><br>
+        Piggybacking saves bandwidth during two-way communication by combining ACK control info with user data in a single frame.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Efficiency Numerical</span>
+      </div>
+      <div class="mcq-question">In a Stop-and-Wait system, if transmission time $T_t = 1\text{ ms}$ and propagation time $T_p = 4\text{ ms}$, what is the channel efficiency?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 20%</li>
+        <li class="mcq-option correct">B. 11.1% ✓</li>
+        <li class="mcq-option">C. 25%</li>
+        <li class="mcq-option">D. 50%</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 11.1%</strong><br>
+        $a = T_p / T_t = 4 / 1 = 4$<br>
+        $\eta = \frac{1}{1 + 2a} = \frac{1}{1 + 2(4)} = \frac{1}{9} \approx 0.111 = 11.1\%$
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Optimal Window Size</span>
+      </div>
+      <div class="mcq-question">In the previous question ($a=4$), what sender window size is required to achieve 100% channel utilization?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4</li>
+        <li class="mcq-option">B. 8</li>
+        <li class="mcq-option correct">C. 9 ✓</li>
+        <li class="mcq-option">D. 10</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 9</strong><br>
+        Optimal window size $W_{opt} = 1 + 2a = 1 + 2(4) = 9$ frames.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">HDLC Character Orientation</span>
+      </div>
+      <div class="mcq-question">HDLC is a _______ protocol.</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Byte-oriented</li>
+        <li class="mcq-option correct">B. Bit-oriented ✓</li>
+        <li class="mcq-option">C. Character-oriented</li>
+        <li class="mcq-option">D. Word-oriented</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Bit-oriented</strong><br>
+        HDLC is a bit-oriented protocol (uses bit stuffing with flag 01111110). PPP is a byte-oriented protocol (uses byte stuffing).
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Cumulative ACK</span>
+      </div>
+      <div class="mcq-question">In Go-Back-N ARQ, if the receiver sends ACK 4, it implies:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Frame 4 has been received correctly</li>
+        <li class="mcq-option correct">B. Frames 0, 1, 2, and 3 have been received correctly ✓</li>
+        <li class="mcq-option">C. Frame 4 is corrupted</li>
+        <li class="mcq-option">D. Frame 4 is lost</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Go-Back-N uses cumulative ACKs. ACK 4 means receiver has received all frames up to frame 3, and is now expecting frame 4.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">PPP Protocol Components</span>
+      </div>
+      <div class="mcq-question">Which protocol in PPP is responsible for establishing, configuring, and testing the data link connection?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. NCP</li>
+        <li class="mcq-option correct">B. LCP (Link Control Protocol) ✓</li>
+        <li class="mcq-option">C. CHAP</li>
+        <li class="mcq-option">D. IPCP</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — LCP</strong><br>
+        LCP (Link Control Protocol) handles link establishment and configuration. NCP (Network Control Protocol) configures network layer protocols.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Flow Control Purpose</span>
+      </div>
+      <div class="mcq-question">Flow control at the Data Link Layer is primarily required to solve the problem of:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Bit errors in channel</li>
+        <li class="mcq-option correct">B. Receiver buffer overflow due to speed mismatch ✓</li>
+        <li class="mcq-option">C. Routing packets through routers</li>
+        <li class="mcq-option">D. Congestion in intermediate networks</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Flow control prevents a fast sender from overwhelming a slow receiver's buffer. Bit errors are handled by error control, and congestion is handled at Network/Transport layers.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-14-error-control-data-link-layer.html">← Lec 14</a>
+    </div>
+    <p>Lec 15 · Flow Control &amp; Framing in Data Link Layer · IBPS SO IT Notes · Based on Forouzan Chapter 11</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

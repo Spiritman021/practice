@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 2 – Network Topologies &amp; Network Devices | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Network Topologies (Mesh, Star, Bus, Ring, Hybrid) and Network Devices (Repeater, Hub, Bridge, Switch, Router, Gateway, Cables) with PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 2 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* Device cards grid */
+    .device-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .device-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .device-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .device-card.l1::before { background: var(--accent4); }
+    .device-card.l2::before { background: var(--accent); }
+    .device-card.l3::before { background: var(--accent3); }
+    .device-card.all::before { background: var(--accent5); }
+    .device-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .device-layer-badge {
+      font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 100px;
+      text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 10px;
+    }
+    .device-card.l1 .device-layer-badge { background: rgba(247,163,79,0.15); color: var(--accent4); border: 1px solid rgba(247,163,79,0.3); }
+    .device-card.l2 .device-layer-badge { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+    .device-card.l3 .device-layer-badge { background: rgba(0,212,170,0.15); color: var(--accent3); border: 1px solid rgba(0,212,170,0.3); }
+    .device-card.all .device-layer-badge { background: rgba(240,92,136,0.15); color: var(--accent5); border: 1px solid rgba(240,92,136,0.3); }
+    .device-name { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .device-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 02</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical &amp; Data Link Layer · Lecture 02</span>
+    <h1 class="page-title">Network Topologies &amp;<br>Network Devices</h1>
+    <p class="page-subtitle">
+      Deep dive into Network Topologies (Mesh, Star, Bus, Ring, Hybrid) &amp; Networking Hardware
+      (Repeater, Hub, Bridge, Switch, Router, Gateway, Transmission Cables).
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.01 &amp; Ch.03</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#topology-def"><span class="toc-num">01</span> What is Network Topology?</a></li>
+      <li><a href="#mesh"><span class="toc-num">02</span> Mesh Topology (Formulas &amp; Details)</a></li>
+      <li><a href="#star-bus-ring"><span class="toc-num">03</span> Star, Bus, Ring &amp; Hybrid Topologies</a></li>
+      <li><a href="#devices"><span class="toc-num">04</span> Network Devices by OSI Layer (Hub, Switch, Router, etc.)</a></li>
+      <li><a href="#domain-table"><span class="toc-num">05</span> Collision Domain vs Broadcast Domain Table</a></li>
+      <li><a href="#cables"><span class="toc-num">06</span> Transmission Media Cables (Twisted Pair, Coax, Fiber)</a></li>
+      <li><a href="#summary"><span class="toc-num">07</span> Master Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: TOPOLOGY DEF ══════ -->
+  <div class="section" id="topology-def">
+    <div class="section-header">
+      <div class="section-icon">🕸️</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is Network Topology?</h2>
+      </div>
+    </div>
+
+    <p>Network Topology refers to the **geometric arrangement of nodes (computers, routers) and connecting lines (links)** in a communication network.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Aspect 1</div>
+        <div class="info-card-title">📐 Physical Topology</div>
+        <div class="info-card-desc">The actual physical layout of cables, wires, computers, and central connecting hardware in a facility.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Aspect 2</div>
+        <div class="info-card-title">⚡ Logical Topology</div>
+        <div class="info-card-desc">The path that data signals follow through the physical layout (e.g., Physical Star, Logical Bus or Ring).</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: MESH TOPOLOGY ══════ -->
+  <div class="section" id="mesh">
+    <div class="section-header">
+      <div class="section-icon">🕸️</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Mesh Topology (Formulas &amp; Working)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Numerical Favorite</div>
+
+    <p>In a fully connected Mesh topology, every device has a **dedicated point-to-point link** to every other device on the network.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Mesh Topology Formulas (Must Memorize)</div>
+      <div class="formula-main">$$\text{Number of Physical Links } L = \frac{N(N - 1)}{2}$$</div>
+      <div class="formula-main">$$\text{Number of I/O Ports per Node} = N - 1$$</div>
+      <div class="formula-note">Where $N$ = total number of devices/nodes in the network.</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Worked Example for IBPS SO IT</div>
+        <div class="callout-text">
+          <strong>Question:</strong> How many physical links and ports per device are needed for 6 computers in a Mesh topology?<br>
+          - <strong>Links:</strong> $L = \frac{6 \times (6 - 1)}{2} = \frac{30}{2} = \mathbf{15\text{ links}}$<br>
+          - <strong>Ports per node:</strong> $N - 1 = 6 - 1 = \mathbf{5\text{ ports}}$
+        </div>
+      </div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <h4>Advantages of Mesh</h4>
+        <ul>
+          <li>Dedicated traffic (no sharing, no congestion)</li>
+          <li>Robust: single link failure does not affect others</li>
+          <li>High privacy and security (dedicated lines)</li>
+          <li>Fault identification and isolation is easy</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <h4>Disadvantages of Mesh</h4>
+        <ul>
+          <li>High installation and cable cost</li>
+          <li>Requires large number of I/O ports per device</li>
+          <li>Bulky wiring, difficult to reconfigure</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: OTHER TOPOLOGIES ══════ -->
+  <div class="section" id="star-bus-ring">
+    <div class="section-header">
+      <div class="section-icon">⭐</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Star, Bus, Ring &amp; Hybrid Topologies</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Star -->
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Topology 1</div>
+        <div class="info-card-title">⭐ Star Topology</div>
+        <div class="info-card-desc">
+          - Each device is connected to a <strong>central hub or switch</strong>.<br>
+          - Requires $N$ cables and $1$ port per node.<br>
+          - <strong>Advantage:</strong> Easy to install, failure of 1 node doesn't affect network.<br>
+          - <strong>Disadvantage:</strong> Central point of failure (if hub/switch fails, whole network crashes!).
+        </div>
+      </div>
+
+      <!-- Bus -->
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">Topology 2</div>
+        <div class="info-card-title">🚌 Bus Topology</div>
+        <div class="info-card-desc">
+          - All devices connected to a single <strong>backbone cable</strong> via drop lines and taps.<br>
+          - Terminators required at both cable ends to prevent signal reflection.<br>
+          - High collision risk (CSMA/CD protocol used).<br>
+          - If backbone cable breaks, entire network goes down.
+        </div>
+      </div>
+
+      <!-- Ring -->
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Topology 3</div>
+        <div class="info-card-title">⭕ Ring Topology</div>
+        <div class="info-card-desc">
+          - Each device connected to exactly 2 neighboring devices in a circular loop.<br>
+          - Uses <strong>Token Passing</strong> (Token Ring IEEE 802.5) to prevent collisions.<br>
+          - Token Release types: <em>Early token release</em> vs <em>Delay token release</em>.<br>
+          - Monitor station manages the token. Break in ring breaks network.
+        </div>
+      </div>
+
+      <!-- Hybrid -->
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Topology 4</div>
+        <div class="info-card-title">🔀 Hybrid &amp; Tree Topology</div>
+        <div class="info-card-desc">
+          - <strong>Hybrid:</strong> Combination of 2 or more different topologies (e.g., Star-Bus, Star-Ring).<br>
+          - <strong>Tree (Expanded Star):</strong> Hierarchical structure connecting multiple star networks to a central bus/hub.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: NETWORK DEVICES ══════ -->
+  <div class="section" id="devices">
+    <div class="section-header">
+      <div class="section-icon">📟</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Network Devices by OSI Layer</h2>
+      </div>
+    </div>
+
+    <div class="device-grid">
+      <!-- Repeater -->
+      <div class="device-card l1">
+        <span class="device-layer-badge">Layer 1 · Physical</span>
+        <div class="device-name">📡 Repeater</div>
+        <div class="device-desc">
+          - 2-port device.<br>
+          - <strong>Regenerates (copies bit-by-bit)</strong> weak signals before transmission over long distances.<br>
+          - <em>Does NOT amplify</em> noise; purely regenerates clean signal.
+        </div>
+      </div>
+
+      <!-- Hub -->
+      <div class="device-card l1">
+        <span class="device-layer-badge">Layer 1 · Physical</span>
+        <div class="device-name">🔌 Hub</div>
+        <div class="device-desc">
+          - Multiport repeater.<br>
+          - Non-intelligent device: <strong>broadcasts</strong> incoming data to all connected ports.<br>
+          - Types: <em>Active Hub</em> (regenerates signal) vs <em>Passive Hub</em> (wiring center only).<br>
+          - Single collision domain, single broadcast domain.
+        </div>
+      </div>
+
+      <!-- Bridge -->
+      <div class="device-card l2">
+        <span class="device-layer-badge">Layer 2 · Data Link</span>
+        <div class="device-name">🌉 Bridge</div>
+        <div class="device-desc">
+          - 2-port device used to connect two LAN segments.<br>
+          - Filters traffic by checking <strong>MAC addresses</strong>.<br>
+          - Types: <em>Transparent Bridge</em> (auto-learning CAM table) vs <em>Source Routing Bridge</em>.<br>
+          - Divides collision domain!
+        </div>
+      </div>
+
+      <!-- Switch -->
+      <div class="device-card l2">
+        <span class="device-layer-badge">Layer 2 · Data Link</span>
+        <div class="device-name">🔀 Switch</div>
+        <div class="device-desc">
+          - Multiport bridge with dedicated hardware (ASIC).<br>
+          - Uses <strong>MAC Address Table (CAM Table)</strong> to selectively forward frames to destination port.<br>
+          - Divides collision domain (each port = separate collision domain).<br>
+          - Broadcast domain remains 1 (unless VLAN configured).
+        </div>
+      </div>
+
+      <!-- Router -->
+      <div class="device-card l3">
+        <span class="device-layer-badge">Layer 3 · Network</span>
+        <div class="device-name">🌐 Router</div>
+        <div class="device-desc">
+          - Connects different networks (LANs &amp; WANs).<br>
+          - Routes packets using <strong>IP addresses</strong> and routing tables.<br>
+          - <strong>Divides BOTH Collision Domains and Broadcast Domains!</strong>
+        </div>
+      </div>
+
+      <!-- Gateway -->
+      <div class="device-card all">
+        <span class="device-layer-badge">Layer 1 - 7 · All Layers</span>
+        <div class="device-name">🚪 Gateway</div>
+        <div class="device-desc">
+          - Protocol converter.<br>
+          - Connects two networks operating on <strong>different protocol architectures</strong> (e.g., OSI to TCP/IP or SNA).<br>
+          - Operates at any/all layer(s) of OSI model.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: DOMAINS TABLE ══════ -->
+  <div class="section" id="domain-table">
+    <div class="section-header">
+      <div class="section-icon">💥</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Collision Domain vs Broadcast Domain Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Network Device</th>
+            <th>OSI Operating Layer</th>
+            <th>Collision Domains</th>
+            <th>Broadcast Domains</th>
+            <th>Addressing Used</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hub / Repeater</strong></td>
+            <td>Layer 1 (Physical)</td>
+            <td>1 (Shared by all ports)</td>
+            <td>1</td>
+            <td>None (Physical bits)</td>
+          </tr>
+          <tr>
+            <td><strong>Switch (Layer 2)</strong></td>
+            <td>Layer 2 (Data Link)</td>
+            <td>$N$ (1 per port)</td>
+            <td>1 (Entire switch)</td>
+            <td>MAC Address (48-bit)</td>
+          </tr>
+          <tr>
+            <td><strong>Bridge</strong></td>
+            <td>Layer 2 (Data Link)</td>
+            <td>2 (1 per segment)</td>
+            <td>1</td>
+            <td>MAC Address</td>
+          </tr>
+          <tr>
+            <td><strong>Router</strong></td>
+            <td>Layer 3 (Network)</td>
+            <td>$N$ (1 per port)</td>
+            <td>$N$ (1 per interface)</td>
+            <td>IP Address (32/128-bit)</td>
+          </tr>
+          <tr>
+            <td><strong>Gateway</strong></td>
+            <td>Layers 1 – 7</td>
+            <td>$N$</td>
+            <td>$N$</td>
+            <td>Protocol Translations</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: CABLES ══════ -->
+  <div class="section" id="cables">
+    <div class="section-header">
+      <div class="section-icon">🔌</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Transmission Media &amp; Cables</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Twisted Pair -->
+      <div class="info-card">
+        <div class="info-card-label">Cable 1</div>
+        <div class="info-card-title">🌀 Twisted Pair Cable</div>
+        <div class="info-card-desc">
+          - <strong>Why twisted?</strong> Twisting cancels out Electromagnetic Interference (EMI) and crosstalk from neighboring pairs.<br>
+          - <strong>Types:</strong> UTP (Unshielded) &amp; STP (Shielded).<br>
+          - <strong>Straight-through vs Crossover:</strong> Straight links different devices (PC to Switch); Crossover links same devices (PC to PC). Auto MDI-X auto-detects.
+        </div>
+      </div>
+
+      <!-- Coaxial -->
+      <div class="info-card">
+        <div class="info-card-label">Cable 2</div>
+        <div class="info-card-title">📺 Coaxial Cable</div>
+        <div class="info-card-desc">
+          - Central copper conductor surrounded by insulator, metallic braid shield, and jacket.<br>
+          - <strong>Legacy Ethernet:</strong> 10BASE5 (Thicknet), 10BASE2 (Thinnet).<br>
+          - Used today in Cable TV and broadband Internet.
+        </div>
+      </div>
+
+      <!-- Fiber Optic -->
+      <div class="info-card">
+        <div class="info-card-label">Cable 3</div>
+        <div class="info-card-title">✨ Fiber Optic Cable</div>
+        <div class="info-card-desc">
+          - Transmits signals as <strong>light pulses</strong> using Total Internal Reflection.<br>
+          - <strong>Single-Mode (SMF):</strong> Small core, long distance, laser source.<br>
+          - <strong>Multi-Mode (MMF):</strong> Larger core, short distance (data center), LED source.<br>
+          - Immune to EMI, highest bandwidth and speed.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: SUMMARY ══════ -->
+  <div class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Topologies Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Topology</th>
+            <th>Cable Links Needed</th>
+            <th>Ports per Node</th>
+            <th>Primary Advantage</th>
+            <th>Primary Weakness</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Mesh</strong></td>
+            <td>$\frac{N(N-1)}{2}$</td>
+            <td>$N - 1$</td>
+            <td>Dedicated traffic, high security</td>
+            <td>Very expensive cabling</td>
+          </tr>
+          <tr>
+            <td><strong>Star</strong></td>
+            <td>$N$</td>
+            <td>1</td>
+            <td>Easy install &amp; fault isolation</td>
+            <td>Hub failure crashes network</td>
+          </tr>
+          <tr>
+            <td><strong>Bus</strong></td>
+            <td>1 backbone + $N$ drops</td>
+            <td>1</td>
+            <td>Low cable cost</td>
+            <td>Collisions, single cable failure</td>
+          </tr>
+          <tr>
+            <td><strong>Ring</strong></td>
+            <td>$N$</td>
+            <td>2</td>
+            <td>No collisions (Token passing)</td>
+            <td>Break in ring breaks network</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Device Layer Mapping</span>
+      </div>
+      <div class="mcq-question">Which device operates at the Data Link Layer and filters traffic based on MAC addresses?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Repeater</li>
+        <li class="mcq-option">B. Hub</li>
+        <li class="mcq-option correct">C. Switch / Bridge ✓</li>
+        <li class="mcq-option">D. Router</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Switch / Bridge</strong><br>
+        Switches and Bridges operate at Layer 2 (Data Link Layer) and forward frames using MAC addresses. Hubs/Repeaters operate at Layer 1, and Routers operate at Layer 3.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Broadcast Domain</span>
+      </div>
+      <div class="mcq-question">Which of the following devices separates Broadcast Domains?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Hub</li>
+        <li class="mcq-option">B. Switch</li>
+        <li class="mcq-option">C. Bridge</li>
+        <li class="mcq-option correct">D. Router ✓</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: D — Router</strong><br>
+        Routers operate at Layer 3 and do NOT forward broadcast packets by default, thus creating separate Broadcast Domains for each port. Hubs, Switches, and Bridges maintain a single broadcast domain.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Mesh Topology Ports</span>
+      </div>
+      <div class="mcq-question">If a mesh network contains 8 computers, how many I/O ports are required for each computer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 28</li>
+        <li class="mcq-option correct">B. 7 ✓</li>
+        <li class="mcq-option">C. 8</li>
+        <li class="mcq-option">D. 14</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 7</strong><br>
+        Ports per node in Mesh topology = $N - 1 = 8 - 1 = \mathbf{7\text{ ports}}$.<br>
+        (Total physical links in network = $\frac{8 \times 7}{2} = 28$ links).
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Repeater Function</span>
+      </div>
+      <div class="mcq-question">A repeater operates at the Physical layer. Its primary function is to:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Amplify the analog signal along with noise</li>
+        <li class="mcq-option correct">B. Regenerate the digital signal bit-by-bit ✓</li>
+        <li class="mcq-option">C. Route packets based on IP address</li>
+        <li class="mcq-option">D. Filter frames based on MAC address</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Repeaters do NOT amplify signals (amplifiers amplify both signal and noise). Repeaters regenerate digital signals bit-by-bit at original strength to extend cable distance.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Protocol Conversion</span>
+      </div>
+      <div class="mcq-question">Which networking device acts as a protocol converter between two different network architectures?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Router</li>
+        <li class="mcq-option">B. Switch</li>
+        <li class="mcq-option correct">C. Gateway ✓</li>
+        <li class="mcq-option">D. Bridge</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Gateway</strong><br>
+        A Gateway acts as a protocol converter that translates data between systems running entirely different networking models/protocols.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Twisted Pair Wiring</span>
+      </div>
+      <div class="mcq-question">Why are wire pairs twisted together in a Twisted Pair Ethernet cable?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. To increase cable strength</li>
+        <li class="mcq-option correct">B. To cancel out Electromagnetic Interference (EMI) and crosstalk ✓</li>
+        <li class="mcq-option">C. To increase signal speed</li>
+        <li class="mcq-option">D. To decrease manufacturing cost</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Twisting forward and return conductors causes electromagnetic noise to affect both wires equally, canceling out EMI and crosstalk.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Token Passing</span>
+      </div>
+      <div class="mcq-question">Token Passing access mechanism is used in which topology to prevent collisions?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Bus Topology</li>
+        <li class="mcq-option">B. Star Topology</li>
+        <li class="mcq-option correct">C. Ring Topology ✓</li>
+        <li class="mcq-option">D. Mesh Topology</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Ring Topology</strong><br>
+        Token Ring (IEEE 802.5) uses a small token frame circulating in the ring. A station must hold the token to transmit, eliminating collision possibilities.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Direct PC Connection Cable</span>
+      </div>
+      <div class="mcq-question">Which type of Ethernet cable is required to connect two PCs directly together without a switch or hub?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Straight-through cable</li>
+        <li class="mcq-option correct">B. Crossover cable ✓</li>
+        <li class="mcq-option">C. Coaxial cable</li>
+        <li class="mcq-option">D. Fiber optic patch cord</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Crossover cable</strong><br>
+        Connecting similar devices (PC to PC, Switch to Switch) requires a crossover cable so transmit pins on one end connect to receive pins on the other.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Collision Domain Count</span>
+      </div>
+      <div class="mcq-question">A 12-port Ethernet Switch has 10 computers connected to it. How many Collision Domains exist on this switch?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1</li>
+        <li class="mcq-option">B. 10</li>
+        <li class="mcq-option correct">C. 12 ✓</li>
+        <li class="mcq-option">D. 0</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 12</strong><br>
+        On a switch, EACH port creates an independent collision domain. A 12-port switch has 12 collision domains regardless of how many ports currently have active links.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Fiber Optic Transmission</span>
+      </div>
+      <div class="mcq-question">Fiber optic cables transmit data using which physical phenomenon?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Refraction</li>
+        <li class="mcq-option correct">B. Total Internal Reflection ✓</li>
+        <li class="mcq-option">C. Diffraction</li>
+        <li class="mcq-option">D. Polarization</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Total Internal Reflection</strong><br>
+        Light pulses bounce inside the glass core because the angle of incidence exceeds the critical angle, causing total internal reflection against the cladding.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-01-categories-of-computer-networks.html">← Lec 01</a>
+      <a href="03-network-topologies.html">Lec 03 →</a>
+    </div>
+    <p>Lec 02 · Network Topologies &amp; Network Devices · IBPS SO IT Notes · Based on Forouzan Chapters 1 &amp; 3</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

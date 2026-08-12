@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 13 – Concept of Switching (Circuit, Packet &amp; Message) | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Switching Techniques – Circuit Switching, Packet Switching (Datagram vs Virtual Circuit), Message Switching, Store-and-Forward Delays, Clos Criterion &amp; PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 13 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 13</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Network Architecture · Lecture 13</span>
+    <h1 class="page-title">Concept of Switching<br>(Circuit, Packet &amp; Message)</h1>
+    <p class="page-subtitle">
+      Master Network Switching Techniques – Circuit-Switched Networks (Physical Layer), Packet-Switched Networks (Datagram vs. Virtual Circuit),
+      Message Switching (Store-and-Forward), Switch Hardware Architectures (Crossbar, Clos Criterion $k \ge 2n-1$, TSI), and Delay Models.
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Core Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.08</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#taxonomy"><span class="toc-num">01</span> Taxonomy of Switched Networks</a></li>
+      <li><a href="#circuit-switching"><span class="toc-num">02</span> Circuit-Switched Networks (Physical Layer)</a></li>
+      <li><a href="#datagram"><span class="toc-num">03</span> Datagram Packet-Switched Networks (Connectionless IP)</a></li>
+      <li><a href="#virtual-circuit"><span class="toc-num">04</span> Virtual-Circuit Packet Networks (Connection-Oriented VC)</a></li>
+      <li><a href="#message-switching"><span class="toc-num">05</span> Message Switching (Store-and-Forward)</a></li>
+      <li><a href="#switch-hardware"><span class="toc-num">06</span> Switch Hardware (Crossbar, Clos Criterion $k \ge 2n-1$, TSI)</a></li>
+      <li><a href="#comparison"><span class="toc-num">07</span> Master Comparison Matrix (Circuit vs Datagram vs VC)</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: TAXONOMY ══════ -->
+  <div class="section" id="taxonomy">
+    <div class="section-header">
+      <div class="section-icon">🔀</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Taxonomy of Switched Networks</h2>
+      </div>
+    </div>
+
+    <p>A <strong>switched network</strong> consists of a series of interconnected nodes called <strong>switches</strong> capable of routing data from a source node to a destination node without requiring a direct physical cable between every pair of computers.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">🔌 Circuit-Switched</div>
+        <div class="info-card-desc">Dedicated physical connection established at Physical Layer before data transmission begins. (PSTN Telephony).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">📦 Packet-Switched</div>
+        <div class="info-card-desc">Data divided into small packets transmitted independently. Divided into <strong>Datagram</strong> (Connectionless) and <strong>Virtual-Circuit</strong> (Connection-Oriented).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 3</div>
+        <div class="info-card-title">📨 Message-Switched</div>
+        <div class="info-card-desc">Entire message stored and forwarded node-by-node at Application Layer. High storage requirement at nodes.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: CIRCUIT SWITCHING ══════ -->
+  <div class="section" id="circuit-switching">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Circuit-Switched Networks (Physical Layer)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Core High Frequency Topic</div>
+
+    <p>Operates at the <strong>Physical Layer (Layer 1)</strong>. A dedicated physical circuit path is reserved between source and destination before data transfer starts.</p>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Phase 1: Setup Phase</div>
+          <div class="step-desc">End-to-end request sent through switches to reserve dedicated links and switches.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Phase 2: Data Transfer Phase</div>
+          <div class="step-desc">Contiguous stream of data flows across the reserved path. <strong>No packet headers attached!</strong></div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Phase 3: Teardown Phase</div>
+          <div class="step-desc">Disconnection signal released to free reserved switches and transmission resources.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Circuit-Switching Total Delay Formula</div>
+      <div class="formula-main">$$\text{Total Delay} = T_{\text{setup}} + T_{\text{transmission}} + T_{\text{propagation}} + T_{\text{teardown}}$$</div>
+      <div class="formula-note">Note: Zero queuing/processing delay during data transfer phase!</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: DATAGRAM PACKET SWITCHING ══════ -->
+  <div class="section" id="datagram">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Datagram Packet-Switched Networks (Connectionless IP)</h2>
+      </div>
+    </div>
+
+    <p>Operates at the <strong>Network Layer (Layer 3)</strong>. Connectionless approach: each packet is treated independently as an autonomous entity called a <strong>Datagram</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Feature 1</div>
+        <div class="info-card-title">Independent Routing</div>
+        <div class="info-card-desc">Packets belonging to the same message may travel along **different dynamic paths** to reach the destination based on routing tables.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Feature 2</div>
+        <div class="info-card-title">Out-of-Order Delivery</div>
+        <div class="info-card-desc">Packets may arrive out-of-order at the destination. The Transport Layer (TCP) reorders them using sequence numbers.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Feature 3</div>
+        <div class="info-card-title">Full Address Header</div>
+        <div class="info-card-desc">Every single datagram must carry the complete source and destination IP addresses in its header.</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Datagram Total Delay (H Hops)</div>
+      <div class="formula-main">$$\text{Total Delay} = \sum_{i=1}^{H} \left( T_{\text{trans}, i} + T_{\text{prop}, i} + T_{\text{queue}, i} + T_{\text{proc}, i} \right)$$</div>
+      <div class="formula-note">Uses <strong>Store-and-Forward</strong> mechanism (router receives full packet before forwarding).</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: VIRTUAL CIRCUIT PACKET SWITCHING ══════ -->
+  <div class="section" id="virtual-circuit">
+    <div class="section-header">
+      <div class="section-icon">🔗</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Virtual-Circuit Packet Networks (Connection-Oriented)</h2>
+      </div>
+    </div>
+
+    <p>Combines features of Circuit Switching and Datagram Packet Switching (used in Frame Relay, ATM, MPLS).</p>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Feature 1</div>
+        <div class="info-card-title">Logical Path Setup</div>
+        <div class="info-card-desc">A logical virtual circuit path is established before data transfer. All packets follow the <strong>exact same pre-established route</strong>.</div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Feature 2</div>
+        <div class="info-card-title">VCI Tag Identifiers</div>
+        <div class="info-card-desc">Packets carry a small <strong>Virtual Circuit Identifier (VCI)</strong> tag instead of full source/destination IP addresses in each header.</div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Feature 3</div>
+        <div class="info-card-title">In-Order Arrival</div>
+        <div class="info-card-desc">Packets arrive strictly <strong>in-order</strong> at the destination because they follow the identical sequence.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: MESSAGE SWITCHING ══════ -->
+  <div class="section" id="message-switching">
+    <div class="section-header">
+      <div class="section-icon">📨</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Message Switching (Store-and-Forward)</h2>
+      </div>
+    </div>
+
+    <p>Message switching sends the entire message as a single unit node-by-node. Each intermediate switch must have enough disk storage to store the entire message before forwarding it to the next hop.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: SWITCH HARDWARE ══════ -->
+  <div class="section" id="switch-hardware">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Switch Hardware (Crossbar, Clos Criterion &amp; TSI)</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Hardware Type 1</div>
+        <div class="info-card-title">Crossbar Switch</div>
+        <div class="info-card-desc">Space-division switch connecting $N$ inputs to $N$ outputs using a grid of $N^2$ crosspoint electronic switches. Inefficient for large $N$.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Hardware Type 2</div>
+        <div class="info-card-title">Clos Multistage Switch</div>
+        <div class="info-card-desc">
+          Reduces total crosspoints by arranging switches in multiple stages.<br>
+          <div class="formula-box" style="margin:10px 0;">
+            <div class="formula-label">⚡ Clos Criterion for Non-blocking Switch</div>
+            <div class="formula-main">$$k \ge 2n - 1$$</div>
+            <div class="formula-note">$n$ = inputs per small first-stage switch &nbsp;|&nbsp; $k$ = number of middle-stage switches</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Hardware Type 3</div>
+        <div class="info-card-title">Time-Slot Interchange (TSI)</div>
+        <div class="info-card-desc">Time-division switch that uses RAM memory buffer to store incoming time slots and read them out in a reordered sequence.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: COMPARISON ══════ -->
+  <div class="section" id="comparison">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Comparison Matrix</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature / Characteristic</th>
+            <th>Circuit Switching</th>
+            <th>Datagram Packet Switching</th>
+            <th>Virtual-Circuit Packet Switching</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>OSI Layer</strong></td>
+            <td><strong>Physical Layer (Layer 1)</strong></td>
+            <td><strong>Network Layer (Layer 3)</strong></td>
+            <td><strong>Data Link / Network (Layers 2/3)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Setup / Teardown Phase</strong></td>
+            <td>Required (Dedicated Path)</td>
+            <td><strong>Not Required (Connectionless)</strong></td>
+            <td>Required (Logical Path)</td>
+          </tr>
+          <tr>
+            <td><strong>Path for Data</strong></td>
+            <td>Dedicated physical path</td>
+            <td>Independent dynamic paths per packet</td>
+            <td>Same logical virtual path for all packets</td>
+          </tr>
+          <tr>
+            <td><strong>Packet Order Arrival</strong></td>
+            <td>In-order (contiguous stream)</td>
+            <td><strong>May arrive out-of-order</strong></td>
+            <td>In-order arrival</td>
+          </tr>
+          <tr>
+            <td><strong>Header Overhead</strong></td>
+            <td><strong>None (No headers during transfer)</strong></td>
+            <td>Full Source &amp; Destination IP Addresses</td>
+            <td>Short Virtual Circuit Identifier (VCI) tag</td>
+          </tr>
+          <tr>
+            <td><strong>Resource Reservation</strong></td>
+            <td>Dedicated bandwidth (less efficient)</td>
+            <td>Statistical multiplexing (high efficiency)</td>
+            <td>Statistical multiplexing with QoS</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Circuit Switching Setup</span>
+      </div>
+      <div class="mcq-question">Which switching technique establishes a dedicated physical path between source and destination BEFORE data transfer begins?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Circuit Switching ✓</li>
+        <li class="mcq-option">B. Datagram Packet Switching</li>
+        <li class="mcq-option">C. Message Switching</li>
+        <li class="mcq-option">D. Packet Filter Switching</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Circuit Switching</strong><br>
+        Circuit switching reserves a dedicated physical connection through 3 phases: Setup, Data Transfer, and Teardown.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Datagram Independent Paths</span>
+      </div>
+      <div class="mcq-question">In a Datagram Packet-Switched network, why can packets belonging to the same message arrive out of order at the destination?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Because packets carry no headers</li>
+        <li class="mcq-option correct">B. Because each datagram is routed independently and may take different paths ✓</li>
+        <li class="mcq-option">C. Because virtual circuits are pre-established</li>
+        <li class="mcq-option">D. Because of circuit teardown delays</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Datagram switching is connectionless. Every packet carries full address headers and is routed independently along dynamic paths based on current router tables.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Virtual Circuit VCI Tag</span>
+      </div>
+      <div class="mcq-question">What header identifier is used in Virtual-Circuit packet switching to forward packets along the pre-established route?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Full Source and Destination IP Address</li>
+        <li class="mcq-option correct">B. Virtual Circuit Identifier (VCI) tag ✓</li>
+        <li class="mcq-option">C. MAC Address only</li>
+        <li class="mcq-option">D. Port Number only</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Virtual Circuit Identifier (VCI) tag</strong><br>
+        Virtual circuit packets carry a small VCI tag in their header instead of full IP address headers, reducing header overhead.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Clos Criterion Non-blocking</span>
+      </div>
+      <div class="mcq-question">According to Clos Criterion for a 3-stage non-blocking space-division switch, if each small first-stage switch has $n = 4$ inputs, how many middle-stage switches ($k$) are required?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4</li>
+        <li class="mcq-option">B. 6</li>
+        <li class="mcq-option correct">C. 7 ✓</li>
+        <li class="mcq-option">D. 16</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 7</strong><br>
+        Clos Criterion formula: $k \ge 2n - 1 = 2(4) - 1 = 8 - 1 = \mathbf{7\text{ middle switches}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Crossbar Crosspoint Complexity</span>
+      </div>
+      <div class="mcq-question">A single-stage Crossbar switch connecting $N = 100$ inputs to $N = 100$ outputs requires how many total crosspoints?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 200</li>
+        <li class="mcq-option">B. 1,000</li>
+        <li class="mcq-option correct">C. 10,000 ✓</li>
+        <li class="mcq-option">D. 100,000</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 10,000</strong><br>
+        Crossbar crosspoint formula = $N^2 = 100 \times 100 = \mathbf{10,000\text{ crosspoints}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Layer Operating Level</span>
+      </div>
+      <div class="mcq-question">Circuit Switching operates primarily at which layer of the OSI model?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Physical Layer (Layer 1) ✓</li>
+        <li class="mcq-option">B. Data Link Layer (Layer 2)</li>
+        <li class="mcq-option">C. Network Layer (Layer 3)</li>
+        <li class="mcq-option">D. Transport Layer (Layer 4)</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Physical Layer (Layer 1)</strong><br>
+        Circuit switching operates at Layer 1 by physically connecting transmission lines. Datagram packet switching operates at Layer 3.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Header Overhead Comparison</span>
+      </div>
+      <div class="mcq-question">Which switching method has ZERO header overhead during the actual data transfer phase?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Circuit Switching ✓</li>
+        <li class="mcq-option">B. Datagram Packet Switching</li>
+        <li class="mcq-option">C. Virtual Circuit Switching</li>
+        <li class="mcq-option">D. Message Switching</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Circuit Switching</strong><br>
+        Once the physical circuit is established, data streams continuously over the dedicated path without any packet headers added to the data bits.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Store-and-Forward Delay</span>
+      </div>
+      <div class="mcq-question">What is the Store-and-Forward mechanism used in packet switches and routers?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Router forwards bits as soon as they arrive</li>
+        <li class="mcq-option correct">B. Router must receive and buffer the entire packet before inspecting header and forwarding to next hop ✓</li>
+        <li class="mcq-option">C. Router drops packets if queue is empty</li>
+        <li class="mcq-option">D. Router reserves physical wires indefinitely</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Store-and-forward means a router buffers the complete incoming packet, checks its CRC for errors, inspects destination IP, and then transmits it onto the output link.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">TSI RAM Buffer</span>
+      </div>
+      <div class="mcq-question">A Time-Slot Interchange (TSI) switch achieves time-division switching by storing incoming time slots into:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. RAM Memory Buffer ✓</li>
+        <li class="mcq-option">B. Optical Prisms</li>
+        <li class="mcq-option">C. Crosspoint Grid</li>
+        <li class="mcq-option">D. Low-pass Filter</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — RAM Memory Buffer</strong><br>
+        TSI switches store time slots into RAM memory locations sequentially and read them out out-of-order to resequence the time slots.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Bandwidth Efficiency</span>
+      </div>
+      <div class="mcq-question">Why is Datagram Packet Switching more bandwidth-efficient than Circuit Switching for computer data traffic?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Circuit switching uses optical lasers</li>
+        <li class="mcq-option correct">B. Packet switching uses statistical multiplexing so channel bandwidth is shared and not wasted during idle periods ✓</li>
+        <li class="mcq-option">C. Datagram packets carry no headers</li>
+        <li class="mcq-option">D. Circuit switching has higher queuing delay</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Computer data is bursty. Circuit switching reserves bandwidth even during silent/idle periods, wasting resources. Packet switching shares link capacity dynamically among active packets.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-12-multiplexing-fdm-tdm-wdm.html">← Lec 12</a>
+      <a href="lec-14-error-control-data-link-layer.html">Lec 14 →</a>
+    </div>
+    <p>Lec 13 · Concept of Switching (Circuit, Packet &amp; Message) · IBPS SO IT Notes · Based on Forouzan Chapter 8</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

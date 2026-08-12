@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 3 – OSI Model &amp; Layer Responsibilities | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on the OSI 7-Layer Model – Physical, Data Link, Network, Transport, Session, Presentation, Application, PDUs, Address Types, and PYQ practice." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 3 Extra Styles ── */
+    .osi-stack {
+      display: flex; flex-direction: column; gap: 10px; margin: 24px 0;
+    }
+    .osi-layer-box {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-radius: 12px; border: 1px solid;
+      transition: all 0.25s;
+    }
+    .osi-layer-box:hover { transform: translateX(6px); }
+    .osi-l7 { background: rgba(240,92,136,0.12); border-color: rgba(240,92,136,0.3); color: var(--accent5); }
+    .osi-l6 { background: rgba(124,92,240,0.12); border-color: rgba(124,92,240,0.3); color: var(--accent2); }
+    .osi-l5 { background: rgba(247,163,79,0.12); border-color: rgba(247,163,79,0.3); color: var(--accent4); }
+    .osi-l4 { background: rgba(0,212,170,0.12); border-color: rgba(0,212,170,0.3); color: var(--accent3); }
+    .osi-l3 { background: rgba(79,142,247,0.12); border-color: rgba(79,142,247,0.3); color: var(--accent); }
+    .osi-l2 { background: rgba(0,212,170,0.08); border-color: rgba(0,212,170,0.25); color: var(--text); }
+    .osi-l1 { background: rgba(247,163,79,0.08); border-color: rgba(247,163,79,0.25); color: var(--text2); }
+
+    .layer-num { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .layer-name { font-size: 16px; font-weight: 800; color: #fff; }
+    .layer-pdu { font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 03</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Reference Model · Lecture 03</span>
+    <h1 class="page-title">OSI 7-Layer Model &amp;<br>Layer Responsibilities</h1>
+    <p class="page-subtitle">
+      Master the ISO/OSI Reference Model – Application, Presentation, Session, Transport, Network, Data Link,
+      Physical Layers, Protocol Data Units (PDUs), 4 Address Types, Encapsulation, and Layer Responsibilities.
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT Core Must-Know</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.02</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#intro"><span class="toc-num">01</span> What is the OSI Reference Model?</a></li>
+      <li><a href="#layers-stack"><span class="toc-num">02</span> The 7 Layers Stack &amp; PDUs</a></li>
+      <li><a href="#lower-layers"><span class="toc-num">03</span> Lower Layers: Physical, Data Link &amp; Network</a></li>
+      <li><a href="#upper-layers"><span class="toc-num">04</span> Upper Layers: Transport, Session, Presentation &amp; Application</a></li>
+      <li><a href="#addressing"><span class="toc-num">05</span> Four Levels of Addressing (Physical, Logical, Port, Specific)</a></li>
+      <li><a href="#encapsulation"><span class="toc-num">06</span> Data Encapsulation &amp; Decapsulation Process</a></li>
+      <li><a href="#summary-table"><span class="toc-num">07</span> Master Summary Table &amp; Protocols Map</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: INTRO ══════ -->
+  <div class="section" id="intro">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is the OSI Reference Model?</h2>
+      </div>
+    </div>
+
+    <p>Developed by the **International Organization for Standardization (ISO)** in **1984**, the **Open Systems Interconnection (OSI)** model is an abstract 7-layer framework for network protocol design and computer communication.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">💡</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Exam Mnemonic (Top to Bottom: 7 to 1)</div>
+        <p><strong>"All People Seem To Need Data Processing"</strong><br>
+        Application (7) ➔ Presentation (6) ➔ Session (5) ➔ Transport (4) ➔ Network (3) ➔ Data Link (2) ➔ Physical (1)</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">💻 Upper / Host Layers</div>
+        <div class="info-card-desc"><strong>Layers 7, 6, 5, 4:</strong> Dealt with by software in host machines. Focus on user interaction, data format, sessions, and end-to-end delivery.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">🔌 Lower / Media Layers</div>
+        <div class="info-card-desc"><strong>Layers 3, 2, 1:</strong> Dealt with by network hardware/routers/switches. Focus on packet routing, framing, and bit transmission.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: LAYERS STACK ══════ -->
+  <div class="section" id="layers-stack">
+    <div class="section-header">
+      <div class="section-icon">📚</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">The 7 Layers Stack &amp; Protocol Data Units (PDUs)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Weightage PDU Question Area</div>
+
+    <div class="osi-stack">
+      <!-- Layer 7 -->
+      <div class="osi-layer-box osi-l7">
+        <div>
+          <span class="layer-num">Layer 7</span> &nbsp;|&nbsp; <span class="layer-name">Application Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Data</span>
+      </div>
+
+      <!-- Layer 6 -->
+      <div class="osi-layer-box osi-l6">
+        <div>
+          <span class="layer-num">Layer 6</span> &nbsp;|&nbsp; <span class="layer-name">Presentation Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Data</span>
+      </div>
+
+      <!-- Layer 5 -->
+      <div class="osi-layer-box osi-l5">
+        <div>
+          <span class="layer-num">Layer 5</span> &nbsp;|&nbsp; <span class="layer-name">Session Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Data</span>
+      </div>
+
+      <!-- Layer 4 -->
+      <div class="osi-layer-box osi-l4">
+        <div>
+          <span class="layer-num">Layer 4</span> &nbsp;|&nbsp; <span class="layer-name">Transport Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Segment (TCP) / Datagram (UDP)</span>
+      </div>
+
+      <!-- Layer 3 -->
+      <div class="osi-layer-box osi-l3">
+        <div>
+          <span class="layer-num">Layer 3</span> &nbsp;|&nbsp; <span class="layer-name">Network Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Packet</span>
+      </div>
+
+      <!-- Layer 2 -->
+      <div class="osi-layer-box osi-l2">
+        <div>
+          <span class="layer-num">Layer 2</span> &nbsp;|&nbsp; <span class="layer-name">Data Link Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Frame</span>
+      </div>
+
+      <!-- Layer 1 -->
+      <div class="osi-layer-box osi-l1">
+        <div>
+          <span class="layer-num">Layer 1</span> &nbsp;|&nbsp; <span class="layer-name">Physical Layer</span>
+        </div>
+        <span class="layer-pdu">PDU: Bit</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: LOWER LAYERS ══════ -->
+  <div class="section" id="lower-layers">
+    <div class="section-header">
+      <div class="section-icon">🔌</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Lower Layers: Physical, Data Link &amp; Network</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Physical -->
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">Layer 1</div>
+        <div class="info-card-title">⚡ Physical Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> Transmits <strong>raw bits (0s and 1s)</strong> over a physical medium.<br>
+          - <strong>Key Duties:</strong> Signal encoding, bit rate (duration of a bit), bit synchronization, line configuration (P2P/Multipoint), physical topology, transmission mode (Simplex/Half/Full Duplex).<br>
+          - <strong>Devices:</strong> Hub, Repeater, Cables, Connectors.
+        </div>
+      </div>
+
+      <!-- Data Link -->
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Layer 2</div>
+        <div class="info-card-title">📦 Data Link Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> <strong>Node-to-node (Hop-to-hop)</strong> frame delivery.<br>
+          - <strong>Key Duties:</strong> Framing (adding header/trailer), Physical addressing (48-bit MAC address), Flow control (node-to-node), Error control (CRC/Parity), Access control (MAC sublayer CSMA/CD).<br>
+          - <strong>Devices:</strong> Switch, Bridge, NIC.
+        </div>
+      </div>
+
+      <!-- Network -->
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Layer 3</div>
+        <div class="info-card-title">🌐 Network Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> <strong>Source-to-destination (Host-to-Host)</strong> packet delivery across multiple networks.<br>
+          - <strong>Key Duties:</strong> Logical addressing (IP address: 32-bit IPv4 / 128-bit IPv6), Routing (path determination, OSPF/RIP/BGP).<br>
+          - <strong>Devices:</strong> Router, Layer 3 Switch.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: UPPER LAYERS ══════ -->
+  <div class="section" id="upper-layers">
+    <div class="section-header">
+      <div class="section-icon">💻</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Upper Layers: Transport, Session, Presentation &amp; Application</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <!-- Transport -->
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Layer 4</div>
+        <div class="info-card-title">🚚 Transport Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> <strong>Process-to-Process (End-to-End)</strong> message delivery.<br>
+          - <strong>Key Duties:</strong> Service-point / Port addressing (16-bit Port numbers), Segmentation &amp; Reassembly (sequence numbers), Connection control (TCP vs UDP), End-to-end Flow &amp; Error control.<br>
+          - <strong>Protocols:</strong> TCP, UDP, SCTP.
+        </div>
+      </div>
+
+      <!-- Session -->
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">Layer 5</div>
+        <div class="info-card-title">🗣️ Session Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> Establishes, maintains, and synchronizes <strong>dialog control</strong>.<br>
+          - <strong>Key Duties:</strong> Dialog control (Half-duplex / Full-duplex session establishment), Synchronization (inserting checkpoints/synch points in data stream to resume after failure).<br>
+          - <strong>Protocols:</strong> NetBIOS, PPTP.
+        </div>
+      </div>
+
+      <!-- Presentation -->
+      <div class="info-card" style="border-top:3px solid var(--accent2);">
+        <div class="info-card-label">Layer 6</div>
+        <div class="info-card-title">🎨 Presentation Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> Concerned with <strong>syntax and semantics</strong> of transmitted data.<br>
+          - <strong>Key Duties:</strong> Translation (EBCDIC to ASCII, interoperability), Encryption / Decryption (privacy schemes, SSL/TLS), Data Compression (reducing bit size).<br>
+          - <strong>Formats:</strong> JPEG, ASCII, MPEG.
+        </div>
+      </div>
+
+      <!-- Application -->
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Layer 7</div>
+        <div class="info-card-title">🖥️ Application Layer</div>
+        <div class="info-card-desc">
+          - <strong>Responsibility:</strong> Provides network services directly to the <strong>end user / application</strong>.<br>
+          - <strong>Key Duties:</strong> Network Virtual Terminal (Telnet), File Transfer (FTP/FTAM), Mail Services (SMTP/POP3/IMAP), Directory Services (DNS/LDAP).<br>
+          - <strong>Protocols:</strong> HTTP, HTTPS, FTP, DNS, SMTP, DHCP.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: ADDRESSING ══════ -->
+  <div class="section" id="addressing">
+    <div class="section-header">
+      <div class="section-icon">🏷️</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Four Levels of Addressing in OSI Model</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Address Level</th>
+            <th>OSI Layer</th>
+            <th>Size / Format</th>
+            <th>Primary Purpose</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Physical Address</strong></td>
+            <td>Layer 2 (Data Link)</td>
+            <td>48-bit (6 Bytes) Hexadecimal</td>
+            <td>Node-to-node (Hop-to-hop) local frame delivery</td>
+            <td><code>00:1A:2B:3C:4D:5E</code> (MAC Address)</td>
+          </tr>
+          <tr>
+            <td><strong>Logical Address</strong></td>
+            <td>Layer 3 (Network)</td>
+            <td>32-bit (IPv4) / 128-bit (IPv6)</td>
+            <td>Source-to-destination (Host-to-host) global routing</td>
+            <td><code>192.168.1.1</code> / <code>2001:db8::1</code></td>
+          </tr>
+          <tr>
+            <td><strong>Port Address</strong></td>
+            <td>Layer 4 (Transport)</td>
+            <td>16-bit Unsigned Integer (0–65535)</td>
+            <td>Process-to-process delivery (identifies specific application)</td>
+            <td>Port <code>80</code> (HTTP), Port <code>443</code> (HTTPS)</td>
+          </tr>
+          <tr>
+            <td><strong>Specific Address</strong></td>
+            <td>Layer 7 (Application)</td>
+            <td>User-friendly string / URL</td>
+            <td>User-friendly identification of resources</td>
+            <td><code>user@gmail.com</code> / <code>www.google.com</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: ENCAPSULATION ══════ -->
+  <div class="section" id="encapsulation">
+    <div class="section-header">
+      <div class="section-icon">📦</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Data Encapsulation &amp; Decapsulation Process</h2>
+      </div>
+    </div>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Application, Presentation &amp; Session (Layers 7, 6, 5)</div>
+          <div class="step-desc">User data is created, formatted, encrypted, compressed, and session is established. Output = <strong>Data</strong>.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Transport Layer (Layer 4 Encapsulation)</div>
+          <div class="step-desc">Adds <strong>Transport Header ($H_4$)</strong> containing Source &amp; Destination Port numbers and sequence numbers. Output = <strong>Segment</strong>.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Network Layer (Layer 3 Encapsulation)</div>
+          <div class="step-desc">Adds <strong>Network Header ($H_3$)</strong> containing Source &amp; Destination IP addresses. Output = <strong>Packet</strong>.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Data Link Layer (Layer 2 Encapsulation)</div>
+          <div class="step-desc">Adds <strong>Data Link Header ($H_2$)</strong> with MAC addresses AND <strong>Data Link Trailer ($T_2$)</strong> containing CRC checksum. Output = <strong>Frame</strong>.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Physical Layer (Layer 1 Transmission)</div>
+          <div class="step-desc">Converts frame into <strong>stream of bits (0s &amp; 1s)</strong> and transmits as signals over physical medium.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: SUMMARY TABLE ══════ -->
+  <div class="section" id="summary-table">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master OSI Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Layer Name</th>
+            <th>PDU</th>
+            <th>Delivery Scope</th>
+            <th>Primary Function</th>
+            <th>Hardware / Protocols</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>7. Application</strong></td>
+            <td>Data</td>
+            <td>User Interface</td>
+            <td>User services &amp; file access</td>
+            <td>HTTP, HTTPS, FTP, DNS, SMTP, Telnet</td>
+          </tr>
+          <tr>
+            <td><strong>6. Presentation</strong></td>
+            <td>Data</td>
+            <td>Data Formatting</td>
+            <td>Translation, Encryption, Compression</td>
+            <td>SSL/TLS, ASCII, EBCDIC, JPEG</td>
+          </tr>
+          <tr>
+            <td><strong>5. Session</strong></td>
+            <td>Data</td>
+            <td>Session Control</td>
+            <td>Dialog control &amp; Synchronization points</td>
+            <td>NetBIOS, PPTP, RPC</td>
+          </tr>
+          <tr>
+            <td><strong>4. Transport</strong></td>
+            <td>Segment</td>
+            <td>Process-to-Process</td>
+            <td>Port addressing, Segmentation, End-to-end reliability</td>
+            <td>TCP, UDP, SCTP</td>
+          </tr>
+          <tr>
+            <td><strong>3. Network</strong></td>
+            <td>Packet</td>
+            <td>Host-to-Host</td>
+            <td>IP Logical addressing, Routing</td>
+            <td>Router, IP, ICMP, ARP, IGMP</td>
+          </tr>
+          <tr>
+            <td><strong>2. Data Link</strong></td>
+            <td>Frame</td>
+            <td>Hop-to-Hop (Node)</td>
+            <td>MAC Physical addressing, Framing, CRC Error check</td>
+            <td>Switch, Bridge, NIC, Ethernet, HDLC, PPP</td>
+          </tr>
+          <tr>
+            <td><strong>1. Physical</strong></td>
+            <td>Bit</td>
+            <td>Physical Channel</td>
+            <td>Bit transmission, Line coding, Signals</td>
+            <td>Hub, Repeater, UTP Cable, Fiber Optic</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Transport Layer Delivery</span>
+      </div>
+      <div class="mcq-question">Which layer of the OSI model is responsible for Process-to-Process (End-to-End) message delivery?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Network Layer</li>
+        <li class="mcq-option correct">B. Transport Layer ✓</li>
+        <li class="mcq-option">C. Data Link Layer</li>
+        <li class="mcq-option">D. Session Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Transport Layer</strong><br>
+        Transport Layer handles <strong>Process-to-Process (End-to-End)</strong> delivery using Port numbers.<br>
+        Network Layer handles <em>Host-to-Host (Source-to-Destination)</em> delivery using IP addresses.<br>
+        Data Link Layer handles <em>Node-to-Node (Hop-to-Hop)</em> delivery using MAC addresses.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">PDU at Data Link Layer</span>
+      </div>
+      <div class="mcq-question">What is the Protocol Data Unit (PDU) at the Data Link Layer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Packet</li>
+        <li class="mcq-option">B. Segment</li>
+        <li class="mcq-option correct">C. Frame ✓</li>
+        <li class="mcq-option">D. Bit</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Frame</strong><br>
+        PDU Hierarchy: Layer 4 = Segment; Layer 3 = Packet; Layer 2 = <strong>Frame</strong>; Layer 1 = Bit.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Presentation Layer Responsibilities</span>
+      </div>
+      <div class="mcq-question">Data Encryption, Decryption, Translation, and Compression are primary functions of which OSI layer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Application Layer</li>
+        <li class="mcq-option correct">B. Presentation Layer ✓</li>
+        <li class="mcq-option">C. Session Layer</li>
+        <li class="mcq-option">D. Transport Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Presentation Layer</strong><br>
+        Presentation Layer (Layer 6) deals with data syntax, representation, encryption/decryption (SSL/TLS), and compression.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Port Addressing</span>
+      </div>
+      <div class="mcq-question">Port numbers operate at which layer of the OSI model?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Layer 2</li>
+        <li class="mcq-option">B. Layer 3</li>
+        <li class="mcq-option correct">C. Layer 4 ✓</li>
+        <li class="mcq-option">D. Layer 5</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Layer 4 (Transport Layer)</strong><br>
+        16-bit Port numbers (e.g., Port 80 for HTTP, Port 443 for HTTPS) operate at Layer 4 (Transport Layer) to direct traffic to the specific running application/process.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Session Layer Checkpoints</span>
+      </div>
+      <div class="mcq-question">The process of inserting synchronization points (checkpoints) into a long data stream to enable resumption after crash is handled by:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Transport Layer</li>
+        <li class="mcq-option correct">B. Session Layer ✓</li>
+        <li class="mcq-option">C. Presentation Layer</li>
+        <li class="mcq-option">D. Network Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Session Layer</strong><br>
+        Session Layer (Layer 5) adds synchronization checkpoints. If a crash occurs during a 100-page file transfer at page 45, transmission can resume from page 45 instead of starting over from page 1.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Data Link Header & Trailer</span>
+      </div>
+      <div class="mcq-question">Which layer of the OSI model is the ONLY layer that adds BOTH a Header and a Trailer to data during encapsulation?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Transport Layer</li>
+        <li class="mcq-option">B. Network Layer</li>
+        <li class="mcq-option correct">C. Data Link Layer ✓</li>
+        <li class="mcq-option">D. Physical Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Data Link Layer</strong><br>
+        Data Link Layer adds a Header ($H_2$ containing MAC addresses) AND a Trailer ($T_2$ containing CRC error-check bits) to form a complete frame.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Logical Addressing</span>
+      </div>
+      <div class="mcq-question">IP Address (Logical Addressing) is used for routing at which layer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Layer 1</li>
+        <li class="mcq-option">B. Layer 2</li>
+        <li class="mcq-option correct">C. Layer 3 ✓</li>
+        <li class="mcq-option">D. Layer 4</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Layer 3 (Network Layer)</strong><br>
+        Logical IP addresses (32-bit IPv4 / 128-bit IPv6) are used at Layer 3 (Network Layer) for packet routing across independent networks.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">MAC Address Length</span>
+      </div>
+      <div class="mcq-question">What is the size of a Physical MAC Address at the Data Link Layer?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 32 bits</li>
+        <li class="mcq-option correct">B. 48 bits (6 Bytes) ✓</li>
+        <li class="mcq-option">C. 64 bits</li>
+        <li class="mcq-option">D. 128 bits</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 48 bits (6 Bytes)</strong><br>
+        A MAC address is a 48-bit (6-byte) hexadecimal address burned into the Network Interface Card (NIC) by the manufacturer.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Dialog Control</span>
+      </div>
+      <div class="mcq-question">Establishing whether a communication session is Simplex, Half-Duplex, or Full-Duplex is a dialog control function of:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Transport Layer</li>
+        <li class="mcq-option correct">B. Session Layer ✓</li>
+        <li class="mcq-option">C. Data Link Layer</li>
+        <li class="mcq-option">D. Physical Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Session Layer</strong><br>
+        Session Layer (Layer 5) manages dialog control (determining whose turn it is to transmit in half-duplex or managing simultaneous full-duplex sessions).
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">OSI Layer Count Order</span>
+      </div>
+      <div class="mcq-question">In the OSI model, Layer 2 and Layer 4 are respectively:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Network Layer &amp; Application Layer</li>
+        <li class="mcq-option correct">B. Data Link Layer &amp; Transport Layer ✓</li>
+        <li class="mcq-option">C. Physical Layer &amp; Network Layer</li>
+        <li class="mcq-option">D. Data Link Layer &amp; Session Layer</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Data Link Layer &amp; Transport Layer</strong><br>
+        Layer 1 = Physical, Layer 2 = Data Link, Layer 3 = Network, Layer 4 = Transport, Layer 5 = Session, Layer 6 = Presentation, Layer 7 = Application.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-02-topologies-and-network-devices.html">← Lec 02</a>
+      <a href="04-client-server-p2p.html">Lec 04 →</a>
+    </div>
+    <p>Lec 03 · OSI Model &amp; Layer Responsibilities · IBPS SO IT Notes · Based on Forouzan Chapter 2</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

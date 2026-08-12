@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 6 – Physical Layer: Analog &amp; Digital Signals &amp; Limits | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Physical Layer – Analog vs Digital Signals, Sine Wave (Amplitude, Frequency, Period, Phase, Wavelength), Impairments (Attenuation, SNR, dB), Nyquist Bit Rate &amp; Shannon Capacity." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 6 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 06</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 06</span>
+    <h1 class="page-title">Physical Layer: Analog &amp; Digital<br>Signals &amp; Data Rate Limits</h1>
+    <p class="page-subtitle">
+      Master Physical Layer fundamentals – Analog vs Digital Signals, Sine Wave parameters (Amplitude, Frequency, Period, Phase, Wavelength),
+      Impairments (Attenuation, SNR, dB), Nyquist Bit Rate, Shannon Channel Capacity, and Bandwidth-Delay Product (BDP).
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Numerical Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.03 &amp; Ch.04</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Physical Layer Goal &amp; Signal Classification</a></li>
+      <li><a href="#analog-digital"><span class="toc-num">02</span> Analog vs Digital Data &amp; Signals</a></li>
+      <li><a href="#sine-wave"><span class="toc-num">03</span> Sine Wave Parameters (Amplitude, Frequency, Period, Phase, Wavelength)</a></li>
+      <li><a href="#impairments"><span class="toc-num">04</span> Transmission Impairments (Attenuation, SNR &amp; Decibels)</a></li>
+      <li><a href="#limits"><span class="toc-num">05</span> Data Rate Limits (Nyquist Theorem &amp; Shannon Capacity)</a></li>
+      <li><a href="#performance"><span class="toc-num">06</span> Network Performance (Throughput, Latency, Bandwidth-Delay Product)</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Physical Layer Goal &amp; Signal Classification</h2>
+      </div>
+    </div>
+
+    <p>The primary functionality of the <strong>Physical Layer (Layer 1)</strong> is to convert data into <strong>electromagnetic signals</strong> and transmit them across physical media (wires, fiber, or air).</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Concept 1</div>
+        <div class="info-card-title">📊 Signals</div>
+        <div class="info-card-desc">Electromagnetic representations of data. Data must be converted into signals before transmission over a medium.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Concept 2</div>
+        <div class="info-card-title">🔄 Periodic Signals</div>
+        <div class="info-card-desc">Completes a pattern within a measurable time frame called a <strong>period ($T$)</strong> and repeats that pattern over subsequent identical periods. A full pattern is a <strong>cycle</strong>.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Concept 3</div>
+        <div class="info-card-title">📉 Nonperiodic Signals</div>
+        <div class="info-card-desc">Changes over time without exhibiting a repeating pattern or cycle. Used to represent digital data.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: ANALOG VS DIGITAL ══════ -->
+  <div class="section" id="analog-digital">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Analog vs Digital Data &amp; Signals</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Analog Signal</th>
+            <th>Digital Signal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Value States</strong></td>
+            <td>Continuous; infinite number of values in a range.</td>
+            <td>Discrete; limited number of values (e.g., 0 and 1).</td>
+          </tr>
+          <tr>
+            <td><strong>Representation</strong></td>
+            <td>Smooth, continuous sine wave curves.</td>
+            <td>Square wave pulses (discrete voltage levels).</td>
+          </tr>
+          <tr>
+            <td><strong>Noise Vulnerability</strong></td>
+            <td>High; noise distorts the signal and is hard to remove.</td>
+            <td>Low; immune to noise, easily regenerated by repeaters.</td>
+          </tr>
+          <tr>
+            <td><strong>Unit of Measure</strong></td>
+            <td>Frequency ($f$ in Hz), Period ($T$ in sec).</td>
+            <td>Bit Rate ($N$ in bps), Bit Duration ($\text{sec}$).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: SINE WAVE ══════ -->
+  <div class="section" id="sine-wave">
+    <div class="section-header">
+      <div class="section-icon">🌊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Sine Wave Parameters</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Fundamental Formula Area</div>
+
+    <p>A simple analog signal is represented by a <strong>Sine Wave</strong>, defined by 3 key parameters: <strong>Peak Amplitude ($A$), Frequency ($f$), and Phase ($\phi$)</strong>.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Period &amp; Frequency Relationship</div>
+      <div class="formula-main">$$f = \frac{1}{T} \quad \text{and} \quad T = \frac{1}{f}$$</div>
+      <div class="formula-note">$T$ = Period in seconds ($\text{s}$) &nbsp;|&nbsp; $f$ = Frequency in Hertz ($\text{Hz}$)</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Parameter 1</div>
+        <div class="info-card-title">Peak Amplitude ($A$)</div>
+        <div class="info-card-desc">Absolute value of highest signal intensity/energy (measured in Volts, Amperes, or Watts).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Parameter 2</div>
+        <div class="info-card-title">Phase ($\phi$)</div>
+        <div class="info-card-desc">Describes position of waveform relative to time $t=0$ (measured in degrees or radians). $90^\circ = \pi/2$, $180^\circ = \pi$.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Parameter 3</div>
+        <div class="info-card-title">Wavelength ($\lambda$)</div>
+        <div class="info-card-desc">Distance a signal travels in one period: $\lambda = v \times T = \frac{v}{f}$ (where $v = \text{propagation speed}$).</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Units of Period and Frequency (Table 3.1)</h3>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Period Unit</th>
+            <th>Equivalent in Seconds</th>
+            <th>Frequency Unit</th>
+            <th>Equivalent in Hertz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Seconds (s)</td><td>$1\text{ s}$</td><td>Hertz (Hz)</td><td>$1\text{ Hz}$</td></tr>
+          <tr><td>Milliseconds (ms)</td><td>$10^{-3}\text{ s}$</td><td>Kilohertz (kHz)</td><td>$10^3\text{ Hz}$</td></tr>
+          <tr><td>Microseconds ($\mu\text{s}$)</td><td>$10^{-6}\text{ s}$</td><td>Megahertz (MHz)</td><td>$10^6\text{ Hz}$</td></tr>
+          <tr><td>Nanoseconds (ns)</td><td>$10^{-9}\text{ s}$</td><td>Gigahertz (GHz)</td><td>$10^9\text{ Hz}$</td></tr>
+          <tr><td>Picoseconds (ps)</td><td>$10^{-12}\text{ s}$</td><td>Terahertz (THz)</td><td>$10^{12}\text{ Hz}$</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: IMPAIRMENTS ══════ -->
+  <div class="section" id="impairments">
+    <div class="section-header">
+      <div class="section-icon">📉</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Transmission Impairments (Attenuation, SNR &amp; Decibels)</h2>
+      </div>
+    </div>
+
+    <p>As a signal travels through a medium, it suffers 3 main types of transmission impairments: <strong>Attenuation, Distortion, and Noise</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Impairment 1</div>
+        <div class="info-card-title">🔻 Attenuation</div>
+        <div class="info-card-desc">Loss of signal energy due to resistance of medium. Amplifiers/Repeaters are used to restore signal strength. Measured in Decibels ($\text{dB}$).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Impairment 2</div>
+        <div class="info-card-title">🌀 Distortion</div>
+        <div class="info-card-desc">Signal changes shape or form in composite signals because different frequency components travel at different speeds (delay distortion).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Impairment 3</div>
+        <div class="info-card-title">⚡ Noise</div>
+        <div class="info-card-desc">Random unwanted signals (thermal noise, crosstalk, impulse noise) added to the signal from external sources.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Decibels &amp; Signal-to-Noise Ratio (SNR) Formulas</h3>
+    <div class="formula-box">
+      <div class="formula-label">⚡ Attenuation in Decibels ($\text{dB}$)</div>
+      <div class="formula-main">$$\text{dB} = 10 \log_{10} \left( \frac{P_2}{P_1} \right)$$</div>
+      <div class="formula-note">$P_1$ = Input power &nbsp;|&nbsp; $P_2$ = Output power ($+\text{dB}$ = amplification, $-\text{dB}$ = attenuation)</div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Signal-to-Noise Ratio ($\text{SNR}$)</div>
+      <div class="formula-main">$$\text{SNR} = \frac{\text{Average Signal Power}}{\text{Average Noise Power}}$$</div>
+      <div class="formula-main">$$\text{SNR}_{\text{dB}} = 10 \log_{10}(\text{SNR})$$</div>
+      <div class="formula-note">High $\text{SNR}$ means high signal quality and low noise.</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: LIMITS ══════ -->
+  <div class="section" id="limits">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Data Rate Limits (Nyquist &amp; Shannon)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Top Numerical Category</div>
+
+    <div class="cards-grid">
+      <!-- Nyquist -->
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Formula 1 · Noiseless Channel</div>
+        <div class="info-card-title">📐 Nyquist Bit Rate</div>
+        <div class="info-card-desc">
+          Calculates theoretical maximum bit rate for a <strong>noiseless channel</strong>.<br>
+          <div class="formula-main" style="font-size:16px;margin:10px 0;">$$\text{Bit Rate} = 2 \times B \times \log_2(V)$$</div>
+          - $B$ = Bandwidth ($\text{Hz}$)<br>
+          - $V$ = Number of discrete signal levels
+        </div>
+      </div>
+
+      <!-- Shannon -->
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Formula 2 · Noisy Channel</div>
+        <div class="info-card-title">📊 Shannon Channel Capacity</div>
+        <div class="info-card-desc">
+          Calculates theoretical upper limit capacity ($C$) for a <strong>noisy channel</strong>.<br>
+          <div class="formula-main" style="font-size:16px;margin:10px 0;">$$C = B \times \log_2(1 + \text{SNR})$$</div>
+          - $B$ = Bandwidth ($\text{Hz}$)<br>
+          - $\text{SNR}$ = Numerical Signal-to-Noise Ratio (NOT in dB!)
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <div class="callout-title">Crucial Exam Trap for Shannon Capacity</div>
+        <div class="callout-text">
+          If the question gives $\text{SNR}_{\text{dB}} = 30\text{ dB}$, you <strong>MUST convert it to numerical $\text{SNR}$ first</strong> before using Shannon formula!<br>
+          $$\text{SNR}_{\text{dB}} = 10 \log_{10}(\text{SNR}) = 30 \implies \text{SNR} = 10^3 = 1000$$
+          Then $C = B \log_2(1 + 1000) \approx B \times 10$.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: PERFORMANCE ══════ -->
+  <div class="section" id="performance">
+    <div class="section-header">
+      <div class="section-icon">⏱️</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Network Performance Metrics</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Metric 1</div>
+        <div class="info-card-title">Throughput</div>
+        <div class="info-card-desc">The actual measurement of how fast data is passed through a network node (always $\le$ Bandwidth).</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Metric 2</div>
+        <div class="info-card-title">Latency (Delay)</div>
+        <div class="info-card-desc">
+          Total time for a complete message to reach destination:<br>
+          $$\text{Latency} = T_{\text{propagation}} + T_{\text{transmission}} + T_{\text{queueing}} + T_{\text{processing}}$$
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Metric 3</div>
+        <div class="info-card-title">Bandwidth-Delay Product (BDP)</div>
+        <div class="info-card-desc">
+          Volume of bits that can fill the transmission pipe:<br>
+          $$\text{BDP} = \text{Bandwidth (bps)} \times \text{Delay (sec)}$$
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Units &amp; Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frequency &amp; Period</strong></td>
+            <td>$$f = \frac{1}{T} \quad \text{and} \quad T = \frac{1}{f}$$</td>
+            <td>$f$ in $\text{Hz}$, $T$ in $\text{sec}$</td>
+          </tr>
+          <tr>
+            <td><strong>Wavelength ($\lambda$)</strong></td>
+            <td>$$\lambda = \frac{v}{f} = v \times T$$</td>
+            <td>$\lambda$ in meters, $v \approx 3 \times 10^8\text{ m/s}$ in vacuum</td>
+          </tr>
+          <tr>
+            <td><strong>Attenuation in dB</strong></td>
+            <td>$$\text{dB} = 10 \log_{10} \left( \frac{P_2}{P_1} \right)$$</td>
+            <td>$P_1$ = input power, $P_2$ = output power</td>
+          </tr>
+          <tr>
+            <td><strong>Signal-to-Noise Ratio (dB)</strong></td>
+            <td>$$\text{SNR}_{\text{dB}} = 10 \log_{10}(\text{SNR}_{\text{numerical}})$$</td>
+            <td>Convert dB to numerical for Shannon formula</td>
+          </tr>
+          <tr>
+            <td><strong>Nyquist Bit Rate</strong></td>
+            <td>$$\text{Bit Rate} = 2 \times B \times \log_2(V)$$</td>
+            <td>Noiseless channel ($B = \text{Hz}$, $V = \text{levels}$)</td>
+          </tr>
+          <tr>
+            <td><strong>Shannon Capacity</strong></td>
+            <td>$$C = B \times \log_2(1 + \text{SNR})$$</td>
+            <td>Noisy channel ($C = \text{bps}$, $B = \text{Hz}$)</td>
+          </tr>
+          <tr>
+            <td><strong>Bandwidth-Delay Product</strong></td>
+            <td>$$\text{BDP} = \text{Bandwidth (bps)} \times \text{RTT (sec)}$$</td>
+            <td>Measures maximum bits in transit pipe</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Period &amp; Frequency</span>
+      </div>
+      <div class="mcq-question">A periodic signal has a period $T = 100\ \mu\text{s}$. What is its frequency in kHz?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $1\text{ kHz}$</li>
+        <li class="mcq-option correct">B. $10\text{ kHz}$ ✓</li>
+        <li class="mcq-option">C. $100\text{ kHz}$</li>
+        <li class="mcq-option">D. $0.1\text{ kHz}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 10 kHz</strong><br>
+        $T = 100\ \mu\text{s} = 100 \times 10^{-6}\text{ s} = 10^{-4}\text{ s}$.<br>
+        $f = \frac{1}{T} = \frac{1}{10^{-4}} = 10,000\text{ Hz} = \mathbf{10\text{ kHz}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Nyquist Bit Rate Calculation</span>
+      </div>
+      <div class="mcq-question">Calculate the maximum bit rate for a noiseless channel with a bandwidth of 3 kHz transmitting a signal with 4 signal levels ($V=4$).</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 6 kbps</li>
+        <li class="mcq-option correct">B. 12 kbps ✓</li>
+        <li class="mcq-option">C. 24 kbps</li>
+        <li class="mcq-option">D. 3 kbps</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 12 kbps</strong><br>
+        Nyquist Formula: $\text{Bit Rate} = 2 \times B \times \log_2(V)$.<br>
+        $\text{Bit Rate} = 2 \times 3000 \times \log_2(4) = 6000 \times 2 = 12,000\text{ bps} = \mathbf{12\text{ kbps}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Shannon Channel Capacity</span>
+      </div>
+      <div class="mcq-question">A telephone line has a bandwidth of 3 kHz and a Signal-to-Noise Ratio (SNR) of 1023. What is the theoretical capacity of the channel?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 15 kbps</li>
+        <li class="mcq-option correct">B. 30 kbps ✓</li>
+        <li class="mcq-option">C. 60 kbps</li>
+        <li class="mcq-option">D. 3 kbps</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 30 kbps</strong><br>
+        Shannon Formula: $C = B \times \log_2(1 + \text{SNR})$.<br>
+        $C = 3000 \times \log_2(1 + 1023) = 3000 \times \log_2(1024) = 3000 \times 10 = 30,000\text{ bps} = \mathbf{30\text{ kbps}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Decibel Attenuation Calculation</span>
+      </div>
+      <div class="mcq-question">If the power of a signal is reduced to half its original value ($P_2 = P_1 / 2$), what is the attenuation in decibels?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. $-3\text{ dB}$ ✓</li>
+        <li class="mcq-option">B. $-6\text{ dB}$</li>
+        <li class="mcq-option">C. $-10\text{ dB}$</li>
+        <li class="mcq-option">D. $-1\text{ dB}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — $-3\text{ dB}$</strong><br>
+        $\text{dB} = 10 \log_{10}(P_2 / P_1) = 10 \log_{10}(0.5) = 10 \times (-0.301) \approx \mathbf{-3\text{ dB}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Phase Shift</span>
+      </div>
+      <div class="mcq-question">A sine wave is offset by $\frac{1}{4}$ cycle with respect to time zero ($t=0$). What is its phase in degrees?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $0^\circ$</li>
+        <li class="mcq-option correct">B. $90^\circ$ ✓</li>
+        <li class="mcq-option">C. $180^\circ$</li>
+        <li class="mcq-option">D. $360^\circ$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — $90^\circ$</strong><br>
+        One full cycle = $360^\circ$. An offset of $\frac{1}{4}$ cycle = $\frac{1}{4} \times 360^\circ = \mathbf{90^\circ}$ ($\pi/2\text{ radians}$).
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Bandwidth-Delay Product (BDP)</span>
+      </div>
+      <div class="mcq-question">A link has a bandwidth of 100 Mbps and a Round Trip Time (RTT) of 50 ms. Calculate the Bandwidth-Delay Product (BDP) in Bytes.</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 5,000,000 Bytes</li>
+        <li class="mcq-option correct">B. 625,000 Bytes (625 KB) ✓</li>
+        <li class="mcq-option">C. 500,000 Bytes</li>
+        <li class="mcq-option">D. 1,250,000 Bytes</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 625,000 Bytes</strong><br>
+        $\text{BDP in bits} = \text{Bandwidth} \times \text{Delay} = (100 \times 10^6\text{ bps}) \times (0.05\text{ sec}) = 5,000,000\text{ bits}$.<br>
+        $\text{BDP in Bytes} = \frac{5,000,000}{8} = \mathbf{625,000\text{ Bytes}}$ ($625\text{ KB}$).
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Wavelength Formula</span>
+      </div>
+      <div class="mcq-question">A signal has a frequency of $2\text{ GHz}$ propagating through free space ($v = 3 \times 10^8\text{ m/s}$). What is its wavelength ($\lambda$)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. $0.15\text{ m}$ ($15\text{ cm}$) ✓</li>
+        <li class="mcq-option">B. $1.5\text{ m}$</li>
+        <li class="mcq-option">C. $0.015\text{ m}$</li>
+        <li class="mcq-option">D. $15\text{ m}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 0.15 m (15 cm)</strong><br>
+        $\lambda = \frac{v}{f} = \frac{3 \times 10^8}{2 \times 10^9} = \frac{3}{20} = \mathbf{0.15\text{ meters}} = 15\text{ cm}$.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">SNR in Decibels</span>
+      </div>
+      <div class="mcq-question">If a signal has an average power of $1000\text{ W}$ and noise power is $1\text{ W}$, what is the Signal-to-Noise Ratio in decibels ($\text{SNR}_{\text{dB}}$)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $1000\text{ dB}$</li>
+        <li class="mcq-option correct">B. $30\text{ dB}$ ✓</li>
+        <li class="mcq-option">C. $10\text{ dB}$</li>
+        <li class="mcq-option">D. $3\text{ dB}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 30 dB</strong><br>
+        Numerical $\text{SNR} = \frac{1000}{1} = 1000$.<br>
+        $\text{SNR}_{\text{dB}} = 10 \log_{10}(1000) = 10 \times 3 = \mathbf{30\text{ dB}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Frequency Domain</span>
+      </div>
+      <div class="mcq-question">A frequency domain plot shows:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Phase versus Time</li>
+        <li class="mcq-option correct">B. Peak Amplitude versus Frequency ✓</li>
+        <li class="mcq-option">C. Wavelength versus Distance</li>
+        <li class="mcq-option">D. Bit Rate versus Bandwidth</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Peak Amplitude versus Frequency</strong><br>
+        A time domain plot shows amplitude versus time. A frequency domain plot shows peak amplitude versus frequency.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Infinite vs Zero Frequency</span>
+      </div>
+      <div class="mcq-question">If a signal does not change at all over time (constant DC voltage), its frequency is:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 0 Hz ✓</li>
+        <li class="mcq-option">B. Infinite Hz</li>
+        <li class="mcq-option">C. 1 Hz</li>
+        <li class="mcq-option">D. Undefined</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 0 Hz</strong><br>
+        If a signal does not change at all over time, its frequency is $0\text{ Hz}$. If a signal changes instantaneously, its frequency is $\infty\text{ Hz}$.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-05-unguided-media-wireless.html">← Lec 05</a>
+      <a href="07-tcpip-model.html">Lec 07 →</a>
+    </div>
+    <p>Lec 06 · Physical Layer: Analog &amp; Digital Signals &amp; Limits · IBPS SO IT Notes · Based on Forouzan Chapters 3 &amp; 4</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

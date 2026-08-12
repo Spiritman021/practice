@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 1 – Categories of Computer Networks &amp; Delivery Modes | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Categories of Computer Networks – PAN, LAN, MAN, WAN, SAN, CAN, BAN, NAN, RAN, Unicast, Broadcast, Multicast, Anycast, Geocast with PYQ practice." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 1 Extra Styles ── */
+    .net-scale-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--card2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 18px 24px; margin: 24px 0; gap: 12px; flex-wrap: wrap;
+    }
+    .net-node {
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+    }
+    .net-badge {
+      font-size: 14px; font-weight: 800; padding: 6px 14px; border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .badge-pan { background: rgba(0,212,170,0.15); color: var(--accent3); border: 1px solid rgba(0,212,170,0.3); }
+    .badge-lan { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.3); }
+    .badge-man { background: rgba(247,163,79,0.15); color: var(--accent4); border: 1px solid rgba(247,163,79,0.3); }
+    .badge-wan { background: rgba(240,92,136,0.2); color: var(--accent5); border: 1px solid rgba(240,92,136,0.4); }
+    .net-dist { font-size: 12px; color: var(--text2); }
+    .net-arrow { font-size: 20px; color: var(--text3); }
+
+    /* Routing scheme cards */
+    .routing-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .routing-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .routing-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .routing-card.unicast::before { background: var(--accent); }
+    .routing-card.broadcast::before { background: var(--accent5); }
+    .routing-card.multicast::before { background: var(--accent3); }
+    .routing-card.anycast::before { background: var(--accent4); }
+    .routing-card.geocast::before { background: var(--accent2); }
+    .routing-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .routing-name { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+    .routing-card.unicast .routing-name { color: var(--accent); }
+    .routing-card.broadcast .routing-name { color: var(--accent5); }
+    .routing-card.multicast .routing-name { color: var(--accent3); }
+    .routing-card.anycast .routing-name { color: var(--accent4); }
+    .routing-card.geocast .routing-name { color: var(--accent2); }
+    .routing-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .routing-type { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; margin-top: 10px; display: inline-block; }
+    .routing-card.unicast .routing-type { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .routing-card.broadcast .routing-type { background: rgba(240,92,136,0.15); color: var(--accent5); }
+    .routing-card.multicast .routing-type { background: rgba(0,212,170,0.15); color: var(--accent3); }
+    .routing-card.anycast .routing-type { background: rgba(247,163,79,0.15); color: var(--accent4); }
+    .routing-card.geocast .routing-type { background: rgba(124,92,240,0.15); color: var(--accent2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 01</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Fundamentals · Lecture 01</span>
+    <h1 class="page-title">Categories of Computer Networks<br>&amp; Delivery Modes</h1>
+    <p class="page-subtitle">
+      Master network classifications by geographical scale (PAN, LAN, MAN, WAN, SAN, CAN, BAN, NAN, RAN)
+      and message delivery routing schemes (Unicast, Broadcast, Multicast, Anycast, Geocast).
+      Verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.01</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#definition"><span class="toc-num">01</span> What is a Computer Network?</a></li>
+      <li><a href="#scale"><span class="toc-num">02</span> Main Categories by Geographic Scale (PAN, LAN, MAN, WAN)</a></li>
+      <li><a href="#specialized"><span class="toc-num">03</span> Specialized Networks (SAN, CAN, BAN, NAN, RAN)</a></li>
+      <li><a href="#routing"><span class="toc-num">04</span> Message Delivery Schemes (Unicast, Broadcast, Multicast)</a></li>
+      <li><a href="#advanced-routing"><span class="toc-num">05</span> Advanced Delivery Schemes (Anycast &amp; Geocast)</a></li>
+      <li><a href="#topology-intro"><span class="toc-num">06</span> Line Configuration &amp; Topology Overview</a></li>
+      <li><a href="#summary-table"><span class="toc-num">07</span> Master Comparison &amp; Summary Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: DEFINITION ══════ -->
+  <div class="section" id="definition">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is a Computer Network?</h2>
+      </div>
+    </div>
+
+    <p>A <strong>Computer Network</strong> is a group of interconnected computers and computing devices linked via communication channels that enable nodes to share <strong>resources, data, hardware, and applications</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Core Objective 1</div>
+        <div class="info-card-title">📁 Resource Sharing</div>
+        <div class="info-card-desc">Sharing physical devices (printers, hard drives) and software/databases across multiple users efficiently.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Core Objective 2</div>
+        <div class="info-card-title">⚡ High Reliability &amp; Speed</div>
+        <div class="info-card-desc">If one machine fails, copies of files exist on other nodes. Enables instantaneous communication (email, VoIP).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Core Objective 3</div>
+        <div class="info-card-title">💰 Cost Reduction</div>
+        <div class="info-card-desc">Small computers linked in a network offer a better price-to-performance ratio than a single mainframe machine.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: GEOGRAPHIC SCALE ══════ -->
+  <div class="section" id="scale">
+    <div class="section-header">
+      <div class="section-icon">📍</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Main Network Categories by Geographic Scale</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Frequency Topic</div>
+
+    <div class="net-scale-bar">
+      <div class="net-node">
+        <span class="net-badge badge-pan">PAN</span>
+        <span class="net-dist">&lt; 10 meters</span>
+      </div>
+      <span class="net-arrow">➔</span>
+      <div class="net-node">
+        <span class="net-badge badge-lan">LAN</span>
+        <span class="net-dist">&lt; 1-2 km</span>
+      </div>
+      <span class="net-arrow">➔</span>
+      <div class="net-node">
+        <span class="net-badge badge-man">MAN</span>
+        <span class="net-dist">5 - 50 km</span>
+      </div>
+      <span class="net-arrow">➔</span>
+      <div class="net-node">
+        <span class="net-badge badge-wan">WAN</span>
+        <span class="net-dist">Country / Global</span>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">📡 PAN (Personal Area Network)</div>
+        <div class="info-card-desc">
+          - <strong>Range:</strong> Within 10 meters (personal space).<br>
+          - <strong>Examples:</strong> Bluetooth headphones, smartwatch to phone, Wireless USB, Zigbee.<br>
+          - <strong>Key Property:</strong> Low power, single-user operation.
+        </div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">🏢 LAN (Local Area Network)</div>
+        <div class="info-card-desc">
+          - <strong>Range:</strong> Single room, office building, home (up to ~1 km).<br>
+          - <strong>Privately owned:</strong> High speed (10 Mbps to 10 Gbps), low error rate.<br>
+          - <strong>Technologies:</strong> Ethernet (IEEE 802.3), Wi-Fi (IEEE 802.11).
+        </div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">Category 3</div>
+        <div class="info-card-title">🏙️ MAN (Metropolitan Area Network)</div>
+        <div class="info-card-desc">
+          - <strong>Range:</strong> Entire city or town (5 to 50 km).<br>
+          - <strong>Connects:</strong> Multiple LANs across a town or corporate branches.<br>
+          - <strong>Examples:</strong> Cable TV network, Cable Broadband Internet, FDDI.
+        </div>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Category 4</div>
+        <div class="info-card-title">🌍 WAN (Wide Area Network)</div>
+        <div class="info-card-desc">
+          - <strong>Range:</strong> Country, continent, or global space.<br>
+          - <strong>Uses:</strong> Telecom, satellite links, fiber optics.<br>
+          - <strong>Examples:</strong> The Internet, Banking ATM network (national).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: SPECIALIZED NETWORKS ══════ -->
+  <div class="section" id="specialized">
+    <div class="section-header">
+      <div class="section-icon">💾</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Specialized Network Types (SAN, CAN, BAN, NAN, RAN)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Acronym</th>
+            <th>Full Name</th>
+            <th>Description &amp; Key Characteristics</th>
+            <th>Typical Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SAN</strong></td>
+            <td>Storage Area Network</td>
+            <td>Dedicated high-speed network that provides block-level network access to storage. Connects servers to data storage devices (disk arrays, tape libraries).</td>
+            <td>Data centers, Enterprise backups (Fibre Channel, iSCSI).</td>
+          </tr>
+          <tr>
+            <td><strong>CAN</strong></td>
+            <td>Campus Area Network</td>
+            <td>Larger than a LAN, smaller than a MAN. Interconnects multiple LANs across a specific geographical campus (university, military base).</td>
+            <td>University campuses, Corporate HQ complexes.</td>
+          </tr>
+          <tr>
+            <td><strong>BAN</strong></td>
+            <td>Body Area Network</td>
+            <td>Network of wearable or implanted medical sensors and computing devices on or inside the human body.</td>
+            <td>Heart rate monitors, Pacemakers, Smart health trackers (IEEE 802.15.6).</td>
+          </tr>
+          <tr>
+            <td><strong>NAN</strong></td>
+            <td>Near-Me Area Network</td>
+            <td>Communication between wireless devices located in close physical proximity without requiring a central router.</td>
+            <td>Mobile P2P file sharing, Wi-Fi Direct, Apple AirDrop.</td>
+          </tr>
+          <tr>
+            <td><strong>RAN</strong></td>
+            <td>Radio Access Network</td>
+            <td>The radio frequency part of a cellular telecommunication system connecting individual mobile devices to core network.</td>
+            <td>Cellular mobile networks (3G, 4G LTE, 5G NR).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: ROUTING SCHEMES ══════ -->
+  <div class="section" id="routing">
+    <div class="section-header">
+      <div class="section-icon">📬</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Message Delivery &amp; Routing Schemes</h2>
+      </div>
+    </div>
+
+    <p>Routing schemes define how messages are addressed and delivered from a sender to destination endpoints across the network.</p>
+
+    <div class="routing-grid">
+      <!-- Unicast -->
+      <div class="routing-card unicast">
+        <div class="routing-name">🎯 Unicast</div>
+        <div class="routing-desc">
+          <strong>One-to-One (1 : 1)</strong> association.<br>
+          Delivers a message to a single specific node. Each destination address uniquely identifies one receiver endpoint.<br>
+          <em>Example:</em> HTTP web browsing, Telnet, SSH, private email.
+        </div>
+        <span class="routing-type">1 : 1 Delivery</span>
+      </div>
+
+      <!-- Broadcast -->
+      <div class="routing-card broadcast">
+        <div class="routing-name">📢 Broadcast</div>
+        <div class="routing-desc">
+          <strong>One-to-All (1 : All)</strong> association.<br>
+          Delivers a message to ALL nodes in the network/subnet. Network automatically replicates the packet.<br>
+          <em>Example:</em> ARP Request, IPv4 Broadcast (255.255.255.255, Limited/Directed Broadcast).
+        </div>
+        <span class="routing-type">1 : All Delivery</span>
+      </div>
+
+      <!-- Multicast -->
+      <div class="routing-card multicast">
+        <div class="routing-name">👥 Multicast</div>
+        <div class="routing-desc">
+          <strong>One-to-Many (1 : Many)</strong> association.<br>
+          Delivers a message to a specific subset of nodes that expressed interest (subscribed group).<br>
+          <em>Example:</em> Live video streaming, IPTV, OSPF/RIP routing updates (Class D IP: 224.0.0.0/4).
+        </div>
+        <span class="routing-type">1 : Many Delivery</span>
+      </div>
+
+      <!-- Anycast -->
+      <div class="routing-card anycast">
+        <div class="routing-name">📍 Anycast</div>
+        <div class="routing-desc">
+          <strong>One-to-One-of-Many (1 : Nearest)</strong> association.<br>
+          Delivers a message to any single member of a group of potential receivers (typically the nearest node geographically/topologically).<br>
+          <em>Example:</em> DNS Root Servers, CDN (Cloudflare/Akamai), IPv6 Anycasting.
+        </div>
+        <span class="routing-type">1 : Nearest Node</span>
+      </div>
+
+      <!-- Geocast -->
+      <div class="routing-card geocast">
+        <div class="routing-name">🗺️ Geocast</div>
+        <div class="routing-desc">
+          <strong>Geographic Location-Based</strong> delivery.<br>
+          Delivers a message to a group of nodes based on their physical geographical position.<br>
+          <em>Example:</em> Vehicular Ad-Hoc Networks (VANETs), Emergency location alerts.
+        </div>
+        <span class="routing-type">Geo-Location Delivery</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: LINE CONFIG & TOPOLOGY ══════ -->
+  <div class="section" id="topology-intro">
+    <div class="section-header">
+      <div class="section-icon">🔗</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Line Configurations &amp; Network Topologies Overview</h2>
+      </div>
+    </div>
+
+    <h3 class="sub-title">1. Line Configurations</h3>
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Configuration 1</div>
+        <div class="info-card-title">↔️ Point-to-Point (P2P)</div>
+        <div class="info-card-desc">Dedicated link between two devices. Entire link capacity is reserved for transmission between those two nodes. (e.g., microwave link, direct cable).</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Configuration 2</div>
+        <div class="info-card-title">🔀 Multipoint (Multidrop)</div>
+        <div class="info-card-desc">More than two devices share a single link. Channel capacity is shared either spatially or temporally. (e.g., Traditional Bus Topology).</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">2. Topologies Formulas Cheat Sheet</h3>
+    <div class="formula-box">
+      <div class="formula-label">⚡ Mesh Topology Links Formula</div>
+      <div class="formula-main">L = \frac{N(N - 1)}{2}</div>
+      <div class="formula-note">N = Number of nodes &nbsp;|&nbsp; Number of I/O ports required per device = N - 1</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: SUMMARY TABLE ══════ -->
+  <div class="section" id="summary-table">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Master Comparison &amp; Summary Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Full Name</th>
+            <th>Range / Scale</th>
+            <th>Data Rate</th>
+            <th>Ownership</th>
+            <th>Key Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PAN</strong></td>
+            <td>Personal Area Network</td>
+            <td>&lt; 10 meters</td>
+            <td>Low to Moderate</td>
+            <td>Private</td>
+            <td>Bluetooth, Zigbee</td>
+          </tr>
+          <tr>
+            <td><strong>LAN</strong></td>
+            <td>Local Area Network</td>
+            <td>&lt; 1-2 km</td>
+            <td>High (10M - 10Gbps)</td>
+            <td>Private</td>
+            <td>Office Wi-Fi, Ethernet</td>
+          </tr>
+          <tr>
+            <td><strong>MAN</strong></td>
+            <td>Metropolitan Area Network</td>
+            <td>5 - 50 km</td>
+            <td>Moderate to High</td>
+            <td>Public / Private</td>
+            <td>Cable TV network, City Wi-Fi</td>
+          </tr>
+          <tr>
+            <td><strong>WAN</strong></td>
+            <td>Wide Area Network</td>
+            <td>Country / Global</td>
+            <td>Variable (Lower)</td>
+            <td>Public / Telecom</td>
+            <td>The Internet</td>
+          </tr>
+          <tr>
+            <td><strong>SAN</strong></td>
+            <td>Storage Area Network</td>
+            <td>Data Center</td>
+            <td>Very High (Gbps)</td>
+            <td>Enterprise</td>
+            <td>Fibre Channel, iSCSI</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Network Classification</span>
+      </div>
+      <div class="mcq-question">Which network type covers a geographical area usually spanning a city or a large town?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. LAN</li>
+        <li class="mcq-option correct">B. MAN ✓</li>
+        <li class="mcq-option">C. WAN</li>
+        <li class="mcq-option">D. PAN</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — MAN (Metropolitan Area Network)</strong><br>
+        A MAN spans a city or town (typically 5–50 km). LAN covers a single building/office (&lt;1 km), WAN covers countries/continents, and PAN covers personal space (&lt;10m).
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Mesh Topology Formula</span>
+      </div>
+      <div class="mcq-question">In a fully connected Mesh topology with 10 computers, how many physical duplex links are required?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 10</li>
+        <li class="mcq-option">B. 90</li>
+        <li class="mcq-option correct">C. 45 ✓</li>
+        <li class="mcq-option">D. 20</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 45</strong><br>
+        Formula for Mesh duplex links: $L = \frac{N(N - 1)}{2} = \frac{10 \times 9}{2} = 45$ links.<br>
+        Number of ports per node = $N - 1 = 9$ ports.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Multicast Address Class</span>
+      </div>
+      <div class="mcq-question">Which IPv4 address class is specifically reserved for Multicast communication?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Class A</li>
+        <li class="mcq-option">B. Class B</li>
+        <li class="mcq-option">C. Class C</li>
+        <li class="mcq-option correct">D. Class D ✓</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: D — Class D</strong><br>
+        Class D IP addresses (224.0.0.0 to 239.255.255.255) are dedicated to Multicast communication (1-to-many).
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Anycast Concept</span>
+      </div>
+      <div class="mcq-question">In Anycast routing, a packet sent from a client is delivered to:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. All servers in the network</li>
+        <li class="mcq-option">B. A specific hardcoded server</li>
+        <li class="mcq-option correct">C. The single nearest server in a group sharing the same IP ✓</li>
+        <li class="mcq-option">D. All servers in a specific geographic region</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C</strong><br>
+        Anycast delivers to the single nearest node (in terms of routing distance) among a group of servers sharing the same IP address (commonly used in DNS Root Servers and CDNs).
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Storage Area Network</span>
+      </div>
+      <div class="mcq-question">A dedicated, high-speed network that provides block-level storage access to servers is known as:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. LAN</li>
+        <li class="mcq-option correct">B. SAN ✓</li>
+        <li class="mcq-option">C. MAN</li>
+        <li class="mcq-option">D. NAS</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — SAN (Storage Area Network)</strong><br>
+        A SAN connects servers to high-performance storage targets (disk arrays, tape drives) over Fibre Channel or iSCSI.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Line Configuration</span>
+      </div>
+      <div class="mcq-question">A line configuration in which two and only two devices share a dedicated link is called:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Point-to-Point ✓</li>
+        <li class="mcq-option">B. Multipoint</li>
+        <li class="mcq-option">C. Multidrop</li>
+        <li class="mcq-option">D. Broadcast</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Point-to-Point</strong><br>
+        Point-to-point provides a dedicated link strictly between two devices. Multipoint/multidrop links share channel capacity among three or more devices.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Broadcast Address</span>
+      </div>
+      <div class="mcq-question">The IP address 255.255.255.255 represents:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Loopback address</li>
+        <li class="mcq-option correct">B. Limited Broadcast Address ✓</li>
+        <li class="mcq-option">C. Directed Broadcast Address</li>
+        <li class="mcq-option">D. Multicast Group Address</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Limited Broadcast Address</strong><br>
+        255.255.255.255 is the limited broadcast address used to send data to all hosts on the local network without passing through routers.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Bluetooth Network</span>
+      </div>
+      <div class="mcq-question">Bluetooth technology is an example of which category of computer network?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. PAN ✓</li>
+        <li class="mcq-option">B. LAN</li>
+        <li class="mcq-option">C. MAN</li>
+        <li class="mcq-option">D. WAN</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — PAN (Personal Area Network)</strong><br>
+        Bluetooth operates over short distances (approx. 10 meters) to form a Piconet/PAN for personal devices.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Wireless LAN Standard</span>
+      </div>
+      <div class="mcq-question">Which IEEE standard governs Wireless LAN (Wi-Fi) communication?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. IEEE 802.3</li>
+        <li class="mcq-option correct">B. IEEE 802.11 ✓</li>
+        <li class="mcq-option">C. IEEE 802.15</li>
+        <li class="mcq-option">D. IEEE 802.1</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — IEEE 802.11</strong><br>
+        IEEE 802.11 specifies Wireless LAN (Wi-Fi). IEEE 802.3 is Ethernet, and IEEE 802.15 is Wireless PAN (Bluetooth/Zigbee).
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Routing Scheme Comparison</span>
+      </div>
+      <div class="mcq-question">Which delivery scheme uses a one-to-many-of-many association where datagrams are routed simultaneously in a single transmission to multiple interested recipients?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Unicast</li>
+        <li class="mcq-option">B. Broadcast</li>
+        <li class="mcq-option correct">C. Multicast ✓</li>
+        <li class="mcq-option">D. Anycast</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Multicast</strong><br>
+        Multicast sends datagrams to a specific subset/group of interested hosts (one-to-many), unlike Broadcast which sends to ALL hosts on the subnet.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="02-network-types.html">Lec 02 →</a>
+    </div>
+    <p>Lec 01 · Categories of Computer Networks &amp; Delivery Modes · IBPS SO IT Notes · Based on Forouzan Chapter 1</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

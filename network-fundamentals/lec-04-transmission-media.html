@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 4 – Transmission Media (Guided &amp; Unguided) | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Transmission Media – Twisted Pair (UTP/STP), Coaxial Cable (RG Ratings), Fiber Optics (Single-mode/Multi-mode), Wireless, Connectors (RJ-45, BNC, ST/SC), and PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 4 Extra Styles ── */
+    .media-tree {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;
+    }
+    @media(max-width:640px) { .media-tree { grid-template-columns: 1fr; } }
+    .media-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+      transition: all 0.25s;
+    }
+    .media-box:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .media-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .media-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 04</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 04</span>
+    <h1 class="page-title">Transmission Media<br>(Guided &amp; Unguided)</h1>
+    <p class="page-subtitle">
+      Master Physical Layer transmission channels – Twisted Pair (UTP/STP categories), Coaxial Cable (RG ratings),
+      Fiber Optics (Single-Mode vs Multi-Mode, Step &amp; Graded Index), Wireless Media, and Connectors (RJ-45, BNC, ST/SC).
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.07</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Classes of Transmission Media</a></li>
+      <li><a href="#twisted-pair"><span class="toc-num">02</span> Twisted-Pair Cables &amp; UTP Categories (CAT 1 - 7)</a></li>
+      <li><a href="#coaxial"><span class="toc-num">03</span> Coaxial Cables &amp; Radio Government (RG) Ratings</a></li>
+      <li><a href="#fiber-optic"><span class="toc-num">04</span> Fiber Optic Cable &amp; Total Internal Reflection</a></li>
+      <li><a href="#propagation-modes"><span class="toc-num">05</span> Fiber Propagation Modes (Step-Index, Graded-Index, Single-Mode)</a></li>
+      <li><a href="#connectors"><span class="toc-num">06</span> Network Connectors Summary (RJ-45, BNC, ST/SC/MT-RJ)</a></li>
+      <li><a href="#unguided"><span class="toc-num">07</span> Unguided (Wireless) Media (Radio, Microwave, Infrared)</a></li>
+      <li><a href="#master-table"><span class="toc-num">08</span> Master Comparison &amp; Summary Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">09</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Classes of Transmission Media</h2>
+      </div>
+    </div>
+
+    <p>A <strong>transmission medium</strong> is the physical path between transmitter and receiver in a data transmission system. It is located at the <strong>Physical Layer (Layer 1)</strong> of the OSI model.</p>
+
+    <div class="media-tree">
+      <div class="media-box" style="border-top:3px solid var(--accent);">
+        <div class="media-title">🔌 Guided (Wired) Media</div>
+        <div class="media-desc">
+          Provides a physical conduit from one device to another.<br>
+          - <strong>Twisted-Pair Cable</strong> (UTP / STP)<br>
+          - <strong>Coaxial Cable</strong> (RG-58, RG-59, RG-11)<br>
+          - <strong>Fiber-Optic Cable</strong> (Single-mode / Multi-mode)
+        </div>
+      </div>
+
+      <div class="media-box" style="border-top:3px solid var(--accent3);">
+        <div class="media-title">📡 Unguided (Wireless) Media</div>
+        <div class="media-desc">
+          Transmits electromagnetic waves without using a physical conductor (free space / air).<br>
+          - <strong>Radio Waves</strong> (Omnidirectional)<br>
+          - <strong>Microwaves</strong> (Line-of-sight directional)<br>
+          - <strong>Infrared Waves</strong> (Short range, line-of-sight)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: TWISTED PAIR ══════ -->
+  <div class="section" id="twisted-pair">
+    <div class="section-header">
+      <div class="section-icon">🌀</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Twisted-Pair Cables &amp; UTP Categories</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Frequency Topic</div>
+
+    <p>Consists of two insulated copper wires twisted together in a helical spiral. **Why twist?** Twisting causes electromagnetic noise from external sources or neighboring pairs (crosstalk) to affect both wires equally, canceling out interference!</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Type A</div>
+        <div class="info-card-title">UTP (Unshielded Twisted-Pair)</div>
+        <div class="info-card-desc">Most common in LANs. Inexpensive, flexible, easy to install. No extra metal shielding.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Type B</div>
+        <div class="info-card-title">STP (Shielded Twisted-Pair)</div>
+        <div class="info-card-desc">Includes a metallic foil/braid shield surrounding each pair and/or entire cable. Reduces Crosstalk and EMI significantly.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">UTP Categories Table (Forouzan Standards)</h3>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Data Rate</th>
+            <th>Specification &amp; Typical Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>CAT 1</strong></td>
+            <td>&lt; 0.1 Mbps</td>
+            <td>Unshielded twisted-pair used in traditional voice telephone systems.</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 2</strong></td>
+            <td>2 Mbps</td>
+            <td>Used in T-1 carrier lines.</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 3</strong></td>
+            <td>10 Mbps</td>
+            <td>Improved CAT 2 used in 10BASE-T Ethernet LANs (16 MHz).</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 4</strong></td>
+            <td>20 Mbps</td>
+            <td>Used in Token Ring networks (20 MHz).</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 5</strong></td>
+            <td>100 Mbps</td>
+            <td>24 AWG wire, used in 100BASE-TX Fast Ethernet LANs (100 MHz).</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 5e</strong></td>
+            <td>125 Mbps / 1 Gbps</td>
+            <td>Enhanced CAT 5 with extra features to minimize crosstalk for Gigabit Ethernet.</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 6</strong></td>
+            <td>200 Mbps / 10 Gbps</td>
+            <td>Matched components, tested up to 250 MHz (used in 10GBASE-T up to 55m).</td>
+          </tr>
+          <tr>
+            <td><strong>CAT 7 (SSTP)</strong></td>
+            <td>600 Mbps / 10 Gbps</td>
+            <td>Shielded Screen Twisted-Pair. Each pair individually foil-wrapped + outer braid. Lowest crosstalk.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: COAXIAL ══════ -->
+  <div class="section" id="coaxial">
+    <div class="section-header">
+      <div class="section-icon">📺</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Coaxial Cables &amp; Radio Government (RG) Ratings</h2>
+      </div>
+    </div>
+
+    <p>Coaxial cable carries signals of higher frequency ranges than twisted-pair cable. It consists of a central solid copper conductor enclosed by an insulating dielectric layer, a metallic outer braid shield, and a protective outer jacket.</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Category / Rating</th>
+            <th>Impedance ($\Omega$)</th>
+            <th>Primary Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>RG-59</strong></td>
+            <td>$75\ \Omega$</td>
+            <td>Cable TV (CATV) and analog video signals.</td>
+          </tr>
+          <tr>
+            <td><strong>RG-58</strong></td>
+            <td>$50\ \Omega$</td>
+            <td>Thin Ethernet (10BASE2 Thinnet) – legacy LANs.</td>
+          </tr>
+          <tr>
+            <td><strong>RG-11</strong></td>
+            <td>$50\ \Omega$</td>
+            <td>Thick Ethernet (10BASE5 Thicknet) – long-distance backbone lines.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: FIBER OPTIC ══════ -->
+  <div class="section" id="fiber-optic">
+    <div class="section-header">
+      <div class="section-icon">✨</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Fiber Optic Cable &amp; Total Internal Reflection</h2>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">💡</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Total Internal Reflection Principle</div>
+        <p>Light travels through the inner glass core by bouncing off the outer cladding. For light to remain trapped inside, the core's refractive index $n_1$ must be <strong>greater than</strong> the cladding's refractive index $n_2$ ($n_1 > n_2$), and the angle of incidence must exceed the <strong>critical angle ($\theta > \theta_c$)</strong>.</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Anatomy</div>
+        <div class="info-card-title">Core &amp; Cladding</div>
+        <div class="info-card-desc">
+          - <strong>Core:</strong> Ultra-pure glass/plastic core carrying light.<br>
+          - <strong>Cladding:</strong> Glass/plastic wrapping with lower refractive index ($n_2 < n_1$) to reflect light back.<br>
+          - <strong>Buffer &amp; Kevlar:</strong> Protective plastic coating &amp; strength fibers.
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Key Advantages</div>
+        <div class="info-card-title">Why Use Fiber Optics?</div>
+        <div class="info-card-desc">
+          - <strong>Immune to EMI / RFI:</strong> Light signals don't pick up electrical noise.<br>
+          - <strong>Ultra-High Bandwidth:</strong> Gigabits/Terabits per second.<br>
+          - <strong>Low Attenuation:</strong> Signal travels tens of kilometers without repeaters.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: PROPAGATION MODES ══════ -->
+  <div class="section" id="propagation-modes">
+    <div class="section-header">
+      <div class="section-icon">🌈</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Fiber Propagation Modes</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Core Index Profile</th>
+            <th>Light Path / Characteristics</th>
+            <th>Typical Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Multimode Step-Index</strong></td>
+            <td>Constant density from center to boundary; abrupt step change at cladding.</td>
+            <td>Multiple light rays bounce in sharp zig-zag paths. High modal dispersion (distortion at destination).</td>
+            <td>Short distance, low-cost LANs (LED light source).</td>
+          </tr>
+          <tr>
+            <td><strong>Multimode Graded-Index</strong></td>
+            <td>Varies smoothly from highest at center to lowest at core-cladding boundary.</td>
+            <td>Light beams travel in smooth parabolic / sinusoidal curves. Reduced modal dispersion.</td>
+            <td>Medium distance LAN backbones.</td>
+          </tr>
+          <tr>
+            <td><strong>Single-Mode (SMF)</strong></td>
+            <td>Extremely small core diameter (8–10 $\mu\text{m}$). Step index.</td>
+            <td>Light travels in a single straight ray along core axis. <strong>Zero modal dispersion</strong>. High speed.</td>
+            <td>Long-distance telecommunications, submarine cables (Laser diode source).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: CONNECTORS ══════ -->
+  <div class="section" id="connectors">
+    <div class="section-header">
+      <div class="section-icon">🔌</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Network Connectors Summary</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Cable Type</th>
+            <th>Connector Name</th>
+            <th>Key Features &amp; Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Twisted Pair (UTP/STP)</strong></td>
+            <td><strong>RJ-45 (Registered Jack 45)</strong></td>
+            <td>8-pin / 8-position plastic modular connector (Male plug &amp; Female jack). Standard for Ethernet.</td>
+          </tr>
+          <tr>
+            <td><strong>Telephone Line</strong></td>
+            <td><strong>RJ-11</strong></td>
+            <td>4-pin / 6-position modular connector used for standard telephone handsets and ADSL modems.</td>
+          </tr>
+          <tr>
+            <td><strong>Coaxial Cable</strong></td>
+            <td><strong>BNC Connector</strong></td>
+            <td>Bayonet Neill–Concelman connector. Uses twist-lock mechanism. Includes BNC T-connector &amp; $50\ \Omega$ BNC Terminator.</td>
+          </tr>
+          <tr>
+            <td><strong>Fiber Optic (Push-Pull)</strong></td>
+            <td><strong>SC Connector</strong></td>
+            <td>Subscriber Connector / Square Connector. Uses push-pull latching mechanism. Common in datacenter fiber.</td>
+          </tr>
+          <tr>
+            <td><strong>Fiber Optic (Bayonet)</strong></td>
+            <td><strong>ST Connector</strong></td>
+            <td>Straight Tip / Stick-and-Twist. Uses a round bayonet twist-lock mount.</td>
+          </tr>
+          <tr>
+            <td><strong>Fiber Optic (Duplex)</strong></td>
+            <td><strong>MT-RJ Connector</strong></td>
+            <td>Mechanical Transfer Registered Jack. Small form factor duplex connector housing 2 fibers in one RJ-45 size plug.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: UNGUIDED ══════ -->
+  <div class="section" id="unguided">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Unguided (Wireless) Media</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Wireless Type 1</div>
+        <div class="info-card-title">📻 Radio Waves ($3\text{ kHz}$ – $1\text{ GHz}$)</div>
+        <div class="info-card-desc">
+          - <strong>Omnidirectional:</strong> Propagate in all directions from sending antenna.<br>
+          - Can penetrate walls (long wavelength).<br>
+          - Used for AM/FM radio, cellular phones, television broadcasting.
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Wireless Type 2</div>
+        <div class="info-card-title">📡 Microwaves ($1\text{ GHz}$ – $300\text{ GHz}$)</div>
+        <div class="info-card-desc">
+          - <strong>Unidirectional / Line-of-sight:</strong> Sending and receiving antennas must be precisely aligned.<br>
+          - Cannot penetrate walls.<br>
+          - Used for satellite communication, dish links, Wi-Fi, Bluetooth.
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Wireless Type 3</div>
+        <div class="info-card-title">🔴 Infrared ($300\text{ GHz}$ – $400\text{ THz}$)</div>
+        <div class="info-card-desc">
+          - High frequency, <strong>short range</strong>.<br>
+          - Cannot penetrate walls or solid objects (prevents interference between adjacent rooms).<br>
+          - Used in TV remote controls, IrDA, short-range device pairing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: MASTER TABLE ══════ -->
+  <div class="section" id="master-table">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">Master Transmission Media Comparison Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Medium</th>
+            <th>Speed / Bandwidth</th>
+            <th>Attenuation</th>
+            <th>EMI Noise Susceptibility</th>
+            <th>Standard Connector</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>UTP Cable</strong></td>
+            <td>10 Mbps – 10 Gbps</td>
+            <td>High (Max 100m distance)</td>
+            <td>High (Susceptible to noise)</td>
+            <td>RJ-45</td>
+          </tr>
+          <tr>
+            <td><strong>STP Cable</strong></td>
+            <td>10 Mbps – 10 Gbps</td>
+            <td>Medium</td>
+            <td>Low (Foil shield reduces EMI)</td>
+            <td>RJ-45 / Shielded RJ-45</td>
+          </tr>
+          <tr>
+            <td><strong>Coaxial Cable</strong></td>
+            <td>10 Mbps – 100 Mbps</td>
+            <td>Lower than UTP</td>
+            <td>Low (Braided metallic shield)</td>
+            <td>BNC / BNC T / $50\ \Omega$ Terminator</td>
+          </tr>
+          <tr>
+            <td><strong>Fiber Optic Cable</strong></td>
+            <td>100 Gbps+</td>
+            <td>Very Low (Tens of km)</td>
+            <td><strong>Zero (Immune to EMI/RFI)</strong></td>
+            <td>SC, ST, LC, MT-RJ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 9: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 09</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Ethernet Connector</span>
+      </div>
+      <div class="mcq-question">Which connector is standard for connecting UTP/STP cables in an Ethernet LAN?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. RJ-11</li>
+        <li class="mcq-option correct">B. RJ-45 ✓</li>
+        <li class="mcq-option">C. BNC</li>
+        <li class="mcq-option">D. ST Connector</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — RJ-45</strong><br>
+        RJ-45 (Registered Jack 45) is the 8-pin connector used for Ethernet UTP/STP cables. RJ-11 is for telephone lines (4-pin), and BNC is for coaxial cable.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Coaxial Ratings</span>
+      </div>
+      <div class="mcq-question">Which Radio Government (RG) rating of coaxial cable is used for Cable TV (CATV)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. RG-58</li>
+        <li class="mcq-option correct">B. RG-59 ✓</li>
+        <li class="mcq-option">C. RG-11</li>
+        <li class="mcq-option">D. RG-8</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — RG-59</strong><br>
+        RG-59 has an impedance of $75\ \Omega$ and is used for Cable TV. RG-58 ($50\ \Omega$) is for Thin Ethernet (10BASE2), and RG-11 ($50\ \Omega$) is for Thick Ethernet (10BASE5).
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Fiber Propagation Principle</span>
+      </div>
+      <div class="mcq-question">Light signals travel through optical fibers based on which principle of physics?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Refraction</li>
+        <li class="mcq-option correct">B. Total Internal Reflection ✓</li>
+        <li class="mcq-option">C. Dispersion</li>
+        <li class="mcq-option">D. Diffraction</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Total Internal Reflection</strong><br>
+        Light is trapped inside the core because the core refractive index $n_1$ is higher than cladding $n_2$, causing total internal reflection when angle of incidence exceeds critical angle.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Single Mode Fiber</span>
+      </div>
+      <div class="mcq-question">Which fiber optic propagation mode provides the highest bandwidth and longest transmission distance with virtually zero modal dispersion?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Multimode Step-Index</li>
+        <li class="mcq-option">B. Multimode Graded-Index</li>
+        <li class="mcq-option correct">C. Single-Mode Fiber (SMF) ✓</li>
+        <li class="mcq-option">D. Dual-Mode Fiber</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Single-Mode Fiber (SMF)</strong><br>
+        Single-mode fiber has a very narrow core (8–10 $\mu\text{m}$) allowing light to travel in a single direct ray, eliminating modal dispersion.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">UTP Category 5e</span>
+      </div>
+      <div class="mcq-question">Which category of UTP cable is rated for data speeds up to 1 Gbps (Gigabit Ethernet)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. CAT 3</li>
+        <li class="mcq-option">B. CAT 4</li>
+        <li class="mcq-option correct">C. CAT 5e ✓</li>
+        <li class="mcq-option">D. CAT 1</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — CAT 5e</strong><br>
+        CAT 5e (Category 5 Enhanced) supports up to 1000 Mbps / 1 Gbps for Gigabit Ethernet with reduced crosstalk.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">EMI Immunity</span>
+      </div>
+      <div class="mcq-question">Which transmission medium is completely immune to Electromagnetic Interference (EMI) and Radio Frequency Interference (RFI)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. UTP Cable</li>
+        <li class="mcq-option">B. Coaxial Cable</li>
+        <li class="mcq-option correct">C. Optical Fiber Cable ✓</li>
+        <li class="mcq-option">D. STP Cable</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Optical Fiber Cable</strong><br>
+        Since optical fibers transmit light (photons) rather than electrical currents, they are 100% immune to EMI and RFI.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">BNC Terminator</span>
+      </div>
+      <div class="mcq-question">In a 10BASE2 Coaxial Bus network, what is attached to both ends of the backbone cable to absorb signals?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. RJ-45 Plug</li>
+        <li class="mcq-option correct">B. $50\ \Omega$ BNC Terminator ✓</li>
+        <li class="mcq-option">C. Repeater</li>
+        <li class="mcq-option">D. Ground wire only</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — $50\ \Omega$ BNC Terminator</strong><br>
+        BNC terminators ($50\ \Omega$) absorb traveling electrical signals at the ends of coaxial bus lines to prevent signal reflection back into the cable.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Infrared Propagation</span>
+      </div>
+      <div class="mcq-question">Which wireless transmission medium cannot pass through solid walls, making it ideal for short-range indoor remote controls?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Radio Waves</li>
+        <li class="mcq-option">B. Microwaves</li>
+        <li class="mcq-option correct">C. Infrared Waves ✓</li>
+        <li class="mcq-option">D. Satellite Waves</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Infrared Waves</strong><br>
+        Infrared frequencies ($300\text{ GHz}$ – $400\text{ THz}$) cannot penetrate solid walls, preventing interference between TV remotes in adjacent rooms.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Coaxial Cable Impedance</span>
+      </div>
+      <div class="mcq-question">Thin Ethernet (10BASE2) coaxial cable has a characteristic impedance of:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. $50\ \Omega$ ✓</li>
+        <li class="mcq-option">B. $75\ \Omega$</li>
+        <li class="mcq-option">C. $100\ \Omega$</li>
+        <li class="mcq-option">D. $150\ \Omega$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — $50\ \Omega$</strong><br>
+        Thin Ethernet (RG-58) and Thick Ethernet (RG-11) use $50\ \Omega$ coaxial cable. Cable TV (RG-59) uses $75\ \Omega$.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Layer Mapping</span>
+      </div>
+      <div class="mcq-question">At which layer of the OSI reference model do transmission media (cables, connectors, fiber) operate?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Physical Layer (Layer 1) ✓</li>
+        <li class="mcq-option">B. Data Link Layer (Layer 2)</li>
+        <li class="mcq-option">C. Network Layer (Layer 3)</li>
+        <li class="mcq-option">D. Transport Layer (Layer 4)</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Physical Layer (Layer 1)</strong><br>
+        Transmission media, cables, connectors, signal encoding, and physical interfaces belong to Layer 1 (Physical Layer).
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-03-osi-layers-and-responsibilities.html">← Lec 03</a>
+      <a href="05-network-components.html">Lec 05 →</a>
+    </div>
+    <p>Lec 04 · Transmission Media (Guided &amp; Unguided) · IBPS SO IT Notes · Based on Forouzan Chapter 7</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

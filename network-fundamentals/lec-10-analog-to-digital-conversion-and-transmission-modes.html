@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 10 – Analog-to-Digital Conversion &amp; Transmission Modes | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Analog-to-Digital Conversion – PCM (Sampling, Quantization, Encoding), Nyquist Rate, Step Size Δ, Delta Modulation, Parallel vs Serial (Asynchronous Start/Stop bits) &amp; PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 10 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 10</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 10</span>
+    <h1 class="page-title">Analog-to-Digital Conversion &amp;<br>Transmission Modes</h1>
+    <p class="page-subtitle">
+      Master Digitization &amp; Data Transmission – PCM (Sampling, Quantization Step Size $\Delta$, Encoding),
+      Nyquist Sampling Rate Theorem ($f_s \ge 2f_{\max}$), Delta Modulation (DM), Transmission Modes (Parallel vs. Serial: Asynchronous Start/Stop bits &amp; Synchronous).
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT Core Topic</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.04</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Why Convert Analog to Digital Data?</a></li>
+      <li><a href="#pcm-steps"><span class="toc-num">02</span> PCM Step 1: Sampling &amp; Nyquist Theorem</a></li>
+      <li><a href="#quantization"><span class="toc-num">03</span> PCM Step 2: Quantization &amp; Step Size $\Delta$ Worked Example</a></li>
+      <li><a href="#encoding"><span class="toc-num">04</span> PCM Step 3: Binary Encoding &amp; SQNR Rule (6 dB / bit)</a></li>
+      <li><a href="#delta-mod"><span class="toc-num">05</span> Delta Modulation (DM) &amp; Impairments</a></li>
+      <li><a href="#transmission-modes"><span class="toc-num">06</span> Transmission Modes (Parallel vs. Serial Asynchronous / Synchronous)</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Why Convert Analog to Digital Data?</h2>
+      </div>
+    </div>
+
+    <p>Digital signals are vastly superior to analog signals because they are <strong>robust to noise</strong>, easily regenerated by repeaters without noise accumulation, and compatible with digital error detection/correction algorithms.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Technique 1</div>
+        <div class="info-card-title">🎙️ Pulse Code Modulation (PCM)</div>
+        <div class="info-card-desc">The standard digitization method using 3 steps: Sampling $\rightarrow$ Quantization $\rightarrow$ Binary Encoding.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Technique 2</div>
+        <div class="info-card-title">📉 Delta Modulation (DM)</div>
+        <div class="info-card-desc">A simplified 1-bit technique that records only the relative difference (+1 or -1) between consecutive samples.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: SAMPLING ══════ -->
+  <div class="section" id="pcm-steps">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">PCM Step 1: Sampling &amp; Nyquist Theorem</h2>
+      </div>
+    </div>
+
+    <p>Sampling measures the continuous analog signal amplitude at fixed time intervals $T_s = 1/f_s$.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Method A</div>
+        <div class="info-card-title">1. Ideal Sampling</div>
+        <div class="info-card-desc">An impulse train samples the signal at exact instantaneous points.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Method B</div>
+        <div class="info-card-title">2. Natural Sampling</div>
+        <div class="info-card-desc">Short width pulses whose tops retain the natural shape of the analog wave.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Method C</div>
+        <div class="info-card-title">3. Flat-Top Sampling (PAM)</div>
+        <div class="info-card-desc">Sample-and-hold circuit creates flat-topped pulses (Pulse Amplitude Modulation).</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Nyquist Sampling Theorem</div>
+      <div class="formula-main">$$f_s \ge 2 \times f_{\max}$$</div>
+      <div class="formula-note">The sampling frequency $f_s$ must be at least <strong>twice the highest frequency component $f_{\max}$</strong> to prevent aliasing distortion!</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: QUANTIZATION ══════ -->
+  <div class="section" id="quantization">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">PCM Step 2: Quantization &amp; Step Size $\Delta$</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Top Numerical Area</div>
+
+    <p>Quantization maps continuous sample amplitude values into $L$ discrete quantization levels.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Quantization Step Size Formula</div>
+      <div class="formula-main">$$\Delta = \frac{V_{\max} - V_{\min}}{L}$$</div>
+      <div class="formula-note">$V_{\max}, V_{\min}$ = voltage boundaries &nbsp;|&nbsp; $L = 2^n$ = number of levels</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Worked Example (Forouzan Slide 4.8)</div>
+        <div class="callout-text">
+          - Voltage range: $V_{\min} = -20\text{V}$, $V_{\max} = +20\text{V}$. Number of levels $L = 8$.<br>
+          - Step size $\Delta = \frac{+20 - (-20)}{8} = \frac{40}{8} = \mathbf{5\text{V}}$.<br>
+          - 8 Level Midpoints: $-17.5\text{V}, -12.5\text{V}, -7.5\text{V}, -2.5\text{V}, +2.5\text{V}, +7.5\text{V}, +12.5\text{V}, +17.5\text{V}$.<br>
+          - Maximum Quantization Error = $\frac{\Delta}{2} = \frac{5}{2} = \mathbf{\pm 2.5\text{V}}$.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: ENCODING ══════ -->
+  <div class="section" id="encoding">
+    <div class="section-header">
+      <div class="section-icon">🔣</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">PCM Step 3: Binary Encoding &amp; SQNR Rule</h2>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Bits per Sample &amp; Bit Rate</div>
+      <div class="formula-main">$$n = \log_2(L)$$</div>
+      <div class="formula-main">$$\text{PCM Bit Rate} = f_s \times n = (2 \times f_{\max}) \times n$$</div>
+      <div class="formula-note">$n$ = number of bits per sample</div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Signal-to-Quantization Noise Ratio (SQNR) Rule</div>
+      <div class="formula-main">$$\text{SQNR}_{\text{dB}} = 6.02 n + 1.76 \text{ dB} \approx 6n \text{ dB}$$</div>
+      <div class="formula-note"><strong>Rule of Thumb:</strong> Each additional bit used in quantization improves SQNR by approximately <strong>6 dB</strong>!</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: DELTA MODULATION ══════ -->
+  <div class="section" id="delta-mod">
+    <div class="section-header">
+      <div class="section-icon">📉</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Delta Modulation (DM) &amp; Impairments</h2>
+      </div>
+    </div>
+
+    <p>Delta Modulation transmits only **1 bit per sample** indicating whether the current sample is higher (`1`) or lower (`0`) than the previous staircase estimate.</p>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">DM Impairment 1</div>
+        <div class="info-card-title">Slope Overload Distortion</div>
+        <div class="info-card-desc">Occurs when the analog signal changes rapidly, but the fixed step size $\delta$ is too small to keep up with the steep slope.</div>
+      </div>
+
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">DM Impairment 2</div>
+        <div class="info-card-title">Granular Noise</div>
+        <div class="info-card-desc">Occurs when the analog signal is relatively flat, but the fixed step size $\delta$ causes the staircase to oscillate above and below the signal.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: TRANSMISSION MODES ══════ -->
+  <div class="section" id="transmission-modes">
+    <div class="section-header">
+      <div class="section-icon">🔌</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Transmission Modes (Parallel vs. Serial)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Wiring / Clocking</th>
+            <th>Features &amp; Bit Framing</th>
+            <th>Primary Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Parallel Transmission</strong></td>
+            <td>$n$ separate wires for $n$ bits simultaneously</td>
+            <td>Very fast, expensive cables. Cross-talk over long distances.</td>
+            <td>Computer internal bus, legacy printer ports.</td>
+          </tr>
+          <tr>
+            <td><strong>Serial Asynchronous</strong></td>
+            <td>1 wire, no shared clock line</td>
+            <td>Bits sent in bytes framed with <strong>Start bit (0)</strong> and <strong>Stop bit (1)</strong>. Gaps allowed between bytes.</td>
+            <td>RS-232, UART, keyboard/mouse.</td>
+          </tr>
+          <tr>
+            <td><strong>Serial Synchronous</strong></td>
+            <td>1 wire, synchronized clocking</td>
+            <td>Continuous bit stream framed in large blocks without start/stop bits. High efficiency.</td>
+            <td>High-speed LANs, WAN links (HDLC, PPP).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nyquist Sampling Rate</strong></td>
+            <td>$$f_s \ge 2 \times f_{\max}$$</td>
+            <td>Minimum sampling rate ($f_s$ in Hz)</td>
+          </tr>
+          <tr>
+            <td><strong>Quantization Step Size</strong></td>
+            <td>$$\Delta = \frac{V_{\max} - V_{\min}}{L}$$</td>
+            <td>$\Delta$ in Volts, $L$ = levels</td>
+          </tr>
+          <tr>
+            <td><strong>PCM Bit Rate</strong></td>
+            <td>$$\text{Bit Rate} = f_s \times n = (2 \times f_{\max}) \times \log_2 L$$</td>
+            <td>Data rate in bps</td>
+          </tr>
+          <tr>
+            <td><strong>SQNR Rule of Thumb</strong></td>
+            <td>$$\text{SQNR}_{\text{dB}} \approx 6n \text{ dB}$$</td>
+            <td>Each bit adds $\approx 6\text{ dB}$ to SQNR</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Quantization Step Size</span>
+      </div>
+      <div class="mcq-question">An analog signal with voltage range from $-10\text{V}$ to $+10\text{V}$ is quantized using $L = 16$ levels. What is the quantization step size ($\Delta$)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $0.625\text{V}$</li>
+        <li class="mcq-option correct">B. $1.25\text{V}$ ✓</li>
+        <li class="mcq-option">C. $2.5\text{V}$</li>
+        <li class="mcq-option">D. $5\text{V}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 1.25 V</strong><br>
+        $\Delta = \frac{V_{\max} - V_{\min}}{L} = \frac{+10 - (-10)}{16} = \frac{20}{16} = \mathbf{1.25\text{V}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">SQNR Improvement Per Bit</span>
+      </div>
+      <div class="mcq-question">In PCM, adding 1 extra bit to the quantization encoder ($n \rightarrow n+1$) improves the Signal-to-Quantization Noise Ratio (SQNR) by approximately:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 3 dB</li>
+        <li class="mcq-option correct">B. 6 dB ✓</li>
+        <li class="mcq-option">C. 10 dB</li>
+        <li class="mcq-option">D. 12 dB</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 6 dB</strong><br>
+        $\text{SQNR}_{\text{dB}} \approx 6.02 n + 1.76\text{ dB}$. Increasing $n$ by 1 increases SQNR by $\approx 6\text{ dB}$.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Slope Overload Distortion</span>
+      </div>
+      <div class="mcq-question">Slope Overload Distortion in Delta Modulation (DM) occurs when the input analog signal:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Remains flat and constant</li>
+        <li class="mcq-option correct">B. Changes at a rate faster than the step size can follow ✓</li>
+        <li class="mcq-option">C. Has zero frequency</li>
+        <li class="mcq-option">D. Exceeds Nyquist sampling rate</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Slope overload distortion happens when the analog signal rises or falls very rapidly, but the fixed step size $\delta$ cannot keep up with the steep slope.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Asynchronous Start Bit</span>
+      </div>
+      <div class="mcq-question">In Asynchronous serial transmission, what is the binary value of the Start Bit used to alert the receiver of incoming data?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Binary 0 ✓</li>
+        <li class="mcq-option">B. Binary 1</li>
+        <li class="mcq-option">C. Alternating 0 and 1</li>
+        <li class="mcq-option">D. High voltage +V</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Binary 0</strong><br>
+        In asynchronous transmission, the idle line state is 1 (mark). A Start Bit of binary `0` (space) drops the line voltage to signal data arrival.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">PCM Steps Sequence</span>
+      </div>
+      <div class="mcq-question">What is the correct sequence of operations in a Pulse Code Modulation (PCM) encoder?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Quantization $\rightarrow$ Sampling $\rightarrow$ Encoding</li>
+        <li class="mcq-option correct">B. Sampling $\rightarrow$ Quantization $\rightarrow$ Binary Encoding ✓</li>
+        <li class="mcq-option">C. Encoding $\rightarrow$ Quantization $\rightarrow$ Sampling</li>
+        <li class="mcq-option">D. Sampling $\rightarrow$ Modulation $\rightarrow$ Quantization</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Sampling $\rightarrow$ Quantization $\rightarrow$ Binary Encoding</strong><br>
+        1. Sampler creates PAM pulses $\rightarrow$ 2. Quantizer rounds pulse heights to $L$ levels $\rightarrow$ 3. Encoder outputs $n$-bit binary words.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Flat-Top Sampling</span>
+      </div>
+      <div class="mcq-question">The process of creating Pulse Amplitude Modulation (PAM) signals using a sample-and-hold circuit is known as:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Ideal Sampling</li>
+        <li class="mcq-option">B. Natural Sampling</li>
+        <li class="mcq-option correct">C. Flat-Top Sampling ✓</li>
+        <li class="mcq-option">D. Delta Sampling</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Flat-Top Sampling</strong><br>
+        Flat-top sampling holds the sample voltage constant across the pulse duration, producing flat-topped PAM pulses.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Nyquist Rate for 100 MHz Signal</span>
+      </div>
+      <div class="mcq-question">An analog signal has frequency components ranging from $10\text{ MHz}$ to $100\text{ MHz}$. What is the minimum Nyquist sampling rate?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 100 MHz</li>
+        <li class="mcq-option correct">B. 200 Msamples/sec (200 MHz) ✓</li>
+        <li class="mcq-option">C. 110 MHz</li>
+        <li class="mcq-option">D. 400 MHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 200 Msamples/sec</strong><br>
+        $f_{\max} = 100\text{ MHz}$. Nyquist Rate $f_s \ge 2 \times f_{\max} = 2 \times 100 = \mathbf{200\text{ Msamples/sec}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Granular Noise in DM</span>
+      </div>
+      <div class="mcq-question">In Delta Modulation, Granular Noise occurs when the input analog signal:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Is nearly flat/constant relative to the step size ✓</li>
+        <li class="mcq-option">B. Has a very steep slope</li>
+        <li class="mcq-option">C. Has zero amplitude</li>
+        <li class="mcq-option">D. Exceeds power limits</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        Granular noise occurs when the signal changes very slowly (flat), causing the staircase approximation to hunt/oscillate above and below the signal.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Parallel vs Serial Wires</span>
+      </div>
+      <div class="mcq-question">To transmit 8 bits of data simultaneously in Parallel transmission, how many physical wires are required?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1 wire</li>
+        <li class="mcq-option">B. 2 wires</li>
+        <li class="mcq-option correct">C. 8 wires ✓</li>
+        <li class="mcq-option">D. 16 wires</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 8 wires</strong><br>
+        Parallel transmission requires $n$ separate wires to send $n$ bits simultaneously in parallel.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Maximum Quantization Error</span>
+      </div>
+      <div class="mcq-question">If the quantization step size is $\Delta = 4\text{V}$, what is the maximum quantization error?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $\pm 4\text{V}$</li>
+        <li class="mcq-option correct">B. $\pm 2\text{V}$ ($\Delta / 2$) ✓</li>
+        <li class="mcq-option">C. $\pm 1\text{V}$</li>
+        <li class="mcq-option">D. $\pm 8\text{V}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — $\pm 2\text{V}$</strong><br>
+        Maximum Quantization Error = $\pm \frac{\Delta}{2} = \pm \frac{4}{2} = \mathbf{\pm 2\text{V}}$.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-09-digital-to-analog-conversion.html">← Lec 09</a>
+      <a href="11-error-detection-correction-crc-hamming.html">Lec 11 →</a>
+    </div>
+    <p>Lec 10 · Analog-to-Digital Conversion &amp; Transmission Modes · IBPS SO IT Notes · Based on Forouzan Chapter 4</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

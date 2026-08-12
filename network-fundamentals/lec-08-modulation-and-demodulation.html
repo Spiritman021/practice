@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 8 – Modulation &amp; Demodulation (Digital &amp; Analog) | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Modulation &amp; Demodulation – Digital-to-Analog (ASK, FSK, PSK, QAM), Analog-to-Digital (PCM Nyquist Sampling, PAM, DM), Analog-to-Analog (AM, FM, PM), Modem logic &amp; PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 8 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 08</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 08</span>
+    <h1 class="page-title">Modulation &amp; Demodulation<br>(Digital &amp; Analog Conversion)</h1>
+    <p class="page-subtitle">
+      Master 4 Signal Transformations – Digital-to-Analog Modulation (ASK, FSK, PSK, QAM), Analog-to-Digital Digitization (PCM Nyquist Sampling Rate, PAM, Delta Modulation),
+      Analog-to-Analog Modulation (AM, FM, PM), and Modem operation. Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT Core Topic</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.04, 05, 06</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#modem-concept"><span class="toc-num">01</span> What is a Modem? Modulation vs. Demodulation</a></li>
+      <li><a href="#transformations"><span class="toc-num">02</span> The 4 Signal Conversion Taxonomies</a></li>
+      <li><a href="#digital-analog"><span class="toc-num">03</span> Digital-to-Analog Modulation (ASK, FSK, PSK, QAM)</a></li>
+      <li><a href="#pcm"><span class="toc-num">04</span> Analog-to-Digital Digitization (PCM Sampling, Quantization &amp; Encoding)</a></li>
+      <li><a href="#delta"><span class="toc-num">05</span> Delta Modulation (DM) &amp; PAM</a></li>
+      <li><a href="#analog-analog"><span class="toc-num">06</span> Analog-to-Analog Modulation (AM, FM, PM)</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: MODEM ══════ -->
+  <div class="section" id="modem-concept">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is a Modem? Modulation vs. Demodulation</h2>
+      </div>
+    </div>
+
+    <div class="analogy-box">
+      <div class="analogy-icon">💡</div>
+      <div class="analogy-body">
+        <div class="analogy-title">Modem = MOdulator + DEmodulator</div>
+        <p>A <strong>Modem</strong> bridges digital computer data and analog transmission lines (like telephone lines or cable coax).</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Process 1</div>
+        <div class="info-card-title">📡 Modulation (Sender)</div>
+        <div class="info-card-desc">The process of converting a <strong>digital signal into an analog signal</strong> by modifying the amplitude, frequency, or phase of a high-frequency carrier wave.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Process 2</div>
+        <div class="info-card-title">🔌 Demodulation (Receiver)</div>
+        <div class="info-card-desc">The process of recovering the original <strong>digital binary data from the received modulated analog carrier wave</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: 4 TRANSFORMATIONS ══════ -->
+  <div class="section" id="transformations">
+    <div class="section-header">
+      <div class="section-icon">🔄</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">The 4 Signal Conversion Taxonomies</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Conversion Category</th>
+            <th>Input $\rightarrow$ Output</th>
+            <th>Primary Techniques</th>
+            <th>Typical Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Digital-to-Digital</strong></td>
+            <td>Digital Data $\rightarrow$ Digital Signal</td>
+            <td>Line Coding (NRZ, RZ, Manchester, AMI)</td>
+            <td>LAN Ethernet cables, internal computer buses.</td>
+          </tr>
+          <tr>
+            <td><strong>Analog-to-Digital</strong></td>
+            <td>Analog Signal $\rightarrow$ Digital Data</td>
+            <td><strong>PCM (Pulse Code Modulation)</strong>, PAM, Delta Modulation (DM)</td>
+            <td>Voice digitization in telephony, MP3 audio recording, VoIP.</td>
+          </tr>
+          <tr>
+            <td><strong>Digital-to-Analog</strong></td>
+            <td>Digital Data $\rightarrow$ Analog Signal</td>
+            <td><strong>ASK, FSK, PSK, QAM</strong></td>
+            <td>Traditional telephone modems, Wi-Fi radio, 4G/5G mobile, Cable TV.</td>
+          </tr>
+          <tr>
+            <td><strong>Analog-to-Analog</strong></td>
+            <td>Analog Signal $\rightarrow$ Analog Signal</td>
+            <td><strong>AM, FM, PM</strong></td>
+            <td>AM/FM radio broadcasting, commercial TV audio.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: DIGITAL TO ANALOG ══════ -->
+  <div class="section" id="digital-analog">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Digital-to-Analog Modulation (ASK, FSK, PSK, QAM)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Core High Frequency Exam Section</div>
+
+    <div class="cards-grid">
+      <!-- ASK -->
+      <div class="info-card" style="border-top:3px solid var(--accent4);">
+        <div class="info-card-label">Technique 1</div>
+        <div class="info-card-title">ASK (Amplitude Shift Keying)</div>
+        <div class="info-card-desc">
+          - <strong>Modifies:</strong> Carrier amplitude.<br>
+          - Bit 1 = Presence of carrier signal ($+V$). Bit 0 = $0\text{V}$ (On-Off Keying).<br>
+          - <strong>Bandwidth:</strong> $B = (1+d) \times S$.<br>
+          - Highly susceptible to noise.
+        </div>
+      </div>
+
+      <!-- FSK -->
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Technique 2</div>
+        <div class="info-card-title">FSK (Frequency Shift Keying)</div>
+        <div class="info-card-desc">
+          - <strong>Modifies:</strong> Carrier frequency.<br>
+          - Bit 1 = Frequency $f_1$. Bit 0 = Frequency $f_2$. Constant amplitude.<br>
+          - <strong>Bandwidth:</strong> $B = (1+d)S + 2\Delta f$.<br>
+          - More noise-immune than ASK.
+        </div>
+      </div>
+
+      <!-- PSK -->
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Technique 3</div>
+        <div class="info-card-title">PSK (Phase Shift Keying)</div>
+        <div class="info-card-desc">
+          - <strong>Modifies:</strong> Carrier phase.<br>
+          - Bit 1 = Phase $0^\circ$. Bit 0 = Phase $180^\circ$ ($\pi$).<br>
+          - <strong>QPSK (4-PSK):</strong> 4 phase angles ($45^\circ, 135^\circ, 225^\circ, 315^\circ$), carries <strong>2 bits/symbol</strong> ($r=2$).<br>
+          - Highly robust against noise.
+        </div>
+      </div>
+
+      <!-- QAM -->
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Technique 4</div>
+        <div class="info-card-title">QAM (Quadrature Amplitude Modulation)</div>
+        <div class="info-card-desc">
+          - <strong>Modifies:</strong> BOTH Amplitude AND Phase simultaneously!<br>
+          - <strong>4-QAM:</strong> $r=2\text{ bits/symbol}$.<br>
+          - <strong>16-QAM:</strong> $r=4\text{ bits/symbol}$.<br>
+          - <strong>64-QAM:</strong> $r=6\text{ bits/symbol}$.<br>
+          - Highest spectral efficiency (Wi-Fi 6, 5G, Cable modems).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: PCM SAMPLING ══════ -->
+  <div class="section" id="pcm">
+    <div class="section-header">
+      <div class="section-icon">🎙️</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Analog-to-Digital Digitization (PCM)</h2>
+      </div>
+    </div>
+
+    <p><strong>PCM (Pulse Code Modulation)</strong> is the standard method for converting an analog voice/audio signal into a digital stream of 0s and 1s.</p>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Step 1: Sampling (PAM - Pulse Amplitude Modulation)</div>
+          <div class="step-desc">
+            Measures the continuous analog signal amplitude at regular time intervals $T_s = 1/f_s$. Converts continuous signal into discrete pulses.<br>
+            <div class="formula-box" style="margin:10px 0;">
+              <div class="formula-label">⚡ Nyquist Sampling Theorem</div>
+              <div class="formula-main">$$f_s \ge 2 \times f_{\max}$$</div>
+              <div class="formula-note">Sampling rate $f_s$ must be at least <strong>twice the maximum signal frequency $f_{\max}$</strong> to prevent aliasing!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Step 2: Quantization</div>
+          <div class="step-desc">
+            Rounds the sample amplitudes into $L$ discrete quantization levels. The difference between original sample and quantized level is <strong>Quantization Error / Noise</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Step 3: Encoding</div>
+          <div class="step-desc">
+            Converts each quantized level into an $n$-bit binary word where $n = \log_2(L)$.<br>
+            <div class="formula-main" style="font-size:16px;margin:10px 0;">$$\text{PCM Bit Rate} = f_s \times n = (2 \times f_{\max}) \times n$$</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Standard Telephony Voice PCM Calculation</div>
+        <div class="callout-text">
+          - Voice bandwidth = $4\text{ kHz}$ ($0$ to $4000\text{ Hz}$).<br>
+          - Minimum Nyquist Sampling Rate $f_s = 2 \times 4000 = \mathbf{8000\text{ samples/sec}}$.<br>
+          - If each sample is quantized into 256 levels ($L=256 \implies n = \log_2 256 = 8\text{ bits}$):<br>
+          $$\text{PCM Voice Bit Rate} = 8000\text{ samples/sec} \times 8\text{ bits/sample} = \mathbf{64,000\text{ bps}} = \mathbf{64\text{ kbps}} \quad (\text{Standard DS0 Channel!})$$
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: DELTA MODULATION ══════ -->
+  <div class="section" id="delta">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Delta Modulation (DM) &amp; PAM</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Alternative A/D</div>
+        <div class="info-card-title">📉 Delta Modulation (DM)</div>
+        <div class="info-card-desc">
+          Instead of sending full $n$-bit codes for every sample, DM sends <strong>only 1 bit per sample</strong>!<br>
+          - If current signal sample is higher than previous staircase estimate $\implies$ send `1`.<br>
+          - If current signal sample is lower than previous estimate $\implies$ send `0`.<br>
+          - Significantly reduces hardware complexity and bit rate!
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Intermediate Signal</div>
+        <div class="info-card-title">📊 Pulse Amplitude Modulation (PAM)</div>
+        <div class="info-card-desc">
+          An intermediate analog-pulse signal produced during the sampling stage of PCM. Pulses have discrete positions but continuous amplitude levels.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: ANALOG TO ANALOG ══════ -->
+  <div class="section" id="analog-analog">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Analog-to-Analog Modulation (AM, FM, PM)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Modulation Type</th>
+            <th>Carrier Parameter Modified</th>
+            <th>Bandwidth Requirement</th>
+            <th>Primary Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AM (Amplitude Modulation)</strong></td>
+            <td>Amplitude of high-frequency carrier wave.</td>
+            <td>$$B_{\text{AM}} = 2 \times B_{\text{signal}}$$</td>
+            <td>AM Radio Broadcasting ($530\text{--}1700\text{ kHz}$).</td>
+          </tr>
+          <tr>
+            <td><strong>FM (Frequency Modulation)</strong></td>
+            <td>Frequency of high-frequency carrier wave.</td>
+            <td>$$B_{\text{FM}} = 2(1 + \beta)B_{\text{signal}}$$</td>
+            <td>FM Radio Broadcasting ($88\text{--}108\text{ MHz}$). Superior noise immunity.</td>
+          </tr>
+          <tr>
+            <td><strong>PM (Phase Modulation)</strong></td>
+            <td>Phase of high-frequency carrier wave.</td>
+            <td>$$B_{\text{PM}} = 2(1 + \beta)B_{\text{signal}}$$</td>
+            <td>Alternative to FM in synthesisers and telemetry.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nyquist Sampling Rate</strong></td>
+            <td>$$f_s \ge 2 \times f_{\max}$$</td>
+            <td>Minimum sampling rate to prevent aliasing</td>
+          </tr>
+          <tr>
+            <td><strong>PCM Bit Rate</strong></td>
+            <td>$$\text{Bit Rate} = f_s \times n = (2 \times f_{\max}) \times \log_2(L)$$</td>
+            <td>$n$ = bits/sample, $L$ = quantization levels</td>
+          </tr>
+          <tr>
+            <td><strong>Digital-to-Analog Baud Rate</strong></td>
+            <td>$$N = S \times \log_2(M)$$</td>
+            <td>$M$ = modulation constellation states ($M=4$ for QPSK/4-QAM)</td>
+          </tr>
+          <tr>
+            <td><strong>ASK Bandwidth</strong></td>
+            <td>$$B = (1+d) \times S$$</td>
+            <td>$S$ = baud rate, $d \ge 0$</td>
+          </tr>
+          <tr>
+            <td><strong>AM Bandwidth</strong></td>
+            <td>$$B_{\text{AM}} = 2 \times B_{\text{signal}}$$</td>
+            <td>Double the audio signal bandwidth</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Nyquist Sampling Rate</span>
+      </div>
+      <div class="mcq-question">According to the Nyquist Sampling Theorem, what is the minimum sampling rate required to digitize a telephone voice signal with a maximum frequency of $4\text{ kHz}$?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 4,000 samples/sec</li>
+        <li class="mcq-option correct">B. 8,000 samples/sec ✓</li>
+        <li class="mcq-option">C. 16,000 samples/sec</li>
+        <li class="mcq-option">D. 2,000 samples/sec</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 8,000 samples/sec</strong><br>
+        Nyquist Sampling Theorem: $f_s \ge 2 \times f_{\max} = 2 \times 4000 = \mathbf{8000\text{ samples/sec}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">PCM Voice Channel Bit Rate</span>
+      </div>
+      <div class="mcq-question">If a voice signal sampled at $8,000\text{ samples/sec}$ uses 256 quantization levels ($L=256$), what is the bit rate of the resulting PCM channel?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 32 kbps</li>
+        <li class="mcq-option correct">B. 64 kbps ✓</li>
+        <li class="mcq-option">C. 128 kbps</li>
+        <li class="mcq-option">D. 256 kbps</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 64 kbps</strong><br>
+        $n = \log_2(256) = 8\text{ bits per sample}$.<br>
+        $\text{Bit Rate} = 8000 \times 8 = 64,000\text{ bps} = \mathbf{64\text{ kbps}}$ (Standard DS0 rate).
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">QPSK Bits per Symbol</span>
+      </div>
+      <div class="mcq-question">In QPSK (Quadrature Phase Shift Keying), how many bits are transmitted in each signal symbol element?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1 bit</li>
+        <li class="mcq-option correct">B. 2 bits ✓</li>
+        <li class="mcq-option">C. 3 bits</li>
+        <li class="mcq-option">D. 4 bits</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 2 bits</strong><br>
+        QPSK uses 4 phase angles ($L=4 \implies r = \log_2 4 = \mathbf{2\text{ bits/symbol}}$).
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">QAM Combination</span>
+      </div>
+      <div class="mcq-question">Quadrature Amplitude Modulation (QAM) is a digital-to-analog modulation technique that combines changes in:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Frequency and Period</li>
+        <li class="mcq-option">B. Wavelength and Phase</li>
+        <li class="mcq-option correct">C. Amplitude and Phase ✓</li>
+        <li class="mcq-option">D. Frequency and Amplitude</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Amplitude and Phase</strong><br>
+        QAM combines Amplitude Shift Keying (ASK) and Phase Shift Keying (PSK) to achieve high bit rates per signal element.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Delta Modulation Bit Count</span>
+      </div>
+      <div class="mcq-question">Unlike standard PCM which uses multi-bit codes, Delta Modulation (DM) transmits how many bits per sample?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. 1 bit per sample ✓</li>
+        <li class="mcq-option">B. 4 bits per sample</li>
+        <li class="mcq-option">C. 8 bits per sample</li>
+        <li class="mcq-option">D. 16 bits per sample</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — 1 bit per sample</strong><br>
+        Delta Modulation (DM) records only the relative change (+1 or -1) from the previous sample, transmitting strictly 1 bit per sample.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Baud Rate for 16-QAM</span>
+      </div>
+      <div class="mcq-question">If a 16-QAM signal has a bit rate of $9600\text{ bps}$, what is the baud rate of the signal?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 9600 baud</li>
+        <li class="mcq-option">B. 4800 baud</li>
+        <li class="mcq-option correct">C. 2400 baud ✓</li>
+        <li class="mcq-option">D. 1200 baud</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 2400 baud</strong><br>
+        16-QAM has $M=16$ states $\implies r = \log_2(16) = 4\text{ bits/symbol}$.<br>
+        $\text{Baud Rate } S = \frac{N}{r} = \frac{9600}{4} = \mathbf{2400\text{ baud}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">AM Bandwidth Calculation</span>
+      </div>
+      <div class="mcq-question">An audio signal with a maximum frequency of $5\text{ kHz}$ is modulated using Amplitude Modulation (AM). What is the total bandwidth required for the AM signal?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 5 kHz</li>
+        <li class="mcq-option correct">B. 10 kHz ✓</li>
+        <li class="mcq-option">C. 2.5 kHz</li>
+        <li class="mcq-option">D. 20 kHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 10 kHz</strong><br>
+        Formula for AM Bandwidth: $B_{\text{AM}} = 2 \times B_{\text{signal}} = 2 \times 5\text{ kHz} = \mathbf{10\text{ kHz}}$ (Upper &amp; Lower Sidebands).
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Modem Primary Function</span>
+      </div>
+      <div class="mcq-question">The primary function of a modem at the sending end of a telephone transmission line is:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Demodulation (Analog to Digital)</li>
+        <li class="mcq-option correct">B. Modulation (Digital to Analog) ✓</li>
+        <li class="mcq-option">C. Packet Routing</li>
+        <li class="mcq-option">D. Frame Check Sequence generation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Modulation</strong><br>
+        At the sender side, a modem modulates digital computer signals into analog signals suitable for telephone lines.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">FSK Noise Immunity</span>
+      </div>
+      <div class="mcq-question">Why is Frequency Shift Keying (FSK) less susceptible to amplitude noise interference than Amplitude Shift Keying (ASK)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. FSK keeps carrier amplitude constant ✓</li>
+        <li class="mcq-option">B. FSK uses lower bandwidth</li>
+        <li class="mcq-option">C. FSK does not use a carrier wave</li>
+        <li class="mcq-option">D. FSK is a baseband technique</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        Because FSK maintains a constant peak amplitude for both binary 0 and 1 (shifting only frequency), amplitude noise spikes do not easily corrupt the binary decision logic.
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">PCM Quantization Error</span>
+      </div>
+      <div class="mcq-question">In Pulse Code Modulation (PCM), increasing the number of quantization levels ($L$) results in:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Increased quantization noise</li>
+        <li class="mcq-option correct">B. Reduced quantization noise and higher signal accuracy ✓</li>
+        <li class="mcq-option">C. Reduced sampling rate</li>
+        <li class="mcq-option">D. Lower bit rate</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        Increasing $L$ makes step sizes smaller, reducing quantization error/noise and improving signal fidelity (at the expense of requiring more bits per sample $n = \log_2 L$).
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-07-digital-transmission-and-line-coding.html">← Lec 07</a>
+      <a href="08-osi-vs-tcpip-comparison.html">Lec 08 →</a>
+    </div>
+    <p>Lec 08 · Modulation &amp; Demodulation (Digital &amp; Analog Conversion) · IBPS SO IT Notes · Based on Forouzan Chapters 4, 5 &amp; 6</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 5 – Unguided Media: Wireless Communication | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Unguided Media (Wireless) – Electromagnetic Spectrum, Propagation Modes (Ground, Sky, Line-of-Sight), Radio, Microwaves, Infrared, Satellite Orbits, Frequency Bands (VLF-EHF) with PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 5 Extra Styles ── */
+    .prop-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0;
+    }
+    @media(max-width:640px) { .prop-grid { grid-template-columns: 1fr; } }
+    .prop-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .prop-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .prop-card.ground::before { background: var(--accent4); }
+    .prop-card.sky::before { background: var(--accent); }
+    .prop-card.los::before { background: var(--accent3); }
+    .prop-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .prop-title { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .prop-freq { font-size: 12px; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-bottom: 10px; }
+    .prop-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 05</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 05</span>
+    <h1 class="page-title">Unguided Media:<br>Wireless Communication</h1>
+    <p class="page-subtitle">
+      Master wireless transmission channels – Electromagnetic Spectrum ($3\text{ kHz}$ to $900\text{ THz}$),
+      Propagation Methods (Ground, Sky, Line-of-Sight), Radio Waves, Microwaves, Infrared,
+      Frequency Bands (VLF to EHF), Satellite Orbits (GEO/MEO/LEO). Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.07</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> What is Unguided (Wireless) Media?</a></li>
+      <li><a href="#propagation"><span class="toc-num">02</span> Three Wireless Propagation Methods (Ground, Sky, Line-of-Sight)</a></li>
+      <li><a href="#frequency-bands"><span class="toc-num">03</span> Frequency Bands Table (VLF to EHF)</a></li>
+      <li><a href="#media-types"><span class="toc-num">04</span> Radio Waves vs. Microwaves vs. Infrared</a></li>
+      <li><a href="#satellites"><span class="toc-num">05</span> Satellite Communication &amp; Orbits (GEO, MEO, LEO)</a></li>
+      <li><a href="#summary"><span class="toc-num">06</span> Master Summary &amp; Comparison Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">07</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: OVERVIEW ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">What is Unguided (Wireless) Media?</h2>
+      </div>
+    </div>
+
+    <p><strong>Unguided media</strong> transports electromagnetic waves without using a physical conductor (wire/cable). Data is transmitted through <strong>air, vacuum, or free space</strong>.</p>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Spectrum Division 1</div>
+        <div class="info-card-title">📻 Radio Waves ($3\text{ kHz}$ – $1\text{ GHz}$)</div>
+        <div class="info-card-desc">Omnidirectional signals that travel in all directions. Penetrate walls easily. Used for AM/FM radio, paging, television.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Spectrum Division 2</div>
+        <div class="info-card-title">📡 Microwaves ($1\text{ GHz}$ – $300\text{ GHz}$)</div>
+        <div class="info-card-desc">Directional signals (line-of-sight). Cannot penetrate solid walls. Used for cellular phones, satellite links, Wi-Fi, Bluetooth.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Spectrum Division 3</div>
+        <div class="info-card-title">🔴 Infrared ($300\text{ GHz}$ – $400\text{ THz}$)</div>
+        <div class="info-card-desc">High frequency, short range. Cannot penetrate walls (prevents interference between rooms). Used in TV remotes, IrDA.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: PROPAGATION ══════ -->
+  <div class="section" id="propagation">
+    <div class="section-header">
+      <div class="section-icon">🌍</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Three Wireless Propagation Methods</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Frequency Exam Topic</div>
+
+    <div class="prop-grid">
+      <!-- Ground -->
+      <div class="prop-card ground">
+        <div class="prop-title">🏞️ Ground Propagation</div>
+        <div class="prop-freq">Frequency: Below $2\text{ MHz}$</div>
+        <div class="prop-desc">
+          - Radio waves travel through the lowest atmosphere, <strong>hugging the curvature of the Earth</strong>.<br>
+          - Signals radiate in all directions.<br>
+          - Distance depends on signal power.<br>
+          - <em>Example:</em> VLF / LF radio navigation, submarine communications.
+        </div>
+      </div>
+
+      <!-- Sky -->
+      <div class="prop-card sky">
+        <div class="prop-title">🌌 Sky Propagation</div>
+        <div class="prop-freq">Frequency: $2\text{ MHz}$ to $30\text{ MHz}$</div>
+        <div class="prop-desc">
+          - Higher frequency radio waves radiate upward and <strong>bounce (reflect) off the Ionosphere</strong> layer of the atmosphere back to Earth.<br>
+          - Allows long-distance intercontinental communication with lower power.<br>
+          - <em>Example:</em> Shortwave radio, Citizens Band (CB) radio, International broadcasting (BBC World Service).
+        </div>
+      </div>
+
+      <!-- LOS -->
+      <div class="prop-card los">
+        <div class="prop-title">📐 Line-of-Sight (LOS)</div>
+        <div class="prop-freq">Frequency: Above $30\text{ MHz}$</div>
+        <div class="prop-desc">
+          - Very high frequency signals travel in <strong>straight line paths</strong> directly from transmitter to receiver.<br>
+          - Antennas must be elevated and precisely aligned.<br>
+          - Waves cannot bend around Earth or penetrate heavy obstacles.<br>
+          - <em>Example:</em> Satellite communication, Cellular networks, 5G, Radar.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: BANDS TABLE ══════ -->
+  <div class="section" id="frequency-bands">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Frequency Bands Table (VLF to EHF)</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Band Acronym</th>
+            <th>Full Name</th>
+            <th>Frequency Range</th>
+            <th>Propagation Method</th>
+            <th>Primary Applications</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>VLF</strong></td>
+            <td>Very Low Frequency</td>
+            <td>$3\text{--}30\text{ kHz}$</td>
+            <td>Ground</td>
+            <td>Long-range radio navigation, submarine comms.</td>
+          </tr>
+          <tr>
+            <td><strong>LF</strong></td>
+            <td>Low Frequency</td>
+            <td>$30\text{--}300\text{ kHz}$</td>
+            <td>Ground</td>
+            <td>Radio beacons and navigational locators.</td>
+          </tr>
+          <tr>
+            <td><strong>MF</strong></td>
+            <td>Middle Frequency</td>
+            <td>$300\text{ kHz}$ – $3\text{ MHz}$</td>
+            <td>Sky</td>
+            <td><strong>AM Radio Broadcasting</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>HF</strong></td>
+            <td>High Frequency</td>
+            <td>$3\text{--}30\text{ MHz}$</td>
+            <td>Sky</td>
+            <td>Citizens Band (CB), amateur radio, ship/aircraft.</td>
+          </tr>
+          <tr>
+            <td><strong>VHF</strong></td>
+            <td>Very High Frequency</td>
+            <td>$30\text{--}300\text{ MHz}$</td>
+            <td>Sky &amp; Line-of-sight</td>
+            <td><strong>VHF TV, FM Radio Broadcasting</strong>, Aviation.</td>
+          </tr>
+          <tr>
+            <td><strong>UHF</strong></td>
+            <td>Ultra High Frequency</td>
+            <td>$300\text{ MHz}$ – $3\text{ GHz}$</td>
+            <td>Line-of-sight</td>
+            <td><strong>UHF TV, Cellular phones, Wi-Fi, Bluetooth, GPS</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>SHF</strong></td>
+            <td>Super High Frequency</td>
+            <td>$3\text{--}30\text{ GHz}$</td>
+            <td>Line-of-sight</td>
+            <td><strong>Satellite communication, Radar, Terrestrial dish</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>EHF</strong></td>
+            <td>Extremely High Frequency</td>
+            <td>$30\text{--}300\text{ GHz}$</td>
+            <td>Line-of-sight</td>
+            <td>Deep space radar, 5G mmWave, radio astronomy.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: MEDIA TYPES ══════ -->
+  <div class="section" id="media-types">
+    <div class="section-header">
+      <div class="section-icon">📻</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Radio Waves vs. Microwaves vs. Infrared</h2>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Category 1</div>
+        <div class="info-card-title">📻 Radio Waves</div>
+        <div class="info-card-desc">
+          - <strong>Frequency:</strong> $3\text{ kHz}$ to $1\text{ GHz}$.<br>
+          - <strong>Antenna:</strong> Omnidirectional (propagates in all directions).<br>
+          - <strong>Wall Penetration:</strong> <em>Can penetrate walls</em> (ideal for indoor reception).<br>
+          - <strong>Use:</strong> AM/FM radio, television, cordless phones.
+        </div>
+      </div>
+
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Category 2</div>
+        <div class="info-card-title">📡 Microwaves</div>
+        <div class="info-card-desc">
+          - <strong>Frequency:</strong> $1\text{ GHz}$ to $300\text{ GHz}$.<br>
+          - <strong>Antenna:</strong> Directional (parabolic dish / horn antenna).<br>
+          - <strong>Wall Penetration:</strong> <em>Cannot penetrate solid walls</em>.<br>
+          - <strong>Use:</strong> Cellular networks, Satellite links, Wi-Fi ($2.4\text{ GHz} / 5\text{ GHz}$), Bluetooth.
+        </div>
+      </div>
+
+      <div class="info-card" style="border-top:3px solid var(--accent5);">
+        <div class="info-card-label">Category 3</div>
+        <div class="info-card-title">🔴 Infrared Signals</div>
+        <div class="info-card-desc">
+          - <strong>Frequency:</strong> $300\text{ GHz}$ to $400\text{ THz}$.<br>
+          - <strong>Propagation:</strong> Short-range Line-of-sight in closed areas.<br>
+          - <strong>Wall Penetration:</strong> <em>Cannot penetrate walls</em> (prevents interference between rooms).<br>
+          - <strong>Use:</strong> TV remote controls, IrDA, short-range device sensors.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: SATELLITES ══════ -->
+  <div class="section" id="satellites">
+    <div class="section-header">
+      <div class="section-icon">🛰️</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Satellite Communication &amp; Orbits</h2>
+      </div>
+    </div>
+
+    <p>Satellite communication uses microwaves (SHF/EHF bands) to relay signals between ground earth stations across vast global distances. The satellite acts as a **transponder** (amplifies and changes frequency of received signal before retransmitting).</p>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Orbit Type</th>
+            <th>Acronym</th>
+            <th>Altitude / Height</th>
+            <th>Orbital Period</th>
+            <th>Primary Application</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Geostationary Earth Orbit</strong></td>
+            <td><strong>GEO</strong></td>
+            <td>$35,786\text{ km}$ ($36,000\text{ km}$)</td>
+            <td>24 hours (Matches Earth rotation)</td>
+            <td>TV broadcasting, weather satellites, fixed communications (3 GEO satellites cover entire globe).</td>
+          </tr>
+          <tr>
+            <td><strong>Medium Earth Orbit</strong></td>
+            <td><strong>MEO</strong></td>
+            <td>$5,000\text{--}15,000\text{ km}$</td>
+            :// 6 – 12 hours</td>
+            <td>Global Positioning System (GPS, 24 satellites at ~$20,200\text{ km}$).</td>
+          </tr>
+          <tr>
+            <td><strong>Low Earth Orbit</strong></td>
+            <td><strong>LEO</strong></td>
+            <td>$500\text{--}2,000\text{ km}$</td>
+            <td>90 – 120 minutes</td>
+            <td>High-speed low-latency satellite internet (Starlink, OneWeb), Iridium satellite phone.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: SUMMARY TABLE ══════ -->
+  <div class="section" id="summary">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Master Wireless Comparison Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Wireless Media</th>
+            <th>Frequency Range</th>
+            <th>Antenna Type</th>
+            <th>Penetrates Walls?</th>
+            <th>Primary Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Radio Waves</strong></td>
+            <td>$3\text{ kHz}$ – $1\text{ GHz}$</td>
+            <td>Omnidirectional</td>
+            <td><strong>Yes</strong></td>
+            <td>AM/FM Radio, TV broadcast, Paging</td>
+          </tr>
+          <tr>
+            <td><strong>Microwaves</strong></td>
+            <td>$1\text{ GHz}$ – $300\text{ GHz}$</td>
+            <td>Directional (Dish/Horn)</td>
+            <td><strong>No</strong></td>
+            <td>Cellular, Wi-Fi, Bluetooth, Satellite</td>
+          </tr>
+          <tr>
+            <td><strong>Infrared</strong></td>
+            <td>$300\text{ GHz}$ – $400\text{ THz}$</td>
+            <td>Line-of-sight / Pointed</td>
+            <td><strong>No</strong></td>
+            <td>TV Remote control, Short-range IrDA</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Sky Propagation</span>
+      </div>
+      <div class="mcq-question">In Sky Propagation, radio waves in the frequency range of 2 MHz to 30 MHz are reflected back to Earth by which layer of the atmosphere?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Troposphere</li>
+        <li class="mcq-option">B. Stratosphere</li>
+        <li class="mcq-option correct">C. Ionosphere ✓</li>
+        <li class="mcq-option">D. Exosphere</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Ionosphere</strong><br>
+        Sky wave propagation relies on ionized particles in the <strong>Ionosphere</strong> layer to reflect high-frequency (HF) signals back to Earth, enabling long-distance shortwave communications.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">AM Radio Band</span>
+      </div>
+      <div class="mcq-question">AM Radio broadcasting operates primarily in which frequency band?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. VLF</li>
+        <li class="mcq-option">B. LF</li>
+        <li class="mcq-option correct">C. MF (Middle Frequency) ✓</li>
+        <li class="mcq-option">D. VHF</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — MF (Middle Frequency)</strong><br>
+        MF band ($300\text{ kHz}$ to $3\text{ MHz}$) is standard for AM radio broadcasting. FM radio operates in the VHF band ($30\text{--}300\text{ MHz}$).
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Infrared Wall Penetration</span>
+      </div>
+      <div class="mcq-question">Why do infrared TV remote controls not interfere with televisions operating in adjacent rooms?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Infrared waves are omnidirectional</li>
+        <li class="mcq-option correct">B. Infrared waves cannot penetrate solid walls ✓</li>
+        <li class="mcq-option">C. Infrared waves use ground propagation</li>
+        <li class="mcq-option">D. Infrared waves travel in sky propagation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B</strong><br>
+        High-frequency infrared signals ($300\text{ GHz}$ – $400\text{ THz}$) cannot pass through solid walls, confining the signal strictly within a single room.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Cellular & Wi-Fi Frequency Band</span>
+      </div>
+      <div class="mcq-question">Cellular mobile phones, Wi-Fi ($2.4\text{ GHz}$), and Bluetooth operate in which frequency band?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. VHF</li>
+        <li class="mcq-option correct">B. UHF (Ultra High Frequency) ✓</li>
+        <li class="mcq-option">C. SHF</li>
+        <li class="mcq-option">D. MF</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — UHF (Ultra High Frequency)</strong><br>
+        UHF band ($300\text{ MHz}$ to $3\text{ GHz}$) hosts UHF TV, Cellular mobile communications, Wi-Fi ($2.4\text{ GHz}$), and Bluetooth.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">GEO Satellite Height</span>
+      </div>
+      <div class="mcq-question">What is the approximate altitude of a Geostationary Earth Orbit (GEO) satellite above the equator?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. $1,000\text{ km}$</li>
+        <li class="mcq-option">B. $10,000\text{ km}$</li>
+        <li class="mcq-option correct">C. $35,786\text{ km}$ (~$36,000\text{ km}$) ✓</li>
+        <li class="mcq-option">D. $100,000\text{ km}$</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — $35,786\text{ km}$</strong><br>
+        GEO satellites orbit at approximately $35,786\text{ km}$ ($36,000\text{ km}$), completing one orbit in 24 hours to match Earth's rotational speed.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Ground Propagation Frequency</span>
+      </div>
+      <div class="mcq-question">Ground wave propagation (surface wave) is effective for frequencies:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Below 2 MHz ✓</li>
+        <li class="mcq-option">B. Between 30 MHz and 300 MHz</li>
+        <li class="mcq-option">C. Above 1 GHz</li>
+        <li class="mcq-option">D. Above 300 GHz</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Below 2 MHz</strong><br>
+        Ground wave propagation follows Earth's curvature at low frequencies (below $2\text{ MHz}$) in VLF and LF bands.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">GPS Satellite Orbit</span>
+      </div>
+      <div class="mcq-question">The Global Positioning System (GPS) satellite constellation operates in which orbit?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. LEO</li>
+        <li class="mcq-option correct">B. MEO (Medium Earth Orbit) ✓</li>
+        <li class="mcq-option">C. GEO</li>
+        <li class="mcq-option">D. HEO</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — MEO</strong><br>
+        GPS satellites operate in Medium Earth Orbit (MEO) at an altitude of approximately $20,200\text{ km}$ with an 12-hour orbital period.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">Omnidirectional vs Directional</span>
+      </div>
+      <div class="mcq-question">Which type of wireless wave uses omnidirectional antennas to broadcast signals in all directions?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Radio Waves ✓</li>
+        <li class="mcq-option">B. Microwaves</li>
+        <li class="mcq-option">C. Infrared Waves</li>
+        <li class="mcq-option">D. Laser Beams</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Radio Waves</strong><br>
+        Radio waves ($3\text{ kHz}$ to $1\text{ GHz}$) use omnidirectional antennas. Microwaves ($1\text{ GHz}$ to $300\text{ GHz}$) use directional dish/horn antennas.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Minimum GEO Satellites</span>
+      </div>
+      <div class="mcq-question">What is the minimum number of Geostationary (GEO) satellites required to provide global communication coverage around the Earth?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 2</li>
+        <li class="mcq-option correct">B. 3 ✓</li>
+        <li class="mcq-option">C. 6</li>
+        <li class="mcq-option">D. 24</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 3</strong><br>
+        Because each GEO satellite covers approximately $120^\circ$ of longitude, a minimum of 3 GEO satellites spaced $120^\circ$ apart can cover the entire Earth (excluding polar caps).
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Super High Frequency (SHF)</span>
+      </div>
+      <div class="mcq-question">Super High Frequency (SHF) band ($3\text{ GHz}$ to $30\text{ GHz}$) is primarily used for:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. AM Radio</li>
+        <li class="mcq-option">B. Submarine navigation</li>
+        <li class="mcq-option correct">C. Satellite communication &amp; Radar ✓</li>
+        <li class="mcq-option">D. Shortwave radio</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Satellite communication &amp; Radar</strong><br>
+        SHF ($3\text{--}30\text{ GHz}$) provides line-of-sight propagation used for satellite transponders, radar, and microwave relays.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-04-transmission-media.html">← Lec 04</a>
+      <a href="06-osi-model.html">Lec 06 →</a>
+    </div>
+    <p>Lec 05 · Unguided Media: Wireless Communication · IBPS SO IT Notes · Based on Forouzan Chapter 7</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>

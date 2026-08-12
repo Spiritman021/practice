@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 7 – Digital Transmission &amp; Line Coding Schemes | GS CN Notes</title>
+  <meta name="description" content="Complete IBPS SO IT notes on Digital Transmission – Bit Rate vs Baud Rate, Baseband vs Broadband, Line Coding Schemes (NRZ, RZ, Manchester, AMI), Throughput &amp; Latency calculations, PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    /* ── Lec 7 Extra Styles ── */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.08));
+      border: 1.5px solid rgba(124,92,240,0.35);
+      border-radius: 14px; padding: 22px 26px; margin: 18px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .formula-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 4px;
+    }
+    .formula-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px; font-weight: 700;
+      color: #fff;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 18px; text-align: center;
+      border: 1px solid rgba(124,92,240,0.25);
+    }
+    .formula-note { font-size: 13px; color: var(--text2); }
+
+    /* IBPSmeter */
+    .ibps-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, rgba(240,92,136,0.2), rgba(124,92,240,0.2));
+      border: 1px solid rgba(240,92,136,0.35);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 11px; font-weight: 800; color: var(--accent5);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .ibps-meter { display: flex; gap: 4px; margin: 6px 0 14px; }
+    .ibps-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .ibps-dot.fill { background: var(--accent5); }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-networks-notes.html" class="nav-back">← Back to GS CN Notes</a>
+      <span class="nav-title">Computer Networks</span>
+      <span class="nav-badge">Lec 07</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag">Physical Layer · Lecture 07</span>
+    <h1 class="page-title">Digital Transmission &amp;<br>Line Coding Schemes</h1>
+    <p class="page-subtitle">
+      Master Digital Transmission &amp; Conversion – Bit Levels ($n = \log_2 L$), Bit Rate vs Baud Rate ($S = N / r$),
+      Baseband vs Broadband Transmission, Line Coding Schemes (NRZ, RZ, Manchester, AMI), Throughput &amp; Latency calculations.
+      Fully verified with <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🎯 IBPS SO IT High Numerical Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Forouzan Ch.04</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.12);color:var(--accent3);border:1px solid rgba(0,212,170,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TABLE OF CONTENTS ══════════════════════════════ -->
+<div class="container">
+  <div class="toc">
+    <div class="toc-title">📋 Contents of This Lecture</div>
+    <ul class="toc-list">
+      <li><a href="#overview"><span class="toc-num">01</span> Digital Signal Levels &amp; Bits per Level Formula</a></li>
+      <li><a href="#bit-baud"><span class="toc-num">02</span> Bit Rate vs. Baud Rate (Signal Rate)</a></li>
+      <li><a href="#transmission"><span class="toc-num">03</span> Baseband vs. Broadband Transmission</a></li>
+      <li><a href="#line-coding"><span class="toc-num">04</span> Line Coding Schemes (Unipolar, Polar, Bipolar, Multilevel)</a></li>
+      <li><a href="#manchester"><span class="toc-num">05</span> Manchester &amp; Differential Manchester Deep Dive</a></li>
+      <li><a href="#performance"><span class="toc-num">06</span> Bandwidth vs Throughput Solved Examples</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">07</span> Master Formulas Cheat Sheet Table</a></li>
+      <li><a href="#pyq"><span class="toc-num">08</span> IBPS SO IT PYQ Practice Questions</a></li>
+    </ul>
+  </div>
+
+  <!-- ══════ SECTION 1: SIGNAL LEVELS ══════ -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon">📶</div>
+      <div>
+        <div class="section-num">Section 01</div>
+        <h2 class="section-title">Digital Signal Levels &amp; Bits per Level</h2>
+      </div>
+    </div>
+
+    <p>A digital signal can have two or more voltage levels ($L$). Each level represents a group of bits.</p>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Bits per Level Formula</div>
+      <div class="formula-main">$$n = \log_2(L)$$</div>
+      <div class="formula-note">$n$ = number of bits per signal level &nbsp;|&nbsp; $L$ = number of discrete voltage levels</div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Worked Example</div>
+        <div class="callout-text">
+          - If a digital signal has 2 levels ($L=2$) $\implies n = \log_2 2 = \mathbf{1\text{ bit per level}}$ (0 or 1).<br>
+          - If a digital signal has 4 levels ($L=4$) $\implies n = \log_2 4 = \mathbf{2\text{ bits per level}}$ (00, 01, 10, 11).<br>
+          - If a digital signal has 8 levels ($L=8$) $\implies n = \log_2 8 = \mathbf{3\text{ bits per level}}$ (000, 001, ..., 111).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 2: BIT VS BAUD ══════ -->
+  <div class="section" id="bit-baud">
+    <div class="section-header">
+      <div class="section-icon">⏱️</div>
+      <div>
+        <div class="section-num">Section 02</div>
+        <h2 class="section-title">Bit Rate vs. Baud Rate (Signal Rate)</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – High Frequency Numerical Concept</div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Term 1</div>
+        <div class="info-card-title">Bit Rate ($N$)</div>
+        <div class="info-card-desc">The number of <strong>data bits</strong> transmitted per second ($\text{bps}$). Measured in bps, Mbps, Gbps.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-label">Term 2</div>
+        <div class="info-card-title">Baud Rate / Signal Rate ($S$)</div>
+        <div class="info-card-desc">The number of <strong>signal elements (symbols)</strong> transmitted per second ($\text{baud}$).</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">⚡ Bit Rate &amp; Baud Rate Relationship</div>
+      <div class="formula-main">$$S = N \times \frac{1}{r} \quad \implies \quad N = S \times r$$</div>
+      <div class="formula-main">$$S_{\text{avg}} = c \times N \times \frac{1}{r}$$</div>
+      <div class="formula-note">
+        $r = \log_2 L$ (data bits carried per signal element) &nbsp;|&nbsp; $c$ = case factor ($c = 1/2$ average)
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 3: BASEBAND VS BROADBAND ══════ -->
+  <div class="section" id="transmission">
+    <div class="section-header">
+      <div class="section-icon">📡</div>
+      <div>
+        <div class="section-num">Section 03</div>
+        <h2 class="section-title">Baseband vs. Broadband Transmission</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Baseband Transmission</th>
+            <th>Broadband Transmission</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Definition</strong></td>
+            <td>Sending a digital signal directly over a channel <strong>without converting it to an analog signal</strong>.</td>
+            <td>Converting the digital signal to an <strong>analog signal (modulation)</strong> for transmission.</td>
+          </tr>
+          <tr>
+            <td><strong>Channel Type</strong></td>
+            <td>Low-pass channel (frequencies start from 0 Hz).</td>
+            <td>Bandpass channel (frequencies centered around carrier $f_c$).</td>
+          </tr>
+          <tr>
+            <td><strong>Multiplexing</strong></td>
+            <td>Time Division Multiplexing (TDM) – single signal at a time.</td>
+            <td>Frequency Division Multiplexing (FDM) – multiple signals simultaneously.</td>
+          </tr>
+          <tr>
+            <td><strong>Distance</strong></td>
+            <td>Short distance (LANs, Ethernet cabling).</td>
+            <td>Long distance (Cable TV, DSL, Satellite, Cellular).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 4: LINE CODING ══════ -->
+  <div class="section" id="line-coding">
+    <div class="section-header">
+      <div class="section-icon">🔣</div>
+      <div>
+        <div class="section-num">Section 04</div>
+        <h2 class="section-title">Line Coding Schemes Overview</h2>
+      </div>
+    </div>
+
+    <p>Line coding is the process of converting digital data into a digital signal. It maps binary 0s and 1s to specific voltage levels.</p>
+
+    <div class="cards-grid">
+      <!-- Unipolar -->
+      <div class="info-card">
+        <div class="info-card-label">Family 1</div>
+        <div class="info-card-title">1. Unipolar (NRZ)</div>
+        <div class="info-card-desc">Uses only 1 voltage polarity (e.g., $+V$ for 1, $0\text{V}$ for 0). High DC component and baseline wander. Very inefficient.</div>
+      </div>
+
+      <!-- Polar -->
+      <div class="info-card">
+        <div class="info-card-label">Family 2</div>
+        <div class="info-card-title">2. Polar (NRZ-L, NRZ-I, RZ)</div>
+        <div class="info-card-desc">
+          Uses 2 voltage polarities ($+V$ and $-V$).<br>
+          - <strong>NRZ-L:</strong> Level determines bit ($+V$ for 0, $-V$ for 1).<br>
+          - <strong>NRZ-I:</strong> Inversion (transition at start of bit) represents 1; no transition represents 0.<br>
+          - <strong>RZ:</strong> Signal returns to 0V in the middle of each bit period.
+        </div>
+      </div>
+
+      <!-- Bipolar -->
+      <div class="info-card">
+        <div class="info-card-label">Family 3</div>
+        <div class="info-card-title">3. Bipolar (AMI, Pseudoternary)</div>
+        <div class="info-card-desc">
+          Uses 3 voltage levels ($+V, 0\text{V}, -V$).<br>
+          - <strong>AMI (Alternate Mark Inversion):</strong> 0 is $0\text{V}$; 1 alternates between $+V$ and $-V$. Eliminates DC component!
+        </div>
+      </div>
+
+      <!-- Multilevel -->
+      <div class="info-card">
+        <div class="info-card-label">Family 4</div>
+        <div class="info-card-title">4. Multilevel &amp; Multiline</div>
+        <div class="info-card-desc">
+          - <strong>2B1Q:</strong> 2 bits packed into 1 quaternary signal element.<br>
+          - <strong>MLT-3:</strong> Multi-Level Transmit 3 (uses $+V, 0\text{V}, -V$ with 4 transition states, used in Fast Ethernet).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 5: MANCHESTER DEEP DIVE ══════ -->
+  <div class="section" id="manchester">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-num">Section 05</div>
+        <h2 class="section-title">Manchester &amp; Differential Manchester Deep Dive</h2>
+      </div>
+    </div>
+
+    <div class="ibps-badge">🔥 IBPS SO IT – Most Tested Line Coding Concept</div>
+
+    <div class="cards-grid">
+      <div class="info-card" style="border-top:3px solid var(--accent);">
+        <div class="info-card-label">Standard Ethernet Encoding</div>
+        <div class="info-card-title">⚡ Manchester Encoding</div>
+        <div class="info-card-desc">
+          - A voltage transition occurs in the <strong>middle of EVERY bit period</strong>.<br>
+          - Transition serves as clock synchronization.<br>
+          - <strong>Bit 0:</strong> High-to-Low transition at mid-bit.<br>
+          - <strong>Bit 1:</strong> Low-to-High transition at mid-bit.<br>
+          - <strong>Baud Rate:</strong> $S = 2 \times N$ (requires double the bandwidth of NRZ).
+        </div>
+      </div>
+
+      <div class="info-card" style="border-top:3px solid var(--accent3);">
+        <div class="info-card-label">Token Ring Encoding</div>
+        <div class="info-card-title">⚡ Differential Manchester</div>
+        <div class="info-card-desc">
+          - Always has a transition in the middle of the bit period for clocking.<br>
+          - <strong>Bit 0:</strong> Transition at the <strong>beginning</strong> of the bit period.<br>
+          - <strong>Bit 1:</strong> NO transition at the beginning of the bit period.<br>
+          - Ideal for noisy environments and Token Ring networks.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <div class="callout-title">Why Manchester is Self-Synchronizing</div>
+        <div class="callout-text">
+          Because every bit interval has a transition in the exact middle, the receiver's clock stays perfectly synchronized with the sender's clock even during long streams of 0s or 1s!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 6: PERFORMANCE ══════ -->
+  <div class="section" id="performance">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-num">Section 06</div>
+        <h2 class="section-title">Bandwidth vs Throughput Solved Examples</h2>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Example 1: Document Download Bit Rate</div>
+        <div class="callout-text">
+          <strong>Question:</strong> Download 100 text pages/min. Each page has 25 lines, 100 characters/line, 8 bits/character. What is the required bit rate?<br>
+          $$\text{Total Bits} = 100 \times 25 \times 100 \times 8 = 2,000,000\text{ bits in 60 sec}$$
+          $$\text{Bit Rate} = \frac{2,000,000\text{ bits}}{60\text{ sec}} = \mathbf{33.33\text{ kbps}} \quad (\text{or } 2\text{ Mbps total data volume per minute})$$
+        </div>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <div class="callout-title">Example 2: Network Throughput Calculation</div>
+        <div class="callout-text">
+          <strong>Question:</strong> A network with Bandwidth = $10\text{ Mbps}$ passes an average of $12,000\text{ frames/minute}$, each frame carrying $10,000\text{ bits}$. What is the throughput?<br>
+          $$\text{Throughput} = \frac{12,000 \times 10,000\text{ bits}}{60\text{ seconds}} = \frac{120,000,000\text{ bits}}{60\text{ sec}} = \mathbf{2,000,000\text{ bps}} = \mathbf{2\text{ Mbps}}$$
+          <em>Note: Throughput (2 Mbps) is much less than the maximum Bandwidth (10 Mbps).</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 7: CHEAT SHEET ══════ -->
+  <div class="section" id="cheat-sheet">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-num">Section 07</div>
+        <h2 class="section-title">Master Formulas Cheat Sheet Table</h2>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Concept / Formula</th>
+            <th>Mathematical Expression</th>
+            <th>Key Meaning &amp; Units</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bits per Signal Level</strong></td>
+            <td>$$n = \log_2(L)$$</td>
+            <td>$L$ = signal voltage levels, $n$ = bits/level</td>
+          </tr>
+          <tr>
+            <td><strong>Signal Rate / Baud Rate</strong></td>
+            <td>$$S = N \times \frac{1}{r} = \frac{N}{\log_2 L}$$</td>
+            <td>$N$ = Bit Rate (bps), $S$ = Baud Rate (baud)</td>
+          </tr>
+          <tr>
+            <td><strong>Manchester Baud Rate</strong></td>
+            <td>$$S_{\text{Manchester}} = 2 \times N$$</td>
+            <td>Baud rate is twice the bit rate (2 transitions/bit)</td>
+          </tr>
+          <tr>
+            <td><strong>Throughput</strong></td>
+            <td>$$\text{Throughput} = \frac{\text{Total Bits Transferred}}{\text{Time Taken (sec)}}$$</td>
+            <td>Actual delivered data rate (bps)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ══════ SECTION 8: PYQ PRACTICE ══════ -->
+  <div class="section" id="pyq">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-num">Section 08</div>
+        <h2 class="section-title">IBPS SO IT PYQ Practice Questions</h2>
+      </div>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 01</span>
+        <span class="mcq-topic-tag">Bits per Signal Level</span>
+      </div>
+      <div class="mcq-question">If a digital signal has 8 discrete voltage levels, how many bits are carried by each signal level?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 2 bits</li>
+        <li class="mcq-option correct">B. 3 bits ✓</li>
+        <li class="mcq-option">C. 4 bits</li>
+        <li class="mcq-option">D. 8 bits</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 3 bits</strong><br>
+        Formula: $n = \log_2(L) = \log_2(8) = \mathbf{3\text{ bits per level}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 02</span>
+        <span class="mcq-topic-tag">Manchester Mid-Bit Transition</span>
+      </div>
+      <div class="mcq-question">Which line coding scheme guarantees a transition in the exact middle of EVERY bit period for clock synchronization?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. NRZ-L</li>
+        <li class="mcq-option">B. NRZ-I</li>
+        <li class="mcq-option correct">C. Manchester Encoding ✓</li>
+        <li class="mcq-option">D. Bipolar AMI</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — Manchester Encoding</strong><br>
+        Manchester encoding forces a transition at the midpoint of each bit interval, making it self-synchronizing.
+      </div>
+    </div>
+
+    <!-- PYQ 3 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 03</span>
+        <span class="mcq-topic-tag">Manchester Baud Rate</span>
+      </div>
+      <div class="mcq-question">In standard Manchester encoding, if the bit rate is $10\text{ Mbps}$, what is the required baud rate (signal rate)?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 5 Mbaud</li>
+        <li class="mcq-option">B. 10 Mbaud</li>
+        <li class="mcq-option correct">C. 20 Mbaud ✓</li>
+        <li class="mcq-option">D. 40 Mbaud</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C — 20 Mbaud</strong><br>
+        In Manchester encoding, 2 signal elements (transitions) represent 1 bit ($r = 1/2$). Therefore, $S = 2 \times N = 2 \times 10 = \mathbf{20\text{ Mbaud}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 04</span>
+        <span class="mcq-topic-tag">Bipolar AMI DC Component</span>
+      </div>
+      <div class="mcq-question">In Bipolar AMI (Alternate Mark Inversion) encoding, how is a binary '1' represented?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Always by a positive voltage $+V$</li>
+        <li class="mcq-option">B. Always by zero voltage $0\text{V}$</li>
+        <li class="mcq-option correct">C. Alternating between positive $+V$ and negative $-V$ voltages ✓</li>
+        <li class="mcq-option">D. By a transition at the start of bit</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: C</strong><br>
+        In Bipolar AMI, binary 0 is represented by zero voltage ($0\text{V}$), while binary 1s alternate between positive $+V$ and negative $-V$, eliminating DC component.
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 05</span>
+        <span class="mcq-topic-tag">Baseband vs Broadband</span>
+      </div>
+      <div class="mcq-question">Sending a digital signal directly over a low-pass wire channel without modulation is known as:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Baseband Transmission ✓</li>
+        <li class="mcq-option">B. Broadband Transmission</li>
+        <li class="mcq-option">C. Passband Transmission</li>
+        <li class="mcq-option">D. Carrier Modulation</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Baseband Transmission</strong><br>
+        Baseband transmission sends digital signals directly without converting them to analog signals. Broadband uses modulation to convert digital data to analog carriers.
+      </div>
+    </div>
+
+    <!-- PYQ 6 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 06</span>
+        <span class="mcq-topic-tag">Throughput Calculation</span>
+      </div>
+      <div class="mcq-question">A network passes 30,000 frames per minute, with each frame carrying 4,000 bits. What is the throughput of the network?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. 1 Mbps</li>
+        <li class="mcq-option correct">B. 2 Mbps ✓</li>
+        <li class="mcq-option">C. 4 Mbps</li>
+        <li class="mcq-option">D. 120 Mbps</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — 2 Mbps</strong><br>
+        $\text{Throughput} = \frac{30,000 \times 4,000\text{ bits}}{60\text{ sec}} = \frac{120,000,000}{60} = 2,000,000\text{ bps} = \mathbf{2\text{ Mbps}}$.
+      </div>
+    </div>
+
+    <!-- PYQ 7 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 07</span>
+        <span class="mcq-topic-tag">Differential Manchester</span>
+      </div>
+      <div class="mcq-question">In Differential Manchester encoding, how is a binary '0' distinguished from a binary '1'?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Binary '0' has a transition at the start of the bit period; binary '1' has none ✓</li>
+        <li class="mcq-option">B. Binary '1' has a transition at the start; binary '0' has none</li>
+        <li class="mcq-option">C. Binary '0' has no mid-bit transition</li>
+        <li class="mcq-option">D. Binary '1' uses zero voltage</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A</strong><br>
+        In Differential Manchester, both 0 and 1 have a mid-bit transition for clocking. Binary 0 has an additional transition at the *start* of the bit period, while binary 1 has no transition at the start.
+      </div>
+    </div>
+
+    <!-- PYQ 8 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 08</span>
+        <span class="mcq-topic-tag">NRZ-I Transition</span>
+      </div>
+      <div class="mcq-question">In NRZ-I (Non-Return-to-Zero Invert) line coding, a transition in voltage level occurs when:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. A binary '0' is encountered</li>
+        <li class="mcq-option correct">B. A binary '1' is encountered ✓</li>
+        <li class="mcq-option">C. At the middle of every bit</li>
+        <li class="mcq-option">D. Only at the end of frame</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Binary '1'</strong><br>
+        NRZ-I inverts the voltage level whenever a binary 1 is encountered; binary 0 results in no change in voltage level.
+      </div>
+    </div>
+
+    <!-- PYQ 9 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 09</span>
+        <span class="mcq-topic-tag">Baud Rate Definition</span>
+      </div>
+      <div class="mcq-question">Baud rate is defined as the number of:</div>
+      <ul class="mcq-options">
+        <li class="mcq-option">A. Bits transmitted per second</li>
+        <li class="mcq-option correct">B. Signal elements (symbols) transmitted per second ✓</li>
+        <li class="mcq-option">C. Bytes transmitted per second</li>
+        <li class="mcq-option">D. Packets routed per second</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: B — Signal elements per second</strong><br>
+        Bit rate is bits/sec ($N$). Baud rate is signal elements/sec ($S$).
+      </div>
+    </div>
+
+    <!-- PYQ 10 -->
+    <div class="mcq-card">
+      <div class="mcq-header">
+        <span class="mcq-badge">PYQ 10</span>
+        <span class="mcq-topic-tag">Baseline Wandering</span>
+      </div>
+      <div class="mcq-question">Which issue occurs in line coding when a long stream of consecutive 0s or 1s causes the average signal level to drift?</div>
+      <ul class="mcq-options">
+        <li class="mcq-option correct">A. Baseline Wandering ✓</li>
+        <li class="mcq-option">B. Crosstalk</li>
+        <li class="mcq-option">C. Modal Dispersion</li>
+        <li class="mcq-option">D. Thermal Noise</li>
+      </ul>
+      <div class="mcq-explanation">
+        <strong>Answer: A — Baseline Wandering</strong><br>
+        Baseline wandering happens when long sequences of identical bits shift the receiver's baseline reference voltage, causing bit decoding errors.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<footer>
+  <div class="container">
+    <div class="footer-nav">
+      <a href="gs-computer-networks-notes.html">← GS CN Notes Index</a>
+      <a href="lec-06-physical-layer-signals-and-performance.html">← Lec 06</a>
+      <a href="08-osi-vs-tcpip-comparison.html">Lec 08 →</a>
+    </div>
+    <p>Lec 07 · Digital Transmission &amp; Line Coding Schemes · IBPS SO IT Notes · Based on Forouzan Chapters 3 &amp; 4</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrolled / total) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+</script>
+</body>
+</html>
