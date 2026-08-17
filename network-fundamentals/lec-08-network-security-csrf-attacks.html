@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 8 – Cross-Site Request Forgery (CSRF): Mechanism, Bank Transfer Scenario, Anti-CSRF Tokens &amp; SameSite | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 8 – Cross-Site Request Forgery (CSRF / XSRF), 6-Step Bank Transfer Scenario, XSS vs CSRF Comparison, Anti-CSRF Synchronizer Tokens, SameSite Cookies (Strict/Lax), Origin/Referer Validation, and IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .code-box {
+      background: #13192e; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 16px; margin: 14px 0; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.6; color: #e2e8f0;
+      overflow-x: auto;
+    }
+    .code-bad { border-left: 4px solid #f05c88; background: rgba(240,92,136,0.08); }
+    .code-good { border-left: 4px solid #00d4aa; background: rgba(0,212,170,0.08); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .step-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 14px 0;
+      position: relative; padding-left: 60px;
+    }
+    .step-num {
+      position: absolute; top: 18px; left: 18px; width: 30px; height: 30px; border-radius: 50%;
+      background: #7c5cf0; color: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(124,92,240,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(124,92,240,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,92,240,0.2); border: 1px solid rgba(124,92,240,0.4);
+      color: #7c5cf0; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #7c5cf0, #f05c88, #00d4aa);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(124,92,240,0.2); color: #7c5cf0; border: 1px solid rgba(124,92,240,0.4);">Lec 08</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(124,92,240,0.15); color: #7c5cf0; border: 1px solid rgba(124,92,240,0.3);">Security · Lecture 08</span>
+    <h1 class="page-title">Cross-Site Request Forgery (CSRF):<br>Mechanism, Bank Transfer Scenario &amp; Anti-CSRF Token Defenses</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Cross-Site Request Forgery (CSRF / XSRF), 6-Step Bank Money Transfer Scenario, XSS vs CSRF Master Comparison, Anti-CSRF Synchronizer Tokens, SameSite Cookies (`Strict` &amp; `Lax`), Origin/Referer Header Validation, and IBPS SO IT PYQs.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(124,92,240,0.15);color:#7c5cf0;border:1px solid rgba(124,92,240,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🔄 OWASP Top 10 High Yield</span>
+      <span style="font-size:12px;background:rgba(240,92,136,0.12);color:#f05c88;border:1px solid rgba(240,92,136,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 8 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#csrf-definition"><span class="toc-num">8.1</span> What is Cross-Site Request Forgery (CSRF)?</a></li>
+      <li><a href="#bank-scenario"><span class="toc-num">8.2</span> Step-by-Step 6-Stage Bank Transfer Scenario</a></li>
+      <li><a href="#xss-vs-csrf"><span class="toc-num">8.3</span> XSS vs. CSRF Master Comparison Table</a></li>
+      <li><a href="#csrf-defenses"><span class="toc-num">8.4</span> How to Fix &amp; Prevent CSRF (Anti-CSRF Tokens, SameSite)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">8.5</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">8.6</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 8.1: CSRF DEFINITION -->
+  <div class="section" id="csrf-definition">
+    <div class="sec-card">
+      <h2 class="section-title">8.1 What is Cross-Site Request Forgery (CSRF)?</h2>
+      <p><strong>Cross-Site Request Forgery (CSRF or XSRF)</strong>, also known as "Session Riding", is an attack that tricks an <strong>already authenticated user</strong> into submitting unintended, unauthorized HTTP commands to a web application where they currently hold an active session.</p>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">🔑 Exploitation of Ambient Authority</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            CSRF exploits the implicit trust a web application places in requests coming from an authenticated user's browser. The server processes the forged request believing it originated intentionally from the user.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#f05c88; font-size:16px; margin-bottom:8px;">🌐 Automatic Cookie Transmission</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            By default, browsers automatically include domain session cookies with <strong>EVERY HTTP request</strong> sent to that target domain, regardless of which external website initiated the request!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8.2: STEP-BY-STEP SCENARIO -->
+  <div class="section" id="bank-scenario">
+    <div class="sec-card">
+      <h2 class="section-title">8.2 Step-by-Step 6-Stage Bank Transfer Scenario</h2>
+      <p>Detailed breakdown of the exact 6-step attack flow from PDF Slide 2 (Rahul vs. Bablu):</p>
+
+      <div class="step-box">
+        <div class="step-num">1</div>
+        <h4 style="color:#fff; font-size:15px; margin-bottom:4px;">Victim Logs In &amp; Establishes Active Session</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Rahul logs into his bank website (<code>bank.com</code>). The bank allows fund transfers via URL GET requests: <code>https://bank.com/transfer?to=monu&amp;amount=100</code>. Rahul's browser stores his session cookie (<code>session_id=abc123</code>).
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">2</div>
+        <h4 style="color:#7c5cf0; font-size:15px; margin-bottom:4px;">Attacker Creates Malicious Website</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Attacker (Bablu) sets up a malicious external site (<code>bablu.com</code>) hosting a hidden CSRF exploit payload.
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">3</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Phishing Trap Email Sent</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Bablu sends Rahul an enticing phishing email: <em>"You won ₹1000 Cashback! Click here to claim!"</em> containing a link to <code>bablu.com</code>.
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">4</div>
+        <h4 style="color:#7c5cf0; font-size:15px; margin-bottom:4px;">Hidden Image Exploit Tag Encoded</h4>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:6px;">
+          When Rahul clicks the link and opens <code>bablu.com</code>, the page contains a hidden HTML image tag targeting the bank:
+        </p>
+        <div class="code-box code-bad">
+          &lt;img src="https://bank.com/transfer?to=Eve&amp;amount=100" style="display:none;"&gt;
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">5</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Automatic Browser Cookie Attachment</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Rahul's browser tries to render the image. Seeing the `src` domain is <code>bank.com</code>, the browser <strong>automatically attaches Rahul's active session cookie</strong> (<code>Cookie: session_id=abc123</code>) to the outgoing GET request!
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">6</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Bank Executes Unauthorized Money Transfer</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          The server at <code>bank.com</code> receives the GET request with a valid session cookie. Believing Rahul initiated it, the bank executes the transfer of ₹100 to Eve/Bablu without Rahul's knowledge!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8.3: XSS VS CSRF -->
+  <div class="section" id="xss-vs-csrf">
+    <div class="sec-card">
+      <h2 class="section-title">8.3 XSS vs. CSRF Master Comparison Table</h2>
+      <p>Distinguishing XSS from CSRF is a frequent IBPS SO IT exam topic:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Comparison Parameter</th>
+            <th>Cross-Site Scripting (XSS)</th>
+            <th>Cross-Site Request Forgery (CSRF)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Exploited Trust Direction</strong></td>
+            <td>Exploits user's trust in a <strong>vulnerable website</strong>.</td>
+            <td>Exploits website's trust in a <strong>user's browser</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>Payload Execution Location</strong></td>
+            <td>Executes malicious JavaScript inside victim's browser.</td>
+            <td>Sends forged HTTP requests to vulnerable target server.</td>
+          </tr>
+          <tr>
+            <td><strong>Cookie Handling</strong></td>
+            <td><strong>Reads / Steals</strong> document cookies via JS (<code>document.cookie</code>).</td>
+            <td><strong>Cannot read cookies</strong>; relies on browser auto-attaching them.</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Defense</strong></td>
+            <td>HTML Entity Encoding &amp; Content Security Policy (CSP).</td>
+            <td>Anti-CSRF Tokens &amp; SameSite Cookie Attributes.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 8.4: DEFENSES -->
+  <div class="section" id="csrf-defenses">
+    <div class="sec-card">
+      <h2 class="section-title">8.4 How to Fix &amp; Prevent CSRF (Anti-CSRF Tokens, SameSite)</h2>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#00d4aa; font-size:16px; margin-bottom:8px;">1. Anti-CSRF Synchronizer Tokens ⭐</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:10px;">
+            <strong>The #1 Defense against CSRF!</strong> The server generates a unique, unpredictable, secret token tied to the user's current session and embeds it in HTML forms as a hidden field:
+          </p>
+
+          <div class="code-box code-good">
+            &lt;form action="/transfer" method="POST"&gt;<br>
+            &nbsp;&nbsp;&lt;input type="hidden" name="csrf_token" value="d9K3mP8zL1qR..."&gt;<br>
+            &nbsp;&nbsp;&lt;!-- Form fields --&gt;<br>
+            &lt;/form&gt;
+          </div>
+
+          <p style="font-size:13px; color:var(--text2); line-height:1.6;">
+            Attacker sites cannot read this token due to Same-Origin Policy (SOP). Forged requests without a valid <code>csrf_token</code> are immediately rejected by the server!
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#34d399; font-size:16px; margin-bottom:8px;">2. SameSite Cookie Attributes ⭐</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:10px;">
+            Configures browser cookie sharing behavior for cross-site requests:
+          </p>
+          <ul style="color:var(--text2); font-size:13px; line-height:1.7; margin-left:18px;">
+            <li><code>SameSite=Strict</code>: Cookie is NEVER sent in cross-site requests (highest security).</li>
+            <li><code>SameSite=Lax</code>: Withholds cookies on cross-site sub-requests (like <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> src calls).</li>
+          </ul>
+
+          <h4 style="color:#4f8ef7; font-size:16px; margin-top:14px; margin-bottom:8px;">3. Validate Origin / Referer Headers</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:10px;">
+            Server verifies that <code>Origin:</code> or <code>Referer:</code> HTTP headers match the expected domain (<code>bank.com</code>).
+          </p>
+
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">4. Use HTTP POST &amp; Re-Authentication</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6;">
+            Never perform state changes via GET. Require OTP / password re-entry for critical financial operations.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8.5: PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">8.5 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q1. Which web vulnerability tricks an authenticated user's browser into sending unwanted HTTP requests to a target web application where the user has an active session?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) SQL Injection</div>
+          <div class="pyq-opt correct">B) Cross-Site Request Forgery (CSRF) ✓</div>
+          <div class="pyq-opt">C) Command Injection</div>
+          <div class="pyq-opt">D) Directory Traversal</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Cross-Site Request Forgery (CSRF).</strong><br>
+          <em>Explanation:</em> CSRF tricks an authenticated user into executing unwanted actions on a trusted site by leveraging automatic browser cookie transmission.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q2. What is the primary server-side defense mechanism used to protect web application forms against CSRF attacks?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) SSL/TLS Certificate Encryption</div>
+          <div class="pyq-opt correct">B) Anti-CSRF Synchronizer Tokens ✓</div>
+          <div class="pyq-opt">C) Prepared Statements</div>
+          <div class="pyq-opt">D) Client-side Form Validation</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Anti-CSRF Synchronizer Tokens.</strong><br>
+          <em>Explanation:</em> Anti-CSRF tokens embed a unpredictable, unique secret token in hidden form fields that malicious cross-site scripts cannot read or forge.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. Which cookie attribute prevents browser cookies from being automatically attached to cross-site sub-requests like `<img>` or `<iframe>` src calls?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) HttpOnly</div>
+          <div class="pyq-opt correct">B) SameSite Attribute (Strict / Lax) ✓</div>
+          <div class="pyq-opt">C) Secure Attribute</div>
+          <div class="pyq-opt">D) Domain Wildcard</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) SameSite Attribute (Strict / Lax).</strong><br>
+          <em>Explanation:</em> `SameSite=Strict` or `SameSite=Lax` controls whether cookies are sent with cross-site requests, mitigating CSRF exploitation.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q4. How does a CSRF attack differ fundamentally from a Cross-Site Scripting (XSS) attack regarding session cookies?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) CSRF steals cookies via JavaScript; XSS does not</div>
+          <div class="pyq-opt correct">B) CSRF does NOT read cookies directly, but tricks the browser into sending them automatically; XSS can read document cookies ✓</div>
+          <div class="pyq-opt">C) XSS only affects database servers</div>
+          <div class="pyq-opt">D) CSRF requires physical access to the target computer</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B.</strong><br>
+          <em>Explanation:</em> CSRF cannot read cookies due to Same-Origin Policy, but tricks the browser into sending them. XSS executes JavaScript that can read `document.cookie`.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8.6: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">8.6 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. CSRF Concept:</strong> Tricks an authenticated user's browser into submitting unauthorized requests to a site where they hold an active session.</p>
+        <p><strong style="color:#fff;">2. Root Cause:</strong> Browsers automatically send domain session cookies with <strong>every request</strong> to that domain.</p>
+        <p><strong style="color:#fff;">3. XSS vs CSRF:</strong> XSS = Exploits user trust in site (executes JS, steals cookies). CSRF = Exploits site trust in browser (forges HTTP requests, cannot read cookies).</p>
+        <p><strong style="color:#fff;">4. #1 Defense:</strong> <strong>Anti-CSRF Synchronizer Tokens</strong> (hidden form field `<input type="hidden" name="csrf_token">`).</p>
+        <p><strong style="color:#fff;">5. Cookie Defense:</strong> <strong>SameSite Attribute</strong> (`Strict` or `Lax`).</p>
+        <p><strong style="color:#fff;">6. Header Validation:</strong> Check <code>Origin:</code> and <code>Referer:</code> HTTP headers.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-07-network-security-xss-attacks.html" style="color:#f05c88; font-weight:700; text-decoration:none;">← Lec 07: XSS Attacks</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" style="color:#f05c88; font-weight:700; text-decoration:none;">Chapter 26: Firewalls &amp; DMZ →</a>
+    </div>
+    GS Network Security Notes · Lecture 08 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

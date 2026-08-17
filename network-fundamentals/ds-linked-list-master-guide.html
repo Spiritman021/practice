@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linked List Master Guide – IBPS SO IT &amp; GATE POV</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .guide-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+    }
+    .guide-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(124, 58, 237, 0.3);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .guide-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .guide-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(124, 58, 237, 0.12);
+      color: var(--accent2);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      margin-top: 8px;
+    }
+
+    .section-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent2);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .formula-box {
+      background: var(--code-bg);
+      border: 1.5px solid var(--code-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--code-color);
+      margin: 14px 0;
+    }
+
+    .step-box {
+      background: rgba(124, 58, 237, 0.08);
+      border-left: 4px solid var(--accent2);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .pyq-box {
+      background: rgba(225, 29, 72, 0.08);
+      border-left: 4px solid var(--accent5);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 16px 0;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .tab-btn {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+    .tab-btn.active {
+      background: var(--accent2);
+      color: #fff;
+      border-color: var(--accent2);
+    }
+    .code-block {
+      display: none;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 20px;
+      border-radius: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .code-block.active {
+      display: block;
+    }
+
+    /* Vibrant Syntax Highlighting Colors */
+    .syn-keyword  { color: #ff7b72; font-weight: 700; } /* Pink/Red keywords */
+    .syn-type     { color: #79c0ff; font-weight: 700; } /* Blue primitive types */
+    .syn-func     { color: #d2a8ff; font-weight: 700; } /* Purple functions */
+    .syn-class    { color: #ffa657; font-weight: 700; } /* Orange classes */
+    .syn-string   { color: #a5d6ff; }                   /* Cyan strings */
+    .syn-num      { color: #79c0ff; font-weight: 700; } /* Cyan numbers */
+    .syn-comment  { color: #8b949e; font-style: italic; }/* Slate gray comments */
+    .syn-macro    { color: #ffa657; font-weight: 700; } /* Macro / Includes */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      background: var(--card2);
+      color: var(--accent2);
+      font-weight: 800;
+    }
+
+    .math-sym {
+      font-family: 'JetBrains Mono', Georgia, serif;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-data-structures-notes.html" class="nav-back">← DS Master Index</a>
+      <span class="nav-title">Linked List Master Guide (Lec 7 to Lec 12)</span>
+      <span class="nav-badge">IBPS SO IT POV</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="guide-container">
+    <div class="guide-header">
+      <h1 class="guide-title">Linked List Data Structure Master Notebook</h1>
+      <div class="guide-badge">Lectures 7–12 Complete Analysis &amp; IBPS SO IT Algorithms</div>
+    </div>
+
+    <!-- LEC 7 SECTION -->
+    <div class="section-card">
+      <div class="section-title">🔗 Lec 7: Introduction to Linked Lists &amp; Structure Memory</div>
+      <p>A <strong>Linked List</strong> is a linear data structure where elements (nodes) are <strong>not stored in contiguous memory locations</strong>. Each node contains a <code>data</code> field and a <code>next</code> pointer referencing the memory address of the next node.</p>
+      
+      <div class="step-box">
+        <strong>Self-Referential Structure Definition (C):</strong>
+        <pre style="background:transparent; font-family:'JetBrains Mono'; margin-top:6px; color:var(--text);">struct Node {
+    int data;
+    struct Node* next; // Self-referential pointer
+};</pre>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Complete Code Implementation:</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-ll7')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-ll7')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-ll7')">Python</button>
+      </div>
+
+      <div id="c-ll7" class="code-block active"><span class="syn-macro">#include &lt;stdio.h&gt;</span>
+<span class="syn-macro">#include &lt;stdlib.h&gt;</span>
+
+<span class="syn-keyword">struct</span> <span class="syn-class">Node</span> {
+    <span class="syn-type">int</span> data;
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* next;
+};
+
+<span class="syn-type">int</span> <span class="syn-func">main</span>() {
+    <span class="syn-comment">// Create nodes dynamically in heap</span>
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head = (<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>*)<span class="syn-func">malloc</span>(<span class="syn-keyword">sizeof</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>));
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* second = (<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>*)<span class="syn-func">malloc</span>(<span class="syn-keyword">sizeof</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>));
+
+    head-&gt;data = <span class="syn-num">100</span>;
+    head-&gt;next = second;
+
+    second-&gt;data = <span class="syn-num">200</span>;
+    second-&gt;next = <span class="syn-macro">NULL</span>;
+
+    <span class="syn-func">printf</span>(<span class="syn-string">"Head Data: %d, Next Data: %d\n"</span>, head-&gt;data, head-&gt;next-&gt;data);
+    <span class="syn-keyword">return</span> <span class="syn-num">0</span>;
+}</div>
+
+      <div id="java-ll7" class="code-block"><span class="syn-keyword">class</span> <span class="syn-class">Node</span> {
+    <span class="syn-type">int</span> data;
+    <span class="syn-class">Node</span> next;
+
+    <span class="syn-func">Node</span>(<span class="syn-type">int</span> data) {
+        <span class="syn-keyword">this</span>.data = data;
+        <span class="syn-keyword">this</span>.next = <span class="syn-keyword">null</span>;
+    }
+}
+
+<span class="syn-keyword">public class</span> <span class="syn-class">LinkedListDemo</span> {
+    <span class="syn-keyword">public static void</span> <span class="syn-func">main</span>(<span class="syn-class">String</span>[] args) {
+        <span class="syn-class">Node</span> head = <span class="syn-keyword">new</span> <span class="syn-class">Node</span>(<span class="syn-num">100</span>);
+        head.next = <span class="syn-keyword">new</span> <span class="syn-class">Node</span>(<span class="syn-num">200</span>);
+
+        <span class="syn-class">System</span>.out.<span class="syn-func">println</span>(<span class="syn-string">"Head: "</span> + head.data + <span class="syn-string">" -&gt; Second: "</span> + head.next.data);
+    }
+}</div>
+
+      <div id="python-ll7" class="code-block"><span class="syn-keyword">class</span> <span class="syn-class">Node</span>:
+    <span class="syn-keyword">def</span> <span class="syn-func">__init__</span>(self, data):
+        self.data = data
+        self.next = <span class="syn-keyword">None</span>
+
+<span class="syn-comment"># Creating Linked List</span>
+head = Node(<span class="syn-num">100</span>)
+head.next = Node(<span class="syn-num">200</span>)
+
+<span class="syn-func">print</span>(<span class="syn-string">f"Head: {head.data} -&gt; Second: {head.next.data}"</span>)</div>
+    </div>
+
+    <!-- LEC 8 SECTION -->
+    <div class="section-card">
+      <div class="section-title">🔍 Lec 8: Find Last Node &amp; Second-to-Last Node</div>
+      <p>Traversing a linked list requires linear scanning from <code>head</code> until specific pointer conditions are met.</p>
+
+      <div class="formula-box">
+        Find Last Node: Loop while (current-&gt;next != NULL)<br>
+        Find 2nd Last Node: Loop while (current-&gt;next-&gt;next != NULL)
+      </div>
+
+      <div class="step-box">
+        <strong>Algorithm Details:</strong>
+        <ul>
+          <li><strong>Find Last Node (<span class="math-sym">O(N)</span> Time, <span class="math-sym">O(1)</span> Space):</strong> Starts at <code>head</code>, advances <code>current = current-&gt;next</code> until <code>current-&gt;next == NULL</code>.</li>
+          <li><strong>Find Second Last Node (<span class="math-sym">O(N)</span> Time):</strong> Guard condition: Check if <code>head == NULL</code> or <code>head-&gt;next == NULL</code> (returns <code>NULL</code>). Advance until <code>current-&gt;next-&gt;next == NULL</code>.</li>
+        </ul>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Code Implementations (C, Java, Python):</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-ll8')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-ll8')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-ll8')">Python</button>
+      </div>
+
+      <div id="c-ll8" class="code-block active"><span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* <span class="syn-func">findLastNode</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-macro">NULL</span>) <span class="syn-keyword">return</span> <span class="syn-macro">NULL</span>;
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* current = head;
+    <span class="syn-keyword">while</span> (current-&gt;next != <span class="syn-macro">NULL</span>) {
+        current = current-&gt;next;
+    }
+    <span class="syn-keyword">return</span> current; <span class="syn-comment">// Points to Tail Node</span>
+}
+
+<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* <span class="syn-func">findSecondLastNode</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-macro">NULL</span> || head-&gt;next == <span class="syn-macro">NULL</span>) <span class="syn-keyword">return</span> <span class="syn-macro">NULL</span>;
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* current = head;
+    <span class="syn-keyword">while</span> (current-&gt;next-&gt;next != <span class="syn-macro">NULL</span>) {
+        current = current-&gt;next;
+    }
+    <span class="syn-keyword">return</span> current;
+}</div>
+
+      <div id="java-ll8" class="code-block"><span class="syn-keyword">public static</span> <span class="syn-class">Node</span> <span class="syn-func">findLastNode</span>(<span class="syn-class">Node</span> head) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-keyword">null</span>) <span class="syn-keyword">return null</span>;
+    <span class="syn-class">Node</span> current = head;
+    <span class="syn-keyword">while</span> (current.next != <span class="syn-keyword">null</span>) {
+        current = current.next;
+    }
+    <span class="syn-keyword">return</span> current; <span class="syn-comment">// Tail Node</span>
+}
+
+<span class="syn-keyword">public static</span> <span class="syn-class">Node</span> <span class="syn-func">findSecondLastNode</span>(<span class="syn-class">Node</span> head) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-keyword">null</span> || head.next == <span class="syn-keyword">null</span>) <span class="syn-keyword">return null</span>;
+    <span class="syn-class">Node</span> current = head;
+    <span class="syn-keyword">while</span> (current.next.next != <span class="syn-keyword">null</span>) {
+        current = current.next;
+    }
+    <span class="syn-keyword">return</span> current;
+}</div>
+
+      <div id="python-ll8" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">find_last_node</span>(head):
+    <span class="syn-keyword">if</span> head <span class="syn-keyword">is None</span>: <span class="syn-keyword">return None</span>
+    current = head
+    <span class="syn-keyword">while</span> current.next <span class="syn-keyword">is not None</span>:
+        current = current.next
+    <span class="syn-keyword">return</span> current
+
+<span class="syn-keyword">def</span> <span class="syn-func">find_second_last_node</span>(head):
+    <span class="syn-keyword">if</span> head <span class="syn-keyword">is None</span> <span class="syn-keyword">or</span> head.next <span class="syn-keyword">is None</span>: <span class="syn-keyword">return None</span>
+    current = head
+    <span class="syn-keyword">while</span> current.next.next <span class="syn-keyword">is not None</span>:
+        current = current.next
+    <span class="syn-keyword">return</span> current</div>
+    </div>
+
+    <!-- LEC 9 SECTION -->
+    <div class="section-card">
+      <div class="section-title">🔄 Lec 9: Reversing a Linked List &amp; Move Last to First</div>
+      <p>Reversing pointers in-place is one of the most frequently asked GATE &amp; IBPS SO IT algorithms.</p>
+
+      <div class="formula-box">
+        Iterative 3-Pointer Technique: prev = NULL, current = head, next = NULL
+      </div>
+
+      <div class="step-box">
+        <strong>In-Place Reversal Algorithm (<span class="math-sym">O(N)</span> Time, <span class="math-sym">O(1)</span> Space):</strong>
+        <ol style="margin-left: 20px; margin-top: 6px;">
+          <li>Save next node: <code>next = current-&gt;next</code></li>
+          <li>Reverse current link: <code>current-&gt;next = prev</code></li>
+          <li>Move prev forward: <code>prev = current</code></li>
+          <li>Move current forward: <code>current = next</code></li>
+        </ol>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Code Implementations (C, Java, Python):</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-ll9')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-ll9')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-ll9')">Python</button>
+      </div>
+
+      <div id="c-ll9" class="code-block active"><span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* <span class="syn-func">reverseLinkedList</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head) {
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span> *prev = <span class="syn-macro">NULL</span>, *current = head, *next = <span class="syn-macro">NULL</span>;
+    <span class="syn-keyword">while</span> (current != <span class="syn-macro">NULL</span>) {
+        next = current-&gt;next;     <span class="syn-comment">// Store next</span>
+        current-&gt;next = prev;     <span class="syn-comment">// Reverse pointer</span>
+        prev = current;           <span class="syn-comment">// Advance prev</span>
+        current = next;           <span class="syn-comment">// Advance current</span>
+    }
+    <span class="syn-keyword">return</span> prev; <span class="syn-comment">// New Head</span>
+}</div>
+
+      <div id="java-ll9" class="code-block"><span class="syn-keyword">public static</span> <span class="syn-class">Node</span> <span class="syn-func">reverseLinkedList</span>(<span class="syn-class">Node</span> head) {
+    <span class="syn-class">Node</span> prev = <span class="syn-keyword">null</span>, current = head, next = <span class="syn-keyword">null</span>;
+    <span class="syn-keyword">while</span> (current != <span class="syn-keyword">null</span>) {
+        next = current.next;      <span class="syn-comment">// Store next</span>
+        current.next = prev;      <span class="syn-comment">// Reverse pointer</span>
+        prev = current;            <span class="syn-comment">// Advance prev</span>
+        current = next;            <span class="syn-comment">// Advance current</span>
+    }
+    <span class="syn-keyword">return</span> prev; <span class="syn-comment">// New Head</span>
+}</div>
+
+      <div id="python-ll9" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">reverse_linked_list</span>(head):
+    prev = <span class="syn-keyword">None</span>
+    current = head
+    <span class="syn-keyword">while</span> current <span class="syn-keyword">is not None</span>:
+        next_node = current.next   <span class="syn-comment"># Store next</span>
+        current.next = prev        <span class="syn-comment"># Reverse pointer</span>
+        prev = current             <span class="syn-comment"># Advance prev</span>
+        current = next_node        <span class="syn-comment"># Advance current</span>
+    <span class="syn-keyword">return</span> prev <span class="syn-comment"># New Head</span></div>
+    </div>
+
+    <!-- LEC 10 SECTION -->
+    <div class="section-card">
+      <div class="section-title">➕ Lec 10: Insertion &amp; Fast/Slow Pointer (Middle Node)</div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent5); margin-bottom: 8px;">🔥 Fast &amp; Slow Pointer Algorithm (Find Middle Node):</h4>
+        <p>Advance <code>slow</code> by 1 step (<code>slow = slow-&gt;next</code>) and <code>fast</code> by 2 steps (<code>fast = fast-&gt;next-&gt;next</code>). When <code>fast</code> reaches end, <code>slow</code> will be at the exact middle node!</p>
+        <p><strong>Time Complexity:</strong> <span class="math-sym">O(N)</span> in single pass, <strong>Space:</strong> <span class="math-sym">O(1)</span>.</p>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Code Implementations (C, Java, Python):</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-ll10')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-ll10')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-ll10')">Python</button>
+      </div>
+
+      <div id="c-ll10" class="code-block active"><span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* <span class="syn-func">findMiddleNode</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head) {
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span> *slow = head, *fast = head;
+    <span class="syn-keyword">while</span> (fast != <span class="syn-macro">NULL</span> &amp;&amp; fast-&gt;next != <span class="syn-macro">NULL</span>) {
+        slow = slow-&gt;next;
+        fast = fast-&gt;next-&gt;next;
+    }
+    <span class="syn-keyword">return</span> slow; <span class="syn-comment">// Middle Node</span>
+}</div>
+
+      <div id="java-ll10" class="code-block"><span class="syn-keyword">public static</span> <span class="syn-class">Node</span> <span class="syn-func">findMiddleNode</span>(<span class="syn-class">Node</span> head) {
+    <span class="syn-class">Node</span> slow = head, fast = head;
+    <span class="syn-keyword">while</span> (fast != <span class="syn-keyword">null</span> &amp;&amp; fast.next != <span class="syn-keyword">null</span>) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+    <span class="syn-keyword">return</span> slow; <span class="syn-comment">// Middle Node</span>
+}</div>
+
+      <div id="python-ll10" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">find_middle_node</span>(head):
+    slow = head
+    fast = head
+    <span class="syn-keyword">while</span> fast <span class="syn-keyword">is not None</span> <span class="syn-keyword">and</span> fast.next <span class="syn-keyword">is not None</span>:
+        slow = slow.next
+        fast = fast.next.next
+    <span class="syn-keyword">return</span> slow <span class="syn-comment"># Middle Node</span></div>
+
+      <h4 style="margin: 18px 0 8px; color: var(--text);">Insertion Complexities:</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Insertion Operation</th>
+            <th>Algorithm Logic</th>
+            <th>Time Complexity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Insert at Beginning (Head)</strong></td>
+            <td><code>newNode-&gt;next = head; head = newNode;</code></td>
+            <td><strong style="color:var(--accent3);">O(1)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Insert at End (Tail)</strong></td>
+            <td>Traverse to end, set <code>last-&gt;next = newNode;</code></td>
+            <td><strong style="color:var(--accent5);">O(N)</strong> (O(1) with Tail pointer)</td>
+          </tr>
+          <tr>
+            <td><strong>Insert After Position</strong></td>
+            <td>Traverse to pos, <code>newNode-&gt;next = curr-&gt;next; curr-&gt;next = newNode;</code></td>
+            <td><strong style="color:var(--accent5);">O(N)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LEC 11 & 12 SECTION -->
+    <div class="section-card">
+      <div class="section-title">🗑️ Lec 11 &amp; 12: Deletion Operations (First, Last &amp; Specific Node)</div>
+
+      <div class="step-box">
+        <strong>Deletion Algorithms &amp; Complexities:</strong>
+        <ul>
+          <li><strong>Delete First Node (Head Deletion):</strong> <code>struct Node* temp = head; head = head-&gt;next; free(temp);</code> &rarr; <span class="math-sym">O(1)</span> Time.</li>
+          <li><strong>Delete Last Node (Tail Deletion):</strong> Traverse to 2nd last node <code>prev</code>. <code>free(prev-&gt;next); prev-&gt;next = NULL;</code> &rarr; <span class="math-sym">O(N)</span> Time.</li>
+          <li><strong>Delete Specific Node by Value:</strong> Track <code>previous</code> &amp; <code>current</code>. Set <code>previous-&gt;next = current-&gt;next; free(current);</code> &rarr; <span class="math-sym">O(N)</span> Time.</li>
+        </ul>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Code Implementations (C, Java, Python):</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-ll12')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-ll12')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-ll12')">Python</button>
+      </div>
+
+      <div id="c-ll12" class="code-block active"><span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* <span class="syn-func">deleteNodeByValue</span>(<span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* head, <span class="syn-type">int</span> value) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-macro">NULL</span>) <span class="syn-keyword">return</span> <span class="syn-macro">NULL</span>;
+    <span class="syn-keyword">if</span> (head-&gt;data == value) { <span class="syn-comment">// Delete Head</span>
+        <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* temp = head;
+        head = head-&gt;next;
+        <span class="syn-func">free</span>(temp);
+        <span class="syn-keyword">return</span> head;
+    }
+    <span class="syn-keyword">struct</span> <span class="syn-class">Node</span>* current = head, *previous = <span class="syn-macro">NULL</span>;
+    <span class="syn-keyword">while</span> (current != <span class="syn-macro">NULL</span> &amp;&amp; current-&gt;data != value) {
+        previous = current;
+        current = current-&gt;next;
+    }
+    <span class="syn-keyword">if</span> (current != <span class="syn-macro">NULL</span>) { <span class="syn-comment">// Found node</span>
+        previous-&gt;next = current-&gt;next;
+        <span class="syn-func">free</span>(current);
+    }
+    <span class="syn-keyword">return</span> head;
+}</div>
+
+      <div id="java-ll12" class="code-block"><span class="syn-keyword">public static</span> <span class="syn-class">Node</span> <span class="syn-func">deleteNodeByValue</span>(<span class="syn-class">Node</span> head, <span class="syn-type">int</span> value) {
+    <span class="syn-keyword">if</span> (head == <span class="syn-keyword">null</span>) <span class="syn-keyword">return null</span>;
+    <span class="syn-keyword">if</span> (head.data == value) <span class="syn-keyword">return</span> head.next; <span class="syn-comment">// Delete Head</span>
+    <span class="syn-class">Node</span> current = head, previous = <span class="syn-keyword">null</span>;
+    <span class="syn-keyword">while</span> (current != <span class="syn-keyword">null</span> &amp;&amp; current.data != value) {
+        previous = current;
+        current = current.next;
+    }
+    <span class="syn-keyword">if</span> (current != <span class="syn-keyword">null</span>) previous.next = current.next;
+    <span class="syn-keyword">return</span> head;
+}</div>
+
+      <div id="python-ll12" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">delete_node_by_value</span>(head, value):
+    <span class="syn-keyword">if</span> head <span class="syn-keyword">is None</span>: <span class="syn-keyword">return None</span>
+    <span class="syn-keyword">if</span> head.data == value: <span class="syn-keyword">return</span> head.next <span class="syn-comment"># Delete Head</span>
+    current = head
+    previous = <span class="syn-keyword">None</span>
+    <span class="syn-keyword">while</span> current <span class="syn-keyword">is not None</span> <span class="syn-keyword">and</span> current.data != value:
+        previous = current
+        current = current.next
+    <span class="syn-keyword">if</span> current <span class="syn-keyword">is not None</span>:
+        previous.next = current.next
+    <span class="syn-keyword">return</span> head</div>
+    </div>
+
+    <!-- IBPS SO IT PYQ SUMMARY -->
+    <div class="section-card" style="border-color: rgba(5,150,105,0.4); background: linear-gradient(135deg, rgba(5,150,105,0.05), rgba(16,185,129,0.02));">
+      <div class="section-title" style="color: var(--accent3);">🎯 IBPS SO IT PYQ Pattern Verification</div>
+      <ul>
+        <li><strong>Array vs Linked List Comparison:</strong> Linked Lists allow <span class="math-sym">O(1)</span> insertion/deletion at head, but arrays take <span class="math-sym">O(N)</span> due to element shifting.</li>
+        <li><strong>Random Access:</strong> Arrays support <span class="math-sym">O(1)</span> random access by index; Linked Lists require <span class="math-sym">O(N)</span> sequential traversal.</li>
+        <li><strong>Memory Overhead:</strong> Linked lists require additional memory for pointer/reference fields (`sizeof(struct Node*)`).</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showCode(btn, targetId) {
+  var card = btn.closest('.section-card');
+  if (!card) return;
+  card.querySelectorAll('.code-block').forEach(function(el) { el.classList.remove('active'); });
+  card.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+  var target = card.querySelector('#' + targetId);
+  if (target) target.classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

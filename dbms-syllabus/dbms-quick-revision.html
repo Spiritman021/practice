@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="DBMS + SQL Complete Quick Revision for IBPS SO IT & GATE — 85 Individual Topics covering Keys, Normalization, ACID, Concurrency, Isolation, B+ Tree, Joins, Subqueries, Window Functions, DELETE vs TRUNCATE vs DROP."/>
+  <title>DBMS + SQL — Complete Quick Revision (85 Individual Topics) | IBPS SO IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#fff;--border:#e2e8f0;
+      --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+      --accent:#2563eb;--accent-light:#eff6ff;
+      --teal:#0d9488;--teal-light:#f0fdfa;
+      --amber:#d97706;--amber-light:#fffbeb;
+      --rose:#e11d48;--rose-light:#fff1f2;
+      --green:#059669;--green-light:#ecfdf5;
+      --purple:#7c3aed;--purple-light:#f5f3ff;
+      --slate:#334155;--slate-light:#f1f5f9;
+      --indigo:#4338ca;--indigo-light:#eef2ff;
+      --shadow:0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,.07);
+      --radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;min-height:100vh;}
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);box-shadow:var(--shadow);}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .nav-back{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;}
+    .nav-back:hover{color:var(--accent);}
+    .nav-title{font-size:15px;font-weight:800;color:var(--text);flex:1;}
+    .nav-badge{font-size:11px;font-weight:800;background:#7c3aed;color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+    .nav-index-btn{text-decoration:none;font-size:12px;font-weight:700;color:var(--rose);background:var(--rose-light);border:1px solid rgba(225,29,72,.2);padding:5px 12px;border-radius:8px;white-space:nowrap;transition:all .2s;}
+    .nav-index-btn:hover{background:var(--rose);color:#fff;}
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 40%,#064e3b 100%);color:#fff;padding:56px 24px 48px;text-align:center;}
+    .hero-eyebrow{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;}
+    .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{color:#38bdf8;}
+    .hero p{font-size:1.05rem;color:#94a3b8;max-width:700px;margin:0 auto 28px;line-height:1.7;}
+    .hero-stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+    .hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#e2e8f0;}
+    .hero-stat span{color:#38bdf8;font-size:20px;font-weight:900;display:block;}
+    .toc-wrap{max-width:1100px;margin:36px auto 0;padding:0 24px;}
+    .toc-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow-md);}
+    .toc-title{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .toc-part-title{font-size:12px;font-weight:900;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;padding-top:12px;border-top:1px dashed var(--border);}
+    .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;}
+    .toc-link{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:8px;transition:all .18s;}
+    .toc-link:hover{background:var(--accent-light);color:var(--accent);border-color:rgba(37,99,235,.25);}
+    .toc-num{font-size:11px;font-weight:800;background:#2563eb;color:#fff;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 4px;}
+    .toc-num.sql{background:#7c3aed;}
+    .main{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:flex;flex-direction:column;gap:24px;}
+    .part-banner{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;}
+    .part-banner h2{font-size:1.35rem;font-weight:900;letter-spacing:-.5px;}
+    .part-banner span{font-size:12px;font-weight:800;background:rgba(255,255,255,.15);padding:4px 12px;border-radius:999px;text-transform:uppercase;}
+    .sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .sec-header{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--border);}
+    .sec-num{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;flex-shrink:0;background:var(--accent-light);color:var(--accent);}
+    .sec-num.sql{background:var(--purple-light);color:var(--purple);}
+    .sec-title-wrap{flex:1;}
+    .sec-title{font-size:1.15rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .sec-subtitle{font-size:12.5px;color:var(--text2);margin-top:2px;font-weight:500;}
+    .badge-fire{font-size:10.5px;background:#dc2626;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-high{font-size:10.5px;background:#d97706;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-new{font-size:10.5px;background:#7c3aed;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .sec-body{padding:20px 24px;}
+    .c-rose .sec-num{background:var(--rose-light);color:var(--rose);} .c-rose .sec-title{color:#9f1239;}
+    .c-teal .sec-num{background:var(--teal-light);color:var(--teal);} .c-teal .sec-title{color:#0f766e;}
+    .c-amber .sec-num{background:var(--amber-light);color:var(--amber);} .c-amber .sec-title{color:#b45309;}
+    .c-blue .sec-num{background:var(--accent-light);color:var(--accent);} .c-blue .sec-title{color:#1e40af;}
+    .c-purple .sec-num{background:var(--purple-light);color:var(--purple);} .c-purple .sec-title{color:#6d28d9;}
+    .c-green .sec-num{background:var(--green-light);color:var(--green);} .c-green .sec-title{color:#047857;}
+    .c-indigo .sec-num{background:var(--indigo-light);color:var(--indigo);} .c-indigo .sec-title{color:#3730a3;}
+    .c-slate .sec-num{background:var(--slate-light);color:var(--slate);} .c-slate .sec-title{color:#1e293b;}
+    .def-box{background:var(--accent-light);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:#1e3a8a;font-weight:600;line-height:1.6;}
+    .bullet-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+    .bullet-list li{padding-left:22px;position:relative;font-size:13.5px;color:#334155;line-height:1.6;}
+    .bullet-list li::before{content:"›";position:absolute;left:0;color:var(--accent);font-size:16px;top:0px;font-weight:900;}
+    .bullet-list li strong{color:var(--text);}
+    .mini-h{font-size:13.5px;font-weight:800;color:var(--text);margin:16px 0 10px;display:flex;align-items:center;gap:8px;}
+    .mini-h::after{content:'';flex:1;height:1px;background:var(--border);}
+    .callout{border-radius:12px;padding:12px 16px;margin:14px 0;font-size:13px;line-height:1.6;}
+    .callout-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;font-size:12.5px;}
+    .callout-blue{background:var(--accent-light);border-left:4px solid var(--accent);}
+    .callout-blue .callout-title{color:#1d4ed8;}
+    .callout-green{background:var(--green-light);border-left:4px solid var(--green);}
+    .callout-green .callout-title{color:#047857;}
+    .callout-amber{background:var(--amber-light);border-left:4px solid var(--amber);}
+    .callout-amber .callout-title{color:#92400e;}
+    .callout-rose{background:var(--rose-light);border-left:4px solid var(--rose);}
+    .callout-rose .callout-title{color:#9f1239;}
+    .callout-teal{background:var(--teal-light);border-left:4px solid var(--teal);}
+    .callout-teal .callout-title{color:#0f766e;}
+    .callout-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+    .callout-purple .callout-title{color:#6d28d9;}
+    .callout-indigo{background:var(--indigo-light);border-left:4px solid var(--indigo);}
+    .callout-indigo .callout-title{color:#3730a3;}
+    .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:14px 0;}
+    table.comp{width:100%;border-collapse:collapse;font-size:13px;}
+    table.comp th{background:#0f172a;color:#fff;padding:10px 14px;font-weight:700;text-align:left;white-space:nowrap;}
+    table.comp td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;vertical-align:top;line-height:1.5;}
+    table.comp tr:nth-child(even){background:#f8fafc;}
+    table.comp tr:last-child td{border-bottom:none;}
+    table.comp tr:hover td{background:var(--accent-light);}
+    .formula-block{background:#0f172a;color:#38bdf8;font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:14px 18px;border-radius:12px;margin:14px 0;line-height:1.7;overflow-x:auto;white-space:pre;}
+    .formula-block .c{color:#64748b;} .formula-block .k{color:#fb7185;} .formula-block .g{color:#4ade80;} .formula-block .y{color:#facc15;}
+    .flow-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:16px 20px;margin:14px 0;text-align:center;}
+    .flow-title{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+    .flow-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;}
+    .flow-step{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+    .flow-arrow{color:var(--text3);font-size:15px;}
+    .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0;}
+    .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0;}
+    .mini-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .mini-card-title{font-size:12.5px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .fact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+    .fact-item{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;display:flex;gap:10px;align-items:flex-start;line-height:1.5;}
+    .fact-num{font-size:10.5px;font-weight:900;background:#0f172a;color:#38bdf8;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+    .fact-item strong{color:var(--text);}
+    .mental-map{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:28px 32px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;overflow-x:auto;white-space:pre;}
+    .ok{color:#059669;font-weight:800;} .bad{color:#dc2626;font-weight:800;} .warn{color:#d97706;font-weight:800;} .na{color:#94a3b8;font-weight:700;}
+    .bottom-nav{max-width:1100px;margin:0 auto 60px;padding:0 24px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+    .bottom-btn{text-decoration:none;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;transition:all .2s;}
+    .btn-blue-ol{background:var(--accent-light);color:var(--accent);border:1px solid rgba(37,99,235,.25);}
+    .btn-blue-ol:hover{background:var(--accent);color:#fff;}
+    .btn-purple-ol{background:var(--purple-light);color:var(--purple);border:1px solid rgba(124,58,237,.25);}
+    .btn-purple-ol:hover{background:var(--purple);color:#fff;}
+    .btn-slate{background:#f1f5f9;color:#334155;border:1px solid var(--border);}
+    .btn-slate:hover{background:#e2e8f0;}
+    .sec-anchor{scroll-margin-top:80px;}
+    @media(max-width:700px){.nav-inner,.sec-body,.sec-header,.main,.toc-wrap,.bottom-nav{padding-left:16px;padding-right:16px;}.hero{padding:40px 16px 36px;}.mental-map{font-size:11px;padding:18px 14px;}}
+    ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:#f1f5f9;} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;} ::-webkit-scrollbar-thumb:hover{background:#94a3b8;}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-back">&#8592; Practice Hub Dashboard</a>
+    <span class="nav-title">DBMS + SQL &#8212; Complete Quick Revision</span>
+    <a href="index.html" class="nav-index-btn">🗄️ DBMS Syllabus</a>
+    <span class="nav-badge">IBPS SO IT</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">IBPS SO IT Officer &#183; Database Management System &amp; SQL</div>
+  <h1>Complete <span>Quick Revision</span><br/>End-to-End</h1>
+  <p>All 85 individual topics organized step-by-step &#8212; Definitions, differences, keys, normal forms, transactions, ACID, concurrency, indexing, B+ trees, SQL clauses, joins, subqueries, and window functions.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>85</span>Individual Topics</div>
+    <div class="hero-stat"><span>PART A &amp; B</span>DBMS + SQL</div>
+    <div class="hero-stat"><span>&#128293;&#128293;</span>Exam Ready</div>
+  </div>
+</div>
+
+<div class="toc-wrap">
+  <div class="toc-box">
+    <div class="toc-title">&#128203; Quick Navigation Table of Contents (85 Individual Topics)</div>
+    
+    <div class="toc-part-title">Part A &#8212; Database Management Systems (DBMS) &#183; Topics 1 to 47</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-link"><span class="toc-num">1</span>DBMS Basics &amp; vs File System</a><a href="#s2" class="toc-link"><span class="toc-num">2</span>DBMS Architecture (1/2/3-Tier)</a><a href="#s3" class="toc-link"><span class="toc-num">3</span>Three-Schema Architecture</a><a href="#s4" class="toc-link"><span class="toc-num">4</span>Data Models</a><a href="#s5" class="toc-link"><span class="toc-num">5</span>Relational Terminology</a><a href="#s6" class="toc-link"><span class="toc-num">6</span>Schema vs Instance</a><a href="#s7" class="toc-link"><span class="toc-num">7</span>Keys (Super, CK, PK, FK)</a><a href="#s8" class="toc-link"><span class="toc-num">8</span>Integrity Constraints</a><a href="#s9" class="toc-link"><span class="toc-num">9</span>ER Model &amp; Attributes</a><a href="#s10" class="toc-link"><span class="toc-num">10</span>Relationship Cardinality</a><a href="#s11" class="toc-link"><span class="toc-num">11</span>Participation Constraints</a><a href="#s12" class="toc-link"><span class="toc-num">12</span>Weak Entity &amp; Identifying Rel</a><a href="#s13" class="toc-link"><span class="toc-num">13</span>Generalization &amp; Specialization</a><a href="#s14" class="toc-link"><span class="toc-num">14</span>Aggregation</a><a href="#s15" class="toc-link"><span class="toc-num">15</span>ER Diagram Notation Table</a><a href="#s16" class="toc-link"><span class="toc-num">16</span>Relational Algebra Operations</a><a href="#s17" class="toc-link"><span class="toc-num">17</span>Functional Dependency (FD)</a><a href="#s18" class="toc-link"><span class="toc-num">18</span>Armstrong's Axioms</a><a href="#s19" class="toc-link"><span class="toc-num">19</span>Attribute Closure (X+)</a><a href="#s20" class="toc-link"><span class="toc-num">20</span>Normalization &amp; Anomalies</a><a href="#s21" class="toc-link"><span class="toc-num">21</span>1NF (First Normal Form)</a><a href="#s22" class="toc-link"><span class="toc-num">22</span>2NF (Second Normal Form)</a><a href="#s23" class="toc-link"><span class="toc-num">23</span>3NF (Third Normal Form)</a><a href="#s24" class="toc-link"><span class="toc-num">24</span>BCNF (Boyce-Codd NF)</a><a href="#s25" class="toc-link"><span class="toc-num">25</span>4NF (Multivalued Dep MVD)</a><a href="#s26" class="toc-link"><span class="toc-num">26</span>5NF (Join Dependency)</a><a href="#s27" class="toc-link"><span class="toc-num">27</span>Lossless &amp; Lossy Decomposition</a><a href="#s28" class="toc-link"><span class="toc-num">28</span>Transactions Concept</a><a href="#s29" class="toc-link"><span class="toc-num">29</span>ACID Properties</a><a href="#s30" class="toc-link"><span class="toc-num">30</span>Transaction States</a><a href="#s31" class="toc-link"><span class="toc-num">31</span>Transaction Schedules</a><a href="#s32" class="toc-link"><span class="toc-num">32</span>Serializability &amp; Conflicts</a><a href="#s33" class="toc-link"><span class="toc-num">33</span>Concurrency Problems</a><a href="#s34" class="toc-link"><span class="toc-num">34</span>Isolation Levels Table</a><a href="#s35" class="toc-link"><span class="toc-num">35</span>Locks (Shared vs Exclusive)</a><a href="#s36" class="toc-link"><span class="toc-num">36</span>Two-Phase Locking (2PL)</a><a href="#s37" class="toc-link"><span class="toc-num">37</span>Deadlock &amp; Wait-For Graph</a><a href="#s38" class="toc-link"><span class="toc-num">38</span>Recoverability &amp; Schedules</a><a href="#s39" class="toc-link"><span class="toc-num">39</span>Recovery, WAL &amp; Checkpoints</a><a href="#s40" class="toc-link"><span class="toc-num">40</span>Indexing Types</a><a href="#s41" class="toc-link"><span class="toc-num">41</span>B-Tree vs B+ Tree</a><a href="#s42" class="toc-link"><span class="toc-num">42</span>Hashing in DBMS</a><a href="#s43" class="toc-link"><span class="toc-num">43</span>Codd's 12 Rules (0-12)</a><a href="#s44" class="toc-link"><span class="toc-num">44</span>OLTP vs OLAP</a><a href="#s45" class="toc-link"><span class="toc-num">45</span>Data Warehouse &amp; Schemas</a><a href="#s46" class="toc-link"><span class="toc-num">46</span>RAID Levels (0, 1, 5, 10)</a><a href="#s47" class="toc-link"><span class="toc-num">47</span>Distributed DB &amp; NoSQL</a>
+    </div>
+
+    <div class="toc-part-title">Part B &#8212; Structured Query Language (SQL) &#183; Topics 48 to 85</div>
+    <div class="toc-grid">
+      <a href="#s48" class="toc-link"><span class="toc-num sql">48</span>SQL Categories (DDL/DML/etc)</a><a href="#s49" class="toc-link"><span class="toc-num sql">49</span>CREATE Statement</a><a href="#s50" class="toc-link"><span class="toc-num sql">50</span>Data Types &amp; CHAR vs VARCHAR</a><a href="#s51" class="toc-link"><span class="toc-num sql">51</span>ALTER TABLE</a><a href="#s52" class="toc-link"><span class="toc-num sql">52</span>INSERT Statement</a><a href="#s53" class="toc-link"><span class="toc-num sql">53</span>SELECT Statement</a><a href="#s54" class="toc-link"><span class="toc-num sql">54</span>WHERE Clause</a><a href="#s55" class="toc-link"><span class="toc-num sql">55</span>Logical Operators (AND/OR/NOT)</a><a href="#s56" class="toc-link"><span class="toc-num sql">56</span>DISTINCT Keyword</a><a href="#s57" class="toc-link"><span class="toc-num sql">57</span>ORDER BY (ASC / DESC)</a><a href="#s58" class="toc-link"><span class="toc-num sql">58</span>SQL Constraints &amp; FK Actions</a><a href="#s59" class="toc-link"><span class="toc-num sql">59</span>NULL in SQL (IS NULL)</a><a href="#s60" class="toc-link"><span class="toc-num sql">60</span>Aggregate Functions</a><a href="#s61" class="toc-link"><span class="toc-num sql">61</span>GROUP BY Clause</a><a href="#s62" class="toc-link"><span class="toc-num sql">62</span>HAVING Clause</a><a href="#s63" class="toc-link"><span class="toc-num sql">63</span>Logical Query Order (FWGSHSDOL)</a><a href="#s64" class="toc-link"><span class="toc-num sql">64</span>LIKE &amp; Wildcards (% and _)</a><a href="#s65" class="toc-link"><span class="toc-num sql">65</span>BETWEEN Operator</a><a href="#s66" class="toc-link"><span class="toc-num sql">66</span>IN Operator</a><a href="#s67" class="toc-link"><span class="toc-num sql">67</span>CASE WHEN Expressions</a><a href="#s68" class="toc-link"><span class="toc-num sql">68</span>String &amp; Date Functions</a><a href="#s69" class="toc-link"><span class="toc-num sql">69</span>Aliases (AS)</a><a href="#s70" class="toc-link"><span class="toc-num sql">70</span>Joins Complete Guide</a><a href="#s71" class="toc-link"><span class="toc-num sql">71</span>Natural Join</a><a href="#s72" class="toc-link"><span class="toc-num sql">72</span>Equi Join vs Theta Join</a><a href="#s73" class="toc-link"><span class="toc-num sql">73</span>Subqueries Types</a><a href="#s74" class="toc-link"><span class="toc-num sql">74</span>Correlated Subquery</a><a href="#s75" class="toc-link"><span class="toc-num sql">75</span>EXISTS and NOT EXISTS</a><a href="#s76" class="toc-link"><span class="toc-num sql">76</span>ANY and ALL Operators</a><a href="#s77" class="toc-link"><span class="toc-num sql">77</span>Set Operations (UNION/etc)</a><a href="#s78" class="toc-link"><span class="toc-num sql">78</span>Window Functions (RANK/etc)</a><a href="#s79" class="toc-link"><span class="toc-num sql">79</span>Views &amp; Updatable Views</a><a href="#s80" class="toc-link"><span class="toc-num sql">80</span>Index Creation</a><a href="#s81" class="toc-link"><span class="toc-num sql">81</span>Procedures, Triggers, Cursors</a><a href="#s82" class="toc-link"><span class="toc-num sql">82</span>TCL Commands</a><a href="#s83" class="toc-link"><span class="toc-num sql">83</span>DCL Commands</a><a href="#s84" class="toc-link"><span class="toc-num sql">84</span>DELETE vs TRUNCATE vs DROP</a><a href="#s85" class="toc-link"><span class="toc-num sql">85</span>Quick Category Summary</a><a href="#s86" class="toc-link"><span class="toc-num sql">&#128293;</span>Last-Minute 25 Facts</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="part-banner">
+    <h2>PART A &#8212; Database Management Systems (DBMS)</h2>
+    <span>Topics 1 to 47</span>
+  </div>
+
+  <!-- S1 -->
+<div id="s1" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title-wrap"><div class="sec-title">DBMS Basics &amp; File System vs DBMS <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Definitions, examples, file system limitations &amp; advantages</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Database</strong>: Organized collection of related data.<br/><strong>DBMS (Database Management System)</strong>: Software used to create, store, retrieve, update and manage databases (MySQL, Oracle, PostgreSQL, SQL Server).</div>
+    <div class="mini-h">DBMS vs File System Comparison</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>File System</th><th>DBMS</th></tr></thead><tbody>
+      <tr><td>High redundancy</td><td>Redundancy controlled</td></tr>
+      <tr><td>Poor consistency</td><td>Better consistency</td></tr>
+      <tr><td>Weak security</td><td>Authorization / security</td></tr>
+      <tr><td>Difficult concurrent access</td><td>Concurrency control</td></tr>
+      <tr><td>Manual recovery</td><td>Backup &amp; recovery</td></tr>
+      <tr><td>No data independence</td><td>Data independence</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#129504; Advantages Mnemonic &#8212; R-C-S-I-S-B</div>
+      <strong>R</strong>educes Redundancy &nbsp;|&nbsp; <strong>C</strong>onsistency &nbsp;|&nbsp; <strong>S</strong>ecurity &nbsp;|&nbsp; <strong>I</strong>ntegrity &nbsp;|&nbsp; <strong>S</strong>haring &nbsp;|&nbsp; <strong>B</strong>ackup &amp; Recovery
+    </div>
+  </div>
+</div><!-- S2 -->
+<div id="s2" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title-wrap"><div class="sec-title">DBMS Architecture (1-Tier, 2-Tier, 3-Tier)</div><div class="sec-subtitle">Client, Application Server &amp; Database Server</div></div></div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">1-Tier Architecture</div><p style="font-size:13px;color:#475569;">User directly accesses database.</p><div class="formula-block" style="font-size:11px;padding:8px;">User &#8594; Database</div></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">2-Tier Architecture</div><p style="font-size:13px;color:#475569;">Client directly communicates with DB server.</p><div class="formula-block" style="font-size:11px;padding:8px;">Client &#8594; DB Server</div></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">3-Tier Architecture &#11088;</div><p style="font-size:13px;color:#475569;">Client &#8594; Application Server (Business Logic) &#8594; DB Server.</p><div class="formula-block" style="font-size:11px;padding:8px;">Client &#8594; App Server &#8594; DB</div></div>
+    </div>
+  </div>
+</div><!-- S3 -->
+<div id="s3" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title-wrap"><div class="sec-title">Three-Schema Architecture &amp; Data Independence <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">External, Conceptual, Internal Levels</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-title">Three-Schema Levels</div>
+      <div class="flow-steps" style="flex-direction:column;gap:6px;">
+        <span class="flow-step" style="color:#6d28d9;">External Level (User-specific views)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="color:#1e40af;border-color:#3b82f6;">Conceptual Level (Complete logical structure)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="color:#047857;border-color:#10b981;">Internal Level (How data is physically stored)</span>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Physical Data Independence</div>
+        <p style="font-size:13px;color:#475569;">Change physical storage (e.g. HDD &#8594; SSD) without changing logical schema. Applications remain unchanged.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Logical Data Independence</div>
+        <p style="font-size:13px;color:#475569;">Change conceptual schema without affecting user views/applications. <strong>Harder to achieve</strong> than physical independence.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- S4 -->
+<div id="s4" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title-wrap"><div class="sec-title">Data Models</div><div class="sec-subtitle">Hierarchical, Network, Relational, ER, Object-Oriented</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Hierarchical Model</strong>: Tree-like structure with parent-child relationships.</li>
+      <li><strong>Network Model</strong>: Graph-like structure, allows multiple parents.</li>
+      <li><strong>Relational Model &#11088;</strong>: Data represented using tables/relations. Created/proposed by <strong>E. F. Codd</strong>.</li>
+      <li><strong>ER Model</strong>: Entity-Relationship conceptual modeling.</li>
+      <li><strong>Object-Oriented Model</strong>: Data represented as objects with methods and encapsulation.</li>
+    </ul>
+  </div>
+</div><!-- S5 -->
+<div id="s5" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title-wrap"><div class="sec-title">Basic Relational Terminology <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Relation, Tuple, Attribute, Domain, Degree vs Cardinality</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead><tbody>
+      <tr><td><strong>Relation</strong></td><td>Table</td><td>Student</td></tr>
+      <tr><td><strong>Tuple</strong></td><td>Row</td><td>(101, 'Ravi', 25)</td></tr>
+      <tr><td><strong>Attribute</strong></td><td>Column</td><td>ID, Name, Age</td></tr>
+      <tr><td><strong>Domain</strong></td><td>Allowed values of an attribute</td><td>Age &gt; 0</td></tr>
+      <tr><td><strong>Degree &#11088;</strong></td><td><strong>Number of attributes / columns</strong></td><td>3 columns &#8594; Degree = 3</td></tr>
+      <tr><td><strong>Cardinality &#11088;</strong></td><td><strong>Number of tuples / rows</strong></td><td>2 rows &#8594; Cardinality = 2</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S6 -->
+<div id="s6" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">6</div><div class="sec-title-wrap"><div class="sec-title">Schema vs Instance</div><div class="sec-subtitle">Structure/design vs actual snapshot data</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Schema (Design)</div><p style="font-size:13px;color:#475569;">Structure/design of database. e.g. <code>Student(ID, Name, Age)</code>. <strong>Changes rarely</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Instance (Data)</div><p style="font-size:13px;color:#475569;">Actual data stored at a particular moment. <strong>Changes frequently</strong>.</p></div>
+    </div>
+  </div>
+</div><!-- S7 -->
+<div id="s7" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">7</div><div class="sec-title-wrap"><div class="sec-title">Keys in Relational Model <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Super Key, Candidate Key, Primary Key, Foreign Key, Prime vs Non-Prime</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#9f1239;">Super Key (SK)</div><p style="font-size:13px;color:#475569;">Any attribute/set of attributes that uniquely identifies a tuple. e.g. {ID}, {Email}, {ID, Name}.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Candidate Key (CK) &#11088;</div><p style="font-size:13px;color:#475569;"><strong>Minimal super key</strong> with no unnecessary attributes (e.g. ID, Email).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Primary Key (PK) &#11088;</div><p style="font-size:13px;color:#475569;">Candidate key selected to uniquely identify tuples. <strong>Unique and NOT NULL</strong>. Exactly 1 per table.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Alternate Key (AK)</div><p style="font-size:13px;color:#475569;">Candidate keys not selected as primary key.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">Foreign Key (FK) &#11088;</div><p style="font-size:13px;color:#475569;">Attribute referring to key of another table. Maintains <strong>referential integrity</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">Composite Key &amp; Unique Key</div><p style="font-size:13px;color:#475569;"><strong>Composite:</strong> Key with multiple attributes. <strong>Unique Key:</strong> Ensures uniqueness; allows NULL (per DBMS).</p></div>
+    </div>
+    <div class="mini-h">Prime vs Non-Prime Attributes</div>
+    <ul class="bullet-list">
+      <li><strong>Prime Attribute</strong>: Attribute belonging to at least one Candidate Key.</li>
+      <li><strong>Non-prime Attribute</strong>: Doesn't belong to any Candidate Key.</li>
+    </ul>
+    <div class="mini-h">Quick Key Comparison Table</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Key Type</th><th>Uniqueness</th><th>NULL Allowed?</th><th>Count per Table</th></tr></thead><tbody>
+      <tr><td><strong>Primary Key</strong></td><td>Yes</td><td>No</td><td>Only 1</td></tr>
+      <tr><td><strong>Unique Key</strong></td><td>Yes</td><td>Usually yes (once or per-DBMS rule)</td><td>Multiple</td></tr>
+      <tr><td><strong>Candidate Key</strong></td><td>Yes</td><td>Depends</td><td>Multiple</td></tr>
+      <tr><td><strong>Foreign Key</strong></td><td>No (can repeat)</td><td>Yes (if optional)</td><td>Multiple</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S8 -->
+<div id="s8" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">8</div><div class="sec-title-wrap"><div class="sec-title">Integrity Constraints</div><div class="sec-subtitle">Domain, Key, Entity, and Referential Integrity</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Constraint</th><th>Rule</th><th>Example</th></tr></thead><tbody>
+      <tr><td><strong>Domain Constraint</strong></td><td>Values must belong to valid domain.</td><td>Age &gt; 0</td></tr>
+      <tr><td><strong>Key Constraint</strong></td><td>Keys must uniquely identify tuples.</td><td>ID must be distinct</td></tr>
+      <tr><td><strong>Entity Integrity &#11088;</strong></td><td><strong>Primary key cannot be NULL.</strong></td><td>PK NOT NULL</td></tr>
+      <tr><td><strong>Referential Integrity &#11088;</strong></td><td>Foreign key must match referenced key value OR be NULL if permitted.</td><td>Emp(DeptID) &#8594; Dept(DeptID)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S9 -->
+<div id="s9" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">9</div><div class="sec-title-wrap"><div class="sec-title">ER Model &amp; Attribute Types</div><div class="sec-subtitle">Entity, Attribute, Relationship and all attribute variations</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Entity</strong>: Real-world object (Student, Employee).<br/><strong>Attribute</strong>: Property of entity (Name, RollNo).<br/><strong>Relationship</strong>: Association between entities (Student &#8212; enrolls &#8212; Course).</div>
+    <div class="mini-h">Attribute Types</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">Simple vs Composite</div><p style="font-size:13px;color:#475569;"><strong>Simple:</strong> Cannot be divided (Age).<br/><strong>Composite:</strong> Dividable (Name &#8594; First Name + Last Name).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Single-valued vs Multi-valued</div><p style="font-size:13px;color:#475569;"><strong>Single-valued:</strong> One value (DOB).<br/><strong>Multi-valued:</strong> Multiple values (Phone Numbers) &#8594; <em>double ellipse</em>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Derived Attribute</div><p style="font-size:13px;color:#475569;">Calculated from another attribute (Age &larr; DOB) &#8594; <em>dashed ellipse</em>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Key Attribute</div><p style="font-size:13px;color:#475569;">Uniquely identifies entity &#8594; <em>underlined ellipse</em>.</p></div>
+    </div>
+  </div>
+</div><!-- S10 -->
+<div id="s10" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">10</div><div class="sec-title-wrap"><div class="sec-title">Relationship Cardinality</div><div class="sec-subtitle">1:1, 1:N, N:1, M:N relationships</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">One-to-One (1:1)</div><p style="font-size:13px;color:#475569;">Person &#8596; Passport</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">One-to-Many (1:N)</div><p style="font-size:13px;color:#475569;">Department &#8594; Employees (One department has many employees).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Many-to-One (N:1)</div><p style="font-size:13px;color:#475569;">Many employees belong to one department.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#9f1239;">Many-to-Many (M:N)</div><p style="font-size:13px;color:#475569;">Students &#8596; Courses (Requires an intermediate/junction table).</p></div>
+    </div>
+  </div>
+</div><!-- S11 -->
+<div id="s11" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">11</div><div class="sec-title-wrap"><div class="sec-title">Participation Constraints</div><div class="sec-subtitle">Total Participation vs Partial Participation</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#3730a3;">Total Participation (Double Line)</div><p style="font-size:13px;color:#475569;">Every entity must participate in the relationship. Shown using <strong>double line</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#475569;">Partial Participation (Single Line)</div><p style="font-size:13px;color:#475569;">Participation is optional. Shown using <strong>single line</strong>.</p></div>
+    </div>
+  </div>
+</div><!-- S12 -->
+<div id="s12" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">12</div><div class="sec-title-wrap"><div class="sec-title">Weak Entity</div><div class="sec-subtitle">Double Rectangle, Identifying Relationship (Double Diamond)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">A <strong>Weak Entity</strong> cannot be uniquely identified by its own attributes and depends on a strong entity (e.g. Employee &#8594; Dependent).</div>
+    <ul class="bullet-list">
+      <li>Weak entity &#8594; <strong>Double rectangle</strong></li>
+      <li>Identifying relationship &#8594; <strong>Double diamond</strong></li>
+      <li>Discriminator / Partial key &#8594; <strong>Dashed underline</strong></li>
+    </ul>
+  </div>
+</div><!-- S13 -->
+<div id="s13" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">13</div><div class="sec-title-wrap"><div class="sec-title">Generalization &amp; Specialization</div><div class="sec-subtitle">Bottom-Up (Combine) vs Top-Down (Divide)</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">Generalization = Bottom-Up</div><p style="font-size:13px;color:#475569;">Combine lower-level entities into a higher-level entity (Car + Bike &#8594; Vehicle). <strong>Generalization = Combine</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Specialization = Top-Down</div><p style="font-size:13px;color:#475569;">Split entity into subtypes (Employee &#8594; Manager + Developer). <strong>Specialization = Divide</strong>.</p></div>
+    </div>
+  </div>
+</div><!-- S14 -->
+<div id="s14" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">14</div><div class="sec-title-wrap"><div class="sec-title">Aggregation</div><div class="sec-subtitle">Relationship treated as a higher-level entity</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Aggregation</strong> treats a relationship as a higher-level entity so it can participate in another relationship. Used when a relationship itself needs to be related to another entity.</div>
+  </div>
+</div><!-- S15 -->
+<div id="s15" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">15</div><div class="sec-title-wrap"><div class="sec-title">ER Diagram Notation &#8212; Quick Reference Table</div><div class="sec-subtitle">All standard ER symbols</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Symbol</th><th>Represents</th></tr></thead><tbody>
+      <tr><td>Rectangle</td><td>Entity</td></tr>
+      <tr><td>Double Rectangle</td><td>Weak Entity</td></tr>
+      <tr><td>Ellipse</td><td>Attribute</td></tr>
+      <tr><td>Underlined Ellipse</td><td>Key Attribute</td></tr>
+      <tr><td>Dashed Ellipse</td><td>Derived Attribute</td></tr>
+      <tr><td>Double Ellipse</td><td>Multi-valued Attribute</td></tr>
+      <tr><td>Diamond</td><td>Relationship</td></tr>
+      <tr><td>Double Diamond</td><td>Identifying Relationship</td></tr>
+      <tr><td>Single Line</td><td>Partial Participation</td></tr>
+      <tr><td>Double Line</td><td>Total Participation</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S16 -->
+<div id="s16" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">16</div><div class="sec-title-wrap"><div class="sec-title">Relational Algebra &#11088;</div><div class="sec-subtitle">Selection, Projection, Union, Set Difference, Cartesian, Rename, Joins, Division</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Operation</th><th>Symbol &amp; Example</th><th>Concept</th></tr></thead><tbody>
+      <tr><td><strong>Selection</strong></td><td>&sigma; (<code>&sigma; Salary &gt; 50000 (Employee)</code>)</td><td>Select rows (Horizontal)</td></tr>
+      <tr><td><strong>Projection</strong></td><td>&pi; (<code>&pi; Name, Salary (Employee)</code>)</td><td>Select columns (Vertical)</td></tr>
+      <tr><td><strong>Union</strong></td><td>&cup; (<code>R &cup; S</code>)</td><td>Combines tuples (Union compatible)</td></tr>
+      <tr><td><strong>Intersection</strong></td><td>&cap; (<code>R &cap; S</code>)</td><td>Returns common tuples</td></tr>
+      <tr><td><strong>Set Difference</strong></td><td>&minus; (<code>R &minus; S</code>)</td><td>Tuples in R but not S</td></tr>
+      <tr><td><strong>Cartesian Product</strong></td><td>&times; (<code>R &times; S</code>)</td><td>m tuples &times; n tuples = m &times; n tuples</td></tr>
+      <tr><td><strong>Rename</strong></td><td>&rho;</td><td>Renames relation / attributes</td></tr>
+      <tr><td><strong>Join</strong></td><td>&#10781;</td><td>Combines related tuples (Theta, Equi, Natural, Inner, Outer, Self)</td></tr>
+      <tr><td><strong>Division</strong></td><td>&divide;</td><td>Find X related to ALL Y (e.g. students enrolled in ALL courses)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S17 -->
+<div id="s17" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">17</div><div class="sec-title-wrap"><div class="sec-title">Functional Dependency (FD) &#11088;&#11088;&#11088;</div><div class="sec-subtitle">A &#8594; B, Trivial, Non-Trivial, Completely Non-Trivial</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">If <strong>A &#8594; B</strong>, then value of A uniquely determines B. (Example: <code>RollNo &#8594; Name</code>).</div>
+    <ul class="bullet-list">
+      <li><strong>Trivial FD</strong>: If B &sube; A, then A &#8594; B. (Example: <code>{ID, Name} &#8594; Name</code>).</li>
+      <li><strong>Non-Trivial FD</strong>: B is not a subset of A. (Example: <code>ID &#8594; Name</code>).</li>
+      <li><strong>Completely Non-Trivial</strong>: A and B have no common attributes.</li>
+    </ul>
+  </div>
+</div><!-- S18 -->
+<div id="s18" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">18</div><div class="sec-title-wrap"><div class="sec-title">Armstrong's Axioms</div><div class="sec-subtitle">Reflexivity, Augmentation, Transitivity &amp; Derived Rules</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody>
+      <tr><td><strong>Reflexivity</strong></td><td>If Y &sube; X, then X &#8594; Y</td></tr>
+      <tr><td><strong>Augmentation</strong></td><td>If X &#8594; Y, then XZ &#8594; YZ</td></tr>
+      <tr><td><strong>Transitivity</strong></td><td>If X &#8594; Y and Y &#8594; Z, then X &#8594; Z</td></tr>
+      <tr><td><strong>Union (Derived)</strong></td><td>If X &#8594; Y and X &#8594; Z, then X &#8594; YZ</td></tr>
+      <tr><td><strong>Decomposition (Derived)</strong></td><td>If X &#8594; YZ, then X &#8594; Y and X &#8594; Z</td></tr>
+      <tr><td><strong>Pseudotransitivity (Derived)</strong></td><td>If X &#8594; Y and WY &#8594; Z, then WX &#8594; Z</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S19 -->
+<div id="s19" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">19</div><div class="sec-title-wrap"><div class="sec-title">Attribute Closure (X+)</div><div class="sec-subtitle">Finding Candidate Keys &amp; Super Keys</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Closure X+</strong> = all attributes functionally determined by X. Useful for finding candidate keys, super keys, and FD implications.</div>
+    <div class="formula-block">If: R(A,B,C,D) with FDs: A &#8594; B, B &#8594; C, C &#8594; D
+Then: A+ = {A, B, C, D}
+Therefore, A is a Candidate Key.</div>
+  </div>
+</div><!-- S20 -->
+<div id="s20" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">20</div><div class="sec-title-wrap"><div class="sec-title">Normalization &amp; Three Anomalies &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Insertion, Update, Deletion Anomalies</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Normalization</strong> reduces redundancy, avoids anomalies, and improves consistency.</div>
+    <div class="grid-3">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Insertion Anomaly</div><p style="font-size:13px;color:#475569;">Cannot insert data without unrelated data.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">Update Anomaly</div><p style="font-size:13px;color:#475569;">Same information must be updated in multiple places.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Deletion Anomaly</div><p style="font-size:13px;color:#475569;">Deleting one record accidentally removes useful information.</p></div>
+    </div>
+  </div>
+</div><!-- S21 -->
+<div id="s21" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">21</div><div class="sec-title-wrap"><div class="sec-title">First Normal Form &#8212; 1NF</div><div class="sec-subtitle">Atomic values only, no multi-valued/repeating fields</div></div></div>
+  <div class="sec-body">
+    <div class="callout callout-blue"><div class="callout-title">&#128273; 1NF Rule</div><strong>1NF = No multi-valued / repeating fields (Atomic values only).</strong></div>
+    <div class="grid-2">
+      <div class="mini-card" style="border-color:#fca5a5;"><div class="mini-card-title" style="color:#dc2626;">&#10008; Not in 1NF</div><p style="font-size:13px;color:#475569;">Ravi | Phones: 111, 222 (Multiple values in single cell)</p></div>
+      <div class="mini-card" style="border-color:#86efac;"><div class="mini-card-title" style="color:#047857;">&#10003; In 1NF</div><p style="font-size:13px;color:#475569;">Ravi | Phone: 111<br/>Ravi | Phone: 222 (Atomic entries)</p></div>
+    </div>
+  </div>
+</div><!-- S22 -->
+<div id="s22" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">22</div><div class="sec-title-wrap"><div class="sec-title">Second Normal Form &#8212; 2NF</div><div class="sec-subtitle">Must be in 1NF + No Partial Dependency</div></div></div>
+  <div class="sec-body">
+    <div class="callout callout-teal"><div class="callout-title">&#128273; 2NF Rule</div><strong>2NF removes Partial Dependency.</strong> (No non-prime attribute should depend on a proper subset of a composite candidate key).</div>
+    <div class="formula-block">Violation Example with Candidate Key (StudentID, CourseID):
+(StudentID, CourseID) &#8594; Grade
+StudentID &#8594; StudentName  [Violates 2NF: StudentName depends only on part of CK]
+CourseID &#8594; CourseName    [Violates 2NF: CourseName depends only on part of CK]</div>
+  </div>
+</div><!-- S23 -->
+<div id="s23" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">23</div><div class="sec-title-wrap"><div class="sec-title">Third Normal Form &#8212; 3NF</div><div class="sec-subtitle">Must be in 2NF + Remove Transitive Dependency</div></div></div>
+  <div class="sec-body">
+    <div class="callout callout-purple"><div class="callout-title">&#128273; 3NF Rule</div><strong>3NF removes Transitive Dependency.</strong><br/>Formally, for every non-trivial FD X &#8594; A: <strong>X is a Superkey OR A is a Prime attribute</strong>.</div>
+    <div class="formula-block">Transitive Dependency Example:
+EmpID &#8594; DeptID, and DeptID &#8594; DeptName
+Therefore: EmpID &#8594; DeptName indirectly.
+Split into: Employee(EmpID, DeptID) and Department(DeptID, DeptName).</div>
+  </div>
+</div><!-- S24 -->
+<div id="s24" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">24</div><div class="sec-title-wrap"><div class="sec-title">BCNF (Boyce-Codd Normal Form)</div><div class="sec-subtitle">Stronger than 3NF &#8212; Determinant must be a Super Key</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">For every non-trivial FD <strong>X &#8594; Y, X must be a Super Key</strong>.</div>
+    <div class="callout callout-rose"><div class="callout-title">&#11088; 3NF vs BCNF Distinction</div>3NF allows a non-superkey determinant when RHS is prime; BCNF doesn't.<br/>Therefore: <strong>BCNF &sube; 3NF</strong> (Every BCNF relation satisfies 3NF, but not vice versa).</div>
+  </div>
+</div><!-- S25 -->
+<div id="s25" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">25</div><div class="sec-title-wrap"><div class="sec-title">Fourth Normal Form &#8212; 4NF</div><div class="sec-subtitle">Must be in BCNF + Eliminate Multivalued Dependencies (MVD)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>4NF = No non-trivial MVD (A &#8608; B) unless the determinant is a superkey.</strong></div>
+  </div>
+</div><!-- S26 -->
+<div id="s26" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">26</div><div class="sec-title-wrap"><div class="sec-title">Fifth Normal Form (5NF) &amp; Normalization Ladder &#11088;&#11088;</div><div class="sec-subtitle">Join Dependency (PJNF) &amp; Sequence Summary</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>5NF (Project-Join Normal Form):</strong> Deals with Join Dependency. Relation should not be decomposable further into smaller relations without losing information, except decompositions implied by candidate keys.</div>
+    <div class="mini-h">The Normal Form Ladder &#8212; Memorize This Sequence! &#128293;</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Level</th><th>Condition</th></tr></thead><tbody>
+      <tr><td><strong>1NF</strong></td><td>Atomic values (no multi-valued attributes)</td></tr>
+      <tr><td><strong>2NF</strong></td><td>No Partial Dependency</td></tr>
+      <tr><td><strong>3NF</strong></td><td>No Transitive Dependency (X is Super Key OR A is prime)</td></tr>
+      <tr><td><strong>BCNF</strong></td><td>Every determinant is a Super Key</td></tr>
+      <tr><td><strong>4NF</strong></td><td>No problematic Multivalued Dependency (MVD)</td></tr>
+      <tr><td><strong>5NF</strong></td><td>No problematic Join Dependency (JD)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S27 -->
+<div id="s27" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">27</div><div class="sec-title-wrap"><div class="sec-title">Lossless &amp; Lossy Decomposition</div><div class="sec-subtitle">Lossless Join &amp; Dependency Preservation</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Lossless Decomposition (Preferred)</div><p style="font-size:13px;color:#475569;">Original relation can be reconstructed exactly using JOIN. No spurious/missing tuples.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Lossy Decomposition (Bad)</div><p style="font-size:13px;color:#475569;">Joining decomposed tables creates missing or spurious false information.</p></div>
+    </div>
+    <div class="callout callout-green"><div class="callout-title">&#128273; Ideal Decomposition</div><strong>Lossless + Dependency Preserving</strong> (All original FDs can be checked without joining).</div>
+  </div>
+</div><!-- S28 -->
+<div id="s28" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">28</div><div class="sec-title-wrap"><div class="sec-title">Transactions &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Logical unit of database operations</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Transaction</strong> = Logical unit of database operations.<br/>Example: Bank transfer ₹100 (Debit A ₹100, Credit B ₹100). Both operations must happen together.</div>
+  </div>
+</div><!-- S29 -->
+<div id="s29" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">29</div><div class="sec-title-wrap"><div class="sec-title">ACID Properties &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Atomicity, Consistency, Isolation, Durability</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Property</th><th>Core Meaning</th></tr></thead><tbody>
+      <tr><td><strong>Atomicity</strong></td><td><strong>All or nothing</strong>. Fully completes or rolls back.</td></tr>
+      <tr><td><strong>Consistency</strong></td><td>Database moves from one valid state to another.</td></tr>
+      <tr><td><strong>Isolation</strong></td><td>Concurrent transactions execute as though isolated.</td></tr>
+      <tr><td><strong>Durability</strong></td><td>Once committed, changes survive all failures.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S30 -->
+<div id="s30" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">30</div><div class="sec-title-wrap"><div class="sec-title">Transaction States</div><div class="sec-subtitle">Active, Partially Committed, Committed, Failed, Aborted</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">Active</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">Partially Committed</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="border-color:#10b981;color:#047857;">Committed &#10003;</span>
+    </div><br/>
+    <div class="flow-steps" style="margin-top:6px;">
+      <span class="flow-step">Active / Partially Committed</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">Failed</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="border-color:#ef4444;color:#b91c1c;">Aborted (Rollback) &#10008;</span>
+    </div></div>
+    <p style="font-size:13px;color:#475569;margin-top:8px;">An aborted transaction may be restarted or terminated.</p>
+  </div>
+</div><!-- S31 -->
+<div id="s31" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">31</div><div class="sec-title-wrap"><div class="sec-title">Transaction Schedules</div><div class="sec-subtitle">Serial vs Concurrent / Non-Serial Schedules</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Serial Schedule</div><p style="font-size:13px;color:#475569;">Transactions execute one after another (T1 &#8594; T2 &#8594; T3). No interleaving. Always consistent, but poor resource utilization.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Concurrent / Non-Serial Schedule</div><p style="font-size:13px;color:#475569;">Operations of transactions interleave. Better throughput/CPU utilization, but introduces potential concurrency problems.</p></div>
+    </div>
+  </div>
+</div><!-- S32 -->
+<div id="s32" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">32</div><div class="sec-title-wrap"><div class="sec-title">Serializability &amp; Conflict Serializability &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Conflicting operations &amp; Precedence Graph test</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">A schedule is serializable if its effect is equivalent to some serial schedule.<br/>Operations conflict when: <strong>Different transactions + Same data item + At least one WRITE (R-W, W-R, W-W)</strong>. (R-R is not a conflict).</div>
+    <div class="callout callout-purple"><div class="callout-title">&#128273; Precedence Graph Test</div>
+      <strong>Acyclic Precedence Graph &#8594; Conflict Serializable &#10003;</strong><br/>
+      <strong>Cycle in Precedence Graph &#8594; Not Conflict Serializable &#10008;</strong>
+    </div>
+  </div>
+</div><!-- S33 -->
+<div id="s33" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">33</div><div class="sec-title-wrap"><div class="sec-title">Concurrency Problems</div><div class="sec-subtitle">Lost Update, Dirty Read, Non-Repeatable Read, Phantom Read</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Lost Update</div><p style="font-size:13px;color:#475569;">One transaction overwrites another transaction's uncommitted update.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">Dirty Read / Temporary Update</div><p style="font-size:13px;color:#475569;">Transaction reads data written by uncommitted transaction that later aborts.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Non-Repeatable Read</div><p style="font-size:13px;color:#475569;">Same row read twice gives different values (another transaction updated it).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Phantom Read</div><p style="font-size:13px;color:#475569;">Same query returns a different set of rows (another transaction inserted/deleted rows).</p></div>
+    </div>
+    <div class="callout callout-amber"><div class="callout-title">&#129504; Quick Difference</div><strong>Non-repeatable</strong> &#8594; existing row changes &nbsp;|&nbsp; <strong>Phantom</strong> &#8594; result-set rows appear/disappear</div>
+  </div>
+</div><!-- S34 -->
+<div id="s34" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">34</div><div class="sec-title-wrap"><div class="sec-title">Isolation Levels &#11088;&#11088;</div><div class="sec-subtitle">Read Uncommitted, Read Committed, Repeatable Read, Serializable</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Isolation Level</th><th>Dirty Read</th><th>Non-Repeatable Read</th><th>Phantom Read</th></tr></thead><tbody>
+      <tr><td><strong>Read Uncommitted</strong></td><td><span class="bad">Possible</span></td><td><span class="bad">Possible</span></td><td><span class="bad">Possible</span></td></tr>
+      <tr><td><strong>Read Committed</strong></td><td><span class="ok">Prevented</span></td><td><span class="bad">Possible</span></td><td><span class="bad">Possible</span></td></tr>
+      <tr><td><strong>Repeatable Read</strong></td><td><span class="ok">Prevented</span></td><td><span class="ok">Prevented</span></td><td><span class="bad">Possible</span></td></tr>
+      <tr><td><strong>Serializable &#11088;</strong></td><td><span class="ok">Prevented</span></td><td><span class="ok">Prevented</span></td><td><span class="ok">Prevented</span></td></tr>
+    </tbody></table></div>
+    <p style="font-size:13px;color:#475569;">Higher isolation &#8594; more consistency but less concurrency.</p>
+  </div>
+</div><!-- S35 -->
+<div id="s35" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">35</div><div class="sec-title-wrap"><div class="sec-title">Locks (Shared vs Exclusive)</div><div class="sec-subtitle">Read (S) vs Write (X) locks and compatibility</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Shared Lock (S)</strong>: Used for READ. Multiple transactions can hold S-locks simultaneously.</li>
+      <li><strong>Exclusive Lock (X)</strong>: Used for WRITE. Only one transaction gets exclusive access.</li>
+    </ul>
+    <div class="mini-h">Lock Compatibility Matrix</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Held \ Requested</th><th>Shared (S)</th><th>Exclusive (X)</th></tr></thead><tbody>
+      <tr><td><strong>Shared (S)</strong></td><td><span class="ok">&#10003; Compatible</span></td><td><span class="bad">&#10008; Conflict</span></td></tr>
+      <tr><td><strong>Exclusive (X)</strong></td><td><span class="bad">&#10008; Conflict</span></td><td><span class="bad">&#10008; Conflict</span></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S36 -->
+<div id="s36" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">36</div><div class="sec-title-wrap"><div class="sec-title">Two-Phase Locking &#8212; 2PL</div><div class="sec-subtitle">Growing Phase, Lock Point, Shrinking Phase, Strict 2PL</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">Acquire Locks (Growing)</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="border-color:#7c3aed;color:#6d28d9;">LOCK POINT</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">Release Locks (Shrinking)</span>
+    </div></div>
+    <ul class="bullet-list">
+      <li><strong>Growing Phase</strong>: Locks can be acquired, not released.</li>
+      <li><strong>Shrinking Phase</strong>: Locks can be released, not acquired.</li>
+      <li><strong>2PL ensures conflict serializability.</strong></li>
+      <li><strong>Strict 2PL</strong>: Exclusive/write locks are retained until commit/abort (prevents cascading rollback).</li>
+    </ul>
+  </div>
+</div><!-- S37 -->
+<div id="s37" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">37</div><div class="sec-title-wrap"><div class="sec-title">Deadlock &amp; Wait-for Graph</div><div class="sec-subtitle">Deadlock conditions, Wait-for Graph cycle detection</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Example: T1 holds A &#8594; waits B; T2 holds B &#8594; waits A. Neither can continue.</div>
+    <ul class="bullet-list">
+      <li><strong>Solutions</strong>: Prevention (Wait-Die, Wound-Wait), Avoidance, Detection &amp; recovery, Timeout.</li>
+      <li><strong>Wait-for Graph</strong>: A <strong>cycle indicates deadlock</strong> in single-instance resource lock systems.</li>
+    </ul>
+  </div>
+</div><!-- S38 -->
+<div id="s38" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">38</div><div class="sec-title-wrap"><div class="sec-title">Recoverability &amp; Schedule Safety</div><div class="sec-subtitle">Recoverable, Cascading Rollback, Cascadeless, Strict Schedule</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Recoverable Schedule</strong>: If T2 reads data written by T1, <code>Commit(T1)</code> must occur before <code>Commit(T2)</code>.</li>
+      <li><strong>Cascading Rollback</strong>: One failed transaction causes dependent transactions to roll back.</li>
+      <li><strong>Cascadeless Schedule</strong>: Transactions only read committed values.</li>
+      <li><strong>Strict Schedule</strong>: No transaction can read or write an item written by an uncommitted transaction.</li>
+    </ul>
+    <div class="callout callout-indigo"><div class="callout-title">&#128273; Safety Implication</div><strong>Strict &rArr; Cascadeless &rArr; Recoverable</strong></div>
+  </div>
+</div><!-- S39 -->
+<div id="s39" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">39</div><div class="sec-title-wrap"><div class="sec-title">Recovery, Log-Based Recovery &amp; WAL</div><div class="sec-subtitle">Write-Ahead Logging, Deferred Update, Immediate Update, Checkpoint</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Log-Based Recovery</strong>: Log records store transaction changes.</li>
+      <li><strong>Write-Ahead Logging (WAL)</strong>: Relevant log information is written to stable storage before corresponding database changes are written.</li>
+      <li><strong>Deferred Update</strong>: Changes applied after commit (typically associated with <strong>REDO</strong>).</li>
+      <li><strong>Immediate Update</strong>: Changes may reach database before commit (may require <strong>UNDO + REDO</strong>).</li>
+      <li><strong>Checkpoint</strong>: Creates a recovery reference point, reducing recovery work.</li>
+    </ul>
+  </div>
+</div><!-- S40 -->
+<div id="s40" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">40</div><div class="sec-title-wrap"><div class="sec-title">Indexing Types &#11088;&#11088;</div><div class="sec-subtitle">Primary, Secondary, Clustered, Dense, Sparse Index</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Index Type</th><th>Characteristic</th></tr></thead><tbody>
+      <tr><td><strong>Primary Index</strong></td><td>Based on ordering primary key.</td></tr>
+      <tr><td><strong>Secondary Index</strong></td><td>Based on non-ordering attribute.</td></tr>
+      <tr><td><strong>Clustered Index</strong></td><td>Data rows are physically/logically organized according to the clustering order.</td></tr>
+      <tr><td><strong>Dense Index</strong></td><td>Index entry for every search-key value/record.</td></tr>
+      <tr><td><strong>Sparse Index</strong></td><td>Entries only for selected search-key values/blocks.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S41 -->
+<div id="s41" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">41</div><div class="sec-title-wrap"><div class="sec-title">B-Tree vs B+ Tree &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Internal vs Leaf node pointers and range queries</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Feature</th><th>B-Tree</th><th>B+ Tree &#11088;</th></tr></thead><tbody>
+      <tr><td><strong>Keys/Data pointers</strong></td><td>May appear in internal and leaf nodes</td><td>Record/data pointers are stored at leaf level; internal nodes guide search</td></tr>
+      <tr><td><strong>Leaf Nodes</strong></td><td>Not linked</td><td>Leaf nodes are linked (sequential access)</td></tr>
+      <tr><td><strong>Range Queries</strong></td><td>Slower</td><td><strong>Excellent for range queries</strong></td></tr>
+      <tr><td><strong>DB Usage</strong></td><td>Less common</td><td><strong>Databases commonly use B+ Tree–style indexes</strong></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S42 -->
+<div id="s42" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">42</div><div class="sec-title-wrap"><div class="sec-title">Hashing in DBMS</div><div class="sec-subtitle">Static vs Dynamic Hashing, Equality vs Range Queries</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block">Key &#8594; Hash Function &#8594; Bucket</div>
+    <ul class="bullet-list">
+      <li><strong>Excellent for</strong>: <code>=</code> equality search.</li>
+      <li><strong>Generally poor for</strong>: <code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>, range queries.</li>
+      <li><strong>Static Hashing</strong>: Fixed bucket structure.</li>
+      <li><strong>Dynamic Hashing</strong>: Can grow/shrink (Extendible hashing, Linear hashing).</li>
+    </ul>
+  </div>
+</div><!-- S43 -->
+<div id="s43" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">43</div><div class="sec-title-wrap"><div class="sec-title">Codd's 12 Rules (Rule 0 &#8211; Rule 12) &#11088;</div><div class="sec-subtitle">All 13 foundational rules of Relational DBMS</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Rule</th><th>Idea</th></tr></thead><tbody>
+      <tr><td><strong>0</strong></td><td>System must manage data through relational capabilities (foundation rule)</td></tr>
+      <tr><td><strong>1</strong></td><td>Information Rule &#8212; all data represented as values in tables</td></tr>
+      <tr><td><strong>2</strong></td><td>Guaranteed Access &#8212; every value accessible via table + primary key + column</td></tr>
+      <tr><td><strong>3</strong></td><td>Systematic treatment of NULL values</td></tr>
+      <tr><td><strong>4</strong></td><td>Dynamic online catalog based on relational model</td></tr>
+      <tr><td><strong>5</strong></td><td>Comprehensive data sublanguage (e.g., SQL)</td></tr>
+      <tr><td><strong>6</strong></td><td>View updating rule</td></tr>
+      <tr><td><strong>7</strong></td><td>High-level insert, update, delete</td></tr>
+      <tr><td><strong>8</strong></td><td>Physical data independence</td></tr>
+      <tr><td><strong>9</strong></td><td>Logical data independence</td></tr>
+      <tr><td><strong>10</strong></td><td>Integrity independence (constraints stored in catalog, not application)</td></tr>
+      <tr><td><strong>11</strong></td><td>Distribution independence</td></tr>
+      <tr><td><strong>12</strong></td><td>Non-subversion rule (no bypassing integrity via low-level access)</td></tr>
+    </tbody></table></div>
+    <p style="font-size:12.5px;color:#64748b;">Often called "Codd's 12 Rules" though numbered 0&#8211;12 (13 rules total).</p>
+  </div>
+</div><!-- S44 -->
+<div id="s44" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">44</div><div class="sec-title-wrap"><div class="sec-title">OLTP vs OLAP &#11088;</div><div class="sec-subtitle">Operational vs Analytical processing comparison</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>OLTP (Online Transaction Processing)</th><th>OLAP (Online Analytical Processing)</th></tr></thead><tbody>
+      <tr><td>Day-to-day operations</td><td>Historical / analytical processing</td></tr>
+      <tr><td>Short, frequent transactions</td><td>Complex, long-running queries</td></tr>
+      <tr><td>Normalized schema</td><td>Denormalized / star-schema</td></tr>
+      <tr><td>Current data</td><td>Historical / aggregated data</td></tr>
+      <tr><td>Example: Banking transactions</td><td>Example: Sales trend analysis, data warehouse</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S45 -->
+<div id="s45" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">45</div><div class="sec-title-wrap"><div class="sec-title">Data Warehouse &amp; Related Concepts</div><div class="sec-subtitle">Star Schema, Snowflake Schema, ETL</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Data Warehouse</strong>: Subject-oriented, integrated, time-variant, non-volatile collection of data for decision-making.</li>
+      <li><strong>Star Schema</strong>: Central fact table connected to denormalized dimension tables.</li>
+      <li><strong>Snowflake Schema</strong>: Dimension tables further normalized into sub-dimensions.</li>
+      <li><strong>ETL</strong>: Extract, Transform, Load &#8212; process of moving data into a warehouse.</li>
+    </ul>
+  </div>
+</div><!-- S46 -->
+<div id="s46" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">46</div><div class="sec-title-wrap"><div class="sec-title">RAID Levels</div><div class="sec-subtitle">RAID 0, 1, 5, 10 overview</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">RAID 0 &amp; RAID 1</div><p style="font-size:13px;color:#475569;"><strong>RAID 0:</strong> Striping &#8212; performance, no fault tolerance.<br/><strong>RAID 1:</strong> Mirroring &#8212; fault tolerance via duplication.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">RAID 5 &amp; RAID 10</div><p style="font-size:13px;color:#475569;"><strong>RAID 5:</strong> Striping with distributed parity &#8212; balances performance &amp; fault tolerance.<br/><strong>RAID 10 (1+0):</strong> Combines mirroring and striping.</p></div>
+    </div>
+  </div>
+</div><!-- S47 -->
+<div id="s47" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">47</div><div class="sec-title-wrap"><div class="sec-title">Distributed Databases &amp; NoSQL</div><div class="sec-subtitle">Fragmentation, Replication, CAP Theorem, BASE</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Distributed Database</strong>: Data stored across multiple physical locations, appears as a single database to users.</li>
+      <li><strong>Fragmentation</strong>: Splitting a relation (horizontal/vertical/mixed) across sites.</li>
+      <li><strong>Replication</strong>: Copies of data maintained at multiple sites for availability.</li>
+      <li><strong>CAP Theorem</strong>: A distributed system can guarantee at most <strong>2 of Consistency, Availability, Partition tolerance</strong> at the same time.</li>
+      <li><strong>NoSQL types</strong>: Key-Value, Document, Column-family, Graph &#8212; used when strict relational schema/ACID isn't the priority.</li>
+      <li><strong>BASE (contrast with ACID)</strong>: Basically Available, Soft state, Eventually consistent.</li>
+    </ul>
+  </div>
+</div>
+
+  <div class="part-banner" style="background:linear-gradient(135deg,#2e1065,#1e1b4b);margin-top:20px;">
+    <h2>PART B &#8212; Structured Query Language (SQL)</h2>
+    <span>Topics 48 to 85</span>
+  </div>
+
+  <!-- S48 -->
+<div id="s48" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">48</div><div class="sec-title-wrap"><div class="sec-title">SQL Categories &#11088;&#11088;&#11088;</div><div class="sec-subtitle">DDL, DML, DQL, DCL, TCL breakdown</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Category</th><th>Full Name</th><th>Commands</th></tr></thead><tbody>
+      <tr><td><strong>DDL</strong></td><td>Data Definition Language</td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code></td></tr>
+      <tr><td><strong>DML</strong></td><td>Data Manipulation Language</td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td></tr>
+      <tr><td><strong>DQL</strong></td><td>Data Query Language</td><td><code>SELECT</code></td></tr>
+      <tr><td><strong>DCL</strong></td><td>Data Control Language</td><td><code>GRANT</code>, <code>REVOKE</code></td></tr>
+      <tr><td><strong>TCL</strong></td><td>Transaction Control Language</td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S49 -->
+<div id="s49" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">49</div><div class="sec-title-wrap"><div class="sec-title">CREATE Statement</div><div class="sec-subtitle">Creating tables with data types and primary key</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">CREATE TABLE</span> Employee (
+    id <span class="g">INT PRIMARY KEY</span>,
+    name <span class="g">VARCHAR(50)</span>,
+    salary <span class="g">DECIMAL(10,2)</span>,
+    dept_id <span class="g">INT</span>
+);</div>
+  </div>
+</div><!-- S50 -->
+<div id="s50" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">50</div><div class="sec-title-wrap"><div class="sec-title">Common SQL Data Types &amp; CHAR vs VARCHAR</div><div class="sec-subtitle">Numeric, Character, Date/Time, Large objects</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Category</th><th>Examples</th></tr></thead><tbody>
+      <tr><td>Numeric</td><td><code>INT</code>, <code>SMALLINT</code>, <code>DECIMAL(p,s)</code>, <code>FLOAT</code></td></tr>
+      <tr><td>Character</td><td><code>CHAR(n)</code> &#8212; fixed length, <code>VARCHAR(n)</code> &#8212; variable length</td></tr>
+      <tr><td>Date/Time</td><td><code>DATE</code>, <code>TIME</code>, <code>DATETIME</code> / <code>TIMESTAMP</code></td></tr>
+      <tr><td>Boolean</td><td><code>BOOLEAN</code> (support varies by DBMS)</td></tr>
+      <tr><td>Large objects</td><td><code>TEXT</code>, <code>BLOB</code></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#129504; CHAR vs VARCHAR</div><strong>CHAR</strong> pads to fixed length (faster for fixed-size data); <strong>VARCHAR</strong> stores only actual length used (saves space for variable-size data).</div>
+  </div>
+</div><!-- S51 -->
+<div id="s51" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">51</div><div class="sec-title-wrap"><div class="sec-title">ALTER TABLE</div><div class="sec-subtitle">Add, Modify, Drop column &amp; Rename table</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="c">-- Add a column:</span>
+<span class="k">ALTER TABLE</span> Employee <span class="k">ADD</span> email <span class="g">VARCHAR(100)</span>;
+
+<span class="c">-- Modify a column:</span>
+<span class="k">ALTER TABLE</span> Employee <span class="k">MODIFY</span> salary <span class="g">DECIMAL(12,2)</span>;
+
+<span class="c">-- Drop a column:</span>
+<span class="k">ALTER TABLE</span> Employee <span class="k">DROP COLUMN</span> email;
+
+<span class="c">-- Rename a table:</span>
+<span class="k">ALTER TABLE</span> Employee <span class="k">RENAME TO</span> Staff;</div>
+  </div>
+</div><!-- S52 -->
+<div id="s52" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">52</div><div class="sec-title-wrap"><div class="sec-title">INSERT Statement</div><div class="sec-subtitle">Inserting rows into a table</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">INSERT INTO</span> Employee
+<span class="k">VALUES</span> (1, <span class="y">'Aman'</span>, 50000, 10);
+
+<span class="c">-- Or specific columns:</span>
+<span class="k">INSERT INTO</span> Employee(id, name)
+<span class="k">VALUES</span> (2, <span class="y">'Ravi'</span>);</div>
+  </div>
+</div><!-- S53 -->
+<div id="s53" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">53</div><div class="sec-title-wrap"><div class="sec-title">SELECT Statement</div><div class="sec-subtitle">Querying table columns and all rows</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee;
+
+<span class="c">-- Specific columns:</span>
+<span class="k">SELECT</span> name, salary <span class="k">FROM</span> Employee;</div>
+  </div>
+</div><!-- S54 -->
+<div id="s54" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">54</div><div class="sec-title-wrap"><div class="sec-title">WHERE Clause</div><div class="sec-subtitle">Row filtering and comparison operators</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee <span class="k">WHERE</span> salary &gt; 50000;</div>
+    <p style="font-size:13px;color:#475569;"><strong>Operators:</strong> <code>=</code>, <code>&lt;&gt;</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></p>
+  </div>
+</div><!-- S55 -->
+<div id="s55" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">55</div><div class="sec-title-wrap"><div class="sec-title">Logical Operators</div><div class="sec-subtitle">AND, OR, NOT</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee
+<span class="k">WHERE</span> salary &gt; 50000 <span class="k">AND</span> dept_id = 10;</div>
+  </div>
+</div><!-- S56 -->
+<div id="s56" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">56</div><div class="sec-title-wrap"><div class="sec-title">DISTINCT Keyword</div><div class="sec-subtitle">Removing duplicate rows from result set</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT DISTINCT</span> dept_id <span class="k">FROM</span> Employee;</div>
+  </div>
+</div><!-- S57 -->
+<div id="s57" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">57</div><div class="sec-title-wrap"><div class="sec-title">ORDER BY Clause</div><div class="sec-subtitle">Sorting results (ASC default vs DESC)</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee
+<span class="k">ORDER BY</span> salary <span class="k">DESC</span>;</div>
+    <p style="font-size:13px;color:#475569;"><code>ASC</code> = ascending (default), <code>DESC</code> = descending.</p>
+  </div>
+</div><!-- S58 -->
+<div id="s58" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">58</div><div class="sec-title-wrap"><div class="sec-title">SQL Constraints &amp; Referential Actions &#11088;&#11088;</div><div class="sec-subtitle">PRIMARY KEY, UNIQUE, CHECK, CASCADE, SET NULL, RESTRICT</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Constraints:</strong> <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>, <code>UNIQUE</code>, <code>NOT NULL</code>, <code>CHECK</code> (e.g. <code>age INT CHECK(age &gt;= 18)</code>), <code>DEFAULT</code>.</li>
+    </ul>
+    <div class="mini-h">Referential Actions on Foreign Keys</div>
+    <div class="formula-block"><span class="k">FOREIGN KEY</span> (dept_id) <span class="k">REFERENCES</span> Department(dept_id)
+<span class="k">ON DELETE CASCADE</span>
+<span class="k">ON UPDATE CASCADE</span></div>
+    <ul class="bullet-list">
+      <li><strong>CASCADE:</strong> Automatically delete/update matching child rows.</li>
+      <li><strong>SET NULL:</strong> Set foreign key to NULL when parent row is deleted/updated.</li>
+      <li><strong>RESTRICT / NO ACTION:</strong> Prevent the delete/update if matching child rows exist.</li>
+    </ul>
+  </div>
+</div><!-- S59 -->
+<div id="s59" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">59</div><div class="sec-title-wrap"><div class="sec-title">NULL in SQL &#11088;</div><div class="sec-subtitle">Missing / Unknown value &amp; IS NULL vs = NULL</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>NULL</strong> means: Missing / Unknown / Not applicable value. It is NOT 0, NOT empty string, and NOT False.</div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Testing for NULL</div>
+      Correct: <code>WHERE salary IS NULL</code> &nbsp;|&nbsp; <code>WHERE salary IS NOT NULL</code><br/>
+      Wrong: <code>WHERE salary = NULL</code> (never evaluates to true!)
+    </div>
+  </div>
+</div><!-- S60 -->
+<div id="s60" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">60</div><div class="sec-title-wrap"><div class="sec-title">Aggregate Functions &#11088;&#11088;&#11088;</div><div class="sec-subtitle">COUNT, SUM, AVG, MIN, MAX &amp; COUNT(*) vs COUNT(col)</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT AVG</span>(salary), <span class="k">COUNT</span>(*), <span class="k">MAX</span>(salary), <span class="k">MIN</span>(salary), <span class="k">SUM</span>(salary)
+<span class="k">FROM</span> Employee;</div>
+    <div class="callout callout-green"><div class="callout-title">&#11088; Important Distinction</div>
+      <strong>COUNT(*)</strong> counts all rows (including NULLs).<br/>
+      <strong>COUNT(column)</strong> ignores NULL values in that column.
+    </div>
+  </div>
+</div><!-- S61 -->
+<div id="s61" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">61</div><div class="sec-title-wrap"><div class="sec-title">GROUP BY Clause</div><div class="sec-subtitle">Grouping rows before aggregate calculations</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> dept_id, <span class="k">AVG</span>(salary)
+<span class="k">FROM</span> Employee
+<span class="k">GROUP BY</span> dept_id;</div>
+  </div>
+</div><!-- S62 -->
+<div id="s62" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">62</div><div class="sec-title-wrap"><div class="sec-title">HAVING Clause &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Filtering groups vs WHERE filtering rows</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> dept_id, <span class="k">AVG</span>(salary)
+<span class="k">FROM</span> Employee
+<span class="k">GROUP BY</span> dept_id
+<span class="k">HAVING AVG</span>(salary) &gt; 50000;</div>
+    <div class="callout callout-purple"><div class="callout-title">&#129504; Difference</div><strong>WHERE</strong> &#8594; filters rows before grouping &nbsp;|&nbsp; <strong>HAVING</strong> &#8594; filters groups after grouping</div>
+  </div>
+</div><!-- S63 -->
+<div id="s63" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">63</div><div class="sec-title-wrap"><div class="sec-title">SQL Logical Query Processing Order &#11088;&#11088;&#11088;</div><div class="sec-subtitle">F-W-G-H-S-D-O-L Mnemonic</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-title">Execution Flow</div>
+      <div class="flow-steps">
+        <span class="flow-step">1. FROM</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">2. WHERE</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">3. GROUP BY</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">4. HAVING</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">5. SELECT</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">6. DISTINCT</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">7. ORDER BY</span><span class="flow-arrow">&#8594;</span>
+        <span class="flow-step">8. LIMIT / FETCH</span>
+      </div>
+    </div>
+    <div class="callout callout-rose"><div class="callout-title">&#129504; Mnemonic</div><strong>F W G H S D O L</strong></div>
+  </div>
+</div><!-- S64 -->
+<div id="s64" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">64</div><div class="sec-title-wrap"><div class="sec-title">LIKE Operator &amp; Wildcards</div><div class="sec-subtitle">Pattern matching with % and _</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><code>WHERE name LIKE 'A%'</code> &#8594; Starts with A</li>
+      <li><code>WHERE name LIKE '%a'</code> &#8594; Ends with a</li>
+      <li><code>WHERE name LIKE '%man%'</code> &#8594; Contains man</li>
+    </ul>
+    <div class="callout callout-indigo"><div class="callout-title">&#128273; Wildcards</div><strong>%</strong> &#8594; zero or more characters &nbsp;|&nbsp; <strong>_</strong> &#8594; exactly one character</div>
+  </div>
+</div><!-- S65 -->
+<div id="s65" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">65</div><div class="sec-title-wrap"><div class="sec-title">BETWEEN Operator</div><div class="sec-subtitle">Range checking (inclusive)</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee <span class="k">WHERE</span> salary <span class="k">BETWEEN</span> 30000 <span class="k">AND</span> 50000;</div>
+    <p style="font-size:13px;color:#475569;">Generally inclusive: <code>30000 &le; salary &le; 50000</code>.</p>
+  </div>
+</div><!-- S66 -->
+<div id="s66" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">66</div><div class="sec-title-wrap"><div class="sec-title">IN Operator</div><div class="sec-subtitle">Matching against multiple values</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> * <span class="k">FROM</span> Employee <span class="k">WHERE</span> dept_id <span class="k">IN</span> (10, 20, 30);</div>
+    <p style="font-size:13px;color:#475569;">Equivalent conceptually to multiple <code>OR</code> conditions.</p>
+  </div>
+</div><!-- S67 -->
+<div id="s67" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">67</div><div class="sec-title-wrap"><div class="sec-title">CASE WHEN (Conditional Expression)</div><div class="sec-subtitle">If-then-else logic in SQL queries</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> name,
+       <span class="k">CASE</span>
+           <span class="k">WHEN</span> salary &gt;= 70000 <span class="k">THEN</span> <span class="y">'High'</span>
+           <span class="k">WHEN</span> salary &gt;= 40000 <span class="k">THEN</span> <span class="y">'Medium'</span>
+           <span class="k">ELSE</span> <span class="y">'Low'</span>
+       <span class="k">END AS</span> SalaryBand
+<span class="k">FROM</span> Employee;</div>
+  </div>
+</div><!-- S68 -->
+<div id="s68" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">68</div><div class="sec-title-wrap"><div class="sec-title">Common String &amp; Date Functions</div><div class="sec-subtitle">UPPER, SUBSTRING, LENGTH, TRIM, CONCAT, NOW</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Purpose</th><th>Example Function(s)</th></tr></thead><tbody>
+      <tr><td>Uppercase / Lowercase</td><td><code>UPPER()</code>, <code>LOWER()</code></td></tr>
+      <tr><td>Substring</td><td><code>SUBSTRING(str, start, length)</code></td></tr>
+      <tr><td>Length</td><td><code>LENGTH()</code> / <code>LEN()</code></td></tr>
+      <tr><td>Trim spaces</td><td><code>TRIM()</code></td></tr>
+      <tr><td>Concatenation</td><td><code>CONCAT()</code> or <code>||</code></td></tr>
+      <tr><td>Current date/time</td><td><code>CURRENT_DATE</code>, <code>NOW()</code></td></tr>
+      <tr><td>Extract part of date</td><td><code>YEAR()</code>, <code>MONTH()</code>, <code>DAY()</code></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S69 -->
+<div id="s69" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">69</div><div class="sec-title-wrap"><div class="sec-title">Aliases (AS)</div><div class="sec-subtitle">Column and Table Aliases</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="c">-- Column alias:</span>
+<span class="k">SELECT</span> name <span class="k">AS</span> EmployeeName <span class="k">FROM</span> Employee;
+
+<span class="c">-- Table alias:</span>
+<span class="k">SELECT</span> e.name <span class="k">FROM</span> Employee e;</div>
+  </div>
+</div><!-- S70 -->
+<div id="s70" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">70</div><div class="sec-title-wrap"><div class="sec-title">Joins in SQL &#11088;&#11088;&#11088;</div><div class="sec-subtitle">INNER, LEFT, RIGHT, FULL OUTER, CROSS, SELF JOIN</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Join Type</th><th>Description &amp; Behavior</th></tr></thead><tbody>
+      <tr><td><strong>INNER JOIN</strong></td><td>Only matching records (Intersection).</td></tr>
+      <tr><td><strong>LEFT JOIN</strong></td><td>All rows from left table + matching right rows. Unmatched right &#8594; NULL.</td></tr>
+      <tr><td><strong>RIGHT JOIN</strong></td><td>All rows from right table + matching left rows. Unmatched left &#8594; NULL.</td></tr>
+      <tr><td><strong>FULL OUTER JOIN</strong></td><td>All rows from both tables, matched where possible.</td></tr>
+      <tr><td><strong>CROSS JOIN</strong></td><td>Cartesian product (A = 5 rows, B = 4 rows &#8594; 20 rows).</td></tr>
+      <tr><td><strong>SELF JOIN</strong></td><td>Table joined with itself (e.g. Employee &#8594; Manager).</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S71 -->
+<div id="s71" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">71</div><div class="sec-title-wrap"><div class="sec-title">Natural Join</div><div class="sec-subtitle">Implicit join on common column names</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Automatically joins based on same-named compatible columns. Potentially risky because schema changes can alter join behavior.</div>
+  </div>
+</div><!-- S72 -->
+<div id="s72" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">72</div><div class="sec-title-wrap"><div class="sec-title">Equi Join vs Theta Join</div><div class="sec-subtitle">= operator vs comparison operators</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Equi Join</div><p style="font-size:13px;color:#475569;">Condition uses equality operator: <code>=</code></p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Theta Join</div><p style="font-size:13px;color:#475569;">Can use any comparison operator: <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>=</code>, <code>!=</code></p></div>
+    </div>
+  </div>
+</div><!-- S73 -->
+<div id="s73" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">73</div><div class="sec-title-wrap"><div class="sec-title">Subqueries &#11088;&#11088;</div><div class="sec-subtitle">Single-row, Multi-row, Nested subqueries</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Query inside another query.</div>
+    <div class="formula-block"><span class="k">SELECT</span> name <span class="k">FROM</span> Employee
+<span class="k">WHERE</span> salary &gt; (
+    <span class="k">SELECT AVG</span>(salary) <span class="k">FROM</span> Employee
+);</div>
+    <ul class="bullet-list">
+      <li><strong>Types:</strong> Single-row, Multi-row, Nested, Correlated.</li>
+    </ul>
+  </div>
+</div><!-- S74 -->
+<div id="s74" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">74</div><div class="sec-title-wrap"><div class="sec-title">Correlated Subquery</div><div class="sec-subtitle">Subquery depending on outer query row evaluation</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Depends on outer query; conceptually evaluated once for each outer row.</div>
+    <div class="formula-block"><span class="c">-- Find employees earning above their department average:</span>
+<span class="k">SELECT</span> e1.name <span class="k">FROM</span> Employee e1
+<span class="k">WHERE</span> salary &gt; (
+    <span class="k">SELECT AVG</span>(e2.salary) <span class="k">FROM</span> Employee e2
+    <span class="k">WHERE</span> e2.dept_id = e1.dept_id
+);</div>
+  </div>
+</div><!-- S75 -->
+<div id="s75" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">75</div><div class="sec-title-wrap"><div class="sec-title">EXISTS and NOT EXISTS</div><div class="sec-subtitle">Checking for presence/absence of subquery rows</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">WHERE EXISTS</span> (
+    <span class="k">SELECT</span> 1 <span class="k">FROM</span> ...
+)</div>
+    <p style="font-size:13px;color:#475569;">Checks whether subquery returns at least one row. <code>NOT EXISTS</code> checks absence.</p>
+  </div>
+</div><!-- S76 -->
+<div id="s76" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">76</div><div class="sec-title-wrap"><div class="sec-title">ANY and ALL Operators</div><div class="sec-subtitle">Multi-row comparison operators</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>ANY</strong>: Condition must be true for <em>at least one</em> returned value. (<code>salary &gt; ANY (...)</code>).</li>
+      <li><strong>ALL</strong>: Condition must be true for <em>every</em> returned value. (<code>salary &gt; ALL (...)</code>).</li>
+    </ul>
+  </div>
+</div><!-- S77 -->
+<div id="s77" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">77</div><div class="sec-title-wrap"><div class="sec-title">Set Operations (UNION, INTERSECT, EXCEPT/MINUS)</div><div class="sec-subtitle">UNION vs UNION ALL and compatibility rules</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>UNION</strong>: Combines results and <strong>removes duplicates</strong>.</li>
+      <li><strong>UNION ALL</strong>: Keeps duplicates (faster, no sorting needed).</li>
+      <li><strong>INTERSECT</strong>: Returns common rows.</li>
+      <li><strong>EXCEPT / MINUS</strong>: Returns rows in first query but not second (Oracle uses <code>MINUS</code>, standard SQL uses <code>EXCEPT</code>).</li>
+    </ul>
+    <div class="callout callout-green"><div class="callout-title">&#128273; Set Operation Rule</div>Number and compatible data types of columns must match between both queries.</div>
+  </div>
+</div><!-- S78 -->
+<div id="s78" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">78</div><div class="sec-title-wrap"><div class="sec-title">Window Functions &#11088;&#11088;</div><div class="sec-subtitle">ROW_NUMBER, RANK, DENSE_RANK, PARTITION BY</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">SELECT</span> name, dept_id, salary,
+       <span class="k">RANK() OVER</span> (<span class="k">PARTITION BY</span> dept_id <span class="k">ORDER BY</span> salary <span class="k">DESC</span>) <span class="k">AS</span> rnk
+<span class="k">FROM</span> Employee;</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Function</th><th>Behavior on Ties</th></tr></thead><tbody>
+      <tr><td><strong>ROW_NUMBER()</strong></td><td>Unique sequential number per row (1, 2, 3, 4)</td></tr>
+      <tr><td><strong>RANK()</strong></td><td>Same rank for ties, <strong>skips</strong> next rank (1, 2, 2, 4)</td></tr>
+      <tr><td><strong>DENSE_RANK()</strong></td><td>Same rank for ties, <strong>no gaps</strong> in next rank (1, 2, 2, 3)</td></tr>
+    </tbody></table></div>
+    <p style="font-size:13px;color:#475569;"><strong>PARTITION BY:</strong> Divides result set into groups without collapsing rows.</p>
+  </div>
+</div><!-- S79 -->
+<div id="s79" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">79</div><div class="sec-title-wrap"><div class="sec-title">Views &amp; Updatable Views</div><div class="sec-subtitle">Virtual tables based on SELECT queries</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">CREATE VIEW</span> HighEarners <span class="k">AS</span>
+<span class="k">SELECT</span> name, salary, dept_id <span class="k">FROM</span> Employee <span class="k">WHERE</span> salary &gt; 70000;</div>
+    <ul class="bullet-list">
+      <li><strong>Advantages:</strong> Simplifies complex queries, security layer, logical data independence.</li>
+      <li><strong>Updatable views:</strong> Simple views (single table, no aggregates/GROUP BY/DISTINCT) are updatable.</li>
+    </ul>
+  </div>
+</div><!-- S80 -->
+<div id="s80" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">80</div><div class="sec-title-wrap"><div class="sec-title">Index Creation (SQL Syntax)</div><div class="sec-subtitle">CREATE INDEX and DROP INDEX</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">CREATE INDEX</span> idx_salary <span class="k">ON</span> Employee(salary);
+
+<span class="c">-- To remove:</span>
+<span class="k">DROP INDEX</span> idx_salary;</div>
+  </div>
+</div><!-- S81 -->
+<div id="s81" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">81</div><div class="sec-title-wrap"><div class="sec-title">Stored Procedures, Functions, Triggers, Cursors</div><div class="sec-subtitle">Database programming objects</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Stored Procedure:</strong> Precompiled set of SQL statements stored in DB, callable by name.</li>
+      <li><strong>Function:</strong> Must return a value; usable inside SQL expressions.</li>
+      <li><strong>Trigger:</strong> Automatically executed in response to an event (INSERT/UPDATE/DELETE).</li>
+      <li><strong>Cursor:</strong> Database object used to retrieve/process query result rows <strong>one at a time</strong>.</li>
+    </ul>
+  </div>
+</div><!-- S82 -->
+<div id="s82" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">82</div><div class="sec-title-wrap"><div class="sec-title">TCL Commands (Transaction Control)</div><div class="sec-subtitle">COMMIT, ROLLBACK, SAVEPOINT, START TRANSACTION</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">COMMIT</span>;                  <span class="c">-- Saves changes permanently</span>
+<span class="k">ROLLBACK</span>;                <span class="c">-- Undoes uncommitted changes</span>
+<span class="k">SAVEPOINT</span> sp1;           <span class="c">-- Sets checkpoint</span>
+<span class="k">ROLLBACK TO</span> sp1;         <span class="c">-- Rolls back to checkpoint</span></div>
+  </div>
+</div><!-- S83 -->
+<div id="s83" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">83</div><div class="sec-title-wrap"><div class="sec-title">DCL Commands (Data Control)</div><div class="sec-subtitle">GRANT and REVOKE user privileges</div></div></div>
+  <div class="sec-body">
+    <div class="formula-block"><span class="k">GRANT SELECT, INSERT ON</span> Employee <span class="k">TO</span> user1;
+<span class="k">REVOKE INSERT ON</span> Employee <span class="k">FROM</span> user1;</div>
+  </div>
+</div><!-- S84 -->
+<div id="s84" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">84</div><div class="sec-title-wrap"><div class="sec-title">DELETE vs TRUNCATE vs DROP &#11088;&#11088;&#11088;</div><div class="sec-subtitle">The Ultimate Comparison Table</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Feature</th><th>DELETE</th><th>TRUNCATE</th><th>DROP</th></tr></thead><tbody>
+      <tr><td><strong>Type</strong></td><td><strong>DML</strong></td><td><strong>DDL</strong></td><td><strong>DDL</strong></td></tr>
+      <tr><td><strong>Purpose</strong></td><td>Removes specific rows (or all rows) based on condition</td><td>Removes all rows, resets table quickly</td><td>Removes entire table structure + data</td></tr>
+      <tr><td><strong>WHERE clause</strong></td><td><span class="ok">Allowed</span></td><td><span class="bad">Not allowed</span></td><td><span class="bad">Not applicable</span></td></tr>
+      <tr><td><strong>Rollback</strong></td><td><span class="ok">Can be rolled back</span></td><td><span class="bad">Cannot be rolled back (in most DBMSs)</span></td><td><span class="bad">Not applicable</span></td></tr>
+      <tr><td><strong>Speed</strong></td><td>Slower (row-by-row logging)</td><td>Faster (deallocates data pages)</td><td>Removes table + structure entirely</td></tr>
+      <tr><td><strong>Triggers</strong></td><td>Row-level triggers fire</td><td>Triggers usually do NOT fire</td><td>Not applicable</td></tr>
+      <tr><td><strong>Identity</strong></td><td>Not reset</td><td><strong>Resets to starting value</strong></td><td>Not applicable</td></tr>
+      <tr><td><strong>Structure</strong></td><td><strong>Table structure remains</strong></td><td><strong>Table structure remains</strong></td><td><span class="bad">Table structure is removed</span></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-rose"><div class="callout-title">&#129504; Quick Memory Trick</div>
+      <strong>DELETE</strong> &#8594; removes rows, DML, conditional, slower.<br/>
+      <strong>TRUNCATE</strong> &#8594; removes all rows fast, DDL, resets identity.<br/>
+      <strong>DROP</strong> &#8594; removes the whole table (structure + data).
+    </div>
+  </div>
+</div><!-- S85 -->
+<div id="s85" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num sql">85</div><div class="sec-title-wrap"><div class="sec-title">Quick Summary &#8212; DDL vs DML vs DCL vs TCL vs DQL</div><div class="sec-subtitle">Commands and Auto-Commit behavior</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Category</th><th>Commands</th><th>Auto-commit?</th></tr></thead><tbody>
+      <tr><td><strong>DDL</strong></td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code></td><td><span class="ok">Yes (implicit commit in most DBMSs)</span></td></tr>
+      <tr><td><strong>DML</strong></td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td><td><span class="bad">No (needs explicit COMMIT)</span></td></tr>
+      <tr><td><strong>DQL</strong></td><td><code>SELECT</code></td><td>N/A</td></tr>
+      <tr><td><strong>DCL</strong></td><td><code>GRANT</code>, <code>REVOKE</code></td><td><span class="ok">Yes (typically)</span></td></tr>
+      <tr><td><strong>TCL</strong></td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td><td>N/A (control transactions themselves)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S86 LAST MINUTE FACTS -->
+<div id="s86" class="sec sec-anchor" style="border-color:#2563eb;">
+  <div class="sec-header" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);">
+    <div class="sec-num" style="background:rgba(56,189,248,.15);color:#38bdf8;font-size:22px;width:52px;height:52px;">&#128293;</div>
+    <div class="sec-title-wrap">
+      <div class="sec-title" style="color:#f1f5f9;">IBPS SO Last-Minute 25 Facts Sheet <span class="badge-fire">EXAM READY</span></div>
+      <div class="sec-subtitle" style="color:#94a3b8;">High-yield revision points to read immediately before your exam</div>
+    </div>
+  </div>
+  <div class="sec-body">
+    <div class="fact-grid">
+      <div class="fact-item"><span class="fact-num">01</span><span><strong>Degree</strong> = No. of columns &nbsp;|&nbsp; <strong>Cardinality</strong> = No. of rows</span></div>
+      <div class="fact-item"><span class="fact-num">02</span><span><strong>Candidate Key</strong> = Minimal Super Key. Primary Key = Selected CK.</span></div>
+      <div class="fact-item"><span class="fact-num">03</span><span><strong>Primary Key</strong> = Unique + NOT NULL. Exactly 1 per table.</span></div>
+      <div class="fact-item"><span class="fact-num">04</span><span><strong>Foreign Key</strong> = Referential Integrity. Can contain NULL and duplicates.</span></div>
+      <div class="fact-item"><span class="fact-num">05</span><span><strong>Weak Entity</strong> = Double rectangle &nbsp;|&nbsp; <strong>Identifying Rel</strong> = Double diamond</span></div>
+      <div class="fact-item"><span class="fact-num">06</span><span><strong>Multi-valued Attribute</strong> = Double ellipse &nbsp;|&nbsp; <strong>Derived</strong> = Dashed ellipse</span></div>
+      <div class="fact-item"><span class="fact-num">07</span><span><strong>Selection (&sigma;)</strong> = Rows &nbsp;|&nbsp; <strong>Projection (&pi;)</strong> = Columns</span></div>
+      <div class="fact-item"><span class="fact-num">08</span><span><strong>1NF</strong> = Atomic values, no multi-valued/repeating fields</span></div>
+      <div class="fact-item"><span class="fact-num">09</span><span><strong>2NF</strong> = In 1NF + No Partial Dependency on Candidate Key</span></div>
+      <div class="fact-item"><span class="fact-num">10</span><span><strong>3NF</strong> = In 2NF + No Transitive Dependency (X is Super Key OR A is prime)</span></div>
+      <div class="fact-item"><span class="fact-num">11</span><span><strong>BCNF</strong> = For every X &#8594; Y, X must be a Super Key (Stronger than 3NF)</span></div>
+      <div class="fact-item"><span class="fact-num">12</span><span><strong>ACID</strong> = Atomicity, Consistency, Isolation, Durability</span></div>
+      <div class="fact-item"><span class="fact-num">13</span><span><strong>Precedence Graph Acyclic</strong> = Conflict Serializable &#10003;</span></div>
+      <div class="fact-item"><span class="fact-num">14</span><span><strong>Dirty Read</strong> = Reading uncommitted data (prevented in Read Committed)</span></div>
+      <div class="fact-item"><span class="fact-num">15</span><span><strong>Phantom Read</strong> = New rows appear/disappear (prevented in Serializable)</span></div>
+      <div class="fact-item"><span class="fact-num">16</span><span><strong>2PL</strong> = Growing &#8594; Lock Point &#8594; Shrinking. Guarantees serializability.</span></div>
+      <div class="fact-item"><span class="fact-num">17</span><span><strong>B+ Tree</strong> = Data pointers in leaves only; leaves linked; ideal for range queries.</span></div>
+      <div class="fact-item"><span class="fact-num">18</span><span><strong>Query Order</strong> = FROM &#8594; WHERE &#8594; GROUP BY &#8594; HAVING &#8594; SELECT &#8594; DISTINCT &#8594; ORDER BY</span></div>
+      <div class="fact-item"><span class="fact-num">19</span><span><strong>WHERE vs HAVING</strong> = WHERE filters rows; HAVING filters groups</span></div>
+      <div class="fact-item"><span class="fact-num">20</span><span><strong>COUNT(*)</strong> = Counts NULLs &nbsp;|&nbsp; <strong>COUNT(col)</strong> = Ignores NULLs</span></div>
+      <div class="fact-item"><span class="fact-num">21</span><span><strong>UNION ALL</strong> = Keeps duplicates &nbsp;|&nbsp; <strong>UNION</strong> = Removes duplicates</span></div>
+      <div class="fact-item"><span class="fact-num">22</span><span><strong>DENSE_RANK()</strong> = No gaps after ties &nbsp;|&nbsp; <strong>RANK()</strong> = Leaves gaps</span></div>
+      <div class="fact-item"><span class="fact-num">23</span><span><strong>TRUNCATE</strong> = DDL, fast, resets identity &nbsp;|&nbsp; <strong>DELETE</strong> = DML, conditional</span></div>
+      <div class="fact-item"><span class="fact-num">24</span><span><strong>WAL (Write-Ahead Logging)</strong> = Log written to disk before DB data pages</span></div>
+      <div class="fact-item"><span class="fact-num">25</span><span><strong>CAP Theorem</strong> = Pick at most 2 of Consistency, Availability, Partition tolerance</span></div>
+    </div>
+
+    <div class="mini-h" style="margin-top:32px;">&#129504; One-Minute DBMS + SQL Mental Map</div>
+    <div class="mental-map">DBMS + SQL
+  &#8594; Foundations
+      DBMS vs File System (RCSI-SB) / 3-Tier Arch / 3-Schema (External, Conceptual, Internal)
+      Data Independence: Physical (easy) vs Logical (hard)
+      Degree (columns) vs Cardinality (rows) / Schema (design) vs Instance (data)
+
+  &#8594; Keys
+      Super Key &#8594; Candidate Key (minimal SK) &#8594; Primary Key (chosen CK, NOT NULL)
+      Alternate Key (remaining CKs) / Foreign Key (referential integrity)
+      Prime (part of any CK) vs Non-Prime (not in any CK)
+
+  &#8594; ER Modeling
+      Entity (Rect) / Weak Entity (Double Rect) / Rel (Diamond) / Identifying (Double Diamond)
+      Multi-valued (Double Ellipse) / Derived (Dashed Ellipse) / Total Part (Double Line)
+
+  &#8594; Relational Algebra
+      Selection (&sigma;, rows) / Projection (&pi;, cols) / Cartesian Product (&times;) / Joins (&#10781;) / Division (&divide;)
+
+  &#8594; Normalization
+      1NF: Atomic values
+      2NF: 1NF + No Partial Dependency on CK
+      3NF: 2NF + No Transitive Dependency (X is SK or A is prime)
+      BCNF: Every determinant X is a Super Key
+      4NF: No non-trivial Multivalued Dependency (MVD)
+      5NF: No non-trivial Join Dependency (JD)
+      Decompositions: Lossless Join (R1 &cap; R2 is SK of R1 or R2) + Dependency Preservation
+
+  &#8594; Transactions &amp; Concurrency
+      ACID (Atomicity, Consistency, Isolation, Durability)
+      States: Active &#8594; Partially Committed &#8594; Committed / Failed &#8594; Aborted
+      Conflict Serializability: Precedence Graph (Acyclic = Serializable)
+      Anomalies: Lost Update (W-W), Dirty Read (W-R), Non-Repeatable Read, Phantom Read
+      Isolation: Read Uncommitted &#8594; Read Committed &#8594; Repeatable Read &#8594; Serializable
+      Locks: S (Read) vs X (Write) / 2PL (Growing &#8594; Lock Point &#8594; Shrinking)
+      Strict &gt; Cascadeless &gt; Recoverable
+
+  &#8594; Storage &amp; Indexing
+      B+ Tree: Data in leaves only, linked sequentially, great for range queries
+      Codd's 12 Rules (0 to 12) / OLTP vs OLAP / RAID 0,1,5,10 / CAP Theorem
+
+  &#8594; SQL Mastery
+      Categories: DDL (auto-commit), DML, DQL, DCL, TCL
+      Logical Order: FROM &#8594; WHERE &#8594; GROUP BY &#8594; HAVING &#8594; SELECT &#8594; DISTINCT &#8594; ORDER BY &#8594; LIMIT
+      HAVING (groups) vs WHERE (rows) / COUNT(*) vs COUNT(col)
+      Joins: INNER, LEFT, RIGHT, FULL, CROSS, SELF, Natural
+      Subqueries: Correlated, EXISTS, ANY/ALL
+      Set Ops: UNION (distinct) vs UNION ALL (keeps dupes), EXCEPT/MINUS
+      Window: ROW_NUMBER(), RANK() (gaps), DENSE_RANK() (no gaps)
+      Comparison: DELETE (DML, where, slow) vs TRUNCATE (DDL, fast, reset id) vs DROP (DDL, destroys structure)</div>
+  </div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+  <a href="../index.html" class="bottom-btn btn-blue-ol">&#127968; Practice Hub Dashboard</a>
+  <a href="index.html" class="bottom-btn btn-purple-ol">🗄️ DBMS Complete Syllabus</a>
+  <a href="sql-index.html" class="bottom-btn btn-slate">🗃️ SQL Notes Index</a>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="bottom-btn btn-slate">&#8593; Back to Top</a>
+</div>
+
+</body>
+</html>

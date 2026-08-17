@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 03: 8085 &amp; 8086 Microprocessor Registers – COA Notes</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .note-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .note-header {
+      border-bottom: 2px solid rgba(217, 119, 6, 0.25);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .note-badge {
+      display: inline-block;
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .note-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .note-subtitle {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .source-pdf-box {
+      margin-top: 16px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .source-pdf-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .pdf-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #d97706;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .pdf-link-btn:hover {
+      background: #b45309;
+      transform: translateY(-1px);
+    }
+
+    .section-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 22px;
+    }
+
+    .reg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .reg-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .reg-card:hover {
+      border-color: var(--accent4);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .reg-card h4 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent4);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .reg-size-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .reg-card p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .pyq-highlight-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04));
+      border: 1px dashed var(--accent);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 20px 0;
+    }
+
+    .pyq-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--code-color);
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .summary-table th {
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .summary-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: rgba(0,0,0,0.015);
+    }
+
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn-sec {
+      background: var(--card2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .nav-btn-sec:hover {
+      border-color: var(--accent4);
+      color: var(--accent4);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-organisation-notes.html" class="nav-back">← COA Master Index</a>
+      <span class="nav-title">Lec 03: 8085 &amp; 8086 Registers</span>
+      <span class="nav-badge">Microprocessor High Yield</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="note-container">
+
+    <!-- HEADER -->
+    <div class="note-header">
+      <span class="note-badge">COA LECTURE 03 NOTE</span>
+      <h1 class="note-title">8085 &amp; 8086 Microprocessor Registers Architecture</h1>
+      <p class="note-subtitle">Comprehensive analysis of General Purpose Registers (GPRs) and Special Purpose Registers (SPRs) across Intel 8085 (8-bit) and Intel 8086 (16-bit) microprocessors, memory pointers, flag registers, and 20-bit physical address segmentation math for IBPS SO IT Mains.</p>
+      
+      <!-- Source PDF Link -->
+      <div class="source-pdf-box">
+        <div class="source-pdf-info">
+          <span>📄 Reference Source PDF:</span>
+          <code>Lec-5-General-Purpose-Registers.pdf</code>
+        </div>
+        <a href="file:///Users/vanand/Downloads/Lec-5-General-Purpose-Registers.pdf" target="_blank" class="pdf-link-btn">
+          <span>Open PDF File ↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 1. OVERVIEW OF CPU REGISTERS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">💻</span> 1. What are CPU Registers?</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        Registers are small, ultra-fast memory locations internal to the CPU. They hold data currently being processed, memory addresses being accessed, status flags, and instructions.
+      </p>
+
+      <div class="reg-grid">
+        <div class="reg-card">
+          <h4>General Purpose Registers (GPRs)</h4>
+          <p>Used by programmers to temporarily store data values, intermediate computation results, or memory pointer addresses during execution.</p>
+        </div>
+        <div class="reg-card">
+          <h4>Special Purpose Registers (SPRs)</h4>
+          <p>Dedicated hardware registers performing specific control, addressing, instruction fetching, stack management, or status tracking functions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. INTEL 8085 MICROPROCESSOR REGISTERS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">⚡</span> 2. Intel 8085 Microprocessor Register Architecture (8-bit)</div>
+      
+      <p style="font-size:14px; color:var(--text2); line-height:1.6; margin-bottom:12px;">
+        The 8085 is an 8-bit microprocessor with six 8-bit General Purpose Registers (B, C, D, E, H, L) and multiple 8/16-bit Special Purpose Registers:
+      </p>
+
+      <h3 style="font-size:16px; font-weight:800; color:#d97706; margin:16px 0 10px;">A) 8085 General Purpose Registers (GPRs) &amp; Register Pairs</h3>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Register</th>
+            <th>Size</th>
+            <th>Primary Function &amp; Pair Capability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>B &amp; C</strong></td>
+            <td>8-bit each</td>
+            <td>General data storage. Can form 16-bit <strong>BC Register Pair</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>D &amp; E</strong></td>
+            <td>8-bit each</td>
+            <td>General data storage. Can form 16-bit <strong>DE Register Pair</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>H &amp; L</strong></td>
+            <td>8-bit each</td>
+            <td>Forms 16-bit <strong>HL Register Pair</strong>. Acts as default <strong>Memory Pointer ($M$)</strong> to address RAM in instructions like <code>MOV A, M</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:16px; font-weight:800; color:#d97706; margin:22px 0 10px;">B) 8085 Special Purpose Registers (SPRs)</h3>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Special Register</th>
+            <th>Size</th>
+            <th>Function &amp; IBPS Exam Clue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Accumulator (A)</strong></td>
+            <td>8-bit</td>
+            <td>Primary register for all ALU operations; holds 1st operand and stores final result.</td>
+          </tr>
+          <tr>
+            <td><strong>Flag Register (F)</strong></td>
+            <td>8-bit</td>
+            <td>Holds 5 active status flags: Sign ($S$), Zero ($Z$), Auxiliary Carry ($AC$), Parity ($P$), Carry ($CY$). Format: $[S \mid Z \mid X \mid AC \mid X \mid P \mid X \mid CY]$.</td>
+          </tr>
+          <tr>
+            <td><strong>Program Counter (PC)</strong></td>
+            <td>16-bit</td>
+            <td>Holds 16-bit address of the next instruction byte to be fetched from memory.</td>
+          </tr>
+          <tr>
+            <td><strong>Stack Pointer (SP)</strong></td>
+            <td>16-bit</td>
+            <td>Points to the current Top of Stack ($TOS$) location in RAM. Decremented during <code>PUSH</code>, incremented during <code>POP</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Instruction Register (IR)</strong></td>
+            <td>8-bit</td>
+            <td>Holds the opcode of the fetched instruction during execution cycle.</td>
+          </tr>
+          <tr>
+            <td><strong>Temporary Registers (W, Z)</strong></td>
+            <td>8-bit each</td>
+            <td>Internal CPU registers used by Control Unit to hold intermediate data (not accessible by programmer).</td>
+          </tr>
+          <tr>
+            <td><strong>MAR &amp; MBR (MDR)</strong></td>
+            <td>16-bit / 8-bit</td>
+            <td>MAR holds 16-bit address for RAM bus; MBR (Memory Buffer Register) holds 8-bit data transferring to/from memory.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3. INTEL 8086 MICROPROCESSOR REGISTERS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🚀</span> 3. Intel 8086 Microprocessor Register Architecture (16-bit)</div>
+      
+      <p style="font-size:14px; color:var(--text2); line-height:1.6; margin-bottom:12px;">
+        The 8086 is a 16-bit microprocessor. All registers are 16-bit wide. The 4 General Purpose Registers (AX, BX, CX, DX) can be split into High (H) and Low (L) 8-bit halves:
+      </p>
+
+      <h3 style="font-size:16px; font-weight:800; color:#d97706; margin:16px 0 10px;">A) 8086 16-bit General Purpose Registers (GPRs)</h3>
+      <div class="reg-grid">
+        <div class="reg-card">
+          <h4>AX (Accumulator) <span class="reg-size-badge">AH + AL</span></h4>
+          <p>Used in 16-bit arithmetic, logical operations, I/O, and string operations. Holds implicit operand/result in <code>MUL</code> and <code>DIV</code>.</p>
+        </div>
+        <div class="reg-card">
+          <h4>BX (Base Register) <span class="reg-size-badge">BH + BL</span></h4>
+          <p>Used as base register for indirect data addressing ($EA = BX + D$). Only general register that can serve as memory base pointer.</p>
+        </div>
+        <div class="reg-card">
+          <h4>CX (Count Register) <span class="reg-size-badge">CH + CL</span></h4>
+          <p>Acts as loop counter for <code>LOOP</code> instructions and shift/rotate bit counts (stored in <code>CL</code>).</p>
+        </div>
+        <div class="reg-card">
+          <h4>DX (Data Register) <span class="reg-size-badge">DH + DL</span></h4>
+          <p>Holds 32-bit product/quotient high-word ($DX:AX$) in <code>MUL</code>/<code>DIV</code> and holds indirect I/O port numbers (`IN AL, DX`).</p>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; font-weight:800; color:#d97706; margin:22px 0 10px;">B) 8086 Pointers, Index &amp; Segment Registers</h3>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Register Category</th>
+            <th>Register Mnemonic</th>
+            <th>Specialized Function</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pointer Registers (16-bit)</strong></td>
+            <td><code>SP</code> (Stack Pointer)<br /><code>BP</code> (Base Pointer)</td>
+            <td><code>SP</code> points to offset of top of stack.<br /><code>BP</code> used for stack frame parameter passing and local variables.</td>
+          </tr>
+          <tr>
+            <td><strong>Index Registers (16-bit)</strong></td>
+            <td><code>SI</code> (Source Index)<br /><code>DI</code> (Destination Index)</td>
+            <td>Used in indexed addressing modes and string operations (e.g. <code>MOVSB</code>: copies from <code>DS:SI</code> to <code>ES:DI</code>).</td>
+          </tr>
+          <tr>
+            <td><strong>Segment Registers (16-bit)</strong></td>
+            <td><code>CS</code> (Code Segment)<br /><code>DS</code> (Data Segment)<br /><code>SS</code> (Stack Segment)<br /><code>ES</code> (Extra Segment)</td>
+            <td>Holds 16-bit base segment selectors for 1 MB segmented memory architecture.</td>
+          </tr>
+          <tr>
+            <td><strong>Instruction Pointer (16-bit)</strong></td>
+            <td><code>IP</code> (Instruction Pointer)</td>
+            <td>Holds offset address of next instruction inside Code Segment ($CS$).</td>
+          </tr>
+          <tr>
+            <td><strong>Flag Register (16-bit)</strong></td>
+            <td><code>FLAGS</code> Register</td>
+            <td>Holds 9 active flags: 6 Status flags ($CF, PF, AF, ZF, SF, OF$) + 3 Control flags ($TF$ Trap, $IF$ Interrupt Enable, $DF$ Direction).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. 8086 PHYSICAL ADDRESS COMPUTATION MATH -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🧮</span> 4. 8086 20-bit Physical Address Calculation Math</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        The 8086 has a 20-bit address bus ($2^{20} = 1 \text{ MB}$ memory), but all registers are 16-bit. It generates 20-bit physical addresses using <strong>Memory Segmentation</strong>:
+      </p>
+
+      <div class="code-block">
+Physical Address (20-bit) = (Segment Register x 16_10) + Offset
+Physical Address (Hex)    = (Segment Register Shifted Left by 1 Hex Digit) + Offset
+      </div>
+
+      <div class="pyq-highlight-box">
+        <span class="pyq-badge">🔥 IBPS SO IT / GATE Solved Numerical</span>
+        <p style="font-size:13.5px; color:var(--text); font-weight:700; margin-bottom:6px;">
+          Problem: If the Code Segment register $CS = 2500H$ and Instruction Pointer $IP = 0180H$, calculate the 20-bit Physical Address of the instruction byte.
+        </p>
+        <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+          <strong>Step-by-step Solution:</strong><br />
+          1. Shift $CS$ left by 4 bits (1 hex digit): $2500H \rightarrow 25000H$.<br />
+          2. Add Offset ($IP$): $25000H + 0180H = 25180H$.<br />
+          $\implies$ Physical Memory Address = <code>25180H</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 8085 VS 8086 REGISTER COMPARISON -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📊</span> 5. 8085 vs 8086 Register Architecture Comparison</div>
+      
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Parameter / Feature</th>
+            <th>8085 Microprocessor</th>
+            <th>8086 Microprocessor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Bus Width</strong></td>
+            <td>8-bit</td>
+            <td>16-bit</td>
+          </tr>
+          <tr>
+            <td><strong>Address Bus Width &amp; RAM Capacity</strong></td>
+            <td>16-bit ($2^{16} = 64 \text{ KB}$)</td>
+            <td>20-bit ($2^{20} = 1 \text{ MB}$)</td>
+          </tr>
+          <tr>
+            <td><strong>General Purpose Registers</strong></td>
+            <td>6 (B, C, D, E, H, L) — 8-bit each</td>
+            <td>4 (AX, BX, CX, DX) — 16-bit each (split into H/L)</td>
+          </tr>
+          <tr>
+            <td><strong>Memory Pointer</strong></td>
+            <td>HL Register Pair (`M`)</td>
+            <td>Segment Registers + Offset Registers (`BX`, `BP`, `SI`, `DI`)</td>
+          </tr>
+          <tr>
+            <td><strong>Segment Registers</strong></td>
+            <td>None (Flat 64 KB space)</td>
+            <td>4 Segment Registers (CS, DS, SS, ES)</td>
+          </tr>
+          <tr>
+            <td><strong>Pipelining / Pre-fetch Queue</strong></td>
+            <td>No Pipelining</td>
+            <td>6-byte Instruction Queue in BIU</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 6. IBPS SO IT MAINS PRACTICE MCQS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📝</span> 6. IBPS SO IT Mains Practice Questions</div>
+      
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q1. In 8085 microprocessor instruction set, which register pair acts as the default memory pointer 'M'?</p>
+        <p style="font-size:13px; color:var(--text2);">A) BC Pair<br />B) DE Pair<br />C) HL Pair<br />D) SP Pair</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) HL Pair</strong><br />Explanation: In 8085, operand <code>M</code> refers to the 8-bit memory content located at the 16-bit RAM address held in the HL register pair.</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q2. If 8086 Data Segment register DS = 3000H and Source Index register SI = 1200H, what is the 20-bit Physical Address?</p>
+        <p style="font-size:13px; color:var(--text2);">A) 4200H<br />B) 31200H<br />C) 30120H<br />D) 42000H</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: B) 31200H</strong><br />Explanation: $\text{Physical Address} = (DS \times 10H) + SI = 30000H + 1200H = 31200H$.</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q3. Which 8086 register is specifically used as a loop counter for the LOOP instruction and bit shift count for CL?</p>
+        <p style="font-size:13px; color:var(--text2);">A) AX<br />B) BX<br />C) CX<br />D) DX</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) CX (Counter Register)</strong><br />Explanation: CX (and CL) is the designated counter register for loop iterations, string operations, and multi-bit shift/rotate instructions.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- FOOTER NAV -->
+    <div class="nav-footer">
+      <a href="lec-02-addressing-modes.html" class="nav-btn nav-btn-sec">← Lec 02: Addressing Modes</a>
+      <a href="gs-computer-organisation-notes.html" class="nav-btn nav-btn-sec">COA Master Index</a>
+      <a href="file:///Users/vanand/Downloads/Lec-5-General-Purpose-Registers.pdf" target="_blank" class="nav-btn" style="background:#d97706; color:#fff;">View Reference PDF ↗</a>
+      <a href="../index.html" class="nav-btn nav-btn-sec">🏠 Main Workspace Dashboard</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Computer Organisation Notes · IBPS SO IT Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

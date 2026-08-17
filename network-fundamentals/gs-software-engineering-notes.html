@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GS Software Engineering Notes – Master Index</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .notebook-container {
+      max-width: 860px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 2px solid rgba(13, 148, 136, 0.35);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .notebook-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(13, 148, 136, 0.35);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+    }
+    .notebook-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #2563eb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .notebook-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0d9488;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .notebook-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    /* Highlight Banner Box */
+    .strategy-banner {
+      background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(37, 99, 235, 0.05));
+      border: 1px solid rgba(13, 148, 136, 0.25);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 32px;
+    }
+    .strategy-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f766e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .strategy-item {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      background: var(--card);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .strategy-item strong {
+      color: var(--text);
+    }
+
+    .index-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .index-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      padding: 20px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .index-item:hover {
+      transform: translateX(6px);
+      background: var(--card2);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Color variations */
+    .index-item.item-teal {
+      border-color: rgba(13, 148, 136, 0.4);
+      background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(20, 184, 166, 0.02));
+    }
+    .index-item.item-teal:hover { border-color: #0d9488; }
+    .index-item.item-teal .index-num { border-color: #0d9488; color: #fff; background: #0d9488; }
+    .index-item.item-teal .index-title { color: #0f766e; }
+    .index-item.item-teal .index-tag { background: #0d9488; color: #fff; }
+    .index-item.item-teal .arrow-icon { color: #0d9488; }
+
+    .index-item.item-rose {
+      border-color: rgba(225, 29, 72, 0.4);
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.02));
+    }
+    .index-item.item-rose:hover { border-color: var(--accent5); }
+    .index-item.item-rose .index-num { border-color: var(--accent5); color: #fff; background: var(--accent5); }
+    .index-item.item-rose .index-title { color: var(--accent5); }
+    .index-item.item-rose .index-tag { background: var(--accent5); color: #fff; }
+    .index-item.item-rose .arrow-icon { color: var(--accent5); }
+
+    .index-item.item-amber {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(245, 158, 11, 0.02));
+    }
+    .index-item.item-amber:hover { border-color: var(--accent4); }
+    .index-item.item-amber .index-num { border-color: var(--accent4); color: #fff; background: var(--accent4); }
+    .index-item.item-amber .index-title { color: #b45309; }
+    .index-item.item-amber .index-tag { background: var(--accent4); color: #fff; }
+    .index-item.item-amber .arrow-icon { color: var(--accent4); }
+
+    .index-item.item-blue {
+      border-color: rgba(37, 99, 235, 0.4);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(59, 130, 246, 0.02));
+    }
+    .index-item.item-blue:hover { border-color: var(--accent); }
+    .index-item.item-blue .index-num { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .index-item.item-blue .index-title { color: #1e40af; }
+    .index-item.item-blue .index-tag { background: var(--accent); color: #fff; }
+    .index-item.item-blue .arrow-icon { color: var(--accent); }
+
+    .index-item.item-purple {
+      border-color: rgba(124, 58, 237, 0.4);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(139, 92, 246, 0.02));
+    }
+    .index-item.item-purple:hover { border-color: var(--accent2); }
+    .index-item.item-purple .index-num { border-color: var(--accent2); color: #fff; background: var(--accent2); }
+    .index-item.item-purple .index-title { color: #6d28d9; }
+    .index-item.item-purple .index-tag { background: var(--accent2); color: #fff; }
+    .index-item.item-purple .arrow-icon { color: var(--accent2); }
+
+    .index-item.item-green {
+      border-color: rgba(5, 150, 105, 0.4);
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(16, 185, 129, 0.02));
+    }
+    .index-item.item-green:hover { border-color: var(--accent3); }
+    .index-item.item-green .index-num { border-color: var(--accent3); color: #fff; background: var(--accent3); }
+    .index-item.item-green .index-title { color: #047857; }
+    .index-item.item-green .index-tag { background: var(--accent3); color: #fff; }
+    .index-item.item-green .arrow-icon { color: var(--accent3); }
+
+    .index-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent);
+      flex-shrink: 0;
+      background: var(--glow);
+      margin-top: 2px;
+    }
+
+    .index-content {
+      flex: 1;
+    }
+
+    .index-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .index-sub-list {
+      margin-top: 8px;
+      padding-left: 0;
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .index-sub-list li {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .index-sub-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #0d9488;
+      font-weight: bold;
+    }
+
+    .sub-child {
+      margin-left: 14px;
+      margin-top: 3px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .sub-child li::before {
+      content: "◦";
+      color: var(--text3);
+    }
+
+    .index-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+
+    .arrow-icon {
+      font-size: 20px;
+      color: var(--text3);
+      transition: transform 0.2s, color 0.2s;
+      margin-top: 4px;
+    }
+
+    .index-item:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    .priority-badge-top {
+      font-size: 10.5px;
+      background: #dc2626;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .priority-badge-high {
+      font-size: 10.5px;
+      background: #d97706;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .quick-btn-teal {
+      background: rgba(13, 148, 136, 0.12);
+      color: #0f766e;
+      border: 1px solid rgba(13, 148, 136, 0.3);
+    }
+    .quick-btn-teal:hover {
+      background: #0d9488;
+      color: #fff;
+    }
+    .quick-btn-primary {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    .quick-btn-primary:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .quick-btn-secondary {
+      background: rgba(240, 92, 136, 0.12);
+      color: var(--accent5);
+      border: 1px solid rgba(240, 92, 136, 0.3);
+    }
+    .quick-btn-secondary:hover {
+      background: var(--accent5);
+      color: #fff;
+    }
+    .quick-btn-green {
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+    .quick-btn-green:hover {
+      background: var(--accent3);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-back">← Main Workspace</a>
+      <span class="nav-title">GS Software Engineering Notes</span>
+      <span class="nav-badge">SE Index</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="notebook-container">
+    <div class="notebook-header">
+      <h1 class="notebook-title">GS Software Engineering Notes</h1>
+      <div class="notebook-subtitle">Software Engineering — IBPS SO IT Officer Syllabus</div>
+      <p class="notebook-desc">Master Index covering SDLC Models, Software Requirement Analysis, Design Principles, Coupling &amp; Cohesion, COCOMO &amp; Cyclomatic Complexity Math, SQA &amp; CMM Levels, Software Testing (White-box &amp; Black-box), and Software Maintenance.</p>
+    </div>
+
+    <!-- Exam Strategy Banner -->
+    <div class="strategy-banner">
+      <div class="strategy-title">
+        <span>⚡ Exam Weightage &amp; High-Yield Focus</span>
+      </div>
+      <div class="strategy-grid">
+        <div class="strategy-item">
+          <strong>🔥🔥 Top Priority (Sec 7):</strong> Software Testing — White-box vs Black-box coverage, Equivalence Partitioning, Boundary Value Analysis &amp; Testing Levels.
+        </div>
+        <div class="strategy-item">
+          <strong>🔥 High-Yield Topics:</strong> SDLC Comparison (Sec 2), Coupling &amp; Cohesion Rankings (4.4), COCOMO &amp; Cyclomatic Complexity (5.3–5.4), CMM 5 Levels (6.2.2).
+        </div>
+      </div>
+      <div style="font-size: 12.5px; color: var(--text2); margin-top: 10px; line-height: 1.5; font-style: italic;">
+        💡 <strong>Note for Exam:</strong> Software Engineering questions in IBPS SO IT tend to be <strong>conceptual &amp; definition-based</strong> rather than heavy numericals (unlike DBMS/CN) — so prioritize clear structural distinctions over deep formula memorization, though COCOMO and Cyclomatic complexity numericals do show up regularly.
+      </div>
+    </div>
+
+    <div class="index-list">
+
+      <!-- SECTION 1 -->
+      <a href="se-01-intro-to-software-engineering.html" class="index-item item-teal">
+        <div class="index-num">1</div>
+        <div class="index-content">
+          <div class="index-title">1. Introduction to Software Engineering ✨ <span style="font-size:11px; background:#0d9488; color:#fff; padding:2px 8px; border-radius:100px;">FULL NOTES READY</span></div>
+          <ul class="index-sub-list">
+            <li><strong>1.1 What is Software Engineering:</strong> Definition, core goals (Quality, Cost, Schedule, Reliability).</li>
+            <li><strong>1.2 Software Characteristics vs Hardware:</strong> Custom-built vs manufactured, software doesn't wear out (bath-tub curve comparison).</li>
+            <li><strong>1.3 Software Crisis &amp; Software Myths:</strong> Budget overruns, delivery delays, Management / Customer / Practitioner myths.</li>
+            <li><strong>1.4 Software Process &amp; Process Framework:</strong> Framework activities (Communication, Planning, Modeling, Construction, Deployment) &amp; Umbrella activities.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 01</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 2 -->
+      <a href="se-02-sdlc-models.html" class="index-item item-amber">
+        <div class="index-num">2</div>
+        <div class="index-content">
+          <div class="index-title">
+            2. Software Development Life Cycle (SDLC) Models 🔥
+            <span class="priority-badge-high">HIGH YIELD</span>
+            <span style="font-size:11px; background:#d97706; color:#fff; padding:2px 8px; border-radius:100px;">FULL NOTES READY</span>
+          </div>
+          <ul class="index-sub-list">
+            <li><strong>2.1 Waterfall Model:</strong> Classic linear-sequential model, strict phases, frozen requirements, heavy documentation.</li>
+            <li><strong>2.2 Prototyping Model:</strong> Working prototype for early feedback, requirements elicitation, evolutionary vs throwaway prototypes.</li>
+            <li><strong>2.3 Spiral Model:</strong> Risk-driven model, 4 quadrants (Planning, Risk Analysis, Engineering, Evaluation), suitable for large complex systems.</li>
+            <li><strong>2.4 Iterative / Incremental Model:</strong> Phased release of product increments, partial implementation.</li>
+            <li><strong>2.5 V-Model (Verification &amp; Validation):</strong> Execution of testing phases parallel to corresponding development phases.</li>
+            <li><strong>2.6 RAD Model (Rapid Application Development):</strong> Component-based, rapid development timeline (60–90 days).</li>
+            <li><strong>2.7 Agile Model:</strong>
+              <ul class="sub-child">
+                <li><strong>2.7.1 Agile Manifesto:</strong> 4 core values &amp; 12 principles.</li>
+                <li><strong>2.7.2 Scrum Framework:</strong> Sprints (1–4 weeks), roles (Product Owner, Scrum Master, Dev Team), artifacts (Backlog), ceremonies (Daily Standup, Sprint Review/Retrospective).</li>
+                <li><strong>2.7.3 Extreme Programming (XP):</strong> Pair programming, TDD, continuous integration, refactoring.</li>
+                <li><strong>2.7.4 Kanban:</strong> Visual workflow board, Work-In-Progress (WIP) limits.</li>
+              </ul>
+            </li>
+            <li><strong>2.8 Comparison of SDLC Models:</strong> Selection matrix based on requirement stability, project size, risk, and user involvement.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 02</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 3 -->
+      <a href="se-03-requirement-analysis.html" class="index-item item-blue">
+        <div class="index-num">3</div>
+        <div class="index-content">
+          <div class="index-title">3. Software Requirement Analysis ✨ <span style="font-size:11px; background:#2563eb; color:#fff; padding:2px 8px; border-radius:100px;">FULL NOTES READY</span></div>
+          <ul class="index-sub-list">
+            <li><strong>3.1 Requirement Engineering Process:</strong> Elicitation (interviews, JAD), Analysis, Specification (SRS), Validation.</li>
+            <li><strong>3.2 Types of Requirements:</strong>
+              <ul class="sub-child">
+                <li><strong>3.2.1 Functional Requirements:</strong> System behavior, services, functions ($I/O$ mappings).</li>
+                <li><strong>3.2.2 Non-Functional Requirements:</strong> Quality attributes (Performance, Security, Usability, Availability, Reliability).</li>
+              </ul>
+            </li>
+            <li><strong>3.3 Software Requirement Specification (SRS):</strong>
+              <ul class="sub-child">
+                <li><strong>3.3.1 SRS Format / Structure:</strong> IEEE 830 standard layout.</li>
+                <li><strong>3.3.2 Characteristics of Good SRS:</strong> Correct, Unambiguous, Complete, Consistent, Verifiable, Modifiable, Traceable.</li>
+              </ul>
+            </li>
+            <li><strong>3.4 Feasibility Study:</strong> Technical, Economic (Cost-Benefit Analysis), Operational, Legal, Schedule feasibility.</li>
+            <li><strong>3.5 Requirement Analysis Tools:</strong>
+              <ul class="sub-child">
+                <li><strong>3.5.1 Data Flow Diagram (DFD):</strong> Symbols (Process, Data Store, Data Flow, External Entity), Levels (Context/Level-0, Level-1, Level-2).</li>
+                <li><strong>3.5.2 Data Dictionary:</strong> Repository of data elements, structures, and data flows.</li>
+                <li><strong>3.5.3 Entity-Relationship Diagram (ERD):</strong> Entities, Attributes, Relationships &amp; Cardinality.</li>
+                <li><strong>3.5.4 Decision Table / Decision Tree:</strong> Rule-based logic modeling for complex conditional requirements.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 03</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 4 -->
+      <a href="#sec-04" class="index-item item-rose">
+        <div class="index-num">4</div>
+        <div class="index-content">
+          <div class="index-title">
+            4. Software Design, Coupling &amp; Cohesion 🔥
+            <span class="priority-badge-high">HIGH YIELD</span>
+          </div>
+          <ul class="index-sub-list">
+            <li><strong>4.1 Design Concepts &amp; Principles:</strong> Abstraction, Modularity, Architecture, Refinement, Information Hiding.</li>
+            <li><strong>4.2 Function-Oriented Design:</strong> Structured Design, Structure Charts (Transform vs Transaction Analysis, Fan-in &amp; Fan-out).</li>
+            <li><strong>4.3 Object-Oriented Design (OOD Basics):</strong> Classes, Objects, Abstraction, Encapsulation, Inheritance, Polymorphism.</li>
+            <li><strong>4.4 Coupling &amp; Cohesion (Ranking 🔥):</strong>
+              <ul class="sub-child">
+                <li><strong>4.4.1 Types of Coupling (Worst → Best):</strong> <span style="color:#e11d48; font-weight:bold;">Content &gt; Common &gt; Control &gt; Stamp &gt; Data</span> (Strongest/Highest → Weakest/Lowest Coupling desired).</li>
+                <li><strong>4.4.2 Types of Cohesion (Worst → Best):</strong> <span style="color:#059669; font-weight:bold;">Coincidental &lt; Logical &lt; Temporal &lt; Procedural &lt; Communicational &lt; Sequential &lt; Functional</span> (Weakest/Worst → Strongest/Best Cohesion desired).</li>
+              </ul>
+            </li>
+            <li><strong>4.5 Modularity &amp; Abstraction:</strong> High Cohesion + Low Coupling principle.</li>
+            <li><strong>4.6 User Interface (UI) Design Basics:</strong> Golden rules (Place user in control, reduce memory load, maintain consistency).</li>
+            <li><strong>4.7 Software Architecture Types:</strong> Layered architecture, Client-Server, MVC (Model-View-Controller) pattern.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 04</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 5 -->
+      <a href="#sec-05" class="index-item item-purple">
+        <div class="index-num">5</div>
+        <div class="index-content">
+          <div class="index-title">
+            5. Software Project Management &amp; Estimation Math 🔥
+            <span class="priority-badge-high">HIGH YIELD</span>
+          </div>
+          <ul class="index-sub-list">
+            <li><strong>5.1 Project Planning:</strong> Scope, WBS (Work Breakdown Structure), Milestone definitions.</li>
+            <li><strong>5.2 Project Scheduling:</strong> Gantt Charts, PERT / CPM (Critical Path Method, Early Start, Late Start, Float/Slack time calculation).</li>
+            <li><strong>5.3 Software Cost Estimation 🔥:</strong>
+              <ul class="sub-child">
+                <li><strong>5.3.1 COCOMO Model 🔥:</strong> Basic, Intermediate, Detailed models. Modes: Organic ($a_b=2.4, b_b=1.05$), Semi-detached ($a_b=3.0, b_b=1.12$), Embedded ($a_b=3.6, b_b=1.20$). Formulas: $\text{Effort } E = a_b(\text{KLOC})^{b_b}$, $\text{Duration } D = c_b(E)^{d_b}$.</li>
+                <li><strong>5.3.2 Putnam Resource Allocation Model:</strong> Software equation linking size, effort, and schedule time.</li>
+                <li><strong>5.3.3 Function Point (FP) Analysis:</strong> Unadjusted FP ($\text{UFP}$) based on 5 components (Inputs, Outputs, Inquiries, Files, Interfaces) $\times \text{VAF}$.</li>
+              </ul>
+            </li>
+            <li><strong>5.4 Software Size Metrics 🔥:</strong>
+              <ul class="sub-child">
+                <li><strong>5.4.1 Lines of Code (LOC / KLOC):</strong> Productivity &amp; cost per LOC.</li>
+                <li><strong>5.4.2 Halstead's Software Metrics:</strong> Operators ($n_1, N_1$), Operands ($n_2, N_2$), Vocabulary $n = n_1 + n_2$, Length $N = N_1 + N_2$, Volume $V = N \log_2 n$.</li>
+                <li><strong>5.4.3 Cyclomatic Complexity 🔥:</strong> McCabe's Metric formulas: $V(G) = E - N + 2P$, $V(G) = P + 1$ (Predicates + 1), $V(G) = \text{Number of Regions}$.</li>
+              </ul>
+            </li>
+            <li><strong>5.5 Risk Management:</strong> Risk Identification, Risk Projection, RMMM Plan (Mitigation, Monitoring, Management).</li>
+            <li><strong>5.6 Personnel Planning:</strong> Team structures (Democratic, Chief Programmer, Controlled Centralized).</li>
+            <li><strong>5.7 Software Configuration Management (SCM):</strong> Baselines, Version Control, Change Control Board (CCB), Audits.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 05</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 6 -->
+      <a href="#sec-06" class="index-item item-green">
+        <div class="index-num">6</div>
+        <div class="index-content">
+          <div class="index-title">
+            6. Software Quality &amp; CMM Maturity Levels 🔥
+            <span class="priority-badge-high">HIGH YIELD</span>
+          </div>
+          <ul class="index-sub-list">
+            <li><strong>6.1 Software Quality Assurance (SQA):</strong> SQA activities vs Quality Control (QC), Quality audits, Verification vs Validation in quality.</li>
+            <li><strong>6.2 Quality Standards 🔥:</strong>
+              <ul class="sub-child">
+                <li><strong>6.2.1 ISO 9000 Certification:</strong> Quality management standards &amp; guidelines.</li>
+                <li><strong>6.2.2 Capability Maturity Model (CMM) 🔥 (5 Levels):</strong>
+                  <br /><span style="color:#047857; font-weight:bold;">Level 1: Initial</span> (Ad-hoc, chaotic)
+                  <br /><span style="color:#047857; font-weight:bold;">Level 2: Repeatable</span> (Basic Project Management)
+                  <br /><span style="color:#047857; font-weight:bold;">Level 3: Defined</span> (Process Standardization across organization)
+                  <br /><span style="color:#047857; font-weight:bold;">Level 4: Managed</span> (Quantitative Process Measurement)
+                  <br /><span style="color:#047857; font-weight:bold;">Level 5: Optimizing</span> (Continuous Process Improvement &amp; Defect Prevention)
+                </li>
+                <li><strong>6.2.3 CMMI &amp; PCMM:</strong> Staged vs Continuous representations.</li>
+                <li><strong>6.2.4 Six Sigma:</strong> DMAIC cycle &amp; $3.4$ defects per million opportunities (DPMO).</li>
+              </ul>
+            </li>
+            <li><strong>6.3 McCall's / ISO 9126 Quality Factors:</strong> Product Operation (Correctness, Reliability, Efficiency, Integrity, Usability), Revision (Maintainability, Flexibility, Testability), Transition (Portability, Reusability, Interoperability).</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 06</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 7 -->
+      <a href="#sec-07" class="index-item item-rose">
+        <div class="index-num">7</div>
+        <div class="index-content">
+          <div class="index-title">
+            7. Software Testing 🔥🔥 [HIGH PRIORITY]
+            <span class="priority-badge-top">TOP PRIORITY</span>
+          </div>
+          <ul class="index-sub-list">
+            <li><strong>7.1 Verification vs Validation:</strong> Verification ("Are we building the product right?") vs Validation ("Are we building the right product?").</li>
+            <li><strong>7.2 Levels of Testing:</strong>
+              <ul class="sub-child">
+                <li><strong>7.2.1 Unit Testing:</strong> Testing individual modules/methods in isolation (Drivers &amp; Stubs).</li>
+                <li><strong>7.2.2 Integration Testing:</strong> Top-down (uses Stubs), Bottom-up (uses Drivers), Big-Bang, Sandwich / Hybrid.</li>
+                <li><strong>7.2.3 System Testing:</strong> Functional, Performance, Stress, Load, Security, Recovery, Usability testing.</li>
+                <li><strong>7.2.4 Acceptance Testing:</strong> Alpha Testing (at developer's site by internal users) &amp; Beta Testing (at client site by end users).</li>
+              </ul>
+            </li>
+            <li><strong>7.3 Testing Techniques 🔥:</strong>
+              <ul class="sub-child">
+                <li><strong>7.3.1 White-box Testing (Structural / Clear-box):</strong> Statement Coverage, Branch / Decision Coverage, Path Coverage, Basis Path Testing using Cyclomatic Complexity.</li>
+                <li><strong>7.3.2 Black-box Testing (Functional / Opaque-box):</strong> Equivalence Partitioning (EP), Boundary Value Analysis (BVA — min, min+, nom, max-, max), Decision Table Testing, Cause-Effect Graphing.</li>
+                <li><strong>7.3.3 Grey-box Testing:</strong> Combination of structural knowledge &amp; functional testing.</li>
+              </ul>
+            </li>
+            <li><strong>7.4 Regression Testing vs Retesting:</strong> Re-running test cases to ensure new code changes haven't broken existing functionality.</li>
+            <li><strong>7.5 Debugging Approaches:</strong> Brute force, Backtracking, Cause elimination, Slicing.</li>
+            <li><strong>7.6 Test Case Design &amp; Documentation:</strong> Test Plan, Test Case layout (ID, Description, Pre-conditions, Input data, Expected vs Actual Result, Status), Defect Lifecycle.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 07</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 8 -->
+      <a href="#sec-08" class="index-item item-teal">
+        <div class="index-num">8</div>
+        <div class="index-content">
+          <div class="index-title">8. Software Maintenance &amp; Re-engineering ✨</div>
+          <ul class="index-sub-list">
+            <li><strong>8.1 Types of Maintenance (Categorization):</strong>
+              <ul class="sub-child">
+                <li><strong>Corrective Maintenance:</strong> Reactive fixing of discovered bugs / errors (~20%).</li>
+                <li><strong>Adaptive Maintenance:</strong> Modifying system to cope with environment / OS / DB changes (~20%).</li>
+                <li><strong>Perfective Maintenance:</strong> Enhancing performance, maintainability, or adding new user requirements (~50% — highest share).</li>
+                <li><strong>Preventive Maintenance:</strong> Proactive code refactoring to prevent future failures (~10%).</li>
+              </ul>
+            </li>
+            <li><strong>8.2 Software Re-engineering Process:</strong> Inventory analysis, Document restructuring, Reverse engineering, Code restructuring, Data restructuring, Forward engineering.</li>
+            <li><strong>8.3 Reverse Engineering vs Forward Engineering:</strong> Extracting design specifications from source code vs traditional top-down development.</li>
+            <li><strong>8.4 Legacy Systems:</strong> Strategies for handling legacy software (Scrap, Maintain, Re-engineer, Replace).</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 08</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 9 -->
+      <a href="#sec-09" class="index-item item-blue">
+        <div class="index-num">9</div>
+        <div class="index-content">
+          <div class="index-title">9. CASE Tools (Computer-Aided Software Engineering) ✨</div>
+          <ul class="index-sub-list">
+            <li><strong>9.1 Definition &amp; Purpose:</strong> Automated software tool support for SDLC activities to improve productivity &amp; quality.</li>
+            <li><strong>9.2 Types of CASE Tools:</strong>
+              <ul class="sub-child">
+                <li><strong>Upper CASE Tools:</strong> Support early SDLC phases (Requirements analysis, System design, DFD/ERD modeling).</li>
+                <li><strong>Lower CASE Tools:</strong> Support later SDLC phases (Code generation, Testing, Debugging, Documentation).</li>
+                <li><strong>Integrated CASE (I-CASE) Tools:</strong> End-to-end support linking upper and lower CASE tools with a central repository.</li>
+              </ul>
+            </li>
+            <li><strong>9.3 Examples &amp; Role across SDLC:</strong> Requirement tools, Diagramming tools, Code generators, Test automation tools, SCM tools.</li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 09</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- SECTION 10 -->
+      <a href="#sec-10" class="index-item item-amber">
+        <div class="index-num">10</div>
+        <div class="index-content">
+          <div class="index-title">10. Miscellaneous &amp; Frequently Asked Exam Topics 🔥</div>
+          <ul class="index-sub-list">
+            <li><strong>10.1 Software Engineering Layers:</strong> Foundation = Quality Focus $\rightarrow$ Process $\rightarrow$ Methods $\rightarrow$ Tools.</li>
+            <li><strong>10.2 Difference between Verification &amp; Validation:</strong> Detailed comparison matrix, static vs dynamic verification techniques.</li>
+            <li><strong>10.3 Waterfall vs Agile vs Spiral Comparison:</strong> Quick reference table for MCQ elimination.</li>
+            <li><strong>10.4 Numerical-type Questions Formula Cheat Sheet:</strong>
+              <ul class="sub-child">
+                <li><strong>COCOMO Effort Calculation:</strong> $E = a_b(\text{KLOC})^{b_b}$ person-months.</li>
+                <li><strong>Cyclomatic Complexity:</strong> $V(G) = E - N + 2P$ or $P + 1$.</li>
+                <li><strong>Function Point Count:</strong> $\text{FP} = \text{UFP} \times (0.65 + 0.01 \times \sum F_i)$.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <span class="index-tag">SEC 10</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+    </div>
+
+    <!-- Quick Navigation Links -->
+    <div class="quick-links">
+      <a href="../index.html" class="quick-btn quick-btn-teal">🏠 Main Workspace Dashboard</a>
+      <a href="gs-computer-networks-notes.html" class="quick-btn quick-btn-secondary">📖 GS CN Notes</a>
+      <a href="gs-network-security-notes.html" class="quick-btn quick-btn-green">🛡️ GS Security Notes</a>
+      <a href="gs-data-structures-notes.html" class="quick-btn quick-btn-primary">🧱 GS DS Notes</a>
+      <a href="gs-computer-organisation-notes.html" class="quick-btn quick-btn-teal">💻 GS COA Notes</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Software Engineering Notes · IBPS SO IT Officer Complete Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

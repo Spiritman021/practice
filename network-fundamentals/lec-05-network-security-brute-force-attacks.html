@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 5 – Brute Force &amp; Dictionary Attacks: Concepts, Key Space Math &amp; Mitigation | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 5 – Brute Force Attack, Dictionary Attack (Hydra, Burp Suite), Password Space Math Calculation (62^6), Mitigation Strategies (Account Lockout, CAPTCHA, MFA, Rate Limiting), and IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .grid-4 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .math-box {
+      background: linear-gradient(135deg, rgba(240,92,136,0.12), rgba(124,92,240,0.12));
+      border: 1.5px solid rgba(240,92,136,0.4); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .math-title { font-size: 15px; font-weight: 800; color: #f05c88; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(79,142,247,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(79,142,247,0.2); border: 1px solid rgba(79,142,247,0.4);
+      color: #4f8ef7; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #f05c88, #7c5cf0, #00d4aa);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(240,92,136,0.2); color: #f05c88; border: 1px solid rgba(240,92,136,0.4);">Lec 05</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(240,92,136,0.15); color: #f05c88; border: 1px solid rgba(240,92,136,0.3);">Security · Lecture 05</span>
+    <h1 class="page-title">Brute Force &amp; Dictionary Attacks:<br>Mechanism, Key Space Math &amp; Mitigations</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Brute Force Attacks, Dictionary Attacks, Automated Penetration Testing Tools (Hydra, Burp Suite), Key Space Mathematical Calculation ($62^6$), and 4 Core Defense Mitigations (Account Lockout, CAPTCHA, MFA, Rate Limiting). Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:#f05c88;border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🔑 IBPS SO IT High Yield</span>
+      <span style="font-size:12px;background:rgba(124,92,240,0.12);color:#7c5cf0;border:1px solid rgba(124,92,240,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 5 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#attack-definition"><span class="toc-num">5.1</span> What is a Brute Force Attack?</a></li>
+      <li><a href="#dictionary-attack"><span class="toc-num">5.2</span> Dictionary Attack &amp; Automated Penetration Tools</a></li>
+      <li><a href="#mitigation-techniques"><span class="toc-num">5.3</span> 4 Core Defense Mitigation Techniques</a></li>
+      <li><a href="#math-problem"><span class="toc-num">5.4</span> Step-by-Step Key Space Mathematical Calculation ($62^6$)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">5.5</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">5.6</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 5.1: ATTACK DEFINITION -->
+  <div class="section" id="attack-definition">
+    <div class="sec-card">
+      <h2 class="section-title">5.1 What is a Brute Force Attack?</h2>
+      <p>A <strong>Brute Force Attack</strong> is a trial-and-error method used by attackers to guess credentials, encryption keys, or sensitive tokens by systematically testing <strong>every possible combination</strong> until the correct one is discovered.</p>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#f05c88; font-size:16px; margin-bottom:8px;">⚡ Exhaustive Key Space Search</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            The attacker attempts combinations sequentially (e.g. <code>0000</code>, <code>0001</code>, <code>0002</code>... or <code>aaaa</code>, <code>aaab</code>...). Guaranteeing success if given unlimited time and compute resources.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">🎯 Target Vulnerabilities</h4>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            Short passwords, simple alphanumeric patterns (e.g. <code>password123</code>), un-throttled authentication endpoints, and lack of multi-factor authentication (MFA).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5.2: DICTIONARY ATTACK & TOOLS -->
+  <div class="section" id="dictionary-attack">
+    <div class="sec-card">
+      <h2 class="section-title">5.2 Dictionary Attack &amp; Automated Penetration Tools</h2>
+      
+      <p>A <strong>Dictionary Attack</strong> is a specialized, optimized variant of a brute force attack. Instead of trying every theoretical combination of letters and digits, it uses a pre-defined wordlist of common passwords, dictionary words, and leaked credential databases (e.g. <code>rockyou.txt</code>) to compromise accounts significantly faster.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Attack Type</th>
+            <th>Search Strategy</th>
+            <th>Speed &amp; Efficiency</th>
+            <th>Success Determinant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Full Brute Force Attack</strong></td>
+            <td>Tries <strong>ALL possible character permutations</strong> ($A-Z, a-z, 0-9, \text{symbols}$).</td>
+            <td>Slow (computationally expensive for long keys).</td>
+            <td>Guaranteed to find key eventually (if space is finite).</td>
+          </tr>
+          <tr>
+            <td><strong>Dictionary Attack</strong></td>
+            <td>Tries <strong>pre-compiled lists of words &amp; leaked passwords</strong> (e.g. <code>admin</code>, <code>123456</code>).</td>
+            <td><strong>Very Fast</strong> (targeted small search space).</td>
+            <td>Succeeds if victim uses common/predictable passwords.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; margin-top:20px;">
+        <h4 style="color:#4f8ef7; font-size:16px; margin-bottom:10px;">🛠️ Common Penetration Testing Tools</h4>
+        <ul style="color:var(--text2); font-size:13.5px; line-height:1.8; margin-left:20px;">
+          <li><strong>THC-Hydra:</strong> Fast network login cracker supporting HTTP-GET, HTTP-POST, SSH, FTP, Telnet, MySQL, etc.</li>
+          <li><strong>Burp Suite (Intruder):</strong> Popular web app security tool used for automated custom payload brute forcing against web forms and APIs.</li>
+          <li><strong>Hashcat / John the Ripper:</strong> High-speed offline password hash cracking software using GPU acceleration.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5.3: MITIGATION TECHNIQUES -->
+  <div class="section" id="mitigation-techniques">
+    <div class="sec-card">
+      <h2 class="section-title">5.3 4 Core Defense Mitigation Techniques</h2>
+      <p>The PDF slide highlights <strong>4 primary defensive measures</strong> to prevent and mitigate brute force attacks:</p>
+
+      <div class="grid-4">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <div style="font-size:24px; margin-bottom:8px;">🔒</div>
+          <h4 style="color:#f05c88; font-size:15px; margin-bottom:6px;">1. Account Lockouts</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:0;">
+            Locks user account temporarily (e.g. for 30 minutes) or permanently after 3–5 consecutive failed login attempts.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <div style="font-size:24px; margin-bottom:8px;">🧩</div>
+          <h4 style="color:#34d399; font-size:15px; margin-bottom:6px;">2. CAPTCHA Verification</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:0;">
+            <em>Completely Automated Public Turing test to tell Computers and Humans Apart</em>. Blocks automated bot scripts.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <div style="font-size:24px; margin-bottom:8px;">📱</div>
+          <h4 style="color:#7c5cf0; font-size:15px; margin-bottom:6px;">3. Multi-Factor Auth (MFA)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:0;">
+            Requires TOTP/SMS OTP or hardware security key; rendering correct password useless without 2nd factor.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <div style="font-size:24px; margin-bottom:8px;">⏱️</div>
+          <h4 style="color:#4f8ef7; font-size:15px; margin-bottom:6px;">4. Rate Limiting</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5; margin:0;">
+            Restricts total HTTP login requests allowed per IP address/session within a specified timeframe (e.g. max 5 req/min).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5.4: MATH PROBLEM -->
+  <div class="section" id="math-problem">
+    <div class="sec-card">
+      <h2 class="section-title">5.4 Step-by-Step Key Space Mathematical Calculation ($62^6$)</h2>
+
+      <div class="math-box">
+        <div class="math-title">📝 PDF Slide Problem Statement</div>
+        <p style="font-size:15px; color:#fff; font-weight:700; line-height:1.6; margin-bottom:14px;">
+          "How many attempts would it theoretically take, on average, to brute-force a 6-character alphanumeric password, assuming each character can be a letter (52 possibilities: 26 lowercase + 26 uppercase) or a digit (10 possibilities: 0 to 9)?"
+        </p>
+
+        <div style="background:var(--bg2); border-radius:12px; padding:18px; color:var(--text); font-size:14px; line-height:1.8;">
+          <h5 style="color:#f05c88; font-size:15px; margin-bottom:10px;">Step 1: Determine Total Character Set Possibilities ($N$)</h5>
+          $$\text{Letters (A-Z, a-z)} = 52$$
+          $$\text{Digits (0-9)} = 10$$
+          $$N = 52 + 10 = 62 \text{ possibilities per position}$$
+
+          <h5 style="color:#f05c88; font-size:15px; margin-top:14px; margin-bottom:10px;">Step 2: Calculate Total Key Space / Total Combinations ($S$)</h5>
+          $$\text{Password Length } L = 6$$
+          $$S = N^L = 62^6$$
+          $$S = 62 \times 62 \times 62 \times 62 \times 62 \times 62 = 56,800,235,584 \text{ combinations}$$
+          $$\approx 56.8 \text{ billion total combinations}$$
+
+          <h5 style="color:#f05c88; font-size:15px; margin-top:14px; margin-bottom:10px;">Step 3: Calculate Theoretical Average Attempts ($A_{avg}$)</h5>
+          <p>For a uniform probability distribution across key space, the average number of attempts needed to find the correct password is <strong>half of the total search space</strong> ($\frac{S}{2}$):</p>
+          $$A_{avg} = \frac{S}{2} = \frac{62^6}{2} = \frac{56,800,235,584}{2}$$
+          $$\mathbf{A_{avg} = 28,400,117,792 \text{ attempts} \approx 28.4 \text{ billion attempts}}$$
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5.5: PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">5.5 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q1. What does the acronym CAPTCHA stand for in modern web application security?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt correct">A) Completely Automated Public Turing test to tell Computers and Humans Apart ✓</div>
+          <div class="pyq-opt">B) Computer Automated Protocol to Test Cryptographic Hash Algorithms</div>
+          <div class="pyq-opt">C) Cyber Authentication Protocol for Turing Computer-Human Access</div>
+          <div class="pyq-opt">D) Centralized Automated Public Test for Cyber Threat Analysis</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: A.</strong><br>
+          <em>Explanation:</em> CAPTCHA stands for <strong>Completely Automated Public Turing test to tell Computers and Humans Apart</strong>. It prevents automated bot scripts from making rapid brute-force authentication requests.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q2. An attack that systematically attempts every possible key combination until the correct password is discovered is known as:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Man-in-the-Middle Attack</div>
+          <div class="pyq-opt correct">B) Brute Force Attack ✓</div>
+          <div class="pyq-opt">C) Phishing Attack</div>
+          <div class="pyq-opt">D) Replay Attack</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Brute Force Attack.</strong><br>
+          <em>Explanation:</em> Brute force attacks test all possible combinations in key space. A dictionary attack is an optimized variant using pre-compiled wordlists.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. If a numeric PIN consists of 4 digits (0 to 9), what is the total key space size, and what are the worst-case attempts needed to brute-force it?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Key space = 1,000; Worst case = 500</div>
+          <div class="pyq-opt correct">B) Key space = 10,000 ($10^4$); Worst case = 10,000 ✓</div>
+          <div class="pyq-opt">C) Key space = 65,536; Worst case = 32,768</div>
+          <div class="pyq-opt">D) Key space = 40,000; Worst case = 20,000</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B.</strong><br>
+          <em>Math Breakdown:</em> For 4 digits with 10 possibilities (0-9), total space $S = 10^4 = 10,000$. Worst case = $10,000$ attempts; Average attempts = $5,000$.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q4. Which mitigation technique restricts the maximum number of login requests per minute allowed from a single IP address?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Data Encryption Standard</div>
+          <div class="pyq-opt">B) Public Key Infrastructure</div>
+          <div class="pyq-opt correct">C) Rate Limiting ✓</div>
+          <div class="pyq-opt">D) Circuit Gateway Firewall</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Rate Limiting.</strong><br>
+          <em>Explanation:</em> Rate limiting restricts client request frequency within a time window, throttling automated brute-force scripts.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5.6: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">5.6 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. Brute Force Attack:</strong> Exhaustive search testing all character combinations ($N^L$).</p>
+        <p><strong style="color:#fff;">2. Dictionary Attack:</strong> Uses pre-defined wordlists (e.g., <code>rockyou.txt</code>) to guess common passwords faster.</p>
+        <p><strong style="color:#fff;">3. Tools:</strong> Hydra, Burp Suite (Intruder), Hashcat, John the Ripper.</p>
+        <p><strong style="color:#fff;">4. Key Space Formula:</strong> Total combinations $S = N^L$. Average attempts $A_{avg} = \frac{N^L}{2}$. For 6-char alphanumeric ($52+10=62$), $S = 62^6 = 56.8 \text{ billion}$, $A_{avg} = 28.4 \text{ billion}$.</p>
+        <p><strong style="color:#fff;">5. 4 Defense Mitigations:</strong> Account Lockout, CAPTCHA (Turing test), MFA, Rate Limiting.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-04-network-security-viruses-malicious-attacks.html" style="color:#f05c88; font-weight:700; text-decoration:none;">← Lec 04: Viruses &amp; Malware</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" style="color:#f05c88; font-weight:700; text-decoration:none;">Chapter 26: Firewalls &amp; DMZ →</a>
+    </div>
+    GS Network Security Notes · Lecture 05 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

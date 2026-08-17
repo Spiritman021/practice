@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="Operating System Complete Quick Revision for IBPS SO IT & GATE — 50 Individual Topics covering Schedulers, CPU Scheduling, Synchronization, Semaphores, Deadlocks, Paging, Virtual Memory, Inodes, Disk Scheduling & RAID."/>
+  <title>Operating System — Complete Quick Revision (50 Individual Topics) | IBPS SO IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#fff;--border:#e2e8f0;
+      --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+      --accent:#2563eb;--accent-light:#eff6ff;
+      --teal:#0d9488;--teal-light:#f0fdfa;
+      --amber:#d97706;--amber-light:#fffbeb;
+      --rose:#e11d48;--rose-light:#fff1f2;
+      --green:#059669;--green-light:#ecfdf5;
+      --purple:#7c3aed;--purple-light:#f5f3ff;
+      --slate:#334155;--slate-light:#f1f5f9;
+      --indigo:#4338ca;--indigo-light:#eef2ff;
+      --shadow:0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,.07);
+      --radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;min-height:100vh;}
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);box-shadow:var(--shadow);}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .nav-back{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;}
+    .nav-back:hover{color:var(--accent);}
+    .nav-title{font-size:15px;font-weight:800;color:var(--text);flex:1;}
+    .nav-badge{font-size:11px;font-weight:800;background:#d97706;color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+    .nav-index-btn{text-decoration:none;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-light);border:1px solid rgba(37,99,235,.2);padding:5px 12px;border-radius:8px;white-space:nowrap;transition:all .2s;}
+    .nav-index-btn:hover{background:var(--accent);color:#fff;}
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#78350f 45%,#1e1b4b 100%);color:#fff;padding:56px 24px 48px;text-align:center;}
+    .hero-eyebrow{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;}
+    .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{color:#fbbf24;}
+    .hero p{font-size:1.05rem;color:#cbd5e1;max-width:700px;margin:0 auto 28px;line-height:1.7;}
+    .hero-stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+    .hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#e2e8f0;}
+    .hero-stat span{color:#fbbf24;font-size:20px;font-weight:900;display:block;}
+    .toc-wrap{max-width:1100px;margin:36px auto 0;padding:0 24px;}
+    .toc-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow-md);}
+    .toc-title{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;}
+    .toc-link{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:8px;transition:all .18s;}
+    .toc-link:hover{background:var(--amber-light);color:var(--amber);border-color:rgba(217,119,6,.25);}
+    .toc-num{font-size:11px;font-weight:800;background:#d97706;color:#fff;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 4px;}
+    .main{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:flex;flex-direction:column;gap:24px;}
+    .part-banner{background:linear-gradient(135deg,#451a03,#0f172a);color:#fff;border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;}
+    .part-banner h2{font-size:1.35rem;font-weight:900;letter-spacing:-.5px;}
+    .part-banner span{font-size:12px;font-weight:800;background:rgba(255,255,255,.15);padding:4px 12px;border-radius:999px;text-transform:uppercase;}
+    .sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .sec-header{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--border);}
+    .sec-num{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;flex-shrink:0;background:var(--amber-light);color:var(--amber);}
+    .sec-title-wrap{flex:1;}
+    .sec-title{font-size:1.15rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .sec-subtitle{font-size:12.5px;color:var(--text2);margin-top:2px;font-weight:500;}
+    .badge-fire{font-size:10.5px;background:#dc2626;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-high{font-size:10.5px;background:#d97706;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .sec-body{padding:20px 24px;}
+    .c-rose .sec-num{background:var(--rose-light);color:var(--rose);} .c-rose .sec-title{color:#9f1239;}
+    .c-teal .sec-num{background:var(--teal-light);color:var(--teal);} .c-teal .sec-title{color:#0f766e;}
+    .c-amber .sec-num{background:var(--amber-light);color:var(--amber);} .c-amber .sec-title{color:#b45309;}
+    .c-blue .sec-num{background:var(--accent-light);color:var(--accent);} .c-blue .sec-title{color:#1e40af;}
+    .c-purple .sec-num{background:var(--purple-light);color:var(--purple);} .c-purple .sec-title{color:#6d28d9;}
+    .c-green .sec-num{background:var(--green-light);color:var(--green);} .c-green .sec-title{color:#047857;}
+    .c-indigo .sec-num{background:var(--indigo-light);color:var(--indigo);} .c-indigo .sec-title{color:#3730a3;}
+    .c-slate .sec-num{background:var(--slate-light);color:var(--slate);} .c-slate .sec-title{color:#1e293b;}
+    .def-box{background:var(--amber-light);border-left:4px solid var(--amber);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:#92400e;font-weight:600;line-height:1.6;}
+    .bullet-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+    .bullet-list li{padding-left:22px;position:relative;font-size:13.5px;color:#334155;line-height:1.6;}
+    .bullet-list li::before{content:"›";position:absolute;left:0;color:var(--amber);font-size:16px;top:0px;font-weight:900;}
+    .bullet-list li strong{color:var(--text);}
+    .mini-h{font-size:13.5px;font-weight:800;color:var(--text);margin:16px 0 10px;display:flex;align-items:center;gap:8px;}
+    .mini-h::after{content:'';flex:1;height:1px;background:var(--border);}
+    .callout{border-radius:12px;padding:12px 16px;margin:14px 0;font-size:13px;line-height:1.6;}
+    .callout-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;font-size:12.5px;}
+    .callout-blue{background:var(--accent-light);border-left:4px solid var(--accent);}
+    .callout-blue .callout-title{color:#1d4ed8;}
+    .callout-green{background:var(--green-light);border-left:4px solid var(--green);}
+    .callout-green .callout-title{color:#047857;}
+    .callout-amber{background:var(--amber-light);border-left:4px solid var(--amber);}
+    .callout-amber .callout-title{color:#92400e;}
+    .callout-rose{background:var(--rose-light);border-left:4px solid var(--rose);}
+    .callout-rose .callout-title{color:#9f1239;}
+    .callout-teal{background:var(--teal-light);border-left:4px solid var(--teal);}
+    .callout-teal .callout-title{color:#0f766e;}
+    .callout-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+    .callout-purple .callout-title{color:#6d28d9;}
+    .callout-indigo{background:var(--indigo-light);border-left:4px solid var(--indigo);}
+    .callout-indigo .callout-title{color:#3730a3;}
+    .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:14px 0;}
+    table.comp{width:100%;border-collapse:collapse;font-size:13px;}
+    table.comp th{background:#0f172a;color:#fff;padding:10px 14px;font-weight:700;text-align:left;white-space:nowrap;}
+    table.comp td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;vertical-align:top;line-height:1.5;}
+    table.comp tr:nth-child(even){background:#f8fafc;}
+    table.comp tr:last-child td{border-bottom:none;}
+    table.comp tr:hover td{background:var(--amber-light);}
+    .formula-block{background:#0f172a;color:#38bdf8;font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:14px 18px;border-radius:12px;margin:14px 0;line-height:1.7;overflow-x:auto;white-space:pre;}
+    .formula-block .c{color:#64748b;} .formula-block .k{color:#fb7185;} .formula-block .g{color:#4ade80;} .formula-block .y{color:#facc15;}
+    .flow-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:16px 20px;margin:14px 0;text-align:center;}
+    .flow-title{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+    .flow-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;}
+    .flow-step{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+    .flow-arrow{color:var(--text3);font-size:15px;}
+    .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0;}
+    .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0;}
+    .mini-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .mini-card-title{font-size:12.5px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .fact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+    .fact-item{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;display:flex;gap:10px;align-items:flex-start;line-height:1.5;}
+    .fact-num{font-size:10.5px;font-weight:900;background:#0f172a;color:#fbbf24;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+    .fact-item strong{color:var(--text);}
+    .mental-map{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:28px 32px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;overflow-x:auto;white-space:pre;}
+    .ok{color:#059669;font-weight:800;} .bad{color:#dc2626;font-weight:800;} .warn{color:#d97706;font-weight:800;} .na{color:#94a3b8;font-weight:700;}
+    .bottom-nav{max-width:1100px;margin:0 auto 60px;padding:0 24px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+    .bottom-btn{text-decoration:none;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;transition:all .2s;}
+    .btn-amber-ol{background:var(--amber-light);color:var(--amber);border:1px solid rgba(217,119,6,.25);}
+    .btn-amber-ol:hover{background:var(--amber);color:#fff;}
+    .btn-blue-ol{background:var(--accent-light);color:var(--accent);border:1px solid rgba(37,99,235,.25);}
+    .btn-blue-ol:hover{background:var(--accent);color:#fff;}
+    .btn-slate{background:#f1f5f9;color:#334155;border:1px solid var(--border);}
+    .btn-slate:hover{background:#e2e8f0;}
+    .sec-anchor{scroll-margin-top:80px;}
+    @media(max-width:700px){.nav-inner,.sec-body,.sec-header,.main,.toc-wrap,.bottom-nav{padding-left:16px;padding-right:16px;}.hero{padding:40px 16px 36px;}.mental-map{font-size:11px;padding:18px 14px;}}
+    ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:#f1f5f9;} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;} ::-webkit-scrollbar-thumb:hover{background:#94a3b8;}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-back">&#8592; Practice Hub Dashboard</a>
+    <span class="nav-title">Operating System &#8212; Complete Quick Revision</span>
+    <a href="../pages/computer/computer.html" class="nav-index-btn">💻 Computer Subject</a>
+    <span class="nav-badge">IBPS SO IT</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">IBPS SO IT Officer &#183; Operating System</div>
+  <h1>Complete <span>Quick Revision</span><br/>End-to-End Overview</h1>
+  <p>All 50 individual topics &mdash; Kernel Architectures, Process Schedulers, CPU Scheduling, Synchronization, Deadlocks, Paging, Virtual Memory, Inodes, Disk Scheduling, RAID &amp; Last-Minute 48 Facts.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>50</span>Individual Topics</div>
+    <div class="hero-stat"><span>48</span>Exam Ready Facts</div>
+    <div class="hero-stat"><span>&#128293;&#128293;</span>High Yield</div>
+  </div>
+</div>
+
+<div class="toc-wrap">
+  <div class="toc-box">
+    <div class="toc-title">&#128203; Quick Navigation Table of Contents (50 Individual Topics)</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-link"><span class="toc-num">1</span>OS Basics &amp; Kernel Architecture</a><a href="#s2" class="toc-link"><span class="toc-num">2</span>System Calls &amp; Dual-Mode</a><a href="#s3" class="toc-link"><span class="toc-num">3</span>Processes, States &amp; PCB</a><a href="#s4" class="toc-link"><span class="toc-num">4</span>CPU Scheduling Algorithms</a><a href="#s5" class="toc-link"><span class="toc-num">5</span>Threads &amp; Multithreading</a><a href="#s6" class="toc-link"><span class="toc-num">6</span>Inter-Process Comm (IPC)</a><a href="#s7" class="toc-link"><span class="toc-num">7</span>Process Synchronization</a><a href="#s8" class="toc-link"><span class="toc-num">8</span>Critical Section Problem</a><a href="#s9" class="toc-link"><span class="toc-num">9</span>Synchronization Mechanisms</a><a href="#s10" class="toc-link"><span class="toc-num">10</span>Classic Sync Problems</a><a href="#s11" class="toc-link"><span class="toc-num">11</span>Peterson's Algorithm</a><a href="#s12" class="toc-link"><span class="toc-num">12</span>Bakery Algorithm</a><a href="#s13" class="toc-link"><span class="toc-num">13</span>Deadlocks &amp; vs Livelock</a><a href="#s14" class="toc-link"><span class="toc-num">14</span>4 Deadlock Conditions (MHNC)</a><a href="#s15" class="toc-link"><span class="toc-num">15</span>Deadlock Handling &amp; RAG</a><a href="#s16" class="toc-link"><span class="toc-num">16</span>Safe vs Unsafe State</a><a href="#s17" class="toc-link"><span class="toc-num">17</span>Banker's Algorithm</a><a href="#s18" class="toc-link"><span class="toc-num">18</span>Memory Management &amp; MMU</a><a href="#s19" class="toc-link"><span class="toc-num">19</span>Contiguous Memory Allocation</a><a href="#s20" class="toc-link"><span class="toc-num">20</span>Fragmentation &amp; Compaction</a><a href="#s21" class="toc-link"><span class="toc-num">21</span>Allocation &amp; Buddy System</a><a href="#s22" class="toc-link"><span class="toc-num">22</span>Paging &amp; Translation</a><a href="#s23" class="toc-link"><span class="toc-num">23</span>Page Table Structures</a><a href="#s24" class="toc-link"><span class="toc-num">24</span>TLB &amp; EMAT Formula</a><a href="#s25" class="toc-link"><span class="toc-num">25</span>Segmentation vs Paging</a><a href="#s26" class="toc-link"><span class="toc-num">26</span>Virtual Memory Basics</a><a href="#s27" class="toc-link"><span class="toc-num">27</span>Demand Paging &amp; COW</a><a href="#s28" class="toc-link"><span class="toc-num">28</span>Page Replacement Algorithms</a><a href="#s29" class="toc-link"><span class="toc-num">29</span>Belady's Anomaly</a><a href="#s30" class="toc-link"><span class="toc-num">30</span>Thrashing &amp; Solutions</a><a href="#s31" class="toc-link"><span class="toc-num">31</span>Working Set Model</a><a href="#s32" class="toc-link"><span class="toc-num">32</span>Page vs Segmentation Fault</a><a href="#s33" class="toc-link"><span class="toc-num">33</span>File Systems &amp; Journaling</a><a href="#s34" class="toc-link"><span class="toc-num">34</span>File Access Methods</a><a href="#s35" class="toc-link"><span class="toc-num">35</span>Directory Structures</a><a href="#s36" class="toc-link"><span class="toc-num">36</span>File Allocation Methods</a><a href="#s37" class="toc-link"><span class="toc-num">37</span>Free Space Management</a><a href="#s38" class="toc-link"><span class="toc-num">38</span>Inodes in Unix/Linux</a><a href="#s39" class="toc-link"><span class="toc-num">39</span>Disk Scheduling &amp; RAID</a><a href="#s40" class="toc-link"><span class="toc-num">40</span>I/O &amp; Device Types</a><a href="#s41" class="toc-link"><span class="toc-num">41</span>I/O Techniques &amp; DMA</a><a href="#s42" class="toc-link"><span class="toc-num">42</span>Interrupts &amp; vs Polling</a><a href="#s43" class="toc-link"><span class="toc-num">43</span>Protection &amp; Security</a><a href="#s44" class="toc-link"><span class="toc-num">44</span>Access Matrix (ACL vs C-List)</a><a href="#s45" class="toc-link"><span class="toc-num">45</span>Booting Process &amp; POST</a><a href="#s46" class="toc-link"><span class="toc-num">46</span>Processing Concepts</a><a href="#s47" class="toc-link"><span class="toc-num">47</span>Spooling (SPOOL)</a><a href="#s48" class="toc-link"><span class="toc-num">48</span>Buffering vs Caching vs Spool</a><a href="#s49" class="toc-link"><span class="toc-num">49</span>Virtualization &amp; Hypervisors</a><a href="#s50" class="toc-link"><span class="toc-num">50</span>Key Exam Differences</a><a href="#s51" class="toc-link"><span class="toc-num" style="background:#dc2626;">&#128293;</span>Last-Minute 48 Facts</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="part-banner">
+    <h2>Operating System Core Concepts</h2>
+    <span>Topics 1 to 50 + 48 Facts Sheet</span>
+  </div>
+
+  <!-- S1 -->
+<div id="s1" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title-wrap"><div class="sec-title">Operating System Basics &amp; Kernel Architectures <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Definition, functions, types, monolithic vs microkernel, preemptive kernel</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Operating System (OS)</strong>: System software that acts as an intermediary / interface between the user/applications and computer hardware.</div>
+    <div class="mini-h">Main Functions of OS</div>
+    <ul class="bullet-list">
+      <li><strong>Process Management</strong>: CPU allocation, scheduling, process creation/termination.</li>
+      <li><strong>Memory Management</strong>: Allocation/deallocation of primary RAM, paging, virtual memory.</li>
+      <li><strong>File &amp; I/O Management</strong>: File system abstraction, device driver coordination, disk scheduling.</li>
+      <li><strong>Protection &amp; Security</strong>: Authentication, authorization, access control matrix.</li>
+    </ul>
+    <div class="mini-h">Types of Operating Systems</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>OS Type</th><th>Key Idea &amp; Behavior</th></tr></thead><tbody>
+      <tr><td><strong>Batch OS</strong></td><td>Jobs with similar needs grouped into batches and processed without user interaction.</td></tr>
+      <tr><td><strong>Multiprogramming OS</strong></td><td>Keeps multiple jobs in memory simultaneously so CPU always has a job to execute (maximizes CPU utilization).</td></tr>
+      <tr><td><strong>Multitasking / Time-Sharing</strong></td><td>CPU switches between tasks so rapidly that users can interact with each program running.</td></tr>
+      <tr><td><strong>Multiprocessing OS</strong></td><td>Uses multiple physical CPUs/cores to execute processes in true hardware parallelism.</td></tr>
+      <tr><td><strong>Distributed OS vs Network OS &#11088;</strong></td><td><strong>Distributed:</strong> Multiple independent machines appear as a <em>single unified system</em> (transparent).<br/><strong>Network:</strong> Machines remain autonomous; OS provides services to access remote shared files/printers.</td></tr>
+      <tr><td><strong>Real-Time OS (RTOS)</strong></td><td>Strict, guaranteed response time limits (Hard RTOS vs Soft RTOS).</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">Kernel Architectures &#128293;</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Architecture</th><th>How It Works</th><th>Pros &amp; Cons / Examples</th></tr></thead><tbody>
+      <tr><td><strong>Monolithic Kernel</strong></td><td>All OS services (file system, VFS, device drivers, IPC, memory mgmt) run inside kernel space as one single binary image.</td><td><span class="ok">Very Fast</span>, but a single driver crash can crash the entire OS. (Linux, traditional Unix).</td></tr>
+      <tr><td><strong>Microkernel</strong></td><td>Only bare essentials (IPC, minimal scheduling, basic virtual memory) stay in kernel space; drivers and file systems run as user-space services.</td><td><span class="ok">Highly secure &amp; modular</span>, but message-passing IPC adds performance overhead. (Minix, QNX).</td></tr>
+      <tr><td><strong>Hybrid Kernel</strong></td><td>Combines monolithic speed with microkernel modularity.</td><td>Used in modern Windows NT, macOS (XNU kernel).</td></tr>
+      <tr><td><strong>Exokernel</strong></td><td>Allocates raw hardware directly to apps with minimal abstraction.</td><td>Customized application-level OS libraries.</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#129504; Preemptive vs Non-Preemptive Kernel</div>
+      <strong>Preemptive Kernel:</strong> A process running in kernel mode can be preempted by a higher priority process.<br/>
+      <strong>Non-Preemptive Kernel:</strong> A process in kernel mode runs uninterrupted until it exits kernel mode or blocks.
+    </div>
+  </div>
+</div><!-- S2 -->
+<div id="s2" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title-wrap"><div class="sec-title">System Calls &amp; Dual-Mode Operation</div><div class="sec-subtitle">User Mode &harr; Kernel Mode, Categories, fork(), exec(), exit(), wait()</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>System Call</strong>: Programmatic interface through which a user program requests privileged services from the OS kernel. Causes a software interrupt / trap that switches CPU from <strong>User Mode (Mode bit = 1)</strong> to <strong>Kernel Mode (Mode bit = 0)</strong>.</div>
+    <div class="mini-h">Major System Call Categories</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Category</th><th>Key System Calls</th><th>Function</th></tr></thead><tbody>
+      <tr><td><strong>Process Control</strong></td><td><code>fork()</code>, <code>exec()</code>, <code>exit()</code>, <code>wait()</code></td><td>Create child process, load executable, terminate, wait for child.</td></tr>
+      <tr><td><strong>File Management</strong></td><td><code>open()</code>, <code>read()</code>, <code>write()</code>, <code>close()</code>, <code>unlink()</code></td><td>File manipulation operations.</td></tr>
+      <tr><td><strong>Device Management</strong></td><td><code>ioctl()</code>, <code>read()</code>, <code>write()</code></td><td>Request and release device resources.</td></tr>
+      <tr><td><strong>Information Maintenance</strong></td><td><code>getpid()</code>, <code>alarm()</code>, <code>time()</code></td><td>Get system/process timing and metadata.</td></tr>
+      <tr><td><strong>Communication / IPC</strong></td><td><code>pipe()</code>, <code>shmget()</code>, <code>socket()</code></td><td>Inter-process message/shared memory communication.</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-teal"><div class="callout-title">&#128273; System Call vs API vs System Program</div>
+      <strong>API (e.g. C printf, malloc):</strong> Programming library functions.<br/>
+      <strong>System Call (e.g. write(), sbrk()):</strong> The actual trap into kernel mode invoked under the hood.<br/>
+      <strong>System Program (e.g. ls, ps, bash):</strong> User-space utilities built on top of system calls.
+    </div>
+  </div>
+</div><!-- S3 -->
+<div id="s3" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title-wrap"><div class="sec-title">Processes, Process States &amp; PCB <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">5-State Model, PCB, Context Switch, Schedulers, Zombie &amp; Orphan</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Program (Passive)</div><p style="font-size:13px;color:#475569;">Passive entity stored on disk (executable file, e.g. <code>a.out</code>).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Process (Active) &#11088;</div><p style="font-size:13px;color:#475569;">Program in execution. Includes program counter, stack, data, heap, and registers.</p></div>
+    </div>
+    <div class="mini-h">5-State Process Lifecycle Model</div>
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">New</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#2563eb;">Ready</span><span class="flow-arrow">&#8596;</span>
+      <span class="flow-step" style="color:#047857;">Running</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#dc2626;">Terminated</span>
+    </div><br/>
+    <div class="flow-steps" style="margin-top:6px;">
+      <span class="flow-step" style="color:#047857;">Running</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#b45309;">Waiting / Blocked (I/O event)</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#2563eb;">Ready (I/O complete)</span>
+    </div></div>
+    <div class="mini-h">PCB &mdash; Process Control Block Contents</div>
+    <ul class="bullet-list">
+      <li><strong>PID</strong> (Process ID), <strong>Process State</strong> (Ready/Running/Waiting).</li>
+      <li><strong>Program Counter (PC)</strong>: Address of next instruction to execute.</li>
+      <li><strong>CPU Registers</strong>: Accumulators, index registers, stack pointers.</li>
+      <li><strong>CPU Scheduling info</strong>: Priority, scheduling queue pointers.</li>
+      <li><strong>Memory Management info</strong>: Base/limit registers or Page tables.</li>
+      <li><strong>I/O Status &amp; Accounting info</strong>: Open files list, allocated I/O devices.</li>
+    </ul>
+    <div class="mini-h">Types of Schedulers &#128293;</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Scheduler</th><th>Alternative Name</th><th>Primary Function</th><th>Execution Frequency</th></tr></thead><tbody>
+      <tr><td><strong>Long-Term Scheduler</strong></td><td>Job Scheduler</td><td>Selects processes from job pool on disk into RAM ready queue. Controls <strong>Degree of Multiprogramming</strong>.</td><td>Infrequent (Seconds/Minutes)</td></tr>
+      <tr><td><strong>Short-Term Scheduler</strong></td><td>CPU Scheduler</td><td>Selects which ready process in RAM gets the CPU next.</td><td>Very frequent (Milliseconds)</td></tr>
+      <tr><td><strong>Medium-Term Scheduler</strong></td><td>Swapper</td><td>Handles <strong>swapping</strong> (moves blocked/idle processes to disk swap space to free RAM).</td><td>Intermediate frequency</td></tr>
+    </tbody></table></div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Zombie Process &#11088;</div><p style="font-size:13px;color:#475569;">Process has terminated, but its entry remains in process table because parent hasn't yet read its exit status via <code>wait()</code>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">Orphan Process &#11088;</div><p style="font-size:13px;color:#475569;">Parent process terminates before its child. The orphan process is automatically adopted by the <code>init</code> process (PID = 1).</p></div>
+    </div>
+    <div class="callout callout-purple"><div class="callout-title">&#128273; Context Switching &amp; Dispatcher</div>
+      <strong>Context Switch:</strong> Saving state of old process into its PCB and loading state of new process from its PCB. Pure computational overhead (CPU does zero productive work during switch).<br/>
+      <strong>Dispatcher:</strong> The OS module that gives control of CPU to the process selected by short-term scheduler.
+    </div>
+  </div>
+</div><!-- S4 -->
+<div id="s4" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title-wrap"><div class="sec-title">CPU Scheduling Algorithms &amp; Formulas <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">TAT, WT, RT Formulas &amp; FCFS, SJF, SRTF, Priority, RR, Multilevel Queue</div></div></div>
+  <div class="sec-body">
+    <div class="mini-h">Golden CPU Scheduling Formulas &#128293;</div>
+    <div class="formula-block">Turnaround Time (TAT) = Completion Time (CT) &minus; Arrival Time (AT)
+Waiting Time    (WT)  = Turnaround Time (TAT) &minus; Burst Time (BT)
+Response Time   (RT)  = First CPU Allocation Time &minus; Arrival Time (AT)</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Preemptive?</th><th>Key Characteristic &amp; Evaluation</th></tr></thead><tbody>
+      <tr><td><strong>FCFS (First Come First Serve)</strong></td><td>No</td><td>Simple. Suffers from <strong>Convoy Effect</strong> (short processes wait behind long CPU-bound process).</td></tr>
+      <tr><td><strong>SJF (Shortest Job First)</strong></td><td>No</td><td>Selects process with shortest burst time. <strong>Gives provably minimum average waiting time</strong>. Difficult to know future burst time.</td></tr>
+      <tr><td><strong>SRTF (Shortest Remaining Time First)</strong></td><td><strong>Yes</strong></td><td>Preemptive version of SJF. Process with smallest remaining time preempts current running process.</td></tr>
+      <tr><td><strong>Priority Scheduling</strong></td><td>Either</td><td>CPU allocated to highest priority. Suffers from <strong>Starvation</strong>. Solved by <strong>Aging</strong> (gradually boosting priority of waiting jobs).</td></tr>
+      <tr><td><strong>Round Robin (RR) &#11088;</strong></td><td><strong>Yes</strong></td><td>Time-shared execution with fixed <strong>Time Quantum (q)</strong>. Fair response times. If q &rarr; &infin;, behaves like FCFS; if q &rarr; 0, excessive context switch overhead.</td></tr>
+      <tr><td><strong>Multilevel Queue</strong></td><td>Either</td><td>Ready queue partitioned into fixed separate queues (e.g. Foreground interactive vs Background batch). Fixed priority among queues.</td></tr>
+      <tr><td><strong>Multilevel Feedback Queue (MLFQ) &#11088;</strong></td><td>Either</td><td>Processes can <strong>dynamically move between queues</strong> based on CPU-burst history and aging. Most general and flexible CPU scheduler.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S5 -->
+<div id="s5" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title-wrap"><div class="sec-title">Threads &amp; Multithreading Models <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Lightweight process, User vs Kernel threads, Many-to-One, One-to-One, Many-to-Many</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Thread</strong>: Smallest unit of CPU execution ("lightweight process"). A process can contain multiple threads of execution.</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Shared by All Threads in Process</div><p style="font-size:13px;color:#475569;">&bull; Code segment<br/>&bull; Data segment (global variables)<br/>&bull; OS resources (open files &amp; signals)<br/>&bull; Heap memory</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Private to Each Individual Thread</div><p style="font-size:13px;color:#475569;">&bull; Thread ID (TID)<br/>&bull; Program Counter (PC)<br/>&bull; Register set<br/>&bull; Stack (local variables &amp; function calls)</p></div>
+    </div>
+    <div class="mini-h">Multithreading Models</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Model</th><th>Mapping</th><th>Pros &amp; Cons</th></tr></thead><tbody>
+      <tr><td><strong>Many-to-One</strong></td><td>Many User threads &#8594; 1 Kernel thread</td><td>Fast thread management in user space, but if one thread makes a blocking system call, <strong>the entire process blocks</strong>. Cannot run in parallel on multi-core.</td></tr>
+      <tr><td><strong>One-to-One &#11088;</strong></td><td>1 User thread &#8594; 1 Kernel thread</td><td>True concurrency and parallel execution on multi-core. Overhead of creating kernel threads (used in Linux &amp; Windows).</td></tr>
+      <tr><td><strong>Many-to-Many</strong></td><td>Many User threads &#8594; Fewer/Equal Kernel threads</td><td>Flexible multiplexing; avoids bottleneck of many-to-one and overhead of one-to-one.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S6 -->
+<div id="s6" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">6</div><div class="sec-title-wrap"><div class="sec-title">Inter-Process Communication (IPC)</div><div class="sec-subtitle">Shared Memory, Message Passing, Pipes, Sockets, RPC</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Shared Memory (Fastest)</div><p style="font-size:13px;color:#475569;">Processes share a common memory region mapped to their address spaces. Extremely fast (zero kernel copy overhead), but requires application-level synchronization.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Message Passing</div><p style="font-size:13px;color:#475569;">Processes exchange messages via kernel system calls (<code>send()</code>, <code>receive()</code>). Useful in distributed systems; avoids shared-memory conflict.</p></div>
+    </div>
+    <div class="mini-h">Other IPC Mechanisms</div>
+    <ul class="bullet-list">
+      <li><strong>Ordinary Pipes</strong>: Unidirectional producer-consumer byte stream between parent and child processes.</li>
+      <li><strong>Named Pipes (FIFOs)</strong>: Bidirectional, persistent in file system, accessible by unrelated processes.</li>
+      <li><strong>Sockets</strong>: Network endpoint communication across machines (IP + Port).</li>
+      <li><strong>RPC (Remote Procedure Call)</strong>: Abstracts procedure calls across network as if executing locally.</li>
+    </ul>
+  </div>
+</div><!-- S7 -->
+<div id="s7" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">7</div><div class="sec-title-wrap"><div class="sec-title">Process Synchronization &amp; Race Condition <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Concurrent access anomalies on shared resources</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Race Condition</strong>: A situation where multiple concurrent processes access and manipulate shared data, and the final outcome depends on the specific order in which instructions execute.</div>
+    <div class="formula-block">Race Condition Example (Shared Counter = 10):
+Thread A reads counter = 10 | Thread B reads counter = 10
+Thread A increments &#8594; 11    | Thread B increments &#8594; 11
+Thread A writes &#8594; 11        | Thread B writes &#8594; 11
+Expected Counter = 12, Actual Counter = 11 (Data Corrupted!)</div>
+  </div>
+</div><!-- S8 -->
+<div id="s8" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">8</div><div class="sec-title-wrap"><div class="sec-title">The Critical Section Problem &amp; 3 Requirements &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Mutual Exclusion, Progress, Bounded Waiting</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Critical Section (CS)</strong>: Piece of code where shared resources (variables, files, tables) are accessed and modified.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Requirement</th><th>Mandatory Rule</th></tr></thead><tbody>
+      <tr><td><strong>1. Mutual Exclusion &#11088;</strong></td><td>If process Pi is executing in its critical section, <strong>no other process can be executing in their critical section</strong>.</td></tr>
+      <tr><td><strong>2. Progress &#11088;</strong></td><td>If no process is in CS and some processes wish to enter, only those processes not in their remainder section can participate in deciding who enters next, and selection <strong>cannot be postponed indefinitely</strong>.</td></tr>
+      <tr><td><strong>3. Bounded Waiting &#11088;</strong></td><td>There must be a bound on the number of times other processes are allowed to enter CS after a process has made a request to enter (prevents indefinite starvation).</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S9 -->
+<div id="s9" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">9</div><div class="sec-title-wrap"><div class="sec-title">Synchronization Mechanisms</div><div class="sec-subtitle">Mutex, Semaphore, Monitors, Test-and-Set, Spinlocks</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Mutex (Mutual Exclusion Lock)</div><p style="font-size:13px;color:#475569;">Binary locking mechanism with <strong>strict ownership</strong> (only the thread that locked the mutex can unlock it).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Semaphore (Dijkstra) &#11088;</div><p style="font-size:13px;color:#475569;">Integer synchronization variable accessed via two atomic operations: <strong><code>wait()</code> / P()</strong> (decrements) and <strong><code>signal()</code> / V()</strong> (increments).</p></div>
+    </div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Semaphore Type</th><th>Value Range</th><th>Use Case</th></tr></thead><tbody>
+      <tr><td><strong>Binary Semaphore</strong></td><td>0 or 1</td><td>Mutual exclusion (similar to Mutex, but no ownership concept).</td></tr>
+      <tr><td><strong>Counting Semaphore</strong></td><td>0 to N (Unrestricted integer)</td><td>Resource allocation from a pool of N identical available resource instances.</td></tr>
+    </tbody></table></div>
+    <ul class="bullet-list">
+      <li><strong>Monitor</strong>: High-level language synchronization construct containing shared data variables, condition variables (<code>wait</code>/<code>signal</code>), and procedures. Only <strong>one process can be active inside a monitor at a time</strong>.</li>
+      <li><strong>Hardware Atomic Instructions</strong>: <code>TestAndSet()</code> and <code>CompareAndSwap()</code> execute without interruption at hardware level.</li>
+      <li><strong>Spinlock</strong>: A lock where waiting processes loop/poll continuously (busy waiting). Efficient for very short wait times on multiprocessors.</li>
+    </ul>
+  </div>
+</div><!-- S10 -->
+<div id="s10" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">10</div><div class="sec-title-wrap"><div class="sec-title">Classic Synchronization Problems</div><div class="sec-subtitle">Producer-Consumer, Readers-Writers, Dining Philosophers</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Problem</th><th>Description &amp; Semaphore Setup</th></tr></thead><tbody>
+      <tr><td><strong>Producer&ndash;Consumer (Bounded Buffer)</strong></td><td>Producer puts items into buffer; Consumer removes items. Uses 3 semaphores: <code>mutex</code> (mutual exclusion = 1), <code>empty</code> (N), <code>full</code> (0).</td></tr>
+      <tr><td><strong>Readers&ndash;Writers</strong></td><td>Multiple readers can read concurrently; Writers require exclusive access. Uses <code>rw_mutex</code> and <code>read_count</code>.</td></tr>
+      <tr><td><strong>Dining Philosophers</strong></td><td>5 philosophers share 5 chopsticks (need 2 chopsticks to eat). Demonstrates resource contention and deadlock avoidance.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S11 -->
+<div id="s11" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">11</div><div class="sec-title-wrap"><div class="sec-title">Peterson's Algorithm</div><div class="sec-subtitle">Classic software mutual exclusion solution for 2 processes</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Peterson's Algorithm</strong> is a classic software solution for <strong>two processes</strong> (P0, P1) that satisfies Mutual Exclusion, Progress, and Bounded Waiting. Uses two shared variables: <code>boolean flag[2]</code> and <code>int turn</code>.</div>
+  </div>
+</div><!-- S12 -->
+<div id="s12" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">12</div><div class="sec-title-wrap"><div class="sec-title">Lamport's Bakery Algorithm</div><div class="sec-subtitle">Mutual exclusion for N processes (Token ticket system)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Bakery Algorithm (Leslie Lamport)</strong>: Provides mutual exclusion for <strong>N processes</strong>. Each process receives a ticket number upon entering; the process with the lowest ticket number gets to enter the critical section next.</div>
+  </div>
+</div><!-- S13 -->
+<div id="s13" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">13</div><div class="sec-title-wrap"><div class="sec-title">Deadlocks &amp; Deadlock vs Livelock <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Definition, circular dependencies &amp; state comparisons</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Deadlock</strong>: A set of processes are blocked because each process is holding a resource and waiting for another resource acquired by some other process in the set.</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Deadlock (Blocked)</div><p style="font-size:13px;color:#475569;">Processes are permanently blocked/sleeping in waiting state; zero CPU usage and zero state changes occur.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">Livelock (Active Loop)</div><p style="font-size:13px;color:#475569;">Processes actively change state in response to each other, but make zero forward progress (e.g. two people in a hallway repeatedly stepping to the same side).</p></div>
+    </div>
+  </div>
+</div><!-- S14 -->
+<div id="s14" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">14</div><div class="sec-title-wrap"><div class="sec-title">Four Necessary Conditions for Deadlock &#11088;&#11088;&#11088;</div><div class="sec-subtitle">M-H-N-C (Coffman Conditions)</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Condition</th><th>Meaning</th><th>Prevention Strategy</th></tr></thead><tbody>
+      <tr><td><strong>1. Mutual Exclusion</strong></td><td>At least one non-sharable resource held exclusively.</td><td>Make resources sharable (e.g. read-only files, spooling).</td></tr>
+      <tr><td><strong>2. Hold and Wait</strong></td><td>Process holds &ge;1 resource while requesting others.</td><td>Process must request all resources at start, or release held resources before requesting.</td></tr>
+      <tr><td><strong>3. No Preemption</strong></td><td>Resources cannot be forcibly taken from a process.</td><td>Preempt held resources if a new request cannot be allocated immediately.</td></tr>
+      <tr><td><strong>4. Circular Wait</strong></td><td>A closed chain of processes exists: P0 &rarr; P1 &rarr; ... &rarr; Pn &rarr; P0.</td><td><strong>Impose total global ordering</strong> on all resource types and require ascending allocation.</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-purple"><div class="callout-title">&#129504; Mnemonic &amp; Rule</div><strong>M-H-N-C</strong> (Mutual Exclusion, Hold &amp; Wait, No Preemption, Circular Wait). Breaking <strong>ANY ONE</strong> condition guarantees deadlock cannot occur.</div>
+  </div>
+</div><!-- S15 -->
+<div id="s15" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">15</div><div class="sec-title-wrap"><div class="sec-title">Deadlock Handling &amp; Resource Allocation Graph (RAG)</div><div class="sec-subtitle">Prevention, Avoidance, Detection, Recovery &amp; RAG Cycle Rules</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Strategy</th><th>Approach</th></tr></thead><tbody>
+      <tr><td><strong>Deadlock Prevention</strong></td><td>Design system protocols to invalidate at least one of the 4 Coffman conditions.</td></tr>
+      <tr><td><strong>Deadlock Avoidance</strong></td><td>OS checks every resource request dynamically using <strong>Banker's Algorithm</strong> to ensure system stays in a <strong>Safe State</strong>.</td></tr>
+      <tr><td><strong>Deadlock Detection &amp; Recovery</strong></td><td>Allow deadlocks to occur; periodically run detection algorithm (Wait-for Graph / RAG), then recover via process termination or preemption.</td></tr>
+      <tr><td><strong>Ostrich Algorithm (Ignore)</strong></td><td>Ignore the problem completely (used in Unix/Linux/Windows where deadlocks are rare).</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">Resource Allocation Graph (RAG) Cycle Rules &#128293;</div>
+    <ul class="bullet-list">
+      <li><strong>If graph has NO cycle &#8594; Guaranteed NO deadlock &#10003;</strong></li>
+      <li><strong>If graph HAS a cycle and each resource has ONLY ONE instance &#8594; Definitely DEADLOCK &#10008;</strong></li>
+      <li><strong>If graph HAS a cycle with MULTIPLE resource instances &#8594; MAY OR MAY NOT be deadlock</strong>.</li>
+    </ul>
+  </div>
+</div><!-- S16 -->
+<div id="s16" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">16</div><div class="sec-title-wrap"><div class="sec-title">Safe State vs Unsafe State</div><div class="sec-subtitle">Safe sequence existence &amp; deadlock relationship</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Safe State</strong>: There exists at least one safe execution sequence such that every process can satisfy its maximum resource needs and complete without deadlock.</div>
+    <div class="callout callout-amber"><div class="callout-title">&#9888; Important Distinction</div>
+      <strong>Safe State</strong> is a subset of No Deadlock.<br/>
+      <strong>Unsafe State &ne; Deadlock</strong> (An unsafe state merely creates the <em>possibility</em> of a deadlock).
+    </div>
+  </div>
+</div><!-- S17 -->
+<div id="s17" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">17</div><div class="sec-title-wrap"><div class="sec-title">Banker's Algorithm (Deadlock Avoidance) &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Available, Max, Allocation, Need Matrix &amp; Safety Algorithm</div></div></div>
+  <div class="sec-body">
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Core Formula</div>
+      <strong>Need Matrix [i, j] = Max[i, j] &minus; Allocation[i, j]</strong>
+    </div>
+    <div class="formula-block">Safety Algorithm:
+1. Work = Available, Finish[i] = false for all i.
+2. Find index i such that: Finish[i] == false AND Need[i] &le; Work.
+3. Work = Work + Allocation[i], Finish[i] = true, repeat step 2.
+4. If Finish[i] == true for ALL processes &#8594; System is in a SAFE STATE!</div>
+  </div>
+</div><!-- S18 -->
+<div id="s18" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">18</div><div class="sec-title-wrap"><div class="sec-title">Memory Management Basics &amp; MMU</div><div class="sec-subtitle">Logical / Virtual Address vs Physical Address, Memory Management Unit</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Logical / Virtual Address</div><p style="font-size:13px;color:#475569;">Generated by the CPU during program execution (address space visible to program).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Physical Address</div><p style="font-size:13px;color:#475569;">Actual hardware address loaded onto the memory bus to access physical RAM chips.</p></div>
+    </div>
+    <div class="def-box"><strong>MMU (Memory Management Unit)</strong>: Hardware device that converts CPU logical addresses into physical memory addresses at runtime (using base/relocation registers or page tables).</div>
+  </div>
+</div><!-- S19 -->
+<div id="s19" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">19</div><div class="sec-title-wrap"><div class="sec-title">Contiguous Memory Allocation</div><div class="sec-subtitle">Fixed Partitioning (MFT) vs Dynamic / Variable Partitioning (MVT)</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Scheme</th><th>Partition Size</th><th>Degree of Multiprogramming</th><th>Main Fragmentation Problem</th></tr></thead><tbody>
+      <tr><td><strong>Fixed Partitioning (MFT)</strong></td><td>Fixed / static at boot</td><td>Fixed (equal to number of partitions)</td><td><strong>Internal Fragmentation</strong></td></tr>
+      <tr><td><strong>Variable Partitioning (MVT)</strong></td><td>Dynamic (allocated on demand)</td><td>Variable</td><td><strong>External Fragmentation</strong></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S20 -->
+<div id="s20" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">20</div><div class="sec-title-wrap"><div class="sec-title">Internal vs External Fragmentation &amp; Compaction &#11088;&#11088;</div><div class="sec-subtitle">Definitions, causes and compaction solution</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Internal Fragmentation</div><p style="font-size:13px;color:#475569;">Unused allocated space <strong>inside</strong> a partition/page block (e.g. process requests 18KB inside a 20KB page &#8594; 2KB wasted internally).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">External Fragmentation</div><p style="font-size:13px;color:#475569;">Total free memory is enough to satisfy a request, but it is <strong>scattered non-contiguously</strong> in small disjoint holes.</p></div>
+    </div>
+    <div class="callout callout-rose"><div class="callout-title">&#128273; Compaction</div>
+      Technique to resolve external fragmentation by shifting all allocated processes to one end of memory to combine free holes into one large contiguous block. Requires dynamic address binding at execution time.
+    </div>
+  </div>
+</div><!-- S21 -->
+<div id="s21" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">21</div><div class="sec-title-wrap"><div class="sec-title">Dynamic Memory Allocation Algorithms &amp; Buddy System</div><div class="sec-subtitle">First Fit, Best Fit, Worst Fit, Next Fit, Buddy System</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Mechanism</th><th>Performance / Note</th></tr></thead><tbody>
+      <tr><td><strong>First Fit</strong></td><td>Allocate the <em>first</em> free block that is large enough.</td><td>Fastest search time; memory efficient.</td></tr>
+      <tr><td><strong>Best Fit</strong></td><td>Allocate the <em>smallest</em> free block that is large enough.</td><td>Slow (searches entire list); produces tiny unusable leftover holes.</td></tr>
+      <tr><td><strong>Worst Fit</strong></td><td>Allocate the <em>largest</em> available free block.</td><td>Leaves largest leftover hole, but generally worst performance.</td></tr>
+      <tr><td><strong>Buddy System &#11088;</strong></td><td>Memory divided into power-of-2 blocks. Splits blocks recursively and merges adjacent free "buddies" on free.</td><td>Fast allocation and merging, but causes <strong>internal fragmentation</strong>.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S22 -->
+<div id="s22" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">22</div><div class="sec-title-wrap"><div class="sec-title">Paging <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Pages, Frames, Page Table &amp; Address Translation</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Paging</strong>: Non-contiguous memory allocation scheme. Physical memory is divided into fixed-size blocks called <strong>Frames</strong>; Logical memory is divided into same-sized blocks called <strong>Pages</strong>. (<strong>Page size = Frame size</strong>).</div>
+    <div class="formula-block">Logical Address = [ Page Number (p) | Offset (d) ]
+Physical Address = [ Frame Number (f) | Offset (d) ]
+Page Table maps: Page Number (p) &#8594; Frame Number (f)</div>
+    <div class="callout callout-purple"><div class="callout-title">&#11088; Key Exam Advantage</div>
+      <strong>Paging completely eliminates External Fragmentation</strong> (though slight Internal Fragmentation may exist in the last page of a process).
+    </div>
+  </div>
+</div><!-- S23 -->
+<div id="s23" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">23</div><div class="sec-title-wrap"><div class="sec-title">Page Table Structures</div><div class="sec-subtitle">Hierarchical / Multi-Level, Hashed, Inverted Page Table</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Page Table Structure</th><th>How It Works &amp; Exam Point</th></tr></thead><tbody>
+      <tr><td><strong>Hierarchical / Multi-level</strong></td><td>Page table itself is paged into multiple levels (e.g. Two-level paging) to avoid keeping massive contiguous page tables in RAM.</td></tr>
+      <tr><td><strong>Hashed Page Table</strong></td><td>Uses a hash table where hash value points to a linked list of page entries; common in address spaces &gt; 32 bits.</td></tr>
+      <tr><td><strong>Inverted Page Table &#11088;</strong></td><td>Has <strong>one entry per physical frame in RAM</strong> rather than per logical page. Dramatically saves memory, but requires search/hash per reference.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S24 -->
+<div id="s24" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">24</div><div class="sec-title-wrap"><div class="sec-title">TLB (Translation Lookaside Buffer) &amp; EMAT &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Hardware cache for page tables &amp; Effective Memory Access Time formula</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>TLB</strong>: High-speed associative hardware cache inside CPU that stores recently used <code>Page Number &#8594; Frame Number</code> translations.</div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Effective Memory Access Time (EMAT) Formula</div>
+      Let h = TLB hit ratio, c = TLB search time, m = Main memory access time:<br/>
+      <strong>EMAT = h &times; (c + m) + (1 &minus; h) &times; (c + 2m)</strong><br/>
+      <em>(On TLB hit: access TLB + 1 memory access for data; On TLB miss: access TLB + 1 memory access for page table + 1 memory access for data).</em>
+    </div>
+  </div>
+</div><!-- S25 -->
+<div id="s25" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">25</div><div class="sec-title-wrap"><div class="sec-title">Segmentation &amp; Paging vs Segmentation &#11088;&#11088;</div><div class="sec-subtitle">Variable-size logical blocks, Segment Table, Detailed Comparison</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Segmentation</strong>: Memory allocation reflecting programmer's logical view. Program divided into variable-sized logical segments (Code, Data, Stack, Functions). Logical Address = <code>[Segment Number (s) | Offset (d)]</code> checked against Segment Limit and Base.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Feature</th><th>Paging</th><th>Segmentation</th></tr></thead><tbody>
+      <tr><td><strong>Unit Size</strong></td><td>Fixed size (e.g. 4 KB)</td><td>Variable size (depends on logical block)</td></tr>
+      <tr><td><strong>View</strong></td><td>Physical / hardware view</td><td>Logical / programmer view</td></tr>
+      <tr><td><strong>Address</strong></td><td>Page number + Offset</td><td>Segment number + Offset</td></tr>
+      <tr><td><strong>Fragmentation</strong></td><td>No external, slight internal</td><td><strong>External fragmentation possible</strong>, no internal</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S26 -->
+<div id="s26" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">26</div><div class="sec-title-wrap"><div class="sec-title">Virtual Memory Concepts</div><div class="sec-subtitle">Execution of processes larger than physical RAM</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Virtual Memory</strong>: Separation of user logical memory from physical memory. Allows execution of programs that are <strong>larger than physical RAM</strong> by swapping pages between RAM and secondary backing store.</div>
+  </div>
+</div><!-- S27 -->
+<div id="s27" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">27</div><div class="sec-title-wrap"><div class="sec-title">Demand Paging, Page Fault &amp; Copy-on-Write (COW) &#11088;&#11088;</div><div class="sec-subtitle">Lazy swapper, Page fault handling steps, COW optimization</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Demand Paging</strong>: Pages are loaded into RAM <strong>only when accessed / referenced</strong> by CPU during execution (Lazy Swapper).</div>
+    <div class="mini-h">Page Fault Handling Sequence</div>
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">1. CPU generates address</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">2. Invalid bit in Page Table</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#dc2626;">3. Trap (Page Fault)</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">4. Fetch page from disk</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">5. Write to free Frame</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#047857;">6. Update Page Table &amp; Restart instruction</span>
+    </div></div>
+    <div class="callout callout-teal"><div class="callout-title">&#128273; Copy-on-Write (COW)</div>
+      When a process forks a child, parent and child initially share the same physical pages (marked read-only). A private copy of a page is created <strong>only when either process writes to it</strong>, saving memory and time.
+    </div>
+  </div>
+</div><!-- S28 -->
+<div id="s28" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">28</div><div class="sec-title-wrap"><div class="sec-title">Page Replacement Algorithms <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">FIFO, Optimal (OPT / MIN), LRU, LFU, MFU, Second Chance</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Replacement Strategy</th><th>Key Exam Facts</th></tr></thead><tbody>
+      <tr><td><strong>FIFO (First-In, First-Out)</strong></td><td>Replaces the oldest page loaded into memory.</td><td>Simple, but suffers from <strong>Belady's Anomaly</strong>.</td></tr>
+      <tr><td><strong>Optimal (OPT / MIN / Belady's)</strong></td><td>Replaces page that will <strong>not be used for the longest period in the future</strong>.</td><td>Produces theoretical <strong>minimum page faults</strong>. Impossible to implement in practice (requires future knowledge). Used as benchmark.</td></tr>
+      <tr><td><strong>LRU (Least Recently Used) &#11088;</strong></td><td>Replaces page that has <strong>not been used for the longest time in the past</strong>.</td><td>Approximates Optimal. Free from Belady's Anomaly. Implemented with counters or stack.</td></tr>
+      <tr><td><strong>LFU / MFU</strong></td><td><strong>LFU:</strong> Replaces page with smallest reference count.<br/><strong>MFU:</strong> Replaces page with highest reference count.</td><td>Counting-based algorithms; higher implementation overhead.</td></tr>
+      <tr><td><strong>Second Chance / Clock</strong></td><td>FIFO + Reference bit check. If bit=1, reset bit to 0 and give second chance; replace first page with bit=0.</td><td>Circular queue clock pointer implementation.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S29 -->
+<div id="s29" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">29</div><div class="sec-title-wrap"><div class="sec-title">Belady's Anomaly &#11088;&#11088;&#11088;</div><div class="sec-subtitle">More frames causing more page faults (FIFO phenomenon)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Belady's Anomaly</strong>: The counter-intuitive phenomenon where <strong>allocating more physical page frames results in an INCREASE in the number of page faults</strong> for certain memory reference strings.<br/><strong>Primarily observed in: FIFO algorithm</strong>.<br/><em>(Stack-based algorithms like LRU and Optimal NEVER suffer from Belady's Anomaly).</em></div>
+  </div>
+</div><!-- S30 -->
+<div id="s30" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">30</div><div class="sec-title-wrap"><div class="sec-title">Thrashing <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">High paging activity, low CPU utilization, working set solution</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Thrashing</strong>: State where the system spends more time servicing page faults and swapping pages in/out than executing productive application instructions.<br/><strong>Key Indicators:</strong> Extremely high page fault rate + Disk I/O saturation + Drastic drop in CPU utilization.</div>
+    <div class="callout callout-rose"><div class="callout-title">&#129504; Solutions to Thrashing</div>
+      1. <strong>Reduce Degree of Multiprogramming</strong> (suspend/swap out some processes).<br/>
+      2. Allocate more physical page frames to active processes.<br/>
+      3. Use the <strong>Working-Set Model</strong> or Page-Fault Frequency (PFF) strategy.
+    </div>
+  </div>
+</div><!-- S31 -->
+<div id="s31" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">31</div><div class="sec-title-wrap"><div class="sec-title">Working Set Model (Peter Denning)</div><div class="sec-subtitle">Working set window &Delta; and thrashing prevention</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Working Set (W(t, &Delta;))</strong>: Set of pages referenced by a process in the most recent &Delta; page reference window. If total memory demand exceeds total RAM frames, OS suspends a process to prevent thrashing.</div>
+  </div>
+</div><!-- S32 -->
+<div id="s32" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">32</div><div class="sec-title-wrap"><div class="sec-title">Page Fault vs Segmentation Fault</div><div class="sec-subtitle">Missing page recovery vs illegal memory access crash</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Feature</th><th>Page Fault</th><th>Segmentation Fault</th></tr></thead><tbody>
+      <tr><td><strong>Nature</strong></td><td>Normal, recoverable virtual memory event</td><td>Fatal software error / violation</td></tr>
+      <tr><td><strong>Cause</strong></td><td>Valid page is not currently in physical RAM</td><td>Process attempts illegal access (out-of-bounds, write to read-only)</td></tr>
+      <tr><td><strong>Action</strong></td><td>OS loads page from disk and resumes process</td><td>OS terminates process and emits core dump / crash</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S33 -->
+<div id="s33" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">33</div><div class="sec-title-wrap"><div class="sec-title">File System Basics &amp; File System Types</div><div class="sec-subtitle">Attributes, Operations, FAT32, NTFS, ext3/ext4, Journaling</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>File System</th><th>Operating System / Purpose</th><th>Key Feature</th></tr></thead><tbody>
+      <tr><td><strong>FAT32</strong></td><td>Windows / USB Flash Drives</td><td>Simple, maximum single file size limit = <strong>4 GB</strong>. No native permissions.</td></tr>
+      <tr><td><strong>NTFS</strong></td><td>Modern Windows</td><td>Journaling, ACL security permissions, file compression, encryption.</td></tr>
+      <tr><td><strong>ext2 / ext3 / ext4</strong></td><td>Linux</td><td>ext3/ext4 support <strong>Journaling</strong> for rapid crash recovery.</td></tr>
+      <tr><td><strong>APFS / HFS+</strong></td><td>macOS / iOS</td><td>Optimized for SSDs, snapshots, fast directory sizing.</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Journaling File System</div>
+      Maintains a log (journal) of pending file transactions before committing them to main disk storage. Enables rapid, reliable recovery without full disk scan after sudden crash.
+    </div>
+  </div>
+</div><!-- S34 -->
+<div id="s34" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">34</div><div class="sec-title-wrap"><div class="sec-title">File Access Methods</div><div class="sec-subtitle">Sequential Access, Direct / Random Access, Indexed Access</div></div></div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">Sequential Access</div><p style="font-size:13px;color:#475569;">Bytes/records read in order from beginning to end (e.g. magnetic tape, audio files).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Direct / Random Access</div><p style="font-size:13px;color:#475569;">Reads/writes arbitrary block immediately using relative block number (e.g. database disk blocks).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Indexed Access</div><p style="font-size:13px;color:#475569;">Uses an index table of keys to locate specific records quickly.</p></div>
+    </div>
+  </div>
+</div><!-- S35 -->
+<div id="s35" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">35</div><div class="sec-title-wrap"><div class="sec-title">Directory Structures</div><div class="sec-subtitle">Single-Level, Two-Level, Tree, Acyclic Graph, General Graph</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Single-Level</strong>: Single directory for all files (naming collisions).</li>
+      <li><strong>Two-Level</strong>: Separate User File Directory (UFD) per user under Master File Directory (MFD).</li>
+      <li><strong>Tree-Structured &#11088;</strong>: Hierarchical tree with root, subdirectories, and files (standard in Windows/Unix).</li>
+      <li><strong>Acyclic Graph</strong>: Allows shared subdirectories/files via links without permitting cycles.</li>
+      <li><strong>General Graph</strong>: Allows arbitrary links; requires cycle detection for garbage collection.</li>
+    </ul>
+  </div>
+</div><!-- S36 -->
+<div id="s36" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">36</div><div class="sec-title-wrap"><div class="sec-title">File Allocation Methods <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Contiguous, Linked (FAT), Indexed Allocation</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Allocation Method</th><th>How It Works</th><th>Pros &amp; Cons</th></tr></thead><tbody>
+      <tr><td><strong>Contiguous Allocation</strong></td><td>File occupies a set of consecutive contiguous disk blocks.</td><td><span class="ok">Fastest direct access</span>, but suffers from <strong>External Fragmentation</strong> and file growth limitations.</td></tr>
+      <tr><td><strong>Linked Allocation (FAT)</strong></td><td>Each disk block contains a pointer to the next block.</td><td><span class="ok">No external fragmentation</span>, but <strong>slow sequential traversal</strong> (no direct access) and pointer overhead.</td></tr>
+      <tr><td><strong>Indexed Allocation &#11088;</strong></td><td>An Index Block stores an array of pointers to all allocated data blocks.</td><td><span class="ok">Excellent direct access without external fragmentation</span>; overhead of index blocks for small files.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S37 -->
+<div id="s37" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">37</div><div class="sec-title-wrap"><div class="sec-title">Free Space Management</div><div class="sec-subtitle">Bit Vector (Bitmap), Linked Free List, Grouping, Counting</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Bit Vector / Bitmap</strong>: 1 bit per disk block (<code>0 = allocated, 1 = free</code>). Simple and fast hardware-supported search.</li>
+      <li><strong>Linked Free List</strong>: Free blocks linked together via pointers.</li>
+      <li><strong>Grouping</strong>: Stores addresses of N free blocks in first free block.</li>
+      <li><strong>Counting</strong>: Stores address of first free contiguous block and length of run.</li>
+    </ul>
+  </div>
+</div><!-- S38 -->
+<div id="s38" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">38</div><div class="sec-title-wrap"><div class="sec-title">Inodes in Unix / Linux File Systems &#11088;&#11088;</div><div class="sec-subtitle">Inode structure, metadata &amp; direct/indirect block pointers</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Inode (Index Node)</strong>: Data structure in Unix/Linux storing all metadata of a file (file size, permissions, owner, timestamps, block pointers).<br/><strong>Note: Filename is NOT stored in inode</strong>; it is stored in directory entries mapped to inode numbers.</div>
+    <ul class="bullet-list">
+      <li><strong>Direct Pointers</strong> (typically 12 pointers pointing directly to data blocks).</li>
+      <li><strong>Single Indirect Pointer</strong> (points to a block containing pointers to data blocks).</li>
+      <li><strong>Double Indirect Pointer</strong> (points to a block of single indirect blocks).</li>
+      <li><strong>Triple Indirect Pointer</strong> (enables support for multi-terabyte files).</li>
+    </ul>
+  </div>
+</div><!-- S39 -->
+<div id="s39" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">39</div><div class="sec-title-wrap"><div class="sec-title">Disk Scheduling Algorithms &amp; RAID Levels <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">FCFS, SSTF, SCAN (Elevator), C-SCAN, LOOK, C-LOOK &amp; RAID 0, 1, 5, 6</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Behavior &amp; Arm Movement</th></tr></thead><tbody>
+      <tr><td><strong>FCFS</strong></td><td>Services I/O requests in arrival order. No starvation, but high seek time.</td></tr>
+      <tr><td><strong>SSTF (Shortest Seek Time First)</strong></td><td>Services request closest to current head position. Minimizes average seek time; may cause starvation of distant tracks.</td></tr>
+      <tr><td><strong>SCAN (Elevator Algorithm) &#11088;</strong></td><td>Disk arm moves in one direction to the <strong>disk boundary</strong> servicing requests, then reverses direction.</td></tr>
+      <tr><td><strong>C-SCAN (Circular SCAN)</strong></td><td>Moves in one direction to the boundary servicing requests, then <strong>immediately jumps back to the beginning</strong> without servicing on return. Provides uniform wait times.</td></tr>
+      <tr><td><strong>LOOK</strong></td><td>Like SCAN, but reverses at the <strong>last pending request</strong> rather than traveling all the way to the disk edge.</td></tr>
+      <tr><td><strong>C-LOOK &#11088;</strong></td><td>Like C-SCAN, but jumps from the last request in servicing direction directly to the first pending request at opposite end.</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">RAID (Redundant Array of Independent Disks) Levels</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>RAID Level</th><th>Technique</th><th>Fault Tolerance / Features</th></tr></thead><tbody>
+      <tr><td><strong>RAID 0</strong></td><td>Block Striping</td><td>High performance, <span class="bad">Zero fault tolerance</span> (1 disk fails = all data lost).</td></tr>
+      <tr><td><strong>RAID 1</strong></td><td>Mirroring (1:1 copy)</td><td>Full redundancy, high read speed, 50% capacity overhead.</td></tr>
+      <tr><td><strong>RAID 5 &#11088;</strong></td><td>Block Striping + Distributed Parity</td><td>Tolerates <strong>1 disk failure</strong>. Excellent balance of cost, performance &amp; protection.</td></tr>
+      <tr><td><strong>RAID 6</strong></td><td>Block Striping + Dual Distributed Parity</td><td>Tolerates <strong>2 simultaneous disk failures</strong>.</td></tr>
+      <tr><td><strong>RAID 10 (1+0)</strong></td><td>Mirrored + Striped</td><td>Combines RAID 1 mirroring with RAID 0 striping.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S40 -->
+<div id="s40" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">40</div><div class="sec-title-wrap"><div class="sec-title">I/O Management &amp; Device Types</div><div class="sec-subtitle">Character Devices vs Block Devices</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Character Devices</div><p style="font-size:13px;color:#475569;">Transfers unbuffered stream of bytes one character at a time (e.g. Keyboard, Mouse, Serial Ports).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Block Devices</div><p style="font-size:13px;color:#475569;">Transfers fixed-size blocks of data with random access seeking (e.g. Hard Disks, SSDs, USB storage).</p></div>
+    </div>
+  </div>
+</div><!-- S41 -->
+<div id="s41" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">41</div><div class="sec-title-wrap"><div class="sec-title">I/O Techniques &amp; DMA (Direct Memory Access) &#11088;&#11088;</div><div class="sec-subtitle">Programmed I/O, Interrupt-Driven I/O, DMA Controller</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Technique</th><th>CPU Role</th><th>Efficiency</th></tr></thead><tbody>
+      <tr><td><strong>Programmed I/O (Polling)</strong></td><td>CPU continuously polls device status register in busy-wait loop.</td><td>Low (wastes CPU cycles).</td></tr>
+      <tr><td><strong>Interrupt-Driven I/O</strong></td><td>CPU commands device, works on other tasks; device raises hardware interrupt when ready.</td><td>Good for low-speed transfers.</td></tr>
+      <tr><td><strong>DMA (Direct Memory Access) &#11088;</strong></td><td>DMA controller transfers large data blocks directly between device and RAM with <strong>only 1 interrupt per block</strong>.</td><td><strong>Highest efficiency for high-speed bulk transfers</strong>.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S42 -->
+<div id="s42" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">42</div><div class="sec-title-wrap"><div class="sec-title">Interrupts &amp; Interrupt vs Polling</div><div class="sec-subtitle">Hardware vs Software Interrupts (Traps), IVT, Interrupt Handler</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Hardware Interrupt</strong>: Signal sent via physical pin from device (e.g. keyboard stroke, timer).</li>
+      <li><strong>Software Interrupt (Trap / Exception)</strong>: Generated by CPU instruction (e.g. division by zero, system call).</li>
+      <li><strong>Interrupt Vector Table (IVT)</strong>: Table of memory addresses pointing to Interrupt Service Routines (ISRs).</li>
+    </ul>
+    <div class="callout callout-purple"><div class="callout-title">&#129504; Interrupt vs Polling</div><strong>Interrupt</strong> = Device alerts CPU when ready &nbsp;|&nbsp; <strong>Polling</strong> = CPU repeatedly asks device if ready.</div>
+  </div>
+</div><!-- S43 -->
+<div id="s43" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">43</div><div class="sec-title-wrap"><div class="sec-title">Protection &amp; Security</div><div class="sec-subtitle">Authentication vs Authorization &amp; Security Threats</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Authentication</div><p style="font-size:13px;color:#475569;"><strong>"Who are you?"</strong> &mdash; Verifying user identity (Password, OTP, Biometrics).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Authorization</div><p style="font-size:13px;color:#475569;"><strong>"What are you allowed to do?"</strong> &mdash; Determining user access rights and permissions.</p></div>
+    </div>
+    <div class="mini-h">Common Security Threats</div>
+    <ul class="bullet-list">
+      <li><strong>Virus</strong>: Replicates by attaching to host files.</li>
+      <li><strong>Worm</strong>: Self-replicating standalone program over network.</li>
+      <li><strong>Trojan Horse</strong>: Malicious program disguised as legitimate software.</li>
+      <li><strong>Buffer Overflow</strong>: Writing data beyond allocated buffer boundaries to overwrite execution return pointers.</li>
+    </ul>
+  </div>
+</div><!-- S44 -->
+<div id="s44" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">44</div><div class="sec-title-wrap"><div class="sec-title">Access Matrix (ACL vs Capability List)</div><div class="sec-subtitle">Subjects &times; Objects access rights representation</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Access Control List (ACL)</div><p style="font-size:13px;color:#475569;">Stored by <strong>column (Object/File)</strong>: List of users and permitted operations (Read, Write, Execute).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Capability List (C-List)</div><p style="font-size:13px;color:#475569;">Stored by <strong>row (Subject/User)</strong>: User possesses a secure token/ticket listing accessible objects.</p></div>
+    </div>
+  </div>
+</div><!-- S45 -->
+<div id="s45" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">45</div><div class="sec-title-wrap"><div class="sec-title">Booting Process &amp; POST</div><div class="sec-subtitle">Power ON &#8594; BIOS/UEFI POST &#8594; MBR/Bootloader &#8594; Kernel Initialization</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">1. Power ON</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">2. Firmware (BIOS / UEFI) POST</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">3. Bootloader (GRUB / NTLDR)</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step" style="color:#047857;">4. OS Kernel Loaded to RAM</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">5. System Init (PID 1 init/systemd)</span>
+    </div></div>
+    <p style="font-size:13px;color:#475569;margin-top:8px;"><strong>POST (Power-On Self-Test)</strong>: Hardware diagnostics check before bootloader is invoked.</p>
+  </div>
+</div><!-- S46 -->
+<div id="s46" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">46</div><div class="sec-title-wrap"><div class="sec-title">Core Processing Concepts Comparison</div><div class="sec-subtitle">Multiprogramming vs Multitasking vs Multiprocessing vs Multithreading</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Term</th><th>Core Meaning</th></tr></thead><tbody>
+      <tr><td><strong>Multiprogramming</strong></td><td>Multiple programs resident in memory; CPU stays busy when one waits for I/O.</td></tr>
+      <tr><td><strong>Multitasking</strong></td><td>Time-sharing extension of multiprogramming; CPU rapidly switches between tasks.</td></tr>
+      <tr><td><strong>Multiprocessing</strong></td><td>Execution using <strong>multiple physical CPUs / processor cores</strong> in true hardware parallelism.</td></tr>
+      <tr><td><strong>Multithreading</strong></td><td>Multiple threads of execution concurrently executing within a single process address space.</td></tr>
+      <tr><td><strong>Time-Sharing</strong></td><td>Interactive multi-user system where CPU time is divided into rapid slots.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S47 -->
+<div id="s47" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">47</div><div class="sec-title-wrap"><div class="sec-title">Spooling (SPOOL)</div><div class="sec-subtitle">Simultaneous Peripheral Operations On-Line</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Spooling (Simultaneous Peripheral Operations On-Line)</strong>: Data is temporarily staged into a buffer/queue on disk for a slower peripheral device (classic example: <strong>Print Spooler</strong>, where multiple print jobs queue up and print sequentially while CPU continues other work).</div>
+  </div>
+</div><!-- S48 -->
+<div id="s48" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">48</div><div class="sec-title-wrap"><div class="sec-title">Buffering vs Caching vs Spooling</div><div class="sec-subtitle">Speed mismatch vs faster retrieval vs job queuing</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Mechanism</th><th>Primary Purpose</th><th>Location / Example</th></tr></thead><tbody>
+      <tr><td><strong>Buffering</strong></td><td>Handles <strong>speed mismatch</strong> between producer and consumer of data streams.</td><td>I/O device buffers</td></tr>
+      <tr><td><strong>Caching</strong></td><td>Holds copies of <strong>frequently/recently accessed data</strong> for faster retrieval.</td><td>CPU Cache, Web browser cache</td></tr>
+      <tr><td><strong>Spooling</strong></td><td>Queues jobs for a shared, slower device.</td><td>Printer spooler on disk</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S49 -->
+<div id="s49" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">49</div><div class="sec-title-wrap"><div class="sec-title">Virtualization &amp; Hypervisors</div><div class="sec-subtitle">Type 1 (Bare Metal) vs Type 2 (Hosted) Hypervisors</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Type 1 Hypervisor (Bare-Metal) &#11088;</div><p style="font-size:13px;color:#475569;">Runs directly on underlying computer hardware (no host OS). Fast and enterprise-grade. <strong>Examples:</strong> VMware ESXi, Microsoft Hyper-V, KVM, Xen.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Type 2 Hypervisor (Hosted)</div><p style="font-size:13px;color:#475569;">Runs on top of an existing host OS as an application. <strong>Examples:</strong> Oracle VirtualBox, VMware Workstation.</p></div>
+    </div>
+  </div>
+</div><!-- S50 -->
+<div id="s50" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">50</div><div class="sec-title-wrap"><div class="sec-title">Key Exam Differences Summary <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Process vs Thread, Mutex vs Semaphore, Deadlock vs Starvation</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Comparison</th><th>Option A</th><th>Option B</th></tr></thead><tbody>
+      <tr><td><strong>Process vs Thread</strong></td><td><strong>Process:</strong> Heavyweight, isolated address space, expensive context switch.</td><td><strong>Thread:</strong> Lightweight, shares address space, cheap context switch.</td></tr>
+      <tr><td><strong>Mutex vs Semaphore</strong></td><td><strong>Mutex:</strong> Locking mechanism with strict ownership (lock/unlock by same thread).</td><td><strong>Semaphore:</strong> Signaling mechanism (no ownership, wait/signal integer).</td></tr>
+      <tr><td><strong>Deadlock vs Starvation</strong></td><td><strong>Deadlock:</strong> Permanent circular waiting, no process can proceed.</td><td><strong>Starvation:</strong> Indefinite delay because high-priority processes monopolize CPU (solved by <strong>Aging</strong>).</td></tr>
+      <tr><td><strong>Monolithic vs Microkernel</strong></td><td><strong>Monolithic:</strong> All services in kernel space (Fast, but single bug crashes OS).</td><td><strong>Microkernel:</strong> Minimal services in kernel, rest in user space (Modular &amp; stable, slower IPC).</td></tr>
+      <tr><td><strong>Preemptive vs Non-Preemptive</strong></td><td><strong>Preemptive:</strong> CPU can be taken away forcefully (RR, SRTF).</td><td><strong>Non-Preemptive:</strong> Process retains CPU until voluntary completion/yield (FCFS, SJF).</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S51 LAST MINUTE FACTS & MENTAL MAP -->
+<div id="s51" class="sec sec-anchor" style="border-color:#2563eb;">
+  <div class="sec-header" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);">
+    <div class="sec-num" style="background:rgba(56,189,248,.15);color:#38bdf8;font-size:22px;width:52px;height:52px;">&#128293;</div>
+    <div class="sec-title-wrap">
+      <div class="sec-title" style="color:#f1f5f9;">Last-Minute IBPS SO OS 48 Facts Sheet &amp; Mental Map <span class="badge-fire">EXAM READY</span></div>
+      <div class="sec-subtitle" style="color:#94a3b8;">Top 48 high-yield points to review immediately before your exam</div>
+    </div>
+  </div>
+  <div class="sec-body">
+    <div class="fact-grid">
+      <div class="fact-item"><span class="fact-num">01</span><span><strong>OS</strong> = Interface between user/applications and hardware</span></div>
+      <div class="fact-item"><span class="fact-num">02</span><span><strong>Kernel</strong> = Core of OS (CPU, memory, device management)</span></div>
+      <div class="fact-item"><span class="fact-num">03</span><span><strong>Monolithic</strong> = Fast, all in kernel &nbsp;|&nbsp; <strong>Microkernel</strong> = Modular, stable, user-space</span></div>
+      <div class="fact-item"><span class="fact-num">04</span><span><strong>Process</strong> = Program in execution &nbsp;|&nbsp; <strong>Program</strong> = Passive disk binary</span></div>
+      <div class="fact-item"><span class="fact-num">05</span><span><strong>PCB</strong> stores state, PC, CPU registers, memory limits, open files</span></div>
+      <div class="fact-item"><span class="fact-num">06</span><span><strong>Context Switch</strong> = Save old PCB / Load new PCB (pure CPU overhead)</span></div>
+      <div class="fact-item"><span class="fact-num">07</span><span><strong>Long-term</strong> = Degree of multiprogramming &nbsp;|&nbsp; <strong>Short-term</strong> = CPU dispatch &nbsp;|&nbsp; <strong>Medium-term</strong> = Swapping</span></div>
+      <div class="fact-item"><span class="fact-num">08</span><span><strong>FCFS</strong> causes Convoy Effect</span></div>
+      <div class="fact-item"><span class="fact-num">09</span><span><strong>SJF</strong> gives theoretical minimum average waiting time</span></div>
+      <div class="fact-item"><span class="fact-num">10</span><span><strong>SRTF</strong> = Preemptive SJF</span></div>
+      <div class="fact-item"><span class="fact-num">11</span><span><strong>Round Robin</strong> uses Time Quantum (q)</span></div>
+      <div class="fact-item"><span class="fact-num">12</span><span><strong>MLFQ</strong> = Multilevel Feedback Queue (processes move between queues)</span></div>
+      <div class="fact-item"><span class="fact-num">13</span><span><strong>Starvation</strong> solved by <strong>Aging</strong> (gradually increasing priority)</span></div>
+      <div class="fact-item"><span class="fact-num">14</span><span><strong>Thread</strong> = Smallest unit of CPU execution</span></div>
+      <div class="fact-item"><span class="fact-num">15</span><span><strong>Zombie</strong> = Finished but unread exit status &nbsp;|&nbsp; <strong>Orphan</strong> = Parent died, adopted by init</span></div>
+      <div class="fact-item"><span class="fact-num">16</span><span><strong>Critical Section</strong> must satisfy: Mutual Exclusion, Progress, Bounded Waiting</span></div>
+      <div class="fact-item"><span class="fact-num">17</span><span><strong>Semaphore</strong> = Atomic <code>wait()</code> (P) and <code>signal()</code> (V) operations</span></div>
+      <div class="fact-item"><span class="fact-num">18</span><span><strong>Peterson Algorithm</strong> = 2 processes &nbsp;|&nbsp; <strong>Bakery</strong> = N processes</span></div>
+      <div class="fact-item"><span class="fact-num">19</span><span><strong>Deadlock 4 Conditions</strong> = M-H-N-C (Mutual Exclusion, Hold &amp; Wait, No Preemption, Circular Wait)</span></div>
+      <div class="fact-item"><span class="fact-num">20</span><span><strong>Livelock</strong> &ne; Deadlock (processes actively loop/change state without progress)</span></div>
+      <div class="fact-item"><span class="fact-num">21</span><span><strong>Banker's Algorithm</strong> = Deadlock Avoidance (Need = Max &minus; Allocation)</span></div>
+      <div class="fact-item"><span class="fact-num">22</span><span><strong>Safe State</strong> &ne; Deadlock (Unsafe state only creates deadlock possibility)</span></div>
+      <div class="fact-item"><span class="fact-num">23</span><span><strong>MMU</strong> maps Logical Address &#8594; Physical Address at runtime</span></div>
+      <div class="fact-item"><span class="fact-num">24</span><span><strong>Pages</strong> = Logical memory &nbsp;|&nbsp; <strong>Frames</strong> = Physical RAM blocks</span></div>
+      <div class="fact-item"><span class="fact-num">25</span><span><strong>Page Size = Frame Size</strong></span></div>
+      <div class="fact-item"><span class="fact-num">26</span><span><strong>Paging</strong> eliminates External Fragmentation</span></div>
+      <div class="fact-item"><span class="fact-num">27</span><span><strong>Buddy System</strong> = Power-of-2 allocation</span></div>
+      <div class="fact-item"><span class="fact-num">28</span><span><strong>Segmentation</strong> = Logical variable-size blocks (Code, Data, Stack)</span></div>
+      <div class="fact-item"><span class="fact-num">29</span><span><strong>TLB</strong> = Fast associative hardware cache for page table lookups</span></div>
+      <div class="fact-item"><span class="fact-num">30</span><span><strong>Demand Paging</strong> = Loads pages only when referenced by CPU</span></div>
+      <div class="fact-item"><span class="fact-num">31</span><span><strong>Copy-on-Write (COW)</strong> = Pages shared between parent &amp; child until modified</span></div>
+      <div class="fact-item"><span class="fact-num">32</span><span><strong>Belady's Anomaly</strong> = More frames cause more page faults (in FIFO)</span></div>
+      <div class="fact-item"><span class="fact-num">33</span><span><strong>Optimal Algorithm</strong> = Minimum possible page faults theoretically</span></div>
+      <div class="fact-item"><span class="fact-num">34</span><span><strong>LRU</strong> = Least Recently Used page replacement</span></div>
+      <div class="fact-item"><span class="fact-num">35</span><span><strong>Thrashing</strong> = Excessive page faults/swapping causes CPU utilization collapse</span></div>
+      <div class="fact-item"><span class="fact-num">36</span><span><strong>Working Set Model</strong> = Controls thrashing using active page window &Delta;</span></div>
+      <div class="fact-item"><span class="fact-num">37</span><span><strong>Journaling File System</strong> = Logs changes before committing (ext3/ext4, NTFS)</span></div>
+      <div class="fact-item"><span class="fact-num">38</span><span><strong>Inodes</strong> = Stores file metadata (filename stored in directory entry)</span></div>
+      <div class="fact-item"><span class="fact-num">39</span><span><strong>SCAN</strong> = Elevator algorithm (goes to disk edge) &nbsp;|&nbsp; <strong>LOOK</strong> = Reverses at last request</span></div>
+      <div class="fact-item"><span class="fact-num">40</span><span><strong>SSTF</strong> = Shortest Seek Time First (services closest cylinder)</span></div>
+      <div class="fact-item"><span class="fact-num">41</span><span><strong>RAID 0</strong> = Striping (speed) &nbsp;|&nbsp; <strong>RAID 1</strong> = Mirroring &nbsp;|&nbsp; <strong>RAID 5</strong> = Striping + Parity</span></div>
+      <div class="fact-item"><span class="fact-num">42</span><span><strong>DMA</strong> = High-speed block transfers direct to RAM with 1 interrupt per block</span></div>
+      <div class="fact-item"><span class="fact-num">43</span><span><strong>Interrupt</strong> = Device tells CPU &nbsp;|&nbsp; <strong>Polling</strong> = CPU repeatedly asks device</span></div>
+      <div class="fact-item"><span class="fact-num">44</span><span><strong>Spooling</strong> = Queuing jobs on disk for slower peripherals (printers)</span></div>
+      <div class="fact-item"><span class="fact-num">45</span><span><strong>Buffering</strong> = Speed mismatch &nbsp;|&nbsp; <strong>Caching</strong> = Fast retrieval</span></div>
+      <div class="fact-item"><span class="fact-num">46</span><span><strong>Type 1 Hypervisor</strong> = Bare metal (ESXi, Hyper-V) &nbsp;|&nbsp; <strong>Type 2</strong> = Hosted (VirtualBox)</span></div>
+      <div class="fact-item"><span class="fact-num">47</span><span><strong>Authentication</strong> = Who are you? &nbsp;|&nbsp; <strong>Authorization</strong> = What can you access?</span></div>
+      <div class="fact-item"><span class="fact-num">48</span><span><strong>TAT = CT &minus; AT</strong> &nbsp;|&nbsp; <strong>WT = TAT &minus; BT</strong></span></div>
+    </div>
+
+    <div class="mini-h" style="margin-top:28px;">&#129504; One-Line Operating Systems Mental Map</div>
+    <div class="mental-map">OPERATING SYSTEMS
+  &#8594; Foundations &amp; Kernel
+      OS Role (Hardware &harr; User) / Monolithic (Linux) vs Microkernel (Minix) vs Hybrid (Windows)
+      Dual Mode (User bit 1 &harr; Kernel bit 0) / System Calls (fork, exec, exit, wait)
+
+  &#8594; Processes &amp; Scheduling
+      Process vs Program / 5 States (New, Ready, Running, Waiting, Terminated)
+      PCB (PID, PC, Registers, Limits) / Context Switch (Overhead)
+      Schedulers: Long-term (Multiprogramming degree), Short-term (CPU), Medium-term (Swapping)
+      Zombies (Unreaped) vs Orphans (Adopted by init)
+      Formulas: TAT = CT - AT | WT = TAT - BT | RT = First CPU - AT
+      Algorithms: FCFS (Convoy effect), SJF (Min WT), SRTF (Preemptive SJF), Priority (Aging), Round Robin (Quantum), MLFQ
+
+  &#8594; Threads &amp; IPC
+      Threads (Code/Data/Files shared; TID/PC/Stack/Registers private)
+      Models: Many-to-One, One-to-One (Linux), Many-to-Many
+      IPC: Shared Memory (Fastest) vs Message Passing, Pipes, FIFOs, Sockets
+
+  &#8594; Synchronization &amp; Concurrency
+      Race Conditions / Critical Section: 1. Mutual Exclusion 2. Progress 3. Bounded Waiting
+      Primitives: Mutex (Ownership lock), Semaphore (wait/P, signal/V), Monitors, Spinlocks
+      Classic Problems: Producer-Consumer (Bounded Buffer), Readers-Writers, Dining Philosophers
+      Peterson's (2 processes) &amp; Lamport Bakery (N processes)
+
+  &#8594; Deadlocks
+      Conditions (M-H-N-C): Mutual Exclusion, Hold &amp; Wait, No Preemption, Circular Wait
+      Handling: Prevention (Break 1 condition), Avoidance (Banker's: Need = Max - Allocation &amp; Safe State), Detection (RAG/Wait-for Graph Cycle)
+
+  &#8594; Memory Management &amp; Virtual Memory
+      Logical vs Physical (MMU translation) / Internal vs External Fragmentation (Compaction)
+      Allocation: First Fit, Best Fit, Worst Fit, Buddy System (Powers of 2)
+      Paging (Pages &harr; Frames, Page Table, No External Frag) vs Segmentation (Logical variable blocks)
+      TLB (Hardware cache) / EMAT = h(c+m) + (1-h)(c+2m)
+      Demand Paging (Page Faults, Copy-on-Write COW)
+      Page Replacement: FIFO (Belady's Anomaly), Optimal (Min faults), LRU (Stack/Counters), Clock
+      Thrashing (Paging storm, CPU collapses) &amp; Working Set Model
+
+  &#8594; Storage &amp; I/O
+      File Systems: FAT32 (4GB limit), NTFS, ext3/ext4 (Journaling), Inodes (Unix metadata)
+      Allocation: Contiguous, Linked (FAT), Indexed
+      Disk Scheduling: FCFS, SSTF, SCAN (Elevator), C-SCAN, LOOK, C-LOOK
+      RAID: RAID 0 (Striping), RAID 1 (Mirroring), RAID 5 (Striping + Parity), RAID 6 (Dual Parity)
+      I/O: Programmed (Polling), Interrupt-Driven, DMA (Direct Memory Access)
+      Spooling (Printer queue) vs Buffering vs Caching / Virtualization: Type 1 (Bare Metal) vs Type 2 (Hosted)</div>
+  </div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+  <a href="../index.html" class="bottom-btn btn-amber-ol">&#127968; Practice Hub Dashboard</a>
+  <a href="cn-quick-revision.html" class="bottom-btn btn-blue-ol">🌐 Computer Networks Revision</a>
+  <a href="ns-quick-revision.html" class="bottom-btn btn-slate">🔐 Network Security Revision</a>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="bottom-btn btn-slate">&#8593; Back to Top</a>
+</div>
+
+</body>
+</html>

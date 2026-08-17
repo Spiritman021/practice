@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 2 – Cryptographic Systems: Block vs Stream Ciphers, DES, AES, RSA &amp; Hashes | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 2 – Model of Cryptographic System, Modulo 2 Arithmetic, Stream vs Block Ciphers, DES (56-bit key, 16 Feistel rounds), AES (128/192/256-bit keys), IDEA, RSA Algorithm step-by-step math, and Hash Algorithms (MD5, SHA-1, SHA-2, SHA-3 Keccak, BLAKE3) with verified IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .pillar-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .pillar-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .pillar-des::before { background: #f05c88; }
+    .pillar-aes::before { background: #34d399; }
+    .pillar-rsa::before { background: #7c5cf0; }
+    .pillar-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .formula-box {
+      background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(79,142,247,0.12));
+      border: 1px solid rgba(16,185,129,0.35); border-radius: 14px; padding: 18px 22px; margin: 20px 0;
+    }
+    .formula-title { font-size: 14px; font-weight: 800; color: #34d399; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #10b981, #34d399, #4f8ef7);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4);">Lec 02</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">Security · Lecture 02</span>
+    <h1 class="page-title">Model of Cryptographic System:<br>Stream vs Block Ciphers, DES, AES, RSA &amp; Hashes</h1>
+    <p class="page-subtitle">
+      Master Cryptographic Model Architecture, Binary Modulo-2 Arithmetic ($\oplus$ XOR &amp; $\otimes$ AND), Stream vs Block Ciphers, Symmetric Algorithms (DES 56-bit key 16 Feistel rounds, 3DES, AES 128/192/256-bit rounds, IDEA), RSA Algorithm with step-by-step numerical calculations, and Hash Functions (MD5, SHA-1, SHA-2, SHA-3 Keccak &amp; BLAKE3). Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🔑 IBPS SO IT High Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 2 Handout</span>
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#crypto-model"><span class="toc-num">2.1</span> Cryptographic System Model &amp; Binary Arithmetic</a></li>
+      <li><a href="#stream-vs-block"><span class="toc-num">2.2</span> Stream Ciphers vs Block Ciphers</a></li>
+      <li><a href="#symmetric-ciphers"><span class="toc-num">2.3</span> Symmetric Block Ciphers Master Guide (DES, 3DES, AES, IDEA)</a></li>
+      <li><a href="#rsa-algorithm"><span class="toc-num">2.4</span> RSA Public Key Cryptosystem &amp; Step-by-Step Math Example</a></li>
+      <li><a href="#hash-family"><span class="toc-num">2.5</span> Cryptographic Hash Master Reference (MD5, SHA-1, SHA-2, SHA-3, BLAKE3)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">2.6</span> IBPS SO IT Verified Solved PYQ Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">2.7</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 2.1: MODEL & ARITHMETIC -->
+  <div class="section" id="crypto-model">
+    <div class="sec-card">
+      <h2 class="section-title">2.1 Cryptographic System Model &amp; Binary Arithmetic</h2>
+      <p>A <strong>Cryptographic System</strong> transforms unreadable Plaintext ($P$) into encrypted Ciphertext ($C$) using a mathematical Cipher algorithm and a Secret Key ($K$).</p>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; margin:20px 0; text-align:center;">
+        <div style="font-size:16px; font-weight:800; color:#34d399; margin-bottom:12px;">🔄 Cryptographic Encryption/Decryption Flow:</div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap; font-family:'JetBrains Mono', monospace; font-size:14px;">
+          <div style="background:var(--card); padding:10px 16px; border-radius:8px; border:1px solid var(--border);">Plaintext ($P$)</div>
+          <div style="color:var(--accent);">+ Key ($K$) $\rightarrow$</div>
+          <div style="background:rgba(240,92,136,0.15); padding:10px 16px; border-radius:8px; border:1px solid rgba(240,92,136,0.4); color:#f05c88; font-weight:800;">Cipher Algorithm (Black Box)</div>
+          <div style="color:var(--accent);">$\rightarrow$</div>
+          <div style="background:var(--card); padding:10px 16px; border-radius:8px; border:1px solid var(--border);">Ciphertext ($C$)</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent); margin: 24px 0 12px;">Binary Modulo Arithmetic Operations in Ciphers</h3>
+      <p>Computers represent all message bits as 0s and 1s. Encryption algorithms rely on basic binary bitwise logic:</p>
+      
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Operation Symbol</th>
+            <th>Mathematical Name</th>
+            <th>Logical Equivalent</th>
+            <th>Truth Table &amp; Rules</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$\oplus$</td>
+            <td>Modulo 2 Addition</td>
+            <td><strong>XOR (Exclusive OR)</strong></td>
+            <td>$0 \oplus 0 = 0, \quad 0 \oplus 1 = 1, \quad 1 \oplus 0 = 1, \quad 1 \oplus 1 = 0$<br><em>True ONLY if inputs are different. ($A \oplus A = 0$)</em></td>
+          </tr>
+          <tr>
+            <td>$\otimes$</td>
+            <td>Modulo 2 Multiplication</td>
+            <td><strong>AND</strong></td>
+            <td>$0 \otimes 0 = 0, \quad 0 \otimes 1 = 0, \quad 1 \otimes 0 = 0, \quad 1 \otimes 1 = 1$<br><em>True ONLY if both inputs are 1.</em></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2.2: STREAM VS BLOCK CIPHERS -->
+  <div class="section" id="stream-vs-block">
+    <div class="sec-card">
+      <h2 class="section-title">2.2 Stream Ciphers vs Block Ciphers</h2>
+      <p>Symmetric key ciphers are divided into two main operational categories based on how they process plaintext input:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Stream Ciphers</th>
+            <th>Block Ciphers</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Input Unit</strong></td>
+            <td>Processes continuous stream of plaintext <strong>bit-by-bit or byte-by-byte</strong>.</td>
+            <td>Processes fixed-size <strong>blocks of plaintext</strong> (e.g. 64-bit or 128-bit blocks).</td>
+          </tr>
+          <tr>
+            <td><strong>Implementation Target</strong></td>
+            <td>Implemented primarily in <strong>Hardware devices</strong> (ASICs, FPGAs) for minimal latency.</td>
+            <td>Implemented primarily in <strong>Software</strong> on general-purpose CPUs.</td>
+          </tr>
+          <tr>
+            <td><strong>Memory &amp; Complexity</strong></td>
+            <td>Low memory requirement (no buffering needed).</td>
+            <td>Requires buffer memory to hold fixed-size data blocks.</td>
+          </tr>
+          <tr>
+            <td><strong>Examples</strong></td>
+            <td><strong>RC4</strong>, A5/1 (GSM cellular), ChaCha20.</td>
+            <td><strong>DES</strong>, 3DES, <strong>AES</strong>, IDEA, Blowfish.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2.3: SYMMETRIC BLOCK CIPHERS MASTER GUIDE -->
+  <div class="section" id="symmetric-ciphers">
+    <div class="sec-card">
+      <h2 class="section-title">2.3 Symmetric Block Ciphers Master Guide</h2>
+      
+      <div class="grid-3">
+        <!-- DES -->
+        <div class="pillar-card pillar-des">
+          <div style="font-size:18px; font-weight:800; color:#f05c88; margin-bottom:8px;">1. DES (Data Encryption Standard)</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+            • Published by NIST / FIPS 46 in 1975/1977.<br>
+            • <strong>Block Size:</strong> <span style="color:#fff; font-weight:700;">64 Bits</span>.<br>
+            • <strong>Key Size:</strong> <span style="color:#f05c88; font-weight:800;">56 Bits</span> (64-bit key input, 8 parity bits dropped).<br>
+            • <strong>Rounds:</strong> <span style="color:#fff; font-weight:700;">16 Feistel Rounds</span> (using 48-bit subkeys).<br>
+            • <strong>Structure:</strong> Initial Permutation (IP) $\rightarrow$ 16 Feistel rounds $\rightarrow$ Final Permutation ($IP^{-1}$).<br>
+            • <strong>Status:</strong> Broken by brute force in 1997 due to small 56-bit key space.
+          </div>
+        </div>
+
+        <!-- 3DES -->
+        <div class="pillar-card pillar-des">
+          <div style="font-size:18px; font-weight:800; color:#f7a34f; margin-bottom:8px;">2. Triple DES (3DES / TDEA)</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+            • Applies DES algorithm three consecutive times (Encrypt-Decrypt-Encrypt EDE).<br>
+            • <strong>Block Size:</strong> <span style="color:#fff; font-weight:700;">64 Bits</span>.<br>
+            • <strong>Key Size:</strong> <span style="color:#f7a34f; font-weight:800;">112 Bits</span> (2-key) or <span style="color:#f7a34f; font-weight:800;">168 Bits</span> (3-key).<br>
+            • Overcomes DES vulnerability, but slow in software execution.
+          </div>
+        </div>
+
+        <!-- AES -->
+        <div class="pillar-card pillar-aes">
+          <div style="font-size:18px; font-weight:800; color:#34d399; margin-bottom:8px;">3. AES (Advanced Encryption Standard)</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+            • Published by NIST in 2001 (FIPS 197, Rijndael cipher).<br>
+            • <strong>Block Size:</strong> Fixed <span style="color:#34d399; font-weight:800;">128 Bits</span> (16 Bytes).<br>
+            • <strong>Key Sizes &amp; Rounds:</strong>
+              <br>&nbsp;&nbsp;- 128-bit key $\rightarrow$ <span style="color:#fff; font-weight:700;">10 Rounds</span>
+              <br>&nbsp;&nbsp;- 192-bit key $\rightarrow$ <span style="color:#fff; font-weight:700;">12 Rounds</span>
+              <br>&nbsp;&nbsp;- 256-bit key $\rightarrow$ <span style="color:#fff; font-weight:700;">14 Rounds</span><br>
+            • <strong>4 Sub-operations per Round:</strong>
+              <br>&nbsp;&nbsp;1. <code>SubBytes</code> (S-box byte substitution)
+              <br>&nbsp;&nbsp;2. <code>ShiftRows</code> (Cyclic row shift)
+              <br>&nbsp;&nbsp;3. <code>MixColumns</code> (Column mixing matrix)
+              <br>&nbsp;&nbsp;4. <code>AddRoundKey</code> (XOR with round key)<br>
+            • <em>Exam Trap:</em> Final round OMITS <code>MixColumns</code>!
+          </div>
+        </div>
+      </div>
+
+      <!-- IDEA -->
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px; margin-top:16px;">
+        <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:6px;">4. IDEA (International Data Encryption Algorithm)</h4>
+        <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+          Published in 1991 by Lai, Massey, and Murphy. Block size is <strong>64 bits</strong>, key size is <strong>128 bits</strong>. Consists of <strong>8 identical rounds + 1 half-round</strong> final transformation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2.4: RSA ALGORITHM -->
+  <div class="section" id="rsa-algorithm">
+    <div class="sec-card">
+      <h2 class="section-title">2.4 RSA Public Key Cryptosystem &amp; Step-by-Step Math Example</h2>
+      <p>Introduced in 1978 by Ron Rivest, Adi Shamir, and Leonard Adleman. RSA relies on the mathematical difficulty of <strong>factoring large prime numbers</strong>.</p>
+
+      <!-- Step-by-Step RSA Calculation Box -->
+      <div class="formula-box">
+        <div class="formula-title">🧮 Step-by-Step RSA Key Generation &amp; Numerical Walkthrough</div>
+        <ol style="color:var(--text); font-size:14px; line-height:1.8; margin:10px 0 0 20px;">
+          <li><strong>Select two prime numbers:</strong> Let $p = 3$ and $q = 11$.</li>
+          <li><strong>Calculate Modulus $n$:</strong>
+            $$n = p \times q = 3 \times 11 = 33$$
+          </li>
+          <li><strong>Calculate Euler's Totient $\phi(n)$:</strong>
+            $$\phi(n) = (p - 1) \times (q - 1) = (3 - 1) \times (11 - 1) = 2 \times 10 = 20$$
+          </li>
+          <li><strong>Choose Public Exponent $e$:</strong> Select $e$ such that $1 < e < \phi(n)$ and $\gcd(e, \phi(n)) = 1$. Let $e = 7$.</li>
+          <li><strong>Calculate Private Exponent $d$:</strong> Solve for $d$ such that $(d \times e) \equiv 1 \pmod{\phi(n)}$:
+            $$(d \times 7) \equiv 1 \pmod{20} \implies d = 3 \quad (\text{since } 3 \times 7 = 21 = 1 \times 20 + 1)$$
+          </li>
+          <li><strong>Key Pairs Formed:</strong>
+            <br>• <strong>Public Key:</strong> $(e, n) = (7, 33)$
+            <br>• <strong>Private Key:</strong> $(d, n) = (3, 33)$
+          </li>
+          <li><strong>Encryption Example:</strong> To encrypt message $m = 2$:
+            $$c = m^e \bmod n = 2^7 \bmod 33 = 128 \bmod 33 = 29 \quad (\text{Ciphertext } c = 29)$$
+          </li>
+          <li><strong>Decryption Example:</strong> To decrypt ciphertext $c = 29$:
+            $$m = c^d \bmod n = 29^3 \bmod 33 = 24389 \bmod 33 = 2 \quad (\text{Plaintext } m = 2 \text{ recovered!})$$
+          </li>
+        </ol>
+      </div>
+
+      <!-- RSA Key Strength Table -->
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>RSA Key Size (Bits)</th>
+            <th>Security Strength Rating</th>
+            <th>Current Industry Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>512 Bits</td>
+            <td>Low-strength key</td>
+            <td>Broken (Cracked in 1999).</td>
+          </tr>
+          <tr>
+            <td>1024 Bits</td>
+            <td>Medium-strength key</td>
+            <td>Deprecated (Insecure for modern use).</td>
+          </tr>
+          <tr>
+            <td><strong>2048 Bits</strong></td>
+            <td><span style="color:#00d4aa; font-weight:800;">High-strength key</span></td>
+            <td><strong>Current Minimum Security Standard</strong>.</td>
+          </tr>
+          <tr>
+            <td><strong>4096 Bits</strong></td>
+            <td><span style="color:#4f8ef7; font-weight:800;">Very high-strength key</span></td>
+            <td>Ultra-secure banking &amp; root CA standard.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2.5: CRYPTOGRAPHIC HASH MASTER REFERENCE -->
+  <div class="section" id="hash-family">
+    <div class="sec-card">
+      <h2 class="section-title">2.5 Cryptographic Hash Master Reference Table</h2>
+      <p>Comprehensive reference of all major cryptographic hash functions covered in Lecture 2:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Hash Algorithm</th>
+            <th>Author / Standard Year</th>
+            <th>Output Digest Size</th>
+            <th>Internal Structure / Special Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MD5</strong></td>
+            <td>Ronald Rivest (1991, RFC 1321)</td>
+            <td><span style="color:#f05c88; font-weight:800;">128 Bits (16 Bytes)</span></td>
+            <td>Deprecated. Collision attacks calculated in seconds.</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-1</strong></td>
+            <td>NIST / NSA (1995, FIPS 180-1)</td>
+            <td><span style="color:#f7a34f; font-weight:800;">160 Bits (20 Bytes)</span></td>
+            <td>Broken by SHAttered collision attack. Deprecated.</td>
+          </tr>
+          <tr>
+            <td><strong>Whirlpool</strong></td>
+            <td>Rijmen &amp; Barreto (2000)</td>
+            <td><span style="color:#7c5cf0; font-weight:800;">512 Bits (64 Bytes)</span></td>
+            <td>Based on substantially modified version of AES.</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-2 Family</strong></td>
+            <td>NSA (2001, FIPS 180-2)</td>
+            <td>
+              SHA-224 (28B), <strong>SHA-256 (32B)</strong>,<br>
+              SHA-384 (48B), <strong>SHA-512 (64B)</strong>
+            </td>
+            <td>Built using <strong>Merkle-Damgård structure</strong> with Davies-Meyer compression. Industry standard.</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-3</strong></td>
+            <td>NIST (2015, FIPS 202)</td>
+            <td>224, 256, 384, 512 Bits</td>
+            <td>Based on <strong>Keccak family</strong> using <strong>Sponge Construction</strong>. Supports SHAKE-128 &amp; SHAKE-256 extendable output.</td>
+          </tr>
+          <tr>
+            <td><strong>BLAKE3</strong></td>
+            <td>O'Connor, Aumasson et al. (2020)</td>
+            <td>Configurable (256 Bits std)</td>
+            <td>Based on <strong>Merkle Tree</strong>. 7 rounds (reduced from 10 in BLAKE2s) for ultra-high CPU parallelism.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 2.6: IBPS SO IT PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">2.6 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2021 Verified</div>
+        <div class="pyq-question">Q1. What is the key size and block size used by the Data Encryption Standard (DES)?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) 128-bit block, 64-bit key</div>
+          <div class="pyq-opt correct">B) 64-bit block, 56-bit key ✓</div>
+          <div class="pyq-opt">C) 64-bit block, 128-bit key</div>
+          <div class="pyq-opt">D) 128-bit block, 128-bit key</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) 64-bit block, 56-bit key.</strong><br>
+          <em>Explanation:</em> DES accepts a 64-bit block of plaintext and a 64-bit key input, but 8 bits are used for parity, resulting in an effective key length of 56 bits executed over 16 Feistel rounds.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q2. How many processing rounds are performed in the Advanced Encryption Standard (AES) when using a 192-bit secret key?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) 10 Rounds</div>
+          <div class="pyq-opt correct">B) 12 Rounds ✓</div>
+          <div class="pyq-opt">C) 14 Rounds</div>
+          <div class="pyq-opt">D) 16 Rounds</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) 12 Rounds.</strong><br>
+          <em>AES Round Rule:</em> 128-bit key = 10 rounds; 192-bit key = 12 rounds; 256-bit key = 14 rounds. (Block size is always fixed at 128 bits).
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. In an RSA public-key cryptosystem, if prime numbers are chosen as $p = 3$ and $q = 11$, what is the value of Euler's Totient function $\phi(n)$?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) 33</div>
+          <div class="pyq-opt correct">B) 20 ✓</div>
+          <div class="pyq-opt">C) 30</div>
+          <div class="pyq-opt">D) 14</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) 20.</strong><br>
+          <em>Calculation:</em> $\phi(n) = (p - 1)(q - 1) = (3 - 1)(11 - 1) = 2 \times 10 = 20$.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q4. The Secure Hash Algorithm 3 (SHA-3) standard published by NIST is built on top of which cryptographic construction family?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Merkle-Damgård Structure</div>
+          <div class="pyq-opt">B) Feistel Network</div>
+          <div class="pyq-opt correct">C) Sponge Construction (Keccak) ✓</div>
+          <div class="pyq-opt">D) Davies-Meyer Structure</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Sponge Construction (Keccak).</strong><br>
+          <em>Explanation:</em> SHA-3 is based on the Keccak algorithm family, which uses a <strong>Sponge Construction</strong> (unlike SHA-2 which uses Merkle-Damgård).
+        </div>
+      </div>
+
+      <!-- PYQ 5 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q5. Which sub-operation is omitted in the FINAL round of the AES encryption algorithm?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) SubBytes</div>
+          <div class="pyq-opt">B) ShiftRows</div>
+          <div class="pyq-opt correct">C) MixColumns ✓</div>
+          <div class="pyq-opt">D) AddRoundKey</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) MixColumns.</strong><br>
+          <em>Explanation:</em> The final round of AES consists of <code>SubBytes</code>, <code>ShiftRows</code>, and <code>AddRoundKey</code> only. The <code>MixColumns</code> step is omitted in the final round!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2.7: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">2.7 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. Binary Modulo 2:</strong> $\oplus$ Modulo 2 Addition = <strong>XOR</strong> ($A \oplus A = 0$). $\otimes$ Modulo 2 Multiplication = <strong>AND</strong>.</p>
+        <p><strong style="color:#fff;">2. Stream vs Block:</strong> Stream = continuous bits/bytes, Hardware-oriented (RC4). Block = fixed-size blocks, Software-oriented (DES, AES).</p>
+        <p><strong style="color:#fff;">3. DES:</strong> 64-bit block, 56-bit key, 16 Feistel rounds. Initial &amp; Final Permutations.</p>
+        <p><strong style="color:#fff;">4. AES:</strong> Fixed 128-bit block. 128-bit key = 10 rounds, 192-bit key = 12 rounds, 256-bit key = 14 rounds. Round steps: SubBytes, ShiftRows, MixColumns (omitted in final round), AddRoundKey.</p>
+        <p><strong style="color:#fff;">5. RSA Math:</strong> $n = p \times q$, $\phi(n) = (p-1)(q-1)$. Public Key = $(e, n)$, Private Key = $(d, n)$. Encryption $c = m^e \bmod n$, Decryption $m = c^d \bmod n$. Minimum standard size = 2048 bits.</p>
+        <p><strong style="color:#fff;">6. Hashes:</strong> MD5 = 128-bit | SHA-1 = 160-bit | Whirlpool = 512-bit | SHA-256 = 256-bit | SHA-3 = Sponge Keccak (224/256/384/512 bits) | BLAKE3 = Merkle tree with 7 rounds.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-01-network-security.html" style="color:#34d399; font-weight:700; text-decoration:none;">← Lec 01: Security Fundamentals</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="27-cryptography-symmetric-asymmetric-hashing.html" style="color:#34d399; font-weight:700; text-decoration:none;">Chapter 27: Cryptography &amp; Hashing →</a>
+    </div>
+    GS Network Security Notes · Lecture 02 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

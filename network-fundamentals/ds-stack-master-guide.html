@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stack Data Structure Master Guide – IBPS SO IT &amp; GATE POV</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .guide-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+    }
+    .guide-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(225, 29, 72, 0.3);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .guide-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .guide-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(225, 29, 72, 0.12);
+      color: var(--accent5);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+      margin-top: 8px;
+    }
+
+    .section-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent5);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .formula-box {
+      background: var(--code-bg);
+      border: 1.5px solid var(--code-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--code-color);
+      margin: 14px 0;
+    }
+
+    .step-box {
+      background: rgba(225, 29, 72, 0.08);
+      border-left: 4px solid var(--accent5);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .pyq-box {
+      background: rgba(124, 58, 237, 0.08);
+      border-left: 4px solid var(--accent2);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 16px 0;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .tab-btn {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      border-color: var(--accent5);
+      color: var(--accent5);
+    }
+    .tab-btn.active {
+      background: var(--accent5);
+      color: #fff;
+      border-color: var(--accent5);
+    }
+    .code-block {
+      display: none;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 20px;
+      border-radius: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .code-block.active {
+      display: block;
+    }
+
+    /* Syntax Highlighting Colors */
+    .syn-keyword  { color: #ff7b72; font-weight: 700; }
+    .syn-type     { color: #79c0ff; font-weight: 700; }
+    .syn-func     { color: #d2a8ff; font-weight: 700; }
+    .syn-class    { color: #ffa657; font-weight: 700; }
+    .syn-string   { color: #a5d6ff; }
+    .syn-num      { color: #79c0ff; font-weight: 700; }
+    .syn-comment  { color: #8b949e; font-style: italic; }
+    .syn-macro    { color: #ffa657; font-weight: 700; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      background: var(--card2);
+      color: var(--accent5);
+      font-weight: 800;
+    }
+
+    .math-sym {
+      font-family: 'JetBrains Mono', Georgia, serif;
+      font-weight: 700;
+      color: var(--accent5);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-data-structures-notes.html" class="nav-back">← DS Master Index</a>
+      <span class="nav-title">Stack Master Guide (TOS = -1 &amp; Advanced Math)</span>
+      <span class="nav-badge">IBPS SO IT POV</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="guide-container">
+    <div class="guide-header">
+      <h1 class="guide-title">Stack Data Structure Master Notebook</h1>
+      <div class="guide-badge">TOS Initial state, Array Implementation, Average Lifetime &amp; Expression Math</div>
+    </div>
+
+    <!-- SECTION 1: STACK FUNDAMENTALS & TOS INITIALIZATION -->
+    <div class="section-card">
+      <div class="section-title">📦 Section 1: Stack Fundamentals &amp; TOS (Top of Stack) State</div>
+      <p>A <strong>Stack</strong> is a linear, restricted data structure following the <strong>LIFO (Last In First Out)</strong> or <strong>FILO (First In Last Out)</strong> principle. All insertions (<code>Push</code>) and deletions (<code>Pop</code>) take place at a single end called the <strong>TOS (Top of Stack)</strong>.</p>
+      
+      <div class="formula-box">
+        Initial Empty State: TOS = -1 (0-indexed array size n)<br>
+        Stack Full (Overflow): TOS == n - 1<br>
+        Stack Empty (Underflow): TOS == -1
+      </div>
+
+      <div class="step-box">
+        <strong>TOS Pointer Movement Rules:</strong>
+        <ul>
+          <li><strong>Push Operation:</strong> First increment <code>TOS++</code>, then insert element <code>a[TOS] = x</code>.</li>
+          <li><strong>Pop Operation:</strong> First extract element <code>x = a[TOS]</code>, then decrement <code>TOS--</code>.</li>
+          <li><strong>Peek / Top Operation:</strong> Return <code>a[TOS]</code> without modifying <code>TOS</code>.</li>
+        </ul>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Complete Stack Implementation (C, Java, Python):</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-stk')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-stk')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-stk')">Python</button>
+      </div>
+
+      <div id="c-stk" class="code-block active"><span class="syn-macro">#include &lt;stdio.h&gt;</span>
+<span class="syn-macro">#define MAX 5</span>
+
+<span class="syn-type">int</span> stack[MAX];
+<span class="syn-type">int</span> Top = -<span class="syn-num">1</span>; <span class="syn-comment">// TOS initially starts from -1</span>
+
+<span class="syn-type">void</span> <span class="syn-func">Push</span>(<span class="syn-type">int</span> x) {
+    <span class="syn-keyword">if</span> (Top == MAX - <span class="syn-num">1</span>) {
+        <span class="syn-func">printf</span>(<span class="syn-string">"Stack Overflow!\n"</span>);
+    } <span class="syn-keyword">else</span> {
+        Top++;
+        stack[Top] = x;
+    }
+}
+
+<span class="syn-type">int</span> <span class="syn-func">Pop</span>() {
+    <span class="syn-keyword">if</span> (Top == -<span class="syn-num">1</span>) {
+        <span class="syn-func">printf</span>(<span class="syn-string">"Stack Underflow!\n"</span>);
+        <span class="syn-keyword">return</span> -<span class="syn-num">1</span>;
+    } <span class="syn-keyword">else</span> {
+        <span class="syn-type">int</span> x = stack[Top];
+        Top--;
+        <span class="syn-keyword">return</span> x;
+    }
+}</div>
+
+      <div id="java-stk" class="code-block"><span class="syn-keyword">public class</span> <span class="syn-class">StackArray</span> {
+    <span class="syn-keyword">private int</span>[] stack;
+    <span class="syn-keyword">private int</span> top;
+    <span class="syn-keyword">private int</span> capacity;
+
+    <span class="syn-keyword">public</span> <span class="syn-func">StackArray</span>(<span class="syn-type">int</span> size) {
+        capacity = size;
+        stack = <span class="syn-keyword">new int</span>[capacity];
+        top = -<span class="syn-num">1</span>; <span class="syn-comment">// TOS initially starts from -1</span>
+    }
+
+    <span class="syn-keyword">public void</span> <span class="syn-func">push</span>(<span class="syn-type">int</span> x) {
+        <span class="syn-keyword">if</span> (top == capacity - <span class="syn-num">1</span>) {
+            <span class="syn-class">System</span>.out.<span class="syn-func">println</span>(<span class="syn-string">"Stack Overflow!"</span>);
+            <span class="syn-keyword">return</span>;
+        }
+        stack[++top] = x;
+    }
+
+    <span class="syn-keyword">public int</span> <span class="syn-func">pop</span>() {
+        <span class="syn-keyword">if</span> (top == -<span class="syn-num">1</span>) {
+            <span class="syn-class">System</span>.out.<span class="syn-func">println</span>(<span class="syn-string">"Stack Underflow!"</span>);
+            <span class="syn-keyword">return</span> -<span class="syn-num">1</span>;
+        }
+        <span class="syn-keyword">return</span> stack[top--];
+    }
+}</div>
+
+      <div id="python-stk" class="code-block"><span class="syn-keyword">class</span> <span class="syn-class">Stack</span>:
+    <span class="syn-keyword">def</span> <span class="syn-func">__init__</span>(self, capacity):
+        self.capacity = capacity
+        self.stack = []
+        self.top = -<span class="syn-num">1</span>  <span class="syn-comment"># TOS initially starts from -1</span>
+
+    <span class="syn-keyword">def</span> <span class="syn-func">push</span>(self, x):
+        <span class="syn-keyword">if</span> self.top == self.capacity - <span class="syn-num">1</span>:
+            <span class="syn-func">print</span>(<span class="syn-string">"Stack Overflow!"</span>)
+            <span class="syn-keyword">return</span>
+        self.top += <span class="syn-num">1</span>
+        self.stack.append(x)
+
+    <span class="syn-keyword">def</span> <span class="syn-func">pop</span>(self):
+        <span class="syn-keyword">if</span> self.top == -<span class="syn-num">1</span>:
+            <span class="syn-func">print</span>(<span class="syn-string">"Stack Underflow!"</span>)
+            <span class="syn-keyword">return</span> <span class="syn-keyword">None</span>
+        self.top -= <span class="syn-num">1</span>
+        <span class="syn-keyword">return</span> self.stack.pop()</div>
+    </div>
+
+    <!-- SECTION 2: AVERAGE LIFETIME OF AN ELEMENT IN STACK -->
+    <div class="section-card">
+      <div class="section-title">⏳ Section 2: How to Find Average Lifetime of an Element in Stack</div>
+      <p>The <strong>Lifetime of an element $k$</strong> is the total elapsed time from the instant element $k$ is pushed onto the stack ($\text{Push}(k)$) until the instant it is popped off the stack ($\text{Pop}(k)$).</p>
+
+      <div class="formula-box">
+        Lifetime(k) = Time after Push(k) and before Pop(k)<br>
+        Let x = Execution time per stack operation (Push/Pop)<br>
+        Let y = Elapsed time between consecutive operations
+      </div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent2); margin-bottom: 8px;">🔥 Solved Example (3 Elements Pushed &amp; Popped: a, b, c):</h4>
+        <p>Sequence of operations: $\text{Push}(a), \text{Push}(b), \text{Push}(c), \text{Pop}(c), \text{Pop}(b), \text{Pop}(a)$.</p>
+        <ul>
+          <li><strong>Element $c$ (Topmost element):</strong><br>
+            Between $\text{Push}(c)$ and $\text{Pop}(c)$, there is only 1 time gap $y$.<br>
+            $$\text{Lifetime}(c) = y$$
+          </li>
+          <li><strong>Element $b$ (Middle element):</strong><br>
+            Between $\text{Push}(b)$ and $\text{Pop}(b)$, 2 operations occur ($\text{Push}(c)$ &amp; $\text{Pop}(c)$ taking $2x$) and 3 time gaps ($3y$).<br>
+            $$\text{Lifetime}(b) = 2x + 3y$$
+          </li>
+          <li><strong>Element $a$ (Bottommost element):</strong><br>
+            Between $\text{Push}(a)$ and $\text{Pop}(a)$, 4 operations occur ($2\text{Push} + 2\text{Pop} = 4x$) and 5 time gaps ($5y$).<br>
+            $$\text{Lifetime}(a) = 4x + 5y$$
+          </li>
+        </ul>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 12px 0;">
+        <p><strong>Total Lifetime:</strong></p>
+        $$\text{Total} = \text{LT}(c) + \text{LT}(b) + \text{LT}(a) = y + (2x + 3y) + (4x + 5y) = 6x + 9y$$
+        <p><strong>Average Lifetime of an Element:</strong></p>
+        $$\text{Average Lifetime} = \frac{6x + 9y}{3} = \mathbf{2x + 3y}$$
+        <p style="margin-top:6px; color:var(--accent5); font-weight:700;">If $x = 3$ units and $y = 4$ units: Average Lifetime = $2(3) + 3(4) = 6 + 12 = 18$ units.</p>
+      </div>
+
+      <div class="step-box">
+        <strong>General Formula for $n$ Pushed Elements:</strong>
+        <p>For $n$ elements pushed sequentially and popped in reverse order:</p>
+        $$\text{Average Lifetime} = (n - 1) x + n \cdot y \quad \text{(or } (n-1)(x+y) + y\text{)}$$
+      </div>
+    </div>
+
+    <!-- SECTION 3: INFIX, POSTFIX & PREFIX CONVERSIONS -->
+    <div class="section-card">
+      <div class="section-title">🧮 Section 3: Infix, Postfix &amp; Prefix Conversion &amp; Evaluation</div>
+
+      <h4 style="margin: 10px 0;">Operator Precedence &amp; Associativity Table:</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Operator</th>
+            <th>Description</th>
+            <th>Precedence</th>
+            <th>Associativity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>^</code> or <code>$</code></td>
+            <td>Exponentiation</td>
+            <td>Highest (3)</td>
+            <td>Right to Left ($\text{R} \to \text{L}$)</td>
+          </tr>
+          <tr>
+            <td><code>*</code>, <code>/</code>, <code>%</code></td>
+            <td>Multiplication, Division, Modulo</td>
+            <td>Medium (2)</td>
+            <td>Left to Right ($\text{L} \to \text{R}$)</td>
+          </tr>
+          <tr>
+            <td><code>+</code>, <code>-</code></td>
+            <td>Addition, Subtraction</td>
+            <td>Lowest (1)</td>
+            <td>Left to Right ($\text{L} \to \text{R}$)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent2); margin-bottom: 8px;">🔥 Postfix Evaluation Algorithm using Stack:</h4>
+        <ol style="margin-left: 20px; margin-top: 6px;">
+          <li>Scan expression left to right.</li>
+          <li>If token is an operand (number), <code>Push(operand)</code> onto stack.</li>
+          <li>If token is an operator ($op$), <code>val2 = Pop()</code>, <code>val1 = Pop()</code>. Compute <code>result = val1 op val2</code> and <code>Push(result)</code>.</li>
+          <li>Final answer is at <code>Pop()</code>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- IBPS SO IT PYQ VERIFICATION -->
+    <div class="section-card" style="border-color: rgba(5,150,105,0.4); background: linear-gradient(135deg, rgba(5,150,105,0.05), rgba(16,185,129,0.02));">
+      <div class="section-title" style="color: var(--accent3);">🎯 IBPS SO IT PYQ Pattern Verification</div>
+      <ul>
+        <li><strong>TOS Initial Pointer State:</strong> When implementing stack using a 0-indexed array of size $n$, empty stack has <code>TOS = -1</code>. First push increments <code>TOS</code> to <code>0</code>.</li>
+        <li><strong>Time Complexities:</strong> <code>Push</code>, <code>Pop</code>, <code>Peek</code>, <code>isEmpty</code>, <code>isFull</code> all execute in <span class="math-sym">O(1)</span> time complexity.</li>
+        <li><strong>Average Lifetime Formula:</strong> Remember $\text{Lifetime}(k) = \text{Push}(k) \to \text{Pop}(k)$ time span.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showCode(btn, targetId) {
+  var card = btn.closest('.section-card');
+  if (!card) return;
+  card.querySelectorAll('.code-block').forEach(function(el) { el.classList.remove('active'); });
+  card.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+  var target = card.querySelector('#' + targetId);
+  if (target) target.classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

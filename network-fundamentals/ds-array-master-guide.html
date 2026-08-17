@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Array Data Structure Master Guide – IBPS SO IT &amp; GATE POV</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .guide-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+    }
+    .guide-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(37, 99, 235, 0.3);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .guide-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .guide-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 100px;
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      margin-top: 8px;
+    }
+
+    .section-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .formula-box {
+      background: var(--code-bg);
+      border: 1.5px solid var(--code-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--code-color);
+      margin: 14px 0;
+    }
+
+    .step-box {
+      background: rgba(5, 150, 105, 0.08);
+      border-left: 4px solid var(--accent3);
+      padding: 14px 18px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+
+    .pyq-box {
+      background: rgba(225, 29, 72, 0.08);
+      border-left: 4px solid var(--accent5);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 16px 0;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .tab-btn {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .code-block {
+      display: none;
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 20px;
+      border-radius: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .code-block.active {
+      display: block;
+    }
+
+    /* Vibrant Syntax Highlighting Colors */
+    .syn-keyword  { color: #ff7b72; font-weight: 700; } /* Pink/Red keywords */
+    .syn-type     { color: #79c0ff; font-weight: 700; } /* Blue primitive types */
+    .syn-func     { color: #d2a8ff; font-weight: 700; } /* Purple functions */
+    .syn-class    { color: #ffa657; font-weight: 700; } /* Orange classes */
+    .syn-string   { color: #a5d6ff; }                   /* Cyan strings */
+    .syn-num      { color: #79c0ff; font-weight: 700; } /* Cyan numbers */
+    .syn-comment  { color: #8b949e; font-style: italic; }/* Slate gray comments */
+    .syn-macro    { color: #ffa657; font-weight: 700; } /* Macro / Includes */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      background: var(--card2);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .math-sym {
+      font-family: 'JetBrains Mono', Georgia, serif;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-data-structures-notes.html" class="nav-back">← DS Master Index</a>
+      <span class="nav-title">Array Master Guide (Lec 1 to Lec 6)</span>
+      <span class="nav-badge">IBPS SO IT POV</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="guide-container">
+    <div class="guide-header">
+      <h1 class="guide-title">Array Data Structure Master Notebook</h1>
+      <div class="guide-badge">Lectures 1–6 Complete Analysis &amp; IBPS SO IT Solved Numericals</div>
+    </div>
+
+    <!-- LEC 1 SECTION -->
+    <div class="section-card">
+      <div class="section-title">📌 Lec 1: Array Fundamentals &amp; Multi-Language Code</div>
+      <p>An <strong>Array</strong> is a linear data structure containing a collection of homogeneous elements stored in <strong>contiguous memory locations</strong>. It allows constant-time <span class="math-sym">O(1)</span> random access to any element using its index formula.</p>
+      
+      <div class="step-box">
+        <strong>Core Properties:</strong>
+        <ul>
+          <li><strong>Contiguous Allocation:</strong> Memory locations are sequential (e.g. <code>1000, 1004, 1008, …</code>).</li>
+          <li><strong>Random Access:</strong> Any element <code>A[i]</code> can be accessed directly in <span class="math-sym">O(1)</span> time.</li>
+          <li><strong>Fixed Size:</strong> Static arrays cannot be dynamically resized without reallocation.</li>
+        </ul>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">Complete Code Implementation:</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-arr1')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-arr1')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-arr1')">Python</button>
+      </div>
+
+      <div id="c-arr1" class="code-block active"><span class="syn-macro">#include &lt;stdio.h&gt;</span>
+
+<span class="syn-type">int</span> <span class="syn-func">main</span>() {
+    <span class="syn-comment">// 1D Array Declaration &amp; Initialization</span>
+    <span class="syn-type">int</span> arr[<span class="syn-num">5</span>] = {<span class="syn-num">10</span>, <span class="syn-num">20</span>, <span class="syn-num">30</span>, <span class="syn-num">40</span>, <span class="syn-num">50</span>};
+    <span class="syn-type">int</span> size = <span class="syn-num">5</span>;
+
+    <span class="syn-func">printf</span>(<span class="syn-string">"Base Address: %p\n"</span>, (<span class="syn-type">void</span>*)arr);
+    <span class="syn-func">printf</span>(<span class="syn-string">"Access element at index 2: %d\n"</span>, arr[<span class="syn-num">2</span>]); <span class="syn-comment">// O(1) Access</span>
+
+    <span class="syn-comment">// Traversal</span>
+    <span class="syn-func">printf</span>(<span class="syn-string">"Array elements: "</span>);
+    <span class="syn-keyword">for</span>(<span class="syn-type">int</span> i = <span class="syn-num">0</span>; i &lt; size; i++) {
+        <span class="syn-func">printf</span>(<span class="syn-string">"%d "</span>, arr[i]);
+    }
+    <span class="syn-func">printf</span>(<span class="syn-string">"\n"</span>);
+    <span class="syn-keyword">return</span> <span class="syn-num">0</span>;
+}</div>
+
+      <div id="java-arr1" class="code-block"><span class="syn-keyword">public class</span> <span class="syn-class">ArrayDemo</span> {
+    <span class="syn-keyword">public static void</span> <span class="syn-func">main</span>(<span class="syn-class">String</span>[] args) {
+        <span class="syn-comment">// 1D Array Creation</span>
+        <span class="syn-type">int</span>[] arr = {<span class="syn-num">10</span>, <span class="syn-num">20</span>, <span class="syn-num">30</span>, <span class="syn-num">40</span>, <span class="syn-num">50</span>};
+
+        <span class="syn-comment">// Access element at index 2</span>
+        <span class="syn-class">System</span>.out.<span class="syn-func">println</span>(<span class="syn-string">"Element at index 2: "</span> + arr[<span class="syn-num">2</span>]); <span class="syn-comment">// O(1)</span>
+
+        <span class="syn-comment">// Traversal</span>
+        <span class="syn-class">System</span>.out.<span class="syn-func">print</span>(<span class="syn-string">"Array elements: "</span>);
+        <span class="syn-keyword">for</span> (<span class="syn-type">int</span> num : arr) {
+            <span class="syn-class">System</span>.out.<span class="syn-func">print</span>(num + <span class="syn-string">" "</span>);
+        }
+        <span class="syn-class">System</span>.out.<span class="syn-func">println</span>();
+    }
+}</div>
+
+      <div id="python-arr1" class="code-block"><span class="syn-comment"># Python 1D Array / List Demo</span>
+arr = [<span class="syn-num">10</span>, <span class="syn-num">20</span>, <span class="syn-num">30</span>, <span class="syn-num">40</span>, <span class="syn-num">50</span>]
+
+<span class="syn-comment"># Access element at index 2</span>
+<span class="syn-func">print</span>(<span class="syn-string">"Element at index 2:"</span>, arr[<span class="syn-num">2</span>])  <span class="syn-comment"># O(1) access</span>
+
+<span class="syn-comment"># Traversal</span>
+<span class="syn-func">print</span>(<span class="syn-string">"Array elements:"</span>, end=<span class="syn-string">" "</span>)
+<span class="syn-keyword">for</span> num <span class="syn-keyword">in</span> arr:
+    <span class="syn-func">print</span>(num, end=<span class="syn-string">" "</span>)
+<span class="syn-func">print</span>()</div>
+    </div>
+
+    <!-- LEC 2 & 3 SECTION -->
+    <div class="section-card">
+      <div class="section-title">📐 Lec 2 &amp; 3: 1D Array Address Calculation (Positive &amp; Negative Bounds)</div>
+      <p>To calculate the memory address of an element <code>A[i]</code> in a 1D array with Lower Bound (<code>LB</code>) and Upper Bound (<code>UB</code>):</p>
+      
+      <div class="formula-box">
+        LOC(A[i]) = Base Address + (i - LB) × Element Size (k)
+      </div>
+
+      <div class="step-box">
+        <strong>Key Formulas:</strong>
+        <ul>
+          <li><strong>0-indexed (LB = 0):</strong> <code>LOC(A[i]) = BA + i × k</code></li>
+          <li><strong>1-indexed (LB = 1):</strong> <code>LOC(A[i]) = BA + (i - 1) × k</code></li>
+          <li><strong>General (Custom LB):</strong> <code>LOC(A[i]) = BA + (i - LB) × k</code></li>
+          <li><strong>Total Elements:</strong> <code>N = UB - LB + 1</code></li>
+        </ul>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">1D Address Computation Implementation:</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-arr2')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-arr2')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-arr2')">Python</button>
+      </div>
+
+      <div id="c-arr2" class="code-block active"><span class="syn-type">long</span> <span class="syn-func">calculate1DAddress</span>(<span class="syn-type">long</span> baseAddress, <span class="syn-type">int</span> targetIndex, <span class="syn-type">int</span> lowerBound, <span class="syn-type">int</span> elementSize) {
+    <span class="syn-comment">// LOC(A[i]) = BA + (i - LB) * k</span>
+    <span class="syn-keyword">return</span> baseAddress + (<span class="syn-type">long</span>)(targetIndex - lowerBound) * elementSize;
+}</div>
+
+      <div id="java-arr2" class="code-block"><span class="syn-keyword">public static long</span> <span class="syn-func">calculate1DAddress</span>(<span class="syn-type">long</span> baseAddress, <span class="syn-type">int</span> targetIndex, <span class="syn-type">int</span> lowerBound, <span class="syn-type">int</span> elementSize) {
+    <span class="syn-comment">// LOC(A[i]) = BA + (i - LB) * k</span>
+    <span class="syn-keyword">return</span> baseAddress + (<span class="syn-type">long</span>)(targetIndex - lowerBound) * elementSize;
+}</div>
+
+      <div id="python-arr2" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">calculate_1d_address</span>(base_address, target_index, lower_bound, element_size):
+    <span class="syn-comment"># LOC(A[i]) = BA + (i - LB) * k</span>
+    <span class="syn-keyword">return</span> base_address + (target_index - lower_bound) * element_size</div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent5); margin-bottom: 8px;">🔥 Solved Example 1 (Lec 2 PDF - Positive Bound):</h4>
+        <p><strong>Given:</strong> Array <code>A[80 … 450]</code>, Base Address <code>BA = 1000</code>, Element Size <code>k = 2</code> bytes. Find <code>LOC(A[295])</code>.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li><code>LB = 80</code>, target index <code>i = 295</code></li>
+          <li><code>Offset = i - LB = 295 - 80 = 215</code> elements</li>
+          <li><code>LOC(A[295]) = 1000 + 215 × 2 = 1000 + 430 =</code> <strong style="color: var(--accent5); font-size: 16px;">1430</strong></li>
+        </ul>
+      </div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent5); margin-bottom: 8px;">🔥 Solved Example 2 (Lec 3 PDF - Negative Lower Bound):</h4>
+        <p><strong>Given:</strong> Array <code>A[-200 … 400]</code>, Base Address <code>BA = 1000</code>, Element Size <code>k = 4</code> bytes. Find <code>LOC(A[125])</code>.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li><code>LB = -200</code>, target index <code>i = 125</code></li>
+          <li><code>Offset = i - LB = 125 - (-200) = 125 + 200 = 325</code> elements</li>
+          <li><code>LOC(A[125]) = 1000 + 325 × 4 = 1000 + 1300 =</code> <strong style="color: var(--accent5); font-size: 16px;">2300</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LEC 4 & 5 SECTION -->
+    <div class="section-card">
+      <div class="section-title">📊 Lec 4 &amp; 5: 2D Array Row-Major Order (RMO)</div>
+      <p>In <strong>Row-Major Order (RMO)</strong>, elements are stored row-by-row in linear RAM (Row 0, then Row 1, then Row 2…).</p>
+
+      <div class="formula-box">
+        LOC(A[i][j]) = Base Address + [(i - LB₁) × N + (j - LB₂)] × k<br>
+        <small style="font-weight: 400; color: var(--text2);">where N = Total Columns = (UB₂ - LB₂ + 1)</small>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">2D RMO Address Computation Implementation:</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-rmo')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-rmo')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-rmo')">Python</button>
+      </div>
+
+      <div id="c-rmo" class="code-block active"><span class="syn-type">long</span> <span class="syn-func">calculateRMO</span>(<span class="syn-type">long</span> ba, <span class="syn-type">int</span> i, <span class="syn-type">int</span> j, <span class="syn-type">int</span> lb1, <span class="syn-type">int</span> ub1, <span class="syn-type">int</span> lb2, <span class="syn-type">int</span> ub2, <span class="syn-type">int</span> k) {
+    <span class="syn-type">int</span> N = ub2 - lb2 + <span class="syn-num">1</span>; <span class="syn-comment">// Total Columns</span>
+    <span class="syn-keyword">return</span> ba + (<span class="syn-type">long</span>)((i - lb1) * N + (j - lb2)) * k;
+}</div>
+
+      <div id="java-rmo" class="code-block"><span class="syn-keyword">public static long</span> <span class="syn-func">calculateRMO</span>(<span class="syn-type">long</span> ba, <span class="syn-type">int</span> i, <span class="syn-type">int</span> j, <span class="syn-type">int</span> lb1, <span class="syn-type">int</span> ub1, <span class="syn-type">int</span> lb2, <span class="syn-type">int</span> ub2, <span class="syn-type">int</span> k) {
+    <span class="syn-type">int</span> N = ub2 - lb2 + <span class="syn-num">1</span>; <span class="syn-comment">// Total Columns</span>
+    <span class="syn-keyword">return</span> ba + (<span class="syn-type">long</span>)((i - lb1) * N + (j - lb2)) * k;
+}</div>
+
+      <div id="python-rmo" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">calculate_rmo</span>(ba, i, j, lb1, ub1, lb2, ub2, k):
+    N = ub2 - lb2 + <span class="syn-num">1</span>  <span class="syn-comment"># Total Columns</span>
+    <span class="syn-keyword">return</span> ba + ((i - lb1) * N + (j - lb2)) * k</div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent5); margin-bottom: 8px;">🔥 Solved Example 1 (Lec 5 PDF - Standard Bounds):</h4>
+        <p><strong>Given:</strong> Array <code>A[50 … 120, 70 … 250]</code>, <code>BA = 1000</code>, <code>k = 5</code> bytes. Find <code>LOC(A[75][140])</code> in RMO.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Row Lower Bound <code>LB₁ = 50</code>, Col Lower Bound <code>LB₂ = 70</code></li>
+          <li>Total Columns <code>N = UB₂ - LB₂ + 1 = 250 - 70 + 1 = 181</code></li>
+          <li>Row offset = <code>75 - 50 = 25</code> rows passed</li>
+          <li>Col offset = <code>140 - 70 = 70</code> cols passed</li>
+          <li>Elements prior = <code>25 × 181 + 70 = 4525 + 70 = 4595</code></li>
+          <li><code>LOC(A[75][140]) = 1000 + 4595 × 5 = 1000 + 22975 =</code> <strong style="color: var(--accent5); font-size: 16px;">23975</strong></li>
+        </ul>
+      </div>
+
+      <div class="pyq-box">
+        <h4 style="color: var(--accent5); margin-bottom: 8px;">🔥 Solved Example 2 (Lec 5 PDF - Negative Bounds):</h4>
+        <p><strong>Given:</strong> Array <code>A[-65 … 145, -30 … 195]</code>, <code>BA = 0</code>, <code>k = 3</code> bytes. Find <code>LOC(A[-15][86])</code> in RMO.</p>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Total Columns <code>N = 195 - (-30) + 1 = 226</code></li>
+          <li>Row offset = <code>-15 - (-65) = 50</code></li>
+          <li>Col offset = <code>86 - (-30) = 116</code></li>
+          <li>Elements prior = <code>50 × 226 + 116 = 11300 + 116 = 11416</code></li>
+          <li><code>LOC(A[-15][86]) = 0 + 11416 × 3 =</code> <strong style="color: var(--accent5); font-size: 16px;">34248</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LEC 6 SECTION -->
+    <div class="section-card">
+      <div class="section-title">🏛️ Lec 6: 2D Array Column-Major Order (CMO) &amp; RMO vs CMO</div>
+      <p>In <strong>Column-Major Order (CMO)</strong>, elements are stored column-by-column (Col 0, then Col 1, then Col 2…). Used in Fortran, MATLAB, and R.</p>
+
+      <div class="formula-box">
+        LOC(A[i][j]) = Base Address + [(j - LB₂) × M + (i - LB₁)] × k<br>
+        <small style="font-weight: 400; color: var(--text2);">where M = Total Rows = (UB₁ - LB₁ + 1)</small>
+      </div>
+
+      <h4 style="margin: 16px 0 8px; color: var(--text);">2D CMO Address Computation Implementation:</h4>
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="showCode(this, 'c-cmo')">C</button>
+        <button class="tab-btn" onclick="showCode(this, 'java-cmo')">Java</button>
+        <button class="tab-btn" onclick="showCode(this, 'python-cmo')">Python</button>
+      </div>
+
+      <div id="c-cmo" class="code-block active"><span class="syn-type">long</span> <span class="syn-func">calculateCMO</span>(<span class="syn-type">long</span> ba, <span class="syn-type">int</span> i, <span class="syn-type">int</span> j, <span class="syn-type">int</span> lb1, <span class="syn-type">int</span> ub1, <span class="syn-type">int</span> lb2, <span class="syn-type">int</span> ub2, <span class="syn-type">int</span> k) {
+    <span class="syn-type">int</span> M = ub1 - lb1 + <span class="syn-num">1</span>; <span class="syn-comment">// Total Rows</span>
+    <span class="syn-keyword">return</span> ba + (<span class="syn-type">long</span>)((j - lb2) * M + (i - lb1)) * k;
+}</div>
+
+      <div id="java-cmo" class="code-block"><span class="syn-keyword">public static long</span> <span class="syn-func">calculateCMO</span>(<span class="syn-type">long</span> ba, <span class="syn-type">int</span> i, <span class="syn-type">int</span> j, <span class="syn-type">int</span> lb1, <span class="syn-type">int</span> ub1, <span class="syn-type">int</span> lb2, <span class="syn-type">int</span> ub2, <span class="syn-type">int</span> k) {
+    <span class="syn-type">int</span> M = ub1 - lb1 + <span class="syn-num">1</span>; <span class="syn-comment">// Total Rows</span>
+    <span class="syn-keyword">return</span> ba + (<span class="syn-type">long</span>)((j - lb2) * M + (i - lb1)) * k;
+}</div>
+
+      <div id="python-cmo" class="code-block"><span class="syn-keyword">def</span> <span class="syn-func">calculate_cmo</span>(ba, i, j, lb1, ub1, lb2, ub2, k):
+    M = ub1 - lb1 + <span class="syn-num">1</span>  <span class="syn-comment"># Total Rows</span>
+    <span class="syn-keyword">return</span> ba + ((j - lb2) * M + (i - lb1)) * k</div>
+
+      <h4 style="margin: 18px 0 10px; color: var(--text);">Comparison Table (RMO vs CMO):</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Row-Major Order (RMO)</th>
+            <th>Column-Major Order (CMO)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Storage Pattern</strong></td>
+            <td>Row by row (Row 0, Row 1, Row 2…)</td>
+            <td>Column by column (Col 0, Col 1, Col 2…)</td>
+          </tr>
+          <tr>
+            <td><strong>Multiplier Parameter</strong></td>
+            <td><code>N = Total Columns = (UB₂ - LB₂ + 1)</code></td>
+            <td><code>M = Total Rows = (UB₁ - LB₁ + 1)</code></td>
+          </tr>
+          <tr>
+            <td><strong>Address Formula</strong></td>
+            <td><code>BA + [(i - LB₁) × N + (j - LB₂)] × k</code></td>
+            <td><code>BA + [(j - LB₂) × M + (i - LB₁)] × k</code></td>
+          </tr>
+          <tr>
+            <td><strong>Primary Languages</strong></td>
+            <td>C, C++, Java, Python, C#</td>
+            <td>Fortran, MATLAB, R</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- IBPS SO IT PYQ VERIFICATION -->
+    <div class="section-card" style="border-color: rgba(5,150,105,0.4); background: linear-gradient(135deg, rgba(5,150,105,0.05), rgba(16,185,129,0.02));">
+      <div class="section-title" style="color: var(--accent3);">🎯 IBPS SO IT PYQ Pattern Verification</div>
+      <p>Direct questions from IBPS SO IT &amp; GATE exams focus heavily on array address math:</p>
+      <ul>
+        <li><strong>Question Type 1:</strong> 1D Array address calculation with custom lower bound (e.g., <code>A[10 … 50]</code> or negative bounds <code>A[-50 … 50]</code>).</li>
+        <li><strong>Question Type 2:</strong> RMO vs CMO formula selection — remember: RMO uses Total Columns (<code>N</code>), CMO uses Total Rows (<code>M</code>).</li>
+        <li><strong>Question Type 3:</strong> Time complexity of array indexing — always <span class="math-sym">O(1)</span> regardless of size.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showCode(btn, targetId) {
+  var card = btn.closest('.section-card');
+  if (!card) return;
+  card.querySelectorAll('.code-block').forEach(function(el) { el.classList.remove('active'); });
+  card.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+  var target = card.querySelector('#' + targetId);
+  if (target) target.classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

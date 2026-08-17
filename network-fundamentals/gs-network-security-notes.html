@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GS Network Security Notes – Master Index</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <style>
+    .notebook-container {
+      max-width: 840px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 2px solid rgba(5, 150, 105, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .notebook-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(5, 150, 105, 0.3);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .notebook-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: var(--sec-hero-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .notebook-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent3);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .notebook-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    
+    .index-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .index-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .index-item:hover {
+      border-color: var(--accent3);
+      transform: translateX(6px);
+      background: var(--card2);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .index-item.item-green {
+      border-color: rgba(5, 150, 105, 0.4);
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(16, 185, 129, 0.03));
+    }
+    .index-item.item-green .index-num {
+      border-color: var(--accent3);
+      color: #ffffff;
+      background: var(--accent3);
+    }
+    .index-item.item-green .index-title {
+      color: var(--accent3);
+    }
+    .index-item.item-green .index-tag {
+      background: var(--accent3);
+      color: #ffffff;
+    }
+    .index-item.item-green .arrow-icon {
+      color: var(--accent3);
+    }
+
+    .index-item.item-rose {
+      border-color: rgba(225, 29, 72, 0.4);
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.03));
+    }
+    .index-item.item-rose .index-num {
+      border-color: var(--accent5);
+      color: #ffffff;
+      background: var(--accent5);
+    }
+    .index-item.item-rose .index-title {
+      color: var(--accent5);
+    }
+    .index-item.item-rose .index-tag {
+      background: var(--accent5);
+      color: #ffffff;
+    }
+    .index-item.item-rose .arrow-icon {
+      color: var(--accent5);
+    }
+
+    .index-item.item-purple {
+      border-color: rgba(124, 58, 237, 0.4);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(139, 92, 246, 0.03));
+    }
+    .index-item.item-purple .index-num {
+      border-color: var(--accent2);
+      color: #ffffff;
+      background: var(--accent2);
+    }
+    .index-item.item-purple .index-title {
+      color: var(--accent2);
+    }
+    .index-item.item-purple .index-tag {
+      background: var(--accent2);
+      color: #ffffff;
+    }
+    .index-item.item-purple .arrow-icon {
+      color: var(--accent2);
+    }
+
+    .index-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent);
+      flex-shrink: 0;
+      background: var(--glow);
+    }
+
+    .index-content {
+      flex: 1;
+    }
+
+    .index-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .index-sub {
+      font-size: 13.5px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .index-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .tag-sec {
+      background: var(--glow);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .arrow-icon {
+      font-size: 20px;
+      color: var(--text3);
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .index-item:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .quick-btn-primary {
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+    .quick-btn-primary:hover {
+      background: var(--accent3);
+      color: #fff;
+    }
+    .quick-btn-secondary {
+      background: rgba(225, 29, 72, 0.12);
+      color: var(--accent5);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+    }
+    .quick-btn-secondary:hover {
+      background: var(--accent5);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-back">← Main Workspace</a>
+      <span class="nav-title">GS Network Security Notes</span>
+      <span class="nav-badge">Security Index</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="notebook-container">
+    <div class="notebook-header">
+      <h1 class="notebook-title">GS Network Security Notes</h1>
+      <div class="notebook-subtitle">Network Security &amp; Cryptography Master Index</div>
+      <p class="notebook-desc">Comprehensive study modules covering Firewalls, DMZ, IDS/IPS, Symmetric &amp; Asymmetric Cryptography, Digital Signatures, PKI, SSL/TLS 1.3, IPsec VPN, and Cyber Attack vectors for IBPS SO IT &amp; GATE exams.</p>
+    </div>
+
+    <div class="index-list">
+      <!-- Lec 01 -->
+      <a href="lec-01-network-security.html" class="index-item item-green">
+        <div class="index-num">1</div>
+        <div class="index-content">
+          <div class="index-title">Lec 01: Network Security Fundamentals ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-1-Network-Security.pdf: CIA Triad, AAA Model, Symmetric vs Asymmetric Cryptography ($N(N-1)/2$ vs $2N$ keys), MD5/MD6/SHA Hashes, Digital Signatures (Non-Repudiation), and Firewall Generations (Packet Filtering L3/L4, Circuit-Level L5, Proxy Gateway L7 DPI).</div>
+        </div>
+        <span class="index-tag">LEC 01 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 02 -->
+      <a href="lec-02-network-security-cryptographic-systems.html" class="index-item item-green">
+        <div class="index-num">2</div>
+        <div class="index-content">
+          <div class="index-title">Lec 02: Model of Cryptographic System ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-2-Model-of-Cryptographic-System.pdf: Stream vs Block Ciphers, Binary Modulo-2 Arithmetic ($\oplus$ XOR &amp; $\otimes$ AND), DES (56-bit key, 16 Feistel rounds), 3DES, AES (128/192/256-bit rounds), IDEA, RSA Step-by-Step Math ($p=3, q=11, e=7, d=3$), and Hash Algorithms (MD5, SHA-1, SHA-2, SHA-3 Keccak &amp; BLAKE3).</div>
+        </div>
+        <span class="index-tag">LEC 02 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 03 -->
+      <a href="lec-03-network-security-dos-ddos-attacks.html" class="index-item item-rose">
+        <div class="index-num">3</div>
+        <div class="index-content">
+          <div class="index-title">Lec 03: DoS vs DDoS Attacks 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">Complete breakdown of lec-3-DoS-vs-DDoS-(Denial-of-Service)-Attack.pdf: CIA Availability Violation, ICMP/UDP/TCP SYN/HTTP Floods, <strong>🔥 3.3 Case Study: Mirai Botnet &amp; 2016 Dyn DNS Attack</strong>, <strong>🔥 Botnets (Mirai, Necurs) &amp; Amplification Servers (NTP, DNS)</strong>, LOIC, Rate Limiting, SYN Cookies, and Cloud Traffic Scrubbing.</div>
+        </div>
+        <span class="index-tag">LEC 03 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 04 -->
+      <a href="lec-04-network-security-viruses-malicious-attacks.html" class="index-item item-purple">
+        <div class="index-num">4</div>
+        <div class="index-content">
+          <div class="index-title">Lec 04: Security Attacks &amp; Malicious Software ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-4-Viruses-&amp;-Malicious-attacks.pdf: Passive vs Active Security Attacks (Traffic Analysis, Masquerade, Replay), 5 Virus Types (Boot Sector, MBR, Multipartite, Macro), Worms vs Trojans vs Spyware vs Ransomware, and Historical Malware Dictionary (Stuxnet, Pegasus, ILOVEYOU, CryptoLocker).</div>
+        </div>
+        <span class="index-tag">LEC 04 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 05 -->
+      <a href="lec-05-network-security-brute-force-attacks.html" class="index-item item-rose">
+        <div class="index-num">5</div>
+        <div class="index-content">
+          <div class="index-title">Lec 05: Brute Force &amp; Dictionary Attacks ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-5-Brute-Force-Attack.pdf: Exhaustive Key Space Search, Dictionary Attacks, Automated Penetration Tools (Hydra, Burp Suite), Key Space Math ($62^6 = 56.8 \text{B}$ space, $28.4 \text{B}$ avg attempts), and 4 Core Defenses (Account Lockout, CAPTCHA, MFA, Rate Limiting).</div>
+        </div>
+        <span class="index-tag">LEC 05 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 06 -->
+      <a href="lec-06-network-security-injection-attacks.html" class="index-item item-rose">
+        <div class="index-num">6</div>
+        <div class="index-content">
+          <div class="index-title">Lec 06: Injection Attacks (SQLi &amp; Command Injection) ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-6-Injection-attacks.pdf: SQL Injection (SQLi) Auth Bypass (<code>' OR 1=1 --</code>), OS Command Injection (<code>os.system rm -rf</code>), Parameterized Queries / Prepared Statements, Web Application Firewalls (WAF), and Principle of Least Privilege (<code>GRANT SELECT</code>).</div>
+        </div>
+        <span class="index-tag">LEC 06 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 07 -->
+      <a href="lec-07-network-security-xss-attacks.html" class="index-item item-rose">
+        <div class="index-num">7</div>
+        <div class="index-content">
+          <div class="index-title">Lec 07: Cross-Site Scripting (XSS) Attack ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-7-Cross-Site-Scripting-(XSS)-Attack.pdf: Stored vs Reflected vs DOM XSS, Step-by-Step Cookie Theft &amp; Session Hijacking Scenario, HTML Entity Encoding (<code>&amp;lt;script&amp;gt;</code>), Content Security Policy (CSP), and HttpOnly Cookies.</div>
+        </div>
+        <span class="index-tag">LEC 07 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 08 -->
+      <a href="lec-08-network-security-csrf-attacks.html" class="index-item item-purple">
+        <div class="index-num">8</div>
+        <div class="index-content">
+          <div class="index-title">Lec 08: Cross-Site Request Forgery (CSRF) ✨</div>
+          <div class="index-sub">Complete breakdown of Lec-8-Cross-Site-Request-Forgery-(CSRF).pdf: Ambient Authority Exploitation, 6-Step Bank Transfer Scenario, XSS vs CSRF Comparison, Anti-CSRF Synchronizer Tokens, SameSite Cookies (<code>Strict</code> &amp; <code>Lax</code>), and Origin/Referer Header Validation.</div>
+        </div>
+        <span class="index-tag">LEC 08 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Chapter 26 -->
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" class="index-item">
+        <div class="index-num">26</div>
+        <div class="index-content">
+          <div class="index-title">Firewalls, DMZ Architecture, IDS &amp; IPS</div>
+          <div class="index-sub">CIA Triad (Confidentiality, Integrity, Availability), Stateless vs Stateful SPI Firewalls, Next-Gen Firewalls (NGFW), DMZ Perimeter Network Design, and IDS vs IPS inline blocking mechanisms.</div>
+        </div>
+        <span class="index-tag tag-sec">CHAP 26</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Chapter 27 -->
+      <a href="27-cryptography-symmetric-asymmetric-hashing.html" class="index-item">
+        <div class="index-num">27</div>
+        <div class="index-content">
+          <div class="index-title">Cryptography Basics: Symmetric, Asymmetric &amp; Hashing</div>
+          <div class="index-sub">Symmetric secret-key ciphers (AES-256), Public-key cryptography (RSA, Diffie-Hellman Key Exchange), Cryptographic hash functions (SHA-256), and HMAC data integrity verification.</div>
+        </div>
+        <span class="index-tag tag-sec">CHAP 27</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Chapter 28 -->
+      <a href="28-digital-signatures-pki-certificates-ssl-tls-vpn.html" class="index-item">
+        <div class="index-num">28</div>
+        <div class="index-content">
+          <div class="index-title">Digital Signatures, PKI, SSL/TLS &amp; VPN</div>
+          <div class="index-sub">Digital Signatures for non-repudiation, Public Key Infrastructure (PKI X.509 certificates &amp; Certificate Authorities), SSL/TLS 1.3 Handshake Protocol, and IPsec VPN tunneling (AH vs ESP, Tunnel vs Transport modes).</div>
+        </div>
+        <span class="index-tag tag-sec">CHAP 28</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Chapter 29 -->
+      <a href="29-common-network-attacks-dos-ddos-mitm-phishing.html" class="index-item">
+        <div class="index-num">29</div>
+        <div class="index-content">
+          <div class="index-title">Common Cyber Attacks: DoS, DDoS, MITM &amp; Phishing</div>
+          <div class="index-sub">Active vs Passive attack classification, Denial of Service (SYN floods, DNS amplification), Man-in-the-Middle (MITM) ARP poisoning, IP/MAC/DNS Spoofing, and Social Engineering phishing vectors.</div>
+        </div>
+        <span class="index-tag tag-sec">CHAP 29</span>
+        <span class="arrow-icon">→</span>
+      </a>
+    </div>
+
+    <div class="quick-links">
+      <a href="../index.html" class="quick-btn quick-btn-primary">🏠 Back to Main Workspace Dashboard</a>
+      <a href="gs-computer-networks-notes.html" class="quick-btn quick-btn-secondary">📖 Open GS Computer Networks Notes</a>
+      <a href="gs-data-structures-notes.html" class="quick-btn" style="background: rgba(37, 99, 235, 0.12); color: var(--accent); border: 1px solid rgba(37, 99, 235, 0.3);">🧱 Open GS Data Structures Notes</a>
+      <a href="gs-computer-organisation-notes.html" class="quick-btn" style="background: rgba(217, 119, 6, 0.12); color: var(--accent4); border: 1px solid rgba(217, 119, 6, 0.3);">💻 Open GS COA Notes</a>
+      <a href="gs-software-engineering-notes.html" class="quick-btn" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; border: 1px solid rgba(13, 148, 136, 0.3);">⚙️ Open GS SE Notes</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Network Security Notes · IBPS SO IT &amp; GATE Complete Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

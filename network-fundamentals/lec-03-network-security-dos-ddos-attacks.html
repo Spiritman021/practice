@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 3 – DoS vs DDoS Attacks: Vectors, Mirai Botnet &amp; Mitigation | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 3 – Denial of Service (DoS) vs Distributed Denial of Service (DDoS) Attacks, CIA Availability violation, ICMP/UDP/SYN/HTTP Floods, 2016 Mirai Botnet Case Study, LOIC, Rate Limiting, SYN Cookies, and Traffic Scrubbing with verified IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .pillar-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .pillar-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .pillar-dos::before { background: #f7a34f; }
+    .pillar-ddos::before { background: #f05c88; }
+    .pillar-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .formula-box {
+      background: linear-gradient(135deg, rgba(240,92,136,0.12), rgba(247,163,79,0.12));
+      border: 1px solid rgba(240,92,136,0.35); border-radius: 14px; padding: 18px 22px; margin: 20px 0;
+    }
+    .formula-title { font-size: 14px; font-weight: 800; color: #f05c88; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #f05c88, #f7a34f, #10b981);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(240,92,136,0.2); color: #f05c88; border: 1px solid rgba(240,92,136,0.4);">Lec 03</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(240,92,136,0.15); color: #f05c88; border: 1px solid rgba(240,92,136,0.3);">Security · Lecture 03</span>
+    <h1 class="page-title">DoS vs DDoS Attacks:<br>Flood Vectors, Mirai Botnet &amp; Defense Strategies</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Denial of Service (DoS) vs Distributed Denial of Service (DDoS), CIA Availability violation, Flood Attack Vectors (ICMP Ping Flood, UDP Flood, TCP SYN Flood, HTTP Flood), 2016 Mirai IoT Botnet Case Study, LOIC tools, and Defense Mechanisms (Firewalls, Rate Limiting, Load Balancing, SYN Cookies, Traffic Scrubbing). Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:#f05c88;border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🚨 IBPS SO IT Top Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 3 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#dos-intro"><span class="toc-num">3.1</span> DoS &amp; DDoS Attack Overview &amp; CIA Violation</a></li>
+      <li><a href="#attack-vectors"><span class="toc-num">3.2</span> Major Flood Attack Vectors (ICMP, UDP, TCP SYN, HTTP)</a></li>
+      <li><a href="#mirai-case-study"><span class="toc-num">3.3</span> Case Study: Mirai Botnet &amp; 2016 Dyn DNS Attack</a></li>
+      <li><a href="#dos-vs-ddos"><span class="toc-num">3.4</span> DoS vs DDoS Comparison Master Table</a></li>
+      <li><a href="#defense-strategies"><span class="toc-num">3.5</span> Defense &amp; Mitigation Strategies (Firewalls, Rate Limiting, SYN Cookies, Scrubbing)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">3.6</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">3.7</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 3.1: DOS INTRO -->
+  <div class="section" id="dos-intro">
+    <div class="sec-card">
+      <h2 class="section-title">3.1 DoS &amp; DDoS Attack Overview &amp; CIA Violation</h2>
+      <p>In a <strong>Denial of Service (DoS)</strong> or <strong>Distributed Denial of Service (DDoS)</strong> attack, attackers overwhelm a server, network device, or communication link with a massive flood of malicious traffic, causing it to slow down, crash, or become completely unresponsive to legitimate users.</p>
+
+      <div class="formula-box">
+        <div class="formula-title">⚠️ Core Security Principle Violated</div>
+        <p style="margin: 6px 0 0; color: var(--text); font-size: 14.5px; line-height: 1.6;">
+          DoS and DDoS attacks directly target and violate the <strong>AVAILABILITY</strong> pillar of the CIA Triad (Confidentiality, Integrity, Availability). They do not steal or alter data; rather, they render services unusable.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="pillar-card pillar-dos">
+          <div style="font-size:18px; font-weight:800; color:#f7a34f; margin-bottom:8px;">1. DoS (Denial of Service)</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.6;">
+            • Originates from a <strong>SINGLE source IP / single device</strong>.<br>
+            • Attacks the target by maxing out bandwidth or CPU.<br>
+            • <strong>Detection:</strong> Relatively easy to detect and block at the firewall by blacklisting the single offending IP address.
+          </div>
+        </div>
+
+        <div class="pillar-card pillar-ddos">
+          <div style="font-size:18px; font-weight:800; color:#f05c88; margin-bottom:8px;">2. DDoS (Distributed Denial of Service)</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.6;">
+            • Originates from <strong>MULTIPLE sources / Botnets</strong> (thousands of compromised computers &amp; IoT devices).<br>
+            • Generates multi-gigabit or terabit-scale traffic floods.<br>
+            • <strong>Detection:</strong> Extremely difficult to mitigate because traffic comes from thousands of valid global IP addresses simultaneously.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3.2: ATTACK VECTORS -->
+  <div class="section" id="attack-vectors">
+    <div class="sec-card" style="border: 2px solid var(--accent5); position: relative;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom: 1px dashed var(--border); padding-bottom: 14px;">
+        <div>
+          <span style="background:rgba(225,29,72,0.12); color:var(--accent5); border:1px solid rgba(225,29,72,0.3); font-size:11px; font-weight:800; padding:4px 12px; border-radius:100px; text-transform:uppercase; letter-spacing:1px; display:inline-block; margin-bottom:4px;">🔥 HIGH YIELD EXAM TOPIC · IMPORTANT</span>
+          <h2 class="section-title" style="margin-top:2px;">3.2 Major Flood Attack Vectors</h2>
+        </div>
+        <button id="openFloodModalBtn" class="imp-points-btn" onclick="document.getElementById('floodModal').classList.add('active'); document.body.style.overflow='hidden';">
+          <span style="font-size:16px;">⭐</span> Important Points
+        </button>
+      </div>
+      <p>Attackers utilize various protocol-specific flood mechanisms across different OSI layers:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Attack Vector</th>
+            <th>OSI Operating Layer</th>
+            <th>Attack Mechanism &amp; Exploitation Details</th>
+            <th>Impact &amp; Characteristics</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ICMP Flood (Ping Flood)</strong></td>
+            <td><span style="color:#4f8ef7; font-weight:800;">Layer 3 (Network)</span></td>
+            <td>Sends continuous flood of ICMP Echo Request packets to victim IP without waiting for replies.</td>
+            <td>Consumes victim's incoming/outgoing network bandwidth and CPU processing capacity.</td>
+          </tr>
+          <tr>
+            <td><strong>UDP Flood</strong></td>
+            <td><span style="color:#7c5cf0; font-weight:800;">Layer 4 (Transport)</span></td>
+            <td>Floods random destination UDP ports on victim host with UDP packets. Receiver checks for non-existent apps and generates ICMP "Destination Unreachable".</td>
+            <td>Overwhelms network socket tables and CPU resources. High volume, connectionless.</td>
+          </tr>
+          <tr>
+            <td><strong>TCP SYN Flood</strong></td>
+            <td><span style="color:#f05c88; font-weight:800;">Layer 4 (Transport)</span></td>
+            <td>Exploits the <strong>TCP 3-Way Handshake</strong>. Attacker sends <code>SYN</code> packets with spoofed IPs. Server replies with <code>SYN-ACK</code> and allocates memory in <strong>SYN Connection Backlog Queue</strong> waiting for final <code>ACK</code> (which never arrives!).</td>
+            <td>Fills connection queue with <strong>half-open connections</strong>, blocking legitimate TCP connections. High-yield exam topic!</td>
+          </tr>
+          <tr>
+            <td><strong>HTTP Flood</strong></td>
+            <td><span style="color:#34d399; font-weight:800;">Layer 7 (Application)</span></td>
+            <td>Sends flood of seemingly valid HTTP <code>GET</code> or <code>POST</code> requests targeting resource-intensive database queries or heavy search scripts.</td>
+            <td>Exhausts web server CPU, memory, and database connections. Low bandwidth requirement, hard to distinguish from normal users.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 3.3: MIRAI BOTNET CASE STUDY -->
+  <div class="section" id="mirai-case-study">
+    <div class="sec-card" style="border: 2px solid #f05c88; background: linear-gradient(135deg, rgba(240,92,136,0.12), rgba(19,29,53,0.98)); box-shadow: 0 8px 32px rgba(240,92,136,0.25);">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <h2 class="section-title" style="color:#fff; margin-bottom:0;">3.3 Case Study: Mirai Botnet &amp; 2016 Dyn DNS Attack</h2>
+        <span style="background: #f05c88; color: #fff; font-size: 11px; font-weight: 900; padding: 6px 14px; border-radius: 100px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 14px rgba(240,92,136,0.4);">🔥 HIGH-YIELD IBPS SO IT TOPIC</span>
+      </div>
+      
+      <div style="background:var(--bg2); border:1.5px solid rgba(240,92,136,0.4); border-radius:14px; padding:22px; margin:16px 0;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <span style="font-size:20px;">🚨</span>
+          <h3 style="color:#f05c88; font-size:18px; font-weight:800; margin:0;">The 2016 Dyn DNS DDoS Incident (Must-Know Exam Fact)</h3>
+        </div>
+        <p style="font-size:14px; color:var(--text); line-height:1.7; margin-bottom:14px;">
+          In October 2016, one of the largest DDoS attacks in history targeted <strong>Dyn</strong>, a major Domain Name System (DNS) provider.
+        </p>
+        <ul style="color:var(--text); font-size:13.5px; line-height:1.8; margin-left:20px;">
+          <li><strong>The Mirai Botnet Vector:</strong> Mirai scanned the internet for unsecured <strong>Internet of Things (IoT)</strong> devices (IP security cameras, home routers, DVRs) protected only by factory default usernames and passwords (e.g. <code>admin/admin</code>).</li>
+          <li><strong>Infection &amp; Command:</strong> Over 600,000 compromised IoT devices were recruited into a coordinated <strong>botnet army</strong> controlled by Command &amp; Control (C2) servers.</li>
+          <li><strong>Massive Impact:</strong> The botnet launched a multi-terabit DNS query flood against Dyn, crashing DNS resolution across North America and Europe. Major platforms including <strong>Twitter, Netflix, Reddit, GitHub, Airbnb, and Spotify</strong> suffered widespread outages.</li>
+          <li><strong style="color:#f05c88;">🔥 Key Exam Takeaway:</strong> Highlights the risk of unpatched IoT devices and single points of failure in critical core internet infrastructure (DNS). Repeatedly tested in IBPS SO IT exams!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3.4: DOS VS DDOS COMPARISON -->
+  <div class="section" id="dos-vs-ddos">
+    <div class="sec-card">
+      <h2 class="section-title">3.4 DoS vs DDoS Master Comparison Table</h2>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Comparison Parameter</th>
+            <th>DoS (Denial of Service)</th>
+            <th>DDoS (Distributed Denial of Service)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Attack Source Count</strong></td>
+            <td><strong>Single source</strong> (1 computer / 1 IP address).</td>
+            <td><strong>Multiple sources</strong> (thousands of botnet zombie devices &amp; IPs).</td>
+          </tr>
+          <tr>
+            <td><strong>Scale of Attack</strong></td>
+            <td>Smaller scale (limited by single machine capacity).</td>
+            <td><strong>Massive scale</strong> (Gigabits to Terabits/sec - Tbps).</td>
+          </tr>
+          <tr style="background: rgba(240,92,136,0.12);">
+            <td><strong style="color:#f05c88;">Tools Used 🔥 (IMPORTANT)</strong></td>
+            <td>LOIC (Low Orbit Ion Cannon), HOIC, Slowloris, hping3.</td>
+            <td>
+              <div style="background: rgba(240,92,136,0.2); border: 1.5px solid #f05c88; border-radius: 8px; padding: 8px 12px; display: inline-block;">
+                <span style="background:#f05c88; color:#fff; font-size:10px; font-weight:900; padding:2px 8px; border-radius:100px; margin-right:6px;">🔥 TOP EXAM FACT</span>
+                <strong style="color:#fff; font-size:14px;">Botnets</strong> <span style="color:#e8eaf6;">(Mirai, Necurs),</span><br>
+                <strong style="color:#fff; font-size:14px;">Amplification servers</strong> <span style="color:#e8eaf6;">(NTP, DNS).</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ease of Detection &amp; Blocking</strong></td>
+            <td><strong>Easier to block:</strong> Firewall blacklists the single attacking IP address.</td>
+            <td><strong>Extremely difficult:</strong> Traffic originates from millions of valid global IPs.</td>
+          </tr>
+          <tr>
+            <td><strong>Resource Requirement</strong></td>
+            <td>Low resources (requires only 1 machine).</td>
+            <td>High resources (requires establishing &amp; maintaining botnet infra).</td>
+          </tr>
+          <tr>
+            <td><strong>Business Impact</strong></td>
+            <td>Temporary slowness, manageable with basic filters.</td>
+            <td>Severe, network-wide crippling outages &amp; financial losses.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 3.5: DEFENSE STRATEGIES -->
+  <div class="section" id="defense-strategies">
+    <div class="sec-card">
+      <h2 class="section-title">3.5 Defense &amp; Mitigation Strategies</h2>
+      <p>Effective defense against DoS and DDoS attacks requires a multi-layered defense-in-depth architecture:</p>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#4f8ef7; font-size:15.5px; margin-bottom:8px;">1. Firewalls &amp; IPS Inline Defense</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Inline Firewalls and Intrusion Prevention Systems (IPS) monitor traffic patterns, block malformed packets, and use signature/behavioral rules to drop malicious attack streams.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#34d399; font-size:15.5px; margin-bottom:8px;">2. Rate Limiting</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Restricts the maximum number of requests a single client IP address can make within a specified time window (e.g. max 100 HTTP requests per minute). Prevents application-layer flooding.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#f7a34f; font-size:15.5px; margin-bottom:8px;">3. Load Balancing &amp; Redundancy</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Distributes incoming traffic across redundant backend web server farms, absorbing traffic spikes and preventing any single server from crashing.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#f05c88; font-size:15.5px; margin-bottom:8px;">4. SYN Cookies (SYN Flood Mitigation)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Encodes connection state parameters into the initial TCP sequence number in the <code>SYN-ACK</code> packet. Eliminates the need to allocate server memory until the final <code>ACK</code> arrives!
+          </p>
+        </div>
+      </div>
+
+      <!-- Traffic Scrubbing Box -->
+      <div style="background:linear-gradient(135deg, rgba(0,212,170,0.1), rgba(124,92,240,0.1)); border:1px solid rgba(0,212,170,0.3); border-radius:14px; padding:20px; margin-top:20px;">
+        <h4 style="color:#00d4aa; font-size:16px; font-weight:800; margin-bottom:8px;">☁️ Cloud Traffic Scrubbing &amp; Anycast Routing</h4>
+        <p style="font-size:13.5px; color:var(--text); line-height:1.7; margin:0;">
+          DDoS protection providers (e.g. Cloudflare, Akamai, AWS Shield) use BGP Anycast routing to divert incoming traffic to global <strong>Scrubbing Centers</strong>. Malicious botnet traffic is identified and dropped at the scrubbing cloud, while clean legitimate traffic is forwarded to the origin server.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3.6: IBPS SO IT PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">3.6 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2021 Verified</div>
+        <div class="pyq-question">Q1. A Denial of Service (DoS) attack directly threatens and compromises which pillar of the CIA triad?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Confidentiality</div>
+          <div class="pyq-opt">B) Integrity</div>
+          <div class="pyq-opt correct">C) Availability ✓</div>
+          <div class="pyq-opt">D) Authenticity</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Availability.</strong><br>
+          <em>Explanation:</em> DoS and DDoS attacks flood system resources to render services unavailable to legitimate users. They compromise <strong>Availability</strong>. (Confidentiality is violated by eavesdropping; Integrity is violated by data tampering).
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q2. Which type of attack floods a target web server with TCP connection requests with spoofed IPs, filling the server's SYN queue with half-open connections?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) ICMP Echo Flood</div>
+          <div class="pyq-opt correct">B) TCP SYN Flood Attack ✓</div>
+          <div class="pyq-opt">C) HTTP POST Flood</div>
+          <div class="pyq-opt">D) UDP Port Flood</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) TCP SYN Flood Attack.</strong><br>
+          <em>Explanation:</em> TCP SYN Flood exploits the 3-way handshake by sending SYN packets without completing the final ACK, exhausting the server's connection backlog queue.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q3. The 2016 massive Dyn attack that disrupted major internet platforms like Twitter and Netflix was launched using which IoT-based botnet?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Stuxnet</div>
+          <div class="pyq-opt">B) WannaCry</div>
+          <div class="pyq-opt correct">C) Mirai Botnet ✓</div>
+          <div class="pyq-opt">D) Zeus Trojan</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Mirai Botnet.</strong><br>
+          <em>Explanation:</em> The Mirai botnet infected hundreds of thousands of unsecured IoT devices (IP cameras, routers) to launch a massive DNS DDoS flood against Dyn in 2016.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q4. Why is a Distributed Denial of Service (DDoS) attack significantly harder to mitigate than a single-source DoS attack?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Because DDoS uses stronger encryption</div>
+          <div class="pyq-opt correct">B) Because traffic originates from thousands of distinct IP addresses (botnets) ✓</div>
+          <div class="pyq-opt">C) Because DoS attacks only target Layer 7</div>
+          <div class="pyq-opt">D) Because DDoS attacks cannot be monitored by firewalls</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Because traffic originates from thousands of distinct IP addresses.</strong><br>
+          <em>Explanation:</em> DoS comes from 1 IP (easily blocked by firewall). DDoS originates from a distributed botnet of thousands of IP addresses, making signature and IP blocking complex.
+        </div>
+      </div>
+
+      <!-- PYQ 5 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q5. Which mitigation technique prevents TCP SYN floods without requiring server memory allocation for half-open connections?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Packet Filtering</div>
+          <div class="pyq-opt correct">B) SYN Cookies ✓</div>
+          <div class="pyq-opt">C) Proxy Gateway</div>
+          <div class="pyq-opt">D) MAC Filtering</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) SYN Cookies.</strong><br>
+          <em>Explanation:</em> SYN Cookies encode connection state parameters into the initial TCP sequence number in the SYN-ACK packet, avoiding memory allocation until the final ACK arrives.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3.7: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">3.7 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. CIA Pillar:</strong> DoS and DDoS directly violate <strong>Availability</strong>.</p>
+        <p><strong style="color:#fff;">2. DoS vs DDoS:</strong> DoS = 1 Source IP (Easy to block). DDoS = Botnets / Thousands of Source IPs (Hard to block).</p>
+        <p><strong style="color:#fff;">3. Floods by Layer:</strong>
+          <br>• ICMP Ping Flood = Layer 3 (Network)
+          <br>• UDP Flood = Layer 4 (Transport)
+          <br>• TCP SYN Flood = Layer 4 (Exhausts 3-way handshake SYN Queue)
+          <br>• HTTP Flood = Layer 7 (Application - CPU/Database exhaustion)
+        </p>
+        <p><strong style="color:#fff;">4. Mirai Botnet:</strong> 2016 Dyn DNS attack using compromised IoT devices (cameras/routers with default passwords).</p>
+        <p><strong style="color:#fff;">5. Defensive Controls:</strong> Rate Limiting (regulates request frequency), Load Balancing (distributes traffic), SYN Cookies (mitigates SYN floods), Cloud Traffic Scrubbing (Anycast filtering).</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FLOOD ATTACKS IMPORTANT POINTS MODAL -->
+<div class="modal-overlay" id="floodModal" onclick="if(event.target === this){ this.classList.remove('active'); document.body.style.overflow=''; }">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:24px;">⭐</span>
+        <div>
+          <h3 class="modal-title">Flood Attacks – In-Depth Exam Study Guide</h3>
+          <div class="modal-subtitle">OSI Layer Breakdown, Handshake Mechanisms &amp; IBPS SO IT Exam Shortcuts</div>
+        </div>
+      </div>
+      <button class="modal-close-btn" onclick="document.getElementById('floodModal').classList.remove('active'); document.body.style.overflow='';">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      
+      <!-- Core Definition -->
+      <div class="callout note" style="margin-top:0;">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <div class="callout-title">Core Flood Attack Concept</div>
+          <div class="callout-text">
+            <strong>Attacker sends a huge number of requests/packets &rarr; victim's resources get exhausted &rarr; genuine users cannot access the service.</strong><br>
+            <em>The main difference between these attacks is <strong>what type of traffic is being flooded</strong> and <strong>which OSI layer is targeted</strong>.</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. ICMP Flood -->
+      <div class="imp-section-box border-l3">
+        <div class="imp-box-header">
+          <span class="imp-num-badge bg-l3">1</span>
+          <div>
+            <h4 class="imp-box-title">ICMP Flood / Ping Flood</h4>
+            <span class="imp-layer-tag tag-l3">Layer 3 – Network Layer</span>
+          </div>
+        </div>
+
+        <div style="font-size:14px; color:var(--text2); line-height:1.7;">
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:8px 0 4px;">Simple Idea</h5>
+          <p>The attacker continuously sends <strong>Ping (ICMP Echo Request)</strong> packets to the victim.</p>
+
+          <div class="flow-diagram">
+            Client &rarr; "Are you alive?" (Ping)<br>
+            Server &rarr; "Yes, I am!" (Reply)<br>
+            <span style="color:var(--accent5); font-weight:700;">In a Ping Flood:</span> Attacker &darr; &darr; &darr; &darr; &darr; &darr; &darr; &darr; &darr; &rarr; Victim (thousands/millions of requests)
+          </div>
+
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:12px 0 4px;">What Happens?</h5>
+          <p>The victim has to process all those packets and generate replies.</p>
+          <div class="chain-box">
+            Huge ICMP traffic &rarr; CPU + bandwidth consumed &rarr; legitimate traffic becomes slow/unavailable
+          </div>
+
+          <div class="callout tip" style="margin-top:12px;">
+            <div class="callout-icon">📌</div>
+            <div class="callout-body">
+              <strong>OSI Layer:</strong> <code>Layer 3 – Network Layer</code> (ICMP works along with IP at the network layer).<br>
+              <strong>Remember:</strong> <em>ICMP Flood = Flood with Ping packets.</em><br>
+              <strong>Exam Keyword:</strong> <code>Ping Flood &rarr; ICMP &rarr; Layer 3</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. UDP Flood -->
+      <div class="imp-section-box border-l4">
+        <div class="imp-box-header">
+          <span class="imp-num-badge bg-l4">2</span>
+          <div>
+            <h4 class="imp-box-title">UDP Flood</h4>
+            <span class="imp-layer-tag tag-l4">Layer 4 – Transport Layer</span>
+          </div>
+        </div>
+
+        <div style="font-size:14px; color:var(--text2); line-height:1.7;">
+          <p>UDP is a <strong>connectionless</strong> protocol (doesn't establish a connection before sending data). The attacker sends lots of UDP packets to random ports.</p>
+
+          <div class="code-flow">
+            Attacker &darr;<br>
+            UDP packet &rarr; Port 1000<br>
+            UDP packet &rarr; Port 2000<br>
+            UDP packet &rarr; Port 3000<br>
+            UDP packet &rarr; Port 4000<br>
+            &darr; Victim
+          </div>
+
+          <p>If the victim doesn't have an application listening on a port, the OS responds with: <code>ICMP Destination Unreachable</code>.</p>
+
+          <div class="chain-box">
+            Receive UDP packet &rarr; Check destination port &rarr; No application? &rarr; Generate ICMP error &rarr; Repeat millions of times
+          </div>
+
+          <p><strong>Result:</strong> CPU and network resources get exhausted.</p>
+
+          <div class="callout tip" style="margin-top:12px;">
+            <div class="callout-icon">📌</div>
+            <div class="callout-body">
+              <strong>OSI Layer:</strong> <code>Layer 4 – Transport Layer</code> (UDP is a transport protocol).<br>
+              <strong>Remember:</strong> <em>UDP Flood = Huge number of UDP packets &rarr; victim checks ports &rarr; resources exhausted.</em><br>
+              <strong>Exam Keyword:</strong> <code>UDP &rarr; Layer 4 &rarr; Connectionless</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. TCP SYN Flood -->
+      <div class="imp-section-box border-syn">
+        <div class="imp-box-header">
+          <span class="imp-num-badge bg-syn">3</span>
+          <div>
+            <h4 class="imp-box-title">TCP SYN Flood ⭐ VERY IMPORTANT</h4>
+            <span class="imp-layer-tag tag-l4">Layer 4 – Transport Layer</span>
+          </div>
+        </div>
+
+        <div style="font-size:14px; color:var(--text2); line-height:1.7;">
+          <p>This is one of the most important attacks for exams. First understand the <strong>TCP 3-Way Handshake</strong>:</p>
+
+          <div class="handshake-box">
+            Client &nbsp;&nbsp;&nbsp;&nbsp; SYN &rarr; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Server<br>
+            Client &nbsp;&nbsp;&nbsp;&nbsp; &larr; SYN-ACK &nbsp;&nbsp;&nbsp;&nbsp; Server<br>
+            Client &nbsp;&nbsp;&nbsp;&nbsp; ACK &rarr; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Server &rarr; (Connection established)
+          </div>
+
+          <p><strong>SYN = Synchronize:</strong> Used to start a TCP connection.</p>
+
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:12px 0 4px;">What Happens in SYN Flood?</h5>
+          <p>The attacker sends lots of <strong>SYN requests</strong>. The server responds with <code>SYN-ACK</code> and waits for the final <code>ACK</code>. But the attacker <strong>NEVER sends the final ACK</strong>!</p>
+
+          <div class="chain-box">
+            SYN received &rarr; SYN-ACK sent &rarr; Waiting for ACK... (Waiting... Waiting...) &rarr; Connection backlog queue full &rarr; Legitimate users blocked
+          </div>
+
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:12px 0 4px;">Why is it called "Half-Open"?</h5>
+          <div class="half-open-table">
+            <div>SYN &nbsp;&nbsp; &check;</div>
+            <div>SYN-ACK &nbsp;&nbsp; &check;</div>
+            <div>ACK &nbsp;&nbsp; &cross;</div>
+            <div class="result">&rArr; Half-open connection</div>
+          </div>
+
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:12px 0 4px;">Remember This Sequence ⭐</h5>
+          <div class="seq-box">
+            SYN Flood &rarr; Many SYNs &rarr; Server sends SYN-ACK &rarr; ACK never comes &rarr; Half-open connections &rarr; Backlog queue full &rarr; Legitimate users blocked
+          </div>
+
+          <div class="callout warn" style="margin-top:12px;">
+            <div class="callout-icon">⭐</div>
+            <div class="callout-body">
+              <strong>OSI Layer:</strong> <code>Layer 4 – Transport Layer</code>.<br>
+              <strong>Exam Keywords:</strong> <code>SYN Flood &rarr; TCP &rarr; 3-way handshake &rarr; Half-open connections &rarr; Backlog queue &rarr; Layer 4</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. HTTP Flood -->
+      <div class="imp-section-box border-l7">
+        <div class="imp-box-header">
+          <span class="imp-num-badge bg-l7">4</span>
+          <div>
+            <h4 class="imp-box-title">HTTP Flood</h4>
+            <span class="imp-layer-tag tag-l7">Layer 7 – Application Layer</span>
+          </div>
+        </div>
+
+        <div style="font-size:14px; color:var(--text2); line-height:1.7;">
+          <p>This attack targets the <strong>application itself</strong>. Imagine a website operation: <code>Search &rarr; Database query &rarr; Process results &rarr; Return page</code>.</p>
+
+          <p>The attacker sends huge numbers of apparently normal HTTP requests:</p>
+          <div class="code-flow">
+            GET /search?q=computer<br>
+            GET /search?q=network<br>
+            GET /search?q=security<br>
+            GET /search?q=database &rarr; Server
+          </div>
+
+          <p>An attacker might generate <strong>100,000 requests/minute</strong> compared to 5/minute from a normal user!</p>
+
+          <div class="chain-box">
+            HTTP Requests &rarr; Web Server &rarr; Application &rarr; Database &rarr; CPU + RAM + DB connections exhausted
+          </div>
+
+          <h5 style="color:var(--text); font-size:14px; font-weight:700; margin:12px 0 4px;">Why is HTTP Flood Dangerous?</h5>
+          <p>Traffic looks like <strong>normal web traffic</strong>. The attacker makes the server do <strong>expensive work</strong> rather than just consuming raw network bandwidth.</p>
+
+          <div class="callout tip" style="margin-top:12px;">
+            <div class="callout-icon">📌</div>
+            <div class="callout-body">
+              <strong>OSI Layer:</strong> <code>Layer 7 – Application Layer</code> (HTTP is an application protocol).<br>
+              <strong>Remember:</strong> <em>HTTP Flood = Make the web server work too much.</em><br>
+              <strong>Exam Keywords:</strong> <code>HTTP Flood &rarr; HTTP GET/POST &rarr; Layer 7 &rarr; CPU/Memory/Database exhaustion</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔥 EASY COMPARISON TABLE -->
+      <h4 style="font-size:17px; font-weight:800; color:var(--text); margin: 24px 0 12px;">🔥 Easy Comparison Table</h4>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Attack</th>
+            <th>Protocol</th>
+            <th>OSI Layer</th>
+            <th>Main Idea</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ICMP Flood</strong></td>
+            <td>ICMP</td>
+            <td><strong style="color:var(--accent);">Layer 3</strong></td>
+            <td>Flood victim with Ping requests</td>
+          </tr>
+          <tr>
+            <td><strong>UDP Flood</strong></td>
+            <td>UDP</td>
+            <td><strong style="color:var(--accent2);">Layer 4</strong></td>
+            <td>Flood UDP ports with packets</td>
+          </tr>
+          <tr>
+            <td><strong>TCP SYN Flood</strong></td>
+            <td>TCP</td>
+            <td><strong style="color:var(--accent5);">Layer 4</strong></td>
+            <td>Send SYNs and leave connections half-open</td>
+          </tr>
+          <tr>
+            <td><strong>HTTP Flood</strong></td>
+            <td>HTTP</td>
+            <td><strong style="color:var(--accent3);">Layer 7</strong></td>
+            <td>Send huge numbers of web requests</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 🧠 SUPER EASY WAY TO REMEMBER -->
+      <h4 style="font-size:17px; font-weight:800; color:var(--text); margin: 24px 0 12px;">🧠 Super Easy Way to Remember</h4>
+      <div class="grid-2">
+        <div class="remember-card" style="border-left: 4px solid var(--accent);">
+          <div class="remember-title" style="color:var(--accent);">🟦 ICMP Flood</div>
+          <div class="remember-body">"PING! PING! PING!"<br><code>Ping &rarr; Ping &rarr; Ping</code><br><strong>&rArr; Layer 3</strong></div>
+        </div>
+        <div class="remember-card" style="border-left: 4px solid var(--accent2);">
+          <div class="remember-title" style="color:var(--accent2);">🟨 UDP Flood</div>
+          <div class="remember-body">"UDP packets everywhere!"<br><code>UDP &rarr; Ports 1, 2, 3...</code><br><strong>&rArr; Layer 4</strong></div>
+        </div>
+        <div class="remember-card" style="border-left: 4px solid var(--accent5);">
+          <div class="remember-title" style="color:var(--accent5);">🟥 SYN Flood</div>
+          <div class="remember-body">"Can I connect?"<br><code>SYN &rarr; SYN-ACK &rarr; &cross; No ACK</code><br><strong>&rArr; Half-open connections &rarr; Layer 4</strong></div>
+        </div>
+        <div class="remember-card" style="border-left: 4px solid var(--accent3);">
+          <div class="remember-title" style="color:var(--accent3);">🟩 HTTP Flood</div>
+          <div class="remember-body">"Give me this webpage!"<br><code>GET &rarr; GET &rarr; GET</code><br><strong>&rArr; Layer 7</strong></div>
+        </div>
+      </div>
+
+      <!-- ⭐ IBPS SO IT EXAM POINTS -->
+      <div class="exam-points-box">
+        <h4 style="color:var(--accent5); font-size:17px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+          <span>⭐</span> IBPS SO IT Exam Points (Must Memorize)
+        </h4>
+        <ul class="note-list" style="font-size:14px; color:var(--text2);">
+          <li><strong>1. ICMP Flood:</strong> Also called Ping Flood | Protocol: ICMP | Layer: Network / Layer 3</li>
+          <li><strong>2. UDP Flood:</strong> Protocol: UDP | Layer: Transport / Layer 4 | UDP is connectionless</li>
+          <li><strong>3. TCP SYN Flood:</strong> Protocol: TCP | Layer: Transport / Layer 4 | Exploits 3-way handshake | Creates half-open connections | Fills SYN backlog connection queue</li>
+          <li><strong>4. HTTP Flood:</strong> Protocol: HTTP | Layer: Application / Layer 7 | Uses massive GET/POST requests | Exhausts CPU, memory &amp; DB connections</li>
+        </ul>
+        <div class="trick-box">
+          <strong style="color:var(--accent);">One-line Memory Trick:</strong><br>
+          <code style="font-size:14px; color:var(--accent);">Ping = L3, UDP = L4, SYN = L4, HTTP = L7</code>
+        </div>
+        <div class="trick-box" style="background:rgba(225,29,72,0.08); border-color:rgba(225,29,72,0.3); margin-top:10px;">
+          <strong style="color:var(--accent5);">Most Important Distinction:</strong><br>
+          <em>SYN Flood attacks the TCP connection establishment process, whereas HTTP Flood attacks the application/web-server workload.</em>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-close-btn-secondary" onclick="document.getElementById('floodModal').classList.remove('active'); document.body.style.overflow='';">Close Revision Notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-02-network-security-cryptographic-systems.html" style="color:var(--accent5); font-weight:700; text-decoration:none;">← Lec 02: Cryptographic Systems</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="29-common-network-attacks-dos-ddos-mitm-phishing.html" style="color:var(--accent5); font-weight:700; text-decoration:none;">Chapter 29: Cyber Attacks →</a>
+    </div>
+    GS Network Security Notes · Lecture 03 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+
+  // Close modal on Escape key press
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var modal = document.getElementById('floodModal');
+      if (modal && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

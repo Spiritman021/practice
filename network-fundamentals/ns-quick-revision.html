@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="Network Security Complete Quick Revision for IBPS SO IT — CIA Triad, Cryptography, Attacks, Firewall, IDS/IPS, SSL/TLS, IPsec, IT Act 2000, Port Numbers, OSI Layer Mapping."/>
+  <title>Network Security — Complete Quick Revision | IBPS SO IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#fff;--border:#e2e8f0;
+      --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+      --accent:#2563eb;--accent-light:#eff6ff;
+      --teal:#0d9488;--teal-light:#f0fdfa;
+      --amber:#d97706;--amber-light:#fffbeb;
+      --rose:#e11d48;--rose-light:#fff1f2;
+      --green:#059669;--green-light:#ecfdf5;
+      --purple:#7c3aed;--purple-light:#f5f3ff;
+      --slate:#334155;--slate-light:#f1f5f9;
+      --indigo:#4338ca;--indigo-light:#eef2ff;
+      --shadow:0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,.07);
+      --radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;min-height:100vh;}
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);box-shadow:var(--shadow);}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .nav-back{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;}
+    .nav-back:hover{color:var(--rose);}
+    .nav-title{font-size:15px;font-weight:800;color:var(--text);flex:1;}
+    .nav-badge{font-size:11px;font-weight:800;background:var(--rose);color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+    .nav-index-btn{text-decoration:none;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-light);border:1px solid rgba(37,99,235,.2);padding:5px 12px;border-radius:8px;white-space:nowrap;transition:all .2s;}
+    .nav-index-btn:hover{background:var(--accent);color:#fff;}
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 45%,#4c0519 100%);color:#fff;padding:56px 24px 48px;text-align:center;}
+    .hero-eyebrow{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;}
+    .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{color:#fb7185;}
+    .hero p{font-size:1.05rem;color:#94a3b8;max-width:680px;margin:0 auto 28px;line-height:1.7;}
+    .hero-stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+    .hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#e2e8f0;}
+    .hero-stat span{color:#fb7185;font-size:20px;font-weight:900;display:block;}
+    .toc-wrap{max-width:1100px;margin:36px auto 0;padding:0 24px;}
+    .toc-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow-md);}
+    .toc-title{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;}
+    .toc-link{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:8px;transition:all .18s;}
+    .toc-link:hover{background:var(--rose-light);color:var(--rose);border-color:rgba(225,29,72,.25);}
+    .toc-num{font-size:11px;font-weight:800;background:var(--rose);color:#fff;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 4px;}
+    .main{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:flex;flex-direction:column;gap:28px;}
+    .sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .sec-header{display:flex;align-items:center;gap:14px;padding:20px 28px;border-bottom:1px solid var(--border);}
+    .sec-num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;}
+    .sec-title-wrap{flex:1;}
+    .sec-title{font-size:1.2rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .sec-subtitle{font-size:12.5px;color:var(--text2);margin-top:2px;font-weight:500;}
+    .badge-fire{font-size:10.5px;background:#dc2626;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-high{font-size:10.5px;background:#d97706;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-new{font-size:10.5px;background:#7c3aed;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .sec-body{padding:24px 28px;}
+    .c-rose .sec-num{background:var(--rose-light);color:var(--rose);} .c-rose .sec-title{color:#9f1239;}
+    .c-teal .sec-num{background:var(--teal-light);color:var(--teal);} .c-teal .sec-title{color:#0f766e;}
+    .c-amber .sec-num{background:var(--amber-light);color:var(--amber);} .c-amber .sec-title{color:#b45309;}
+    .c-blue .sec-num{background:var(--accent-light);color:var(--accent);} .c-blue .sec-title{color:#1e40af;}
+    .c-purple .sec-num{background:var(--purple-light);color:var(--purple);} .c-purple .sec-title{color:#6d28d9;}
+    .c-green .sec-num{background:var(--green-light);color:var(--green);} .c-green .sec-title{color:#047857;}
+    .c-indigo .sec-num{background:var(--indigo-light);color:var(--indigo);} .c-indigo .sec-title{color:#3730a3;}
+    .c-slate .sec-num{background:var(--slate-light);color:var(--slate);} .c-slate .sec-title{color:#1e293b;}
+    .def-box{background:var(--accent-light);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:20px;font-size:14px;color:#1e3a8a;font-weight:600;line-height:1.6;}
+    .bullet-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+    .bullet-list li{padding-left:22px;position:relative;font-size:14px;color:#334155;line-height:1.6;}
+    .bullet-list li::before{content:"›";position:absolute;left:0;color:var(--rose);font-size:16px;top:0px;font-weight:900;}
+    .bullet-list li strong{color:var(--text);}
+    .mini-h{font-size:14px;font-weight:800;color:var(--text);margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+    .mini-h::after{content:'';flex:1;height:1px;background:var(--border);}
+    .callout{border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13.5px;line-height:1.6;}
+    .callout-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;font-size:13px;}
+    .callout-blue{background:var(--accent-light);border-left:4px solid var(--accent);}
+    .callout-blue .callout-title{color:#1d4ed8;}
+    .callout-green{background:var(--green-light);border-left:4px solid var(--green);}
+    .callout-green .callout-title{color:#047857;}
+    .callout-amber{background:var(--amber-light);border-left:4px solid var(--amber);}
+    .callout-amber .callout-title{color:#92400e;}
+    .callout-rose{background:var(--rose-light);border-left:4px solid var(--rose);}
+    .callout-rose .callout-title{color:#9f1239;}
+    .callout-teal{background:var(--teal-light);border-left:4px solid var(--teal);}
+    .callout-teal .callout-title{color:#0f766e;}
+    .callout-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+    .callout-purple .callout-title{color:#6d28d9;}
+    .callout-indigo{background:var(--indigo-light);border-left:4px solid var(--indigo);}
+    .callout-indigo .callout-title{color:#3730a3;}
+    .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:18px 0;}
+    table.comp{width:100%;border-collapse:collapse;font-size:13.5px;}
+    table.comp th{background:#0f172a;color:#fff;padding:12px 16px;font-weight:700;text-align:left;white-space:nowrap;}
+    table.comp td{padding:11px 16px;border-bottom:1px solid var(--border);color:#334155;vertical-align:top;line-height:1.5;}
+    table.comp tr:nth-child(even){background:#f8fafc;}
+    table.comp tr:last-child td{border-bottom:none;}
+    table.comp tr:hover td{background:var(--accent-light);}
+    .formula-block{background:#0f172a;color:#fb7185;font-family:'JetBrains Mono',monospace;font-size:13px;padding:18px 22px;border-radius:12px;margin:16px 0;line-height:1.8;overflow-x:auto;white-space:pre;}
+    .formula-block .c{color:#64748b;} .formula-block .k{color:#38bdf8;} .formula-block .g{color:#4ade80;}
+    .flow-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:20px 24px;margin:16px 0;text-align:center;}
+    .flow-title{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+    .flow-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;}
+    .flow-step{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;}
+    .flow-arrow{color:var(--text3);font-size:16px;}
+    .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0;}
+    .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0;}
+    .mini-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;}
+    .mini-card-title{font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .rank-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0;}
+    .rank-pill{font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap;}
+    .pill-bad{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;}
+    .pill-ok{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
+    .pill-good{background:#f0fdf4;color:#166534;border:1px solid #86efac;}
+    .rank-arrow{color:var(--text3);font-size:14px;}
+    .fact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+    .fact-item{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;display:flex;gap:10px;align-items:flex-start;line-height:1.5;}
+    .fact-num{font-size:10.5px;font-weight:900;background:#0f172a;color:#fb7185;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+    .fact-item strong{color:var(--text);}
+    .mental-map{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:28px 32px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2;overflow-x:auto;white-space:pre;}
+    .port-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .port-table th{background:#1e1b4b;color:#fff;padding:10px 14px;font-weight:700;text-align:left;}
+    .port-table td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;font-family:'JetBrains Mono',monospace;font-size:13px;}
+    .port-table tr:nth-child(even){background:#f8fafc;}
+    .port-table tr:last-child td{border-bottom:none;}
+    .port-table tr:hover td{background:var(--indigo-light);}
+    .ok{color:#059669;font-weight:800;} .bad{color:#dc2626;font-weight:800;} .warn{color:#d97706;font-weight:800;} .na{color:#94a3b8;font-weight:700;}
+    .bottom-nav{max-width:1100px;margin:0 auto 60px;padding:0 24px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+    .bottom-btn{text-decoration:none;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;transition:all .2s;}
+    .btn-rose-ol{background:var(--rose-light);color:var(--rose);border:1px solid rgba(225,29,72,.25);}
+    .btn-rose-ol:hover{background:var(--rose);color:#fff;}
+    .btn-blue-ol{background:var(--accent-light);color:var(--accent);border:1px solid rgba(37,99,235,.25);}
+    .btn-blue-ol:hover{background:var(--accent);color:#fff;}
+    .btn-slate{background:#f1f5f9;color:#334155;border:1px solid var(--border);}
+    .btn-slate:hover{background:#e2e8f0;}
+    .sec-anchor{scroll-margin-top:80px;}
+    @media(max-width:700px){.nav-inner,.sec-body,.sec-header,.main,.toc-wrap,.bottom-nav{padding-left:16px;padding-right:16px;}.hero{padding:40px 16px 36px;}.mental-map{font-size:11px;padding:18px 14px;}}
+    ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:#f1f5f9;} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;} ::-webkit-scrollbar-thumb:hover{background:#94a3b8;}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-back">&#8592; Practice Hub Dashboard</a>
+    <span class="nav-title">Network Security &#8212; Complete Quick Revision</span>
+    <a href="gs-computer-networks-notes.html" class="nav-index-btn">&#128216; CN Notes Index</a>
+    <span class="nav-badge">IBPS SO IT</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">IBPS SO IT Officer &#183; Network Security</div>
+  <h1>Complete <span>Quick Revision</span><br/>End-to-End</h1>
+  <p>All high-yield topics in one page &#8212; CIA Triad, cryptography, attacks, malware, firewalls, IDS/IPS, SSL/TLS, IPsec, IT Act 2000, port numbers, OSI layer mapping. Read once before your mock.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>36</span>Topics Covered</div>
+    <div class="hero-stat"><span>&#128293;&#128293;</span>Top Priority</div>
+    <div class="hero-stat"><span>20</span>Last-Minute Facts</div>
+  </div>
+</div>
+
+<div class="toc-wrap">
+  <div class="toc-box">
+    <div class="toc-title">&#128203; Quick Navigation &#8212; Jump to Any Section</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-link"><span class="toc-num">1</span>Security Basics &amp; CIA Triad</a>
+      <a href="#s2" class="toc-link"><span class="toc-num">2</span>Passive vs Active Attacks</a>
+      <a href="#s3" class="toc-link"><span class="toc-num">3</span>Common Network Attacks</a>
+      <a href="#s4" class="toc-link"><span class="toc-num">4</span>Malware Types</a>
+      <a href="#s5" class="toc-link"><span class="toc-num">5</span>Cryptography Overview</a>
+      <a href="#s6" class="toc-link"><span class="toc-num">6</span>Symmetric Encryption</a>
+      <a href="#s7" class="toc-link"><span class="toc-num">7</span>Asymmetric Cryptography</a>
+      <a href="#s8" class="toc-link"><span class="toc-num">8</span>Hashing</a>
+      <a href="#s9" class="toc-link"><span class="toc-num">9</span>Digital Signature</a>
+      <a href="#s10" class="toc-link"><span class="toc-num">10</span>MAC</a>
+      <a href="#s11" class="toc-link"><span class="toc-num">11</span>Key Exchange &amp; Kerberos</a>
+      <a href="#s12" class="toc-link"><span class="toc-num">12</span>Digital Certificate &amp; PKI</a>
+      <a href="#s13" class="toc-link"><span class="toc-num">13</span>SSL / TLS &amp; HTTPS</a>
+      <a href="#s14" class="toc-link"><span class="toc-num">14</span>IPsec &#8212; AH &amp; ESP</a>
+      <a href="#s15" class="toc-link"><span class="toc-num">15</span>VPN</a>
+      <a href="#s16" class="toc-link"><span class="toc-num">16</span>SSH</a>
+      <a href="#s17" class="toc-link"><span class="toc-num">17</span>Telnet vs SSH</a>
+      <a href="#s18" class="toc-link"><span class="toc-num">18</span>Email Security</a>
+      <a href="#s19" class="toc-link"><span class="toc-num">19</span>Firewall Types</a>
+      <a href="#s20" class="toc-link"><span class="toc-num">20</span>IDS vs IPS</a>
+      <a href="#s21" class="toc-link"><span class="toc-num">21</span>Honeypot</a>
+      <a href="#s22" class="toc-link"><span class="toc-num">22</span>Access Control &amp; AAA</a>
+      <a href="#s23" class="toc-link"><span class="toc-num">23</span>Authentication Factors &amp; MFA</a>
+      <a href="#s24" class="toc-link"><span class="toc-num">24</span>Password Security &amp; Salt</a>
+      <a href="#s25" class="toc-link"><span class="toc-num">25</span>Password Attacks</a>
+      <a href="#s26" class="toc-link"><span class="toc-num">26</span>DNS Security</a>
+      <a href="#s27" class="toc-link"><span class="toc-num">27</span>Wireless Security</a>
+      <a href="#s28" class="toc-link"><span class="toc-num">28</span>Network Segmentation &amp; DMZ</a>
+      <a href="#s29" class="toc-link"><span class="toc-num">29</span>Zero Trust</a>
+      <a href="#s30" class="toc-link"><span class="toc-num">30</span>Security Principles &amp; Ops</a>
+      <a href="#s31" class="toc-link"><span class="toc-num">31</span>Attacks One-Liner Table</a>
+      <a href="#s32" class="toc-link"><span class="toc-num">32</span>Key Comparisons</a>
+      <a href="#s33" class="toc-link"><span class="toc-num">33</span>Common Port Numbers</a>
+      <a href="#s34" class="toc-link"><span class="toc-num">34</span>Security &amp; OSI Layers</a>
+      <a href="#s35" class="toc-link"><span class="toc-num">35</span>IT Act 2000 &#8212; Cyber Law</a>
+      <a href="#s36" class="toc-link"><span class="toc-num">36</span>BCP / DR Basics</a>
+      <a href="#s37" class="toc-link"><span class="toc-num">&#128293;</span>Last-Minute 20 Facts</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- S1 -->
+<div id="s1" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title-wrap"><div class="sec-title">Basic Security Concepts &amp; CIA Triad <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Foundation of information security &#8212; CIA, AAA properties, Threat/Vulnerability/Risk</div></div></div>
+  <div class="sec-body">
+    <div class="mini-h">CIA Triad &#8212; The Foundation</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Concept</th><th>Meaning</th><th>Example</th></tr></thead><tbody>
+      <tr><td><strong>Confidentiality</strong></td><td>Only authorized users can access data</td><td>Encryption</td></tr>
+      <tr><td><strong>Integrity</strong></td><td>Data must not be modified improperly</td><td>Hash / MAC</td></tr>
+      <tr><td><strong>Availability</strong></td><td>System/data must be available when needed</td><td>Backup, redundancy</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">Other Important Security Properties</div>
+    <div class="grid-2">
+      <ul class="bullet-list">
+        <li><strong>Authentication</strong> &#8594; Who are you? (Identity)</li>
+        <li><strong>Authorization</strong> &#8594; What are you allowed to do? (Permission)</li>
+      </ul>
+      <ul class="bullet-list">
+        <li><strong>Non-repudiation</strong> &#8594; Cannot deny performing an action</li>
+        <li><strong>Accountability</strong> &#8594; Actions can be traced to an entity</li>
+      </ul>
+    </div>
+    <div class="callout callout-blue"><div class="callout-title">&#129504; Easy Memory Trick</div><strong>Authentication = Identity</strong> &nbsp;|&nbsp; <strong>Authorization = Permission</strong></div>
+    <div class="mini-h">Threat vs Vulnerability vs Risk <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+      <tr><td><strong>Threat</strong></td><td>A potential danger (e.g., a hacker, malware, natural disaster)</td></tr>
+      <tr><td><strong>Vulnerability</strong></td><td>A weakness that can be exploited (e.g., unpatched OS, weak password)</td></tr>
+      <tr><td><strong>Risk</strong></td><td>Likelihood &#215; Impact of a threat exploiting a vulnerability</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-amber"><div class="callout-title">&#128273; Risk Formula (Conceptual)</div><strong>Risk = Threat &#215; Vulnerability &#215; Impact</strong></div>
+  </div>
+</div>
+
+<!-- S2 -->
+<div id="s2" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title-wrap"><div class="sec-title">Security Attacks &#8212; Passive vs Active <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Two fundamental categories &#8212; what they target</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card" style="background:#f0fdfa;border-color:#6ee7b7;">
+        <div class="mini-card-title" style="color:#065f46;">&#128065; Passive Attack</div>
+        <p style="font-size:13.5px;color:#065f46;font-weight:700;margin-bottom:10px;">Attacker only <em>observes</em> &#8212; does NOT modify data</p>
+        <ul class="bullet-list"><li>Eavesdropping</li><li>Traffic analysis</li><li>Sniffing (packet capture)</li></ul>
+        <div class="callout callout-teal" style="margin:10px 0 0;"><div class="callout-title">&#127919; Main Target</div><strong>Confidentiality</strong></div>
+      </div>
+      <div class="mini-card" style="background:#fff1f2;border-color:#fca5a5;">
+        <div class="mini-card-title" style="color:#9f1239;">&#9889; Active Attack</div>
+        <p style="font-size:13.5px;color:#9f1239;font-weight:700;margin-bottom:10px;">Attacker <em>modifies / disrupts</em> communication</p>
+        <ul class="bullet-list"><li>Modification</li><li>Masquerade (spoofing identity)</li><li>Replay attack</li><li>DoS / DDoS</li></ul>
+        <div class="callout callout-rose" style="margin:10px 0 0;"><div class="callout-title">&#127919; Main Targets</div><strong>Integrity + Availability</strong></div>
+      </div>
+    </div>
+    <div class="callout callout-blue"><div class="callout-title">&#11088; Key Distinction</div>Passive attacks are <strong>hard to detect</strong> (no modification). Active attacks are <strong>easier to detect</strong> but harder to prevent completely.</div>
+  </div>
+</div>
+
+<!-- S3 -->
+<div id="s3" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title-wrap"><div class="sec-title">Common Network Attacks <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">DoS, MITM, Spoofing, Phishing, SQLi, XSS, CSRF, Buffer Overflow &amp; more</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">&#128683; DoS &amp; DDoS</div>
+        <ul class="bullet-list">
+          <li><strong>DoS</strong> &#8594; One/few sources overwhelm a service to make it unavailable</li>
+          <li><strong>DDoS</strong> &#8594; DoS from <em>many compromised systems</em> (botnet) simultaneously</li>
+        </ul>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">&#127918; Spoofing</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Attacker <strong>pretends to be someone/something else</strong></p>
+        <ul class="bullet-list"><li>IP spoofing</li><li>MAC spoofing</li><li>Email spoofing</li><li>DNS spoofing</li></ul>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">&#128110; Man-in-the-Middle (MITM)</div>
+        <div class="formula-block" style="font-size:12px;padding:10px 14px;color:#4ade80;margin:8px 0;">Alice &#8596; [Attacker] &#8596; Bob</div>
+        <p style="font-size:13px;color:#475569;">Secretly intercepts (and possibly modifies) communication between two parties.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">&#128257; Replay Attack</div>
+        <p style="font-size:13px;color:#475569;">Captures a <strong>valid message</strong> and <strong>re-sends it later</strong> to trick the system into unauthorized access.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#059669;">&#128247; Sniffing</div>
+        <p style="font-size:13px;color:#475569;">Passively capturing network packets. Tools: <strong>Wireshark, tcpdump</strong>. Passive attack.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#e11d48;">&#128279; Session Hijacking</div>
+        <p style="font-size:13px;color:#475569;">Attacker <strong>steals an active authenticated session token</strong> to impersonate the logged-in user.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#d97706;">&#128231; Phishing &amp; Social Engineering</div>
+        <ul class="bullet-list">
+          <li><strong>Phishing</strong> &#8594; Fake email/site to steal credentials</li>
+          <li><strong>Pharming</strong> &#8594; Redirects via DNS manipulation to fake site</li>
+          <li><strong>Vishing</strong> &#8594; Voice-based phishing</li>
+          <li><strong>Smishing</strong> &#8594; SMS-based phishing</li>
+          <li><strong>Baiting &amp; Pretexting</strong> &#8594; Manipulating human psychology</li>
+        </ul>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">&#127758; Zero-Day Attack <span class="badge-new">NEW</span></div>
+        <p style="font-size:13px;color:#475569;">Exploits a vulnerability that is <strong>unknown to the vendor</strong> &#8212; no patch exists yet. Extremely dangerous.</p>
+      </div>
+    </div>
+    <div class="mini-h">Application-Layer Attacks (Expanded) <span class="badge-new">NEW</span></div>
+    <div class="grid-2">
+      <div class="mini-card" style="border-color:rgba(220,38,38,.3);background:#fef2f2;">
+        <div class="mini-card-title" style="color:#991b1b;">&#128200; SQL Injection (SQLi)</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Injects malicious SQL code through an input field to manipulate or extract database contents.</p>
+        <div class="formula-block" style="font-size:11px;padding:8px 12px;color:#4ade80;margin:8px 0;">Input: ' OR '1'='1
+&#8594; Bypasses login / dumps database</div>
+        <p style="font-size:12.5px;color:#7f1d1d;font-weight:700;">Defense: Parameterized queries, input validation, least-privilege DB accounts</p>
+      </div>
+      <div class="mini-card" style="border-color:rgba(124,58,237,.3);background:#f5f3ff;">
+        <div class="mini-card-title" style="color:#6d28d9;">&#128296; Cross-Site Scripting (XSS)</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Attacker injects malicious script into a webpage that <strong>runs in other users' browsers</strong>.</p>
+        <p style="font-size:12.5px;color:#475569;margin-bottom:6px;"><strong>Types:</strong> Stored XSS, Reflected XSS, DOM-based XSS</p>
+        <p style="font-size:12.5px;color:#6d28d9;font-weight:700;">Defense: Output encoding, input sanitization, Content Security Policy (CSP)</p>
+      </div>
+      <div class="mini-card" style="border-color:rgba(5,150,105,.3);background:#ecfdf5;">
+        <div class="mini-card-title" style="color:#047857;">&#128257; CSRF &#8212; Cross-Site Request Forgery</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Tricks an <strong>already-authenticated user's browser</strong> into submitting an unwanted request to a site they're logged into.</p>
+        <p style="font-size:12.5px;color:#047857;font-weight:700;">Defense: CSRF tokens, SameSite cookies</p>
+      </div>
+      <div class="mini-card" style="border-color:rgba(217,119,6,.3);background:#fffbeb;">
+        <div class="mini-card-title" style="color:#b45309;">&#128165; Buffer Overflow</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Writing more data into a buffer than it can hold &#8594; overwrites adjacent memory &#8594; crashes or arbitrary code execution.</p>
+        <p style="font-size:12.5px;color:#b45309;font-weight:700;">Defense: Bounds checking, ASLR, stack canaries, safe functions</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 -->
+<div id="s4" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title-wrap"><div class="sec-title">Malware Types <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Virus, Worm, Trojan, Ransomware, Rootkit, Logic Bomb &amp; more</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Malware</th><th>Key Characteristic</th><th>Quick Identifier</th></tr></thead><tbody>
+      <tr><td><strong>Virus</strong></td><td>Attaches to a host file/program; requires user/program execution to spread</td><td>Needs host</td></tr>
+      <tr><td><strong>Worm</strong></td><td>Self-replicates and spreads through networks <em>without a host</em></td><td>Self-spreading, standalone</td></tr>
+      <tr><td><strong>Trojan Horse</strong></td><td>Appears legitimate but performs malicious activity</td><td>Disguise / deception</td></tr>
+      <tr><td><strong>Ransomware</strong></td><td>Encrypts/locks data and demands payment for decryption</td><td>Holds data hostage</td></tr>
+      <tr><td><strong>Spyware</strong></td><td>Secretly monitors and reports user activity</td><td>Covert surveillance</td></tr>
+      <tr><td><strong>Keylogger</strong></td><td>Records keystrokes to steal credentials and sensitive data</td><td>Keystroke capture</td></tr>
+      <tr><td><strong>Rootkit</strong></td><td>Hides its presence &amp; maintains privileged access on a system</td><td>Stealth + persistence</td></tr>
+      <tr><td><strong>Bot / Botnet</strong></td><td>Compromised machines controlled remotely by an attacker (C&amp;C)</td><td>Remote-controlled zombie network</td></tr>
+      <tr><td><strong>Adware</strong></td><td>Displays unwanted advertisements; may include tracking behavior</td><td>Unwanted ads</td></tr>
+      <tr><td><strong>Logic Bomb</strong></td><td>Dormant malicious code triggered by a specific condition/date/event</td><td>Time-triggered payload</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-amber"><div class="callout-title">&#129504; Virus vs Worm</div><strong>Virus &#8594; needs a host program to attach to and spread</strong> &nbsp;|&nbsp; <strong>Worm &#8594; self-replicates and spreads independently</strong></div>
+  </div>
+</div>
+
+<!-- S5 -->
+<div id="s5" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title-wrap"><div class="sec-title">Cryptography Overview <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Symmetric, Asymmetric, Hashing &#8212; Cryptography vs Steganography</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Cryptography</strong> = provides secure communication using mathematical techniques to protect <strong>Confidentiality, Integrity, and Authenticity</strong> of data.</div>
+    <div class="flow-box"><div class="flow-title">Basic Encryption Flow</div>
+      <div class="flow-steps"><span class="flow-step">Plaintext</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Encryption</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Ciphertext</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Decryption</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Plaintext</span></div>
+    </div>
+    <div class="mini-h">Three Core Cryptographic Techniques</div>
+    <div class="grid-3">
+      <div class="mini-card" style="text-align:center;background:#eff6ff;border-color:#bfdbfe;"><div class="mini-card-title" style="color:#1e40af;justify-content:center;">&#128272; Symmetric</div><p style="font-size:13px;color:#334155;">Same key for encryption &amp; decryption. Fast. Key distribution problem.</p></div>
+      <div class="mini-card" style="text-align:center;background:#f5f3ff;border-color:#ddd6fe;"><div class="mini-card-title" style="color:#6d28d9;justify-content:center;">&#128275; Asymmetric</div><p style="font-size:13px;color:#334155;">Public + Private key pair. Slower. Solves key distribution.</p></div>
+      <div class="mini-card" style="text-align:center;background:#ecfdf5;border-color:#86efac;"><div class="mini-card-title" style="color:#047857;justify-content:center;">&#128203; Hashing</div><p style="font-size:13px;color:#334155;">One-way. Fixed-length digest. Cannot be reversed.</p></div>
+    </div>
+    <div class="mini-h">Cryptography vs Steganography <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Cryptography</th><th>Steganography</th></tr></thead><tbody>
+      <tr><td>Hides the <strong>content/meaning</strong> of a message</td><td>Hides the <strong>existence</strong> of the message itself</td></tr>
+      <tr><td>Data looks scrambled/encrypted</td><td>Data looks like a normal file (image, audio, video)</td></tr>
+      <tr><td>Examples: AES, RSA, SHA-256</td><td>Example: hiding text inside image pixels</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S6 -->
+<div id="s6" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">6</div><div class="sec-title-wrap"><div class="sec-title">Symmetric Key Cryptography <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Same key used for both encryption and decryption &#8212; AES, DES, 3DES, Blowfish</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-title">Symmetric Key Flow</div>
+      <div class="flow-steps"><span class="flow-step">Plaintext</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Encrypt + Secret Key</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Ciphertext</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Decrypt + Same Secret Key</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Plaintext</span></div>
+    </div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#059669;">&#10003; Advantages</div>
+        <ul class="bullet-list"><li>Fast &amp; computationally efficient</li><li>Suitable for large volumes of data</li></ul>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">&#10007; Disadvantage</div>
+        <p style="font-size:13px;color:#475569;"><strong>Key Distribution Problem</strong> &#8594; Both parties must securely exchange the shared secret key beforehand.</p>
+      </div>
+    </div>
+    <div class="mini-h">Common Algorithms &amp; Details</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Block Size</th><th>Key Size</th><th>Status</th></tr></thead><tbody>
+      <tr><td><strong>DES</strong></td><td>64 bits</td><td>56 bits effective</td><td><span class="bad">&#10008; Insecure (key too small)</span></td></tr>
+      <tr><td><strong>3DES</strong></td><td>64 bits</td><td>112 / 168 bits</td><td><span class="warn">&#9888; Deprecated (slow)</span></td></tr>
+      <tr><td><strong>AES &#11088;</strong></td><td>128 bits</td><td>128 / 192 / 256 bits</td><td><span class="ok">&#10003; Strong &#8212; widely used</span></td></tr>
+      <tr><td><strong>Blowfish</strong></td><td>64 bits</td><td>32&#8211;448 bits</td><td><span class="ok">&#10003; Good (historical use)</span></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#11088; AES Key Facts</div>AES block size = <strong>128 bits</strong> always. Key sizes = <strong>128, 192, or 256 bits</strong>. AES-256 is much stronger than DES.</div>
+  </div>
+</div>
+
+<!-- S7 -->
+<div id="s7" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">7</div><div class="sec-title-wrap"><div class="sec-title">Asymmetric Cryptography <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Public + Private key pair &#8212; RSA, ECC &#8212; Encryption &amp; Digital Signature rules</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Uses <strong>two mathematically linked keys</strong>: <strong>Public Key</strong> (shared openly) + <strong>Private Key</strong> (kept secret). Solves the key distribution problem of symmetric cryptography.</div>
+    <div class="grid-2">
+      <div class="mini-card" style="background:#f5f3ff;border-color:#ddd6fe;">
+        <div class="mini-card-title" style="color:#6d28d9;">&#128274; For Confidentiality (Sending Encrypted Data)</div>
+        <div class="formula-block" style="font-size:11.5px;padding:10px 14px;color:#4ade80;margin:8px 0;">Alice &#8594; Encrypt with BOB'S PUBLIC KEY
+&#8594; Ciphertext (only Bob can decrypt)
+&#8594; Bob decrypts with HIS PRIVATE KEY</div>
+        <p style="font-size:12.5px;color:#6d28d9;font-weight:800;">Encrypt with receiver's PUBLIC key &#11088;</p>
+      </div>
+      <div class="mini-card" style="background:#eff6ff;border-color:#bfdbfe;">
+        <div class="mini-card-title" style="color:#1e40af;">&#9999; For Digital Signature (Auth / Non-repudiation)</div>
+        <div class="formula-block" style="font-size:11.5px;padding:10px 14px;color:#4ade80;margin:8px 0;">Alice &#8594; Sign with HER PRIVATE KEY
+&#8594; Signature attached to message
+&#8594; Bob verifies with ALICE'S PUBLIC KEY</div>
+        <p style="font-size:12.5px;color:#1e40af;font-weight:800;">Sign with sender's PRIVATE key &#11088;</p>
+      </div>
+    </div>
+    <div class="callout callout-purple"><div class="callout-title">&#11088; Golden Rules &#8212; Must Memorize!</div>
+      <strong>Encryption for confidentiality &#8594; use receiver's PUBLIC key</strong><br/>
+      <strong>Digital Signature &#8594; use sender's PRIVATE key</strong>
+    </div>
+    <div class="mini-h">Common Algorithms</div>
+    <ul class="bullet-list">
+      <li><strong>RSA</strong> &#8594; Most widely used asymmetric algorithm (encryption + signatures)</li>
+      <li><strong>ECC (Elliptic Curve Cryptography)</strong> &#8594; Smaller keys, same security, more efficient</li>
+      <li><strong>Diffie-Hellman</strong> &#8594; Key exchange algorithm (not encryption directly)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- S8 -->
+<div id="s8" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">8</div><div class="sec-title-wrap"><div class="sec-title">Hashing <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">One-way fixed-length digest &#8212; MD5 broken, SHA-256 good</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Hash function converts input data of any size into a <strong>fixed-length digest (hash value)</strong>. It is a <strong>one-way function</strong> &#8212; cannot reverse a hash to get the original message.</div>
+    <div class="mini-h">Key Properties</div>
+    <ul class="bullet-list">
+      <li><strong>One-way</strong> &#8594; cannot reverse the hash to get the original data</li>
+      <li><strong>Fixed-length output</strong> &#8594; regardless of how large the input is</li>
+      <li><strong>Avalanche effect</strong> &#8594; tiny change in input causes a drastically different hash</li>
+      <li><strong>Collision-resistant</strong> &#8594; hard to find two different inputs with the same hash</li>
+    </ul>
+    <div class="mini-h">Common Hash Algorithms</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Output Size</th><th>Status</th></tr></thead><tbody>
+      <tr><td><strong>MD5</strong></td><td>128 bits (16 bytes)</td><td><span class="bad">&#10008; Broken for collision resistance</span></td></tr>
+      <tr><td><strong>SHA-1</strong></td><td>160 bits</td><td><span class="bad">&#10008; Deprecated / cryptographically broken</span></td></tr>
+      <tr><td><strong>SHA-256 &#10003;</strong></td><td>256 bits</td><td><span class="ok">&#10003; Secure &#8212; widely used</span></td></tr>
+      <tr><td><strong>SHA-512 &#10003;</strong></td><td>512 bits</td><td><span class="ok">&#10003; Secure &#8212; stronger than SHA-256</span></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-green"><div class="callout-title">&#129504; Encryption vs Hashing</div><strong>Encryption &#8594; reversible</strong> (with correct key) &nbsp;|&nbsp; <strong>Hashing &#8594; one-way</strong> (irreversible by design)</div>
+  </div>
+</div>
+
+<!-- S9 -->
+<div id="s9" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">9</div><div class="sec-title-wrap"><div class="sec-title">Digital Signature <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Provides Authentication + Integrity + Non-repudiation (NOT primarily Confidentiality)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">Digital Signature provides <strong>Authentication, Integrity, and Non-repudiation</strong>.<br/><strong>Important:</strong> It does NOT primarily provide Confidentiality (message is not encrypted by the signature itself).</div>
+    <div class="mini-h">How Digital Signature Works</div>
+    <div class="formula-block"><span class="k">SIGNING:</span>
+  Message &#8594; Hash function &#8594; Message Digest
+  Message Digest &#8594; Encrypt with Sender's PRIVATE KEY &#8594; Digital Signature
+  Send (Message + Digital Signature)
+
+<span class="k">VERIFICATION:</span>
+  Received Signature &#8594; Decrypt with Sender's PUBLIC KEY &#8594; Digest 1
+  Received Message &#8594; Hash function &#8594; Digest 2
+  If Digest 1 == Digest 2 &#8594; Signature is VALID</div>
+    <div class="grid-2">
+      <div class="callout callout-indigo"><div class="callout-title">&#11088; Rule 1</div>Sender <strong>signs</strong> using their <strong>PRIVATE KEY</strong></div>
+      <div class="callout callout-blue"><div class="callout-title">&#11088; Rule 2</div>Receiver <strong>verifies</strong> using sender's <strong>PUBLIC KEY</strong></div>
+    </div>
+    <div class="callout callout-amber"><div class="callout-title">&#9888; Common Exam Trap</div>Digital Signature does <strong>NOT</strong> encrypt the message body itself &#8212; add separate encryption for confidentiality.</div>
+  </div>
+</div>
+
+<!-- S10 -->
+<div id="s10" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">10</div><div class="sec-title-wrap"><div class="sec-title">MAC &#8212; Message Authentication Code</div><div class="sec-subtitle">Integrity + Authentication using a shared secret key &#8212; HMAC</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">MAC provides <strong>Integrity + Authentication</strong> using a <strong>shared secret (symmetric) key</strong>. Both parties must share the same key. Unlike digital signatures, MAC does NOT provide strong non-repudiation.</div>
+    <div class="formula-block"><span class="k">HMAC (Hash-based MAC):</span>
+Message + Secret Key &#8594; HMAC function &#8594; MAC tag
+Sent along with message
+
+Receiver recomputes MAC and compares &#8594; verifies integrity &amp; authenticity</div>
+    <div class="mini-h">MAC vs Digital Signature Comparison</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Property</th><th>MAC (HMAC)</th><th>Digital Signature</th></tr></thead><tbody>
+      <tr><td>Key type</td><td>Symmetric (shared secret)</td><td>Asymmetric (private/public key)</td></tr>
+      <tr><td>Authentication</td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td>Integrity</td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td>Non-repudiation</td><td><span class="bad">&#10008; Weak / No</span></td><td><span class="ok">&#10003; Yes (strong)</span></td></tr>
+      <tr><td>Speed</td><td>Faster</td><td>Slower</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S11 -->
+<div id="s11" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">11</div><div class="sec-title-wrap"><div class="sec-title">Key Exchange &amp; Kerberos <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Diffie-Hellman key establishment &#8212; Kerberos ticket-based authentication</div></div></div>
+  <div class="sec-body">
+    <div class="mini-h">Diffie-Hellman Key Exchange</div>
+    <div class="def-box"><strong>Diffie-Hellman</strong> allows two parties to establish a <strong>shared secret over an insecure channel</strong> without transmitting the secret directly. It is a <em>key exchange</em> algorithm, NOT an encryption algorithm.</div>
+    <div class="callout callout-rose"><div class="callout-title">&#9888; Vulnerability</div>Basic Diffie-Hellman is <strong>vulnerable to MITM attacks</strong> if no authentication is present. Use authenticated DH (e.g., with certificates or signatures).</div>
+    <div class="mini-h">Kerberos Authentication Protocol <span class="badge-new">NEW</span></div>
+    <div class="def-box"><strong>Kerberos</strong> = Network authentication protocol using <strong>tickets</strong> issued by a trusted third party called the <strong>Key Distribution Center (KDC)</strong>.</div>
+    <div class="formula-block"><span class="g">Step 1:</span> Client &#8594; Authentication Server (AS) &#8594; TGT (Ticket Granting Ticket)
+<span class="g">Step 2:</span> Client &#8594; Ticket Granting Server (TGS) &#8594; Service Ticket
+<span class="g">Step 3:</span> Client &#8594; Target Service (using Service Ticket) &#8594; Access Granted</div>
+    <ul class="bullet-list">
+      <li>Uses <strong>symmetric key cryptography</strong> internally</li>
+      <li>Default port: <strong>88</strong></li>
+      <li>Timestamps prevent <strong>replay attacks</strong></li>
+      <li>Provides <strong>Single Sign-On (SSO)</strong> capability</li>
+    </ul>
+  </div>
+</div>
+
+<!-- S12 -->
+<div id="s12" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">12</div><div class="sec-title-wrap"><div class="sec-title">Digital Certificate &amp; PKI <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Public Key Infrastructure &#8212; CA, RA, CRL, X.509 standard</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Digital Certificate</strong> binds an <strong>Identity + Public Key</strong>, signed by a trusted <strong>Certificate Authority (CA)</strong>. Follows the <strong>X.509</strong> standard.</div>
+    <div class="mini-h">PKI Components</div>
+    <div class="grid-2">
+      <ul class="bullet-list">
+        <li><strong>CA (Certificate Authority)</strong> &#8594; Trusted entity that issues and signs digital certificates</li>
+        <li><strong>RA (Registration Authority)</strong> &#8594; Verifies identity before certificate issuance on behalf of CA</li>
+        <li><strong>X.509</strong> &#8594; International standard defining certificate format</li>
+      </ul>
+      <ul class="bullet-list">
+        <li><strong>CRL (Certificate Revocation List)</strong> &#8594; Lists certificates that have been revoked before expiry</li>
+        <li><strong>OCSP</strong> &#8594; Online Certificate Status Protocol &#8212; real-time revocation check</li>
+        <li><strong>Digital Certificates</strong> &#8594; Bind identity to public key, signed by CA</li>
+      </ul>
+    </div>
+    <div class="callout callout-green"><div class="callout-title">&#129504; One-liner</div><strong>Digital Certificate = Identity + Public Key + CA's Signature</strong></div>
+  </div>
+</div>
+
+<!-- S13 -->
+<div id="s13" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">13</div><div class="sec-title-wrap"><div class="sec-title">SSL / TLS &amp; HTTPS <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">HTTPS = HTTP + TLS &#8212; Port 443 &#8212; TLS versions &#8212; Handshake overview</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-steps"><span class="flow-step">HTTP (Port 80)</span><span class="flow-arrow">+</span><span class="flow-step">TLS</span><span class="flow-arrow">=</span><span class="flow-step" style="border-color:#059669;color:#047857;font-weight:900;">HTTPS (Port 443) &#10003;</span></div></div>
+    <div class="mini-h">HTTPS Provides</div>
+    <ul class="bullet-list">
+      <li><strong>Confidentiality</strong> &#8594; data is encrypted in transit</li>
+      <li><strong>Integrity</strong> &#8594; data is not tampered with</li>
+      <li><strong>Server Authentication</strong> &#8594; via server's digital certificate</li>
+    </ul>
+    <div class="mini-h">TLS Handshake (Simplified)</div>
+    <div class="formula-block"><span class="g">1.</span> Client sends ClientHello (TLS version, cipher suites supported)
+<span class="g">2.</span> Server sends ServerHello + Certificate
+<span class="g">3.</span> Key establishment (asymmetric crypto to agree on session key)
+<span class="g">4.</span> Secure symmetric session begins (bulk encryption with AES etc.)</div>
+    <div class="mini-h">SSL/TLS Version Status <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Version</th><th>Status</th></tr></thead><tbody>
+      <tr><td>SSL 2.0 / 3.0</td><td><span class="bad">&#10008; Deprecated / insecure (POODLE attack)</span></td></tr>
+      <tr><td>TLS 1.0 / 1.1</td><td><span class="bad">&#10008; Deprecated</span></td></tr>
+      <tr><td>TLS 1.2</td><td><span class="ok">&#10003; Widely used, considered secure</span></td></tr>
+      <tr><td>TLS 1.3</td><td><span class="ok">&#10003; Latest standard &#8212; faster &amp; more secure</span></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S14 -->
+<div id="s14" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">14</div><div class="sec-title-wrap"><div class="sec-title">IPsec &#8212; AH &amp; ESP <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Network Layer security &#8212; AH vs ESP &#8212; Transport vs Tunnel mode</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>IPsec</strong> operates at the <strong>Network Layer (Layer 3)</strong> and provides security services for IP communications.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Protocol</th><th>Confidentiality (Encryption)</th><th>Integrity</th><th>Authentication</th></tr></thead><tbody>
+      <tr><td><strong>AH &#8212; Authentication Header</strong></td><td><span class="bad">&#10008; NO encryption</span></td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>ESP &#8212; Encapsulating Security Payload &#11088;</strong></td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+    </tbody></table></div>
+    <div class="mini-h">IPsec Modes</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#3730a3;">&#128100; Transport Mode</div>
+        <div class="formula-block" style="font-size:11px;padding:8px 12px;color:#4ade80;margin:8px 0;">Original IP Header | Protected Payload</div>
+        <p style="font-size:13px;color:#475569;">Protects only the payload. Used for host-to-host communication.</p>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#3730a3;">&#128405; Tunnel Mode &#11088;</div>
+        <div class="formula-block" style="font-size:11px;padding:8px 12px;color:#4ade80;margin:8px 0;">New IP Header | Entire Original IP Packet</div>
+        <p style="font-size:13px;color:#475569;">Encapsulates the entire original packet. Used with <strong>VPNs</strong>.</p>
+      </div>
+    </div>
+    <div class="callout callout-indigo"><div class="callout-title">&#11088; Key Rules to Memorize</div>
+      <strong>AH = Authentication + Integrity only (NO encryption)</strong><br/>
+      <strong>ESP = Confidentiality + Integrity + Authentication (everything)</strong><br/>
+      <strong>Tunnel Mode = VPNs &nbsp;|&nbsp; IPsec = Network Layer</strong>
+    </div>
+  </div>
+</div>
+
+<!-- S15 -->
+<div id="s15" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">15</div><div class="sec-title-wrap"><div class="sec-title">VPN &#8212; Virtual Private Network</div><div class="sec-subtitle">Encrypted tunnel over an untrusted/public network</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>VPN</strong> creates a secure, encrypted logical tunnel over an untrusted (public) network, giving remote users secure access as if on the private network.</div>
+    <div class="flow-box"><div class="flow-steps"><span class="flow-step">Remote User</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Encrypted Tunnel (IPsec / TLS)</span><span class="flow-arrow">&#8594;</span><span class="flow-step">VPN Server</span><span class="flow-arrow">&#8594;</span><span class="flow-step">Private Network</span></div></div>
+    <ul class="bullet-list">
+      <li><strong>IPsec Tunnel Mode</strong> &#8594; commonly used for site-to-site VPNs</li>
+      <li><strong>TLS-based VPNs</strong> &#8594; commonly used for remote access (e.g., OpenVPN, SSL VPN)</li>
+      <li>Provides <strong>Confidentiality, Authentication, and Integrity</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- S16 -->
+<div id="s16" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">16</div><div class="sec-title-wrap"><div class="sec-title">SSH &#8212; Secure Shell</div><div class="sec-subtitle">Secure encrypted remote login &amp; command execution &#8212; Port 22</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>SSH (Secure Shell)</strong> provides <strong>encrypted</strong> remote login, remote command execution, and secure file transfer (SFTP/SCP). Default port: <strong>22</strong>.</div>
+    <div class="callout callout-green"><div class="callout-title">&#128205; SSH = Port 22 &#10003; Encrypted &amp; Secure</div>SSH replaced Telnet for remote administration. Supports password and public-key authentication.</div>
+  </div>
+</div>
+
+<!-- S17 -->
+<div id="s17" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">17</div><div class="sec-title-wrap"><div class="sec-title">Telnet &amp; SSH vs Telnet</div><div class="sec-subtitle">Telnet = insecure plaintext remote access &#8212; Port 23</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Property</th><th>SSH</th><th>Telnet</th></tr></thead><tbody>
+      <tr><td>Security</td><td><span class="ok">&#10003; Encrypted &amp; Secure</span></td><td><span class="bad">&#10008; Plaintext / Insecure</span></td></tr>
+      <tr><td>Default Port</td><td><strong>22</strong></td><td><strong>23</strong></td></tr>
+      <tr><td>Authentication</td><td>Public key or password (encrypted)</td><td>Password transmitted in clear text</td></tr>
+      <tr><td>Usage Today</td><td>Standard for all remote administration</td><td>Legacy/deprecated &#8212; avoid</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S18 -->
+<div id="s18" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">18</div><div class="sec-title-wrap"><div class="sec-title">Email Security <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">PGP, S/MIME, SPF, DKIM, DMARC</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">&#128231; PGP &#8212; Pretty Good Privacy</div>
+        <ul class="bullet-list">
+          <li>Provides email &amp; file security</li>
+          <li>Uses encryption + digital signatures</li>
+          <li>Uses <strong>Web of Trust</strong> (no central CA)</li>
+        </ul>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">&#128274; S/MIME</div>
+        <ul class="bullet-list">
+          <li>Secure email standard</li>
+          <li>Uses encryption + digital certificates + signatures</li>
+          <li>Relies on <strong>centralized PKI / CA</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mini-h">Anti-Spoofing Email Mechanisms <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Mechanism</th><th>Purpose</th></tr></thead><tbody>
+      <tr><td><strong>SPF (Sender Policy Framework)</strong></td><td>DNS record that lists which servers are authorized to send email for a domain</td></tr>
+      <tr><td><strong>DKIM (DomainKeys Identified Mail)</strong></td><td>Adds a cryptographic digital signature to the email header to verify it was not altered</td></tr>
+      <tr><td><strong>DMARC</strong></td><td>Policy layer built on top of SPF + DKIM; defines how to handle failures (reject/quarantine/report)</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S19 -->
+<div id="s19" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">19</div><div class="sec-title-wrap"><div class="sec-title">Firewall Types <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Packet Filtering, Stateful, Application-Level, NGFW, Bastion Host</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-title">Firewall Placement</div>
+      <div class="flow-steps" style="flex-direction:column;gap:6px;">
+        <span class="flow-step">Internet (Untrusted)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#dc2626;color:#991b1b;font-weight:900;">&#128293; FIREWALL &#128293;</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step">Internal Network (Trusted)</span>
+      </div>
+    </div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Firewall Type</th><th>How It Works</th><th>Key Characteristic</th></tr></thead><tbody>
+      <tr><td><strong>Packet Filtering</strong></td><td>Checks source IP, destination IP, port, protocol headers</td><td>Stateless, fast, basic</td></tr>
+      <tr><td><strong>Stateful Inspection</strong></td><td>Tracks the <em>state</em> of active connections in a state table</td><td>Context-aware, smarter than packet filtering</td></tr>
+      <tr><td><strong>Application-Level / Proxy</strong></td><td>Operates at the application layer; understands app-layer protocols</td><td>Deep content inspection, slower</td></tr>
+      <tr><td><strong>NGFW (Next-Generation)</strong></td><td>DPI + application awareness + IPS + user identity + advanced filtering</td><td>Most comprehensive, modern</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-rose"><div class="callout-title">&#128193; Bastion Host <span class="badge-new">NEW</span></div>A specially <strong>hardened host</strong> positioned at the network perimeter (often in the DMZ), designed to withstand attacks. It is the main point of entry from the internet into a secured network.</div>
+  </div>
+</div>
+
+<!-- S20 -->
+<div id="s20" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">20</div><div class="sec-title-wrap"><div class="sec-title">IDS vs IPS <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Detection vs Prevention &#8212; Signature vs Anomaly &#8212; NIDS vs HIDS</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card" style="background:#eff6ff;border-color:#bfdbfe;">
+        <div class="mini-card-title" style="color:#1e40af;">&#128680; IDS &#8212; Intrusion Detection System</div>
+        <p style="font-size:14px;color:#1e40af;font-weight:800;margin-bottom:8px;">Detects suspicious activity &#8594; <strong>Alerts only</strong></p>
+        <div class="formula-block" style="font-size:12px;padding:8px 12px;color:#4ade80;margin:8px 0;">Traffic &#8594; IDS &#8594; Alert &#128680;</div>
+        <p style="font-size:13px;color:#475569;">Does NOT block traffic. Out-of-band / passive monitoring. Alerts administrators.</p>
+      </div>
+      <div class="mini-card" style="background:#fff1f2;border-color:#fca5a5;">
+        <div class="mini-card-title" style="color:#9f1239;">&#128683; IPS &#8212; Intrusion Prevention System</div>
+        <p style="font-size:14px;color:#9f1239;font-weight:800;margin-bottom:8px;">Detects AND <strong>Blocks</strong> / Takes Action</p>
+        <div class="formula-block" style="font-size:12px;padding:8px 12px;color:#4ade80;margin:8px 0;">Traffic &#8594; IPS &#8594; Block &#128683;</div>
+        <p style="font-size:13px;color:#475569;">Inline device &#8212; sits in traffic path and actively blocks malicious traffic.</p>
+      </div>
+    </div>
+    <div class="mini-h">Detection Approaches</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Approach</th><th>Method</th><th>Advantage</th><th>Disadvantage</th></tr></thead><tbody>
+      <tr><td><strong>Signature-based</strong></td><td>Matches known attack patterns/signatures</td><td>Low false positives for known attacks</td><td>Cannot detect new/unknown (zero-day) attacks</td></tr>
+      <tr><td><strong>Anomaly-based</strong></td><td>Detects deviation from normal behavior baseline</td><td>Can detect unknown/new attacks</td><td>Higher false positive rate</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">NIDS vs HIDS <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>NIDS (Network-based IDS)</th><th>HIDS (Host-based IDS)</th></tr></thead><tbody>
+      <tr><td>Monitors <strong>network traffic</strong> at network level</td><td>Monitors activity on a <strong>single host/system</strong></td></tr>
+      <tr><td>Placed at network chokepoints / segment boundaries</td><td>Installed as an agent on the machine being monitored</td></tr>
+      <tr><td>Broader network-wide visibility</td><td>Deep host-level visibility (files, processes, logs)</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-purple"><div class="callout-title">&#129504; Easy Memory</div><strong>IDS = Detect + Alert (passive, observes only)</strong> &nbsp;|&nbsp; <strong>IPS = Detect + Prevent (active, takes action)</strong></div>
+  </div>
+</div>
+
+<!-- S21 -->
+<div id="s21" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">21</div><div class="sec-title-wrap"><div class="sec-title">Honeypot</div><div class="sec-subtitle">Decoy system to lure and study attackers</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">A <strong>Honeypot</strong> is a deliberately vulnerable/attractive decoy system designed to <strong>lure attackers</strong>, observe their methods, and gather intelligence &#8212; without exposing real production systems.</div>
+    <div class="flow-box"><div class="flow-steps"><span class="flow-step">Attacker</span><span class="flow-arrow">&#8594;</span><span class="flow-step">&#127855; Honeypot (Decoy)</span><span class="flow-arrow">&#8230;</span><span class="flow-step">Real Systems (Protected)</span></div></div>
+    <ul class="bullet-list">
+      <li>Used for <strong>detection, threat intelligence, and attack analysis</strong></li>
+      <li><strong>Honeynet</strong> &#8594; a network of multiple honeypots</li>
+      <li>Does not <em>prevent</em> attacks; used for intelligence gathering and early warning</li>
+    </ul>
+  </div>
+</div>
+
+<!-- S22 -->
+<div id="s22" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">22</div><div class="sec-title-wrap"><div class="sec-title">Access Control &amp; AAA Framework <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Authentication, Authorization, Accounting &#8212; DAC, MAC, RBAC, ABAC</div></div></div>
+  <div class="sec-body">
+    <div class="callout callout-blue"><div class="callout-title">&#11088; AAA Framework</div>
+      <strong>Authentication</strong> = Who are you? (Identity verification) &nbsp;|&nbsp;
+      <strong>Authorization</strong> = What can you access? (Permission check) &nbsp;|&nbsp;
+      <strong>Accounting</strong> = What did you do? (Audit trail/logging)
+    </div>
+    <div class="mini-h">Access Control Models <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Model</th><th>Full Name</th><th>How Access is Decided</th></tr></thead><tbody>
+      <tr><td><strong>DAC</strong></td><td>Discretionary Access Control</td><td>Resource <strong>owner</strong> decides who can access their resources</td></tr>
+      <tr><td><strong>MAC</strong></td><td>Mandatory Access Control</td><td>Access based on <strong>security classification labels</strong> (system-enforced; e.g., Top Secret, Secret, Unclassified)</td></tr>
+      <tr><td><strong>RBAC</strong></td><td>Role-Based Access Control</td><td>Access based on the user's <strong>assigned role</strong> (e.g., Admin, Manager, User)</td></tr>
+      <tr><td><strong>ABAC</strong></td><td>Attribute-Based Access Control</td><td>Access based on <strong>attributes/policies</strong> (user, resource, environment attributes) &#8212; most flexible</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-amber"><div class="callout-title">&#9888; MAC Ambiguity Warning</div>MAC here = <strong>Mandatory Access Control</strong> (access control model). Completely different from MAC = Message Authentication Code (cryptography). Context determines meaning in exam questions!</div>
+  </div>
+</div>
+
+<!-- S23 -->
+<div id="s23" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">23</div><div class="sec-title-wrap"><div class="sec-title">Authentication Factors, MFA &amp; CAPTCHA <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Something you know / have / are &#8212; Multi-Factor Authentication</div></div></div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div class="mini-card" style="background:#eff6ff;border-color:#bfdbfe;text-align:center;">
+        <div class="mini-card-title" style="color:#1e40af;justify-content:center;">&#128272; Something You Know</div>
+        <ul class="bullet-list"><li>Password</li><li>PIN</li><li>Security questions</li><li>Pass phrase</li></ul>
+      </div>
+      <div class="mini-card" style="background:#f5f3ff;border-color:#ddd6fe;text-align:center;">
+        <div class="mini-card-title" style="color:#6d28d9;justify-content:center;">&#128244; Something You Have</div>
+        <ul class="bullet-list"><li>Smart card</li><li>OTP hardware token</li><li>Phone (authenticator app)</li><li>USB security key</li></ul>
+      </div>
+      <div class="mini-card" style="background:#ecfdf5;border-color:#86efac;text-align:center;">
+        <div class="mini-card-title" style="color:#047857;justify-content:center;">&#128105; Something You Are</div>
+        <ul class="bullet-list"><li>Fingerprint</li><li>Face recognition</li><li>Iris scan</li><li>Voice recognition</li></ul>
+      </div>
+    </div>
+    <div class="callout callout-green"><div class="callout-title">&#11088; MFA &#8212; Multi-Factor Authentication</div>Uses <strong>two or more different factor categories</strong>. Password + OTP = 2FA (Two-Factor Authentication). Significantly stronger than single-factor.</div>
+    <div class="callout callout-blue"><div class="callout-title">&#128681; CAPTCHA <span class="badge-new">NEW</span></div>Challenge-response test to distinguish <strong>humans from automated bots</strong>. Used during login/signup/form submission to prevent brute-force bots and automated attacks.</div>
+  </div>
+</div>
+
+<!-- S24 -->
+<div id="s24" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">24</div><div class="sec-title-wrap"><div class="sec-title">Password Security &amp; Salt <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Secure password storage &#8212; Salting &#8212; Defense against rainbow tables</div></div></div>
+  <div class="sec-body">
+    <div class="mini-h">Good Password Security Practices</div>
+    <ul class="bullet-list">
+      <li><strong>Strong passwords</strong> &#8594; long + complex + unpredictable</li>
+      <li><strong>Password hashing</strong> &#8594; always store the hash, never plaintext password</li>
+      <li><strong>Salting</strong> &#8594; add a random unique value before hashing each password</li>
+      <li><strong>Rate limiting &amp; account lockout</strong> &#8594; limit login attempts</li>
+      <li><strong>MFA</strong> &#8594; second factor protects even if password is stolen</li>
+    </ul>
+    <div class="mini-h">Salt &#8212; Why It Matters</div>
+    <div class="formula-block"><span class="k">WITHOUT Salt:</span>
+Password "abc123" &#8594; Hash: d41d8cd98f00b204... (same for every user with same password)
+
+<span class="k">WITH Salt:</span>
+User A: "abc123" + RandomSalt1 &#8594; Hash1 (unique)
+User B: "abc123" + RandomSalt2 &#8594; Hash2 (different!)
+
+<span class="c">// Salt defeats: Rainbow Tables, Precomputed Hash Attacks</span></div>
+    <div class="callout callout-indigo"><div class="callout-title">&#129504; Salt's Purpose</div>Salt ensures <strong>identical passwords produce different hashes</strong> for different users, defeating precomputed rainbow table attacks.</div>
+  </div>
+</div>
+
+<!-- S25 -->
+<div id="s25" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">25</div><div class="sec-title-wrap"><div class="sec-title">Common Password Attacks</div><div class="sec-subtitle">Brute Force, Dictionary, Credential Stuffing, Rainbow Table</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Attack</th><th>Method</th><th>Best Defense</th></tr></thead><tbody>
+      <tr><td><strong>Brute Force</strong></td><td>Try every possible character combination systematically</td><td>Rate limiting, account lockout, long passwords</td></tr>
+      <tr><td><strong>Dictionary Attack</strong></td><td>Try commonly used words/passwords from a wordlist</td><td>Strong unique passwords; MFA</td></tr>
+      <tr><td><strong>Credential Stuffing</strong></td><td>Use leaked username/password combos from one breach on other services</td><td>Unique passwords per site; MFA; monitoring</td></tr>
+      <tr><td><strong>Rainbow Table</strong></td><td>Precomputed hash table to quickly look up hashes of common passwords</td><td><strong>Password salting</strong></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S26 -->
+<div id="s26" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">26</div><div class="sec-title-wrap"><div class="sec-title">DNS Security</div><div class="sec-subtitle">DNS Spoofing, Cache Poisoning, DNSSEC</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Attack / Concept</th><th>Explanation</th></tr></thead><tbody>
+      <tr><td><strong>DNS Spoofing</strong></td><td>Attacker provides <strong>false DNS information</strong> to redirect users to malicious sites</td></tr>
+      <tr><td><strong>DNS Cache Poisoning</strong></td><td>Attacker inserts <strong>malicious DNS records into a resolver's cache</strong>, affecting all users of that resolver</td></tr>
+      <tr><td><strong>DNSSEC</strong></td><td>Adds <strong>cryptographic signatures to DNS responses</strong> to verify authenticity and prevent spoofing/poisoning</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S27 -->
+<div id="s27" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">27</div><div class="sec-title-wrap"><div class="sec-title">Wireless Security <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">WEP (broken) &#8594; WPA &#8594; WPA2 &#8594; WPA3 (modern)</div></div></div>
+  <div class="sec-body">
+    <div class="rank-row">
+      <span class="rank-pill pill-bad">WEP &#10008; Broken/Obsolete</span>
+      <span class="rank-arrow">&#8594;</span>
+      <span class="rank-pill pill-ok">WPA &#9888; Deprecated</span>
+      <span class="rank-arrow">&#8594;</span>
+      <span class="rank-pill pill-good">WPA2 &#10003; Widely Used</span>
+      <span class="rank-arrow">&#8594;</span>
+      <span class="rank-pill pill-good">WPA3 &#10003;&#10003; Modern/Latest</span>
+    </div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Standard</th><th>Encryption Used</th><th>Status</th></tr></thead><tbody>
+      <tr><td><strong>WEP</strong></td><td>RC4-based (with serious weaknesses)</td><td><span class="bad">&#10008; Completely broken, do not use</span></td></tr>
+      <tr><td><strong>WPA</strong></td><td>TKIP</td><td><span class="bad">&#10008; Deprecated</span></td></tr>
+      <tr><td><strong>WPA2 &#11088;</strong></td><td>AES / CCMP</td><td><span class="ok">&#10003; Widely used, currently accepted</span></td></tr>
+      <tr><td><strong>WPA3</strong></td><td>SAE (Simultaneous Authentication of Equals) + AES</td><td><span class="ok">&#10003; Latest, most secure</span></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-teal"><div class="callout-title">&#11088; Key Point</div><strong>WPA2 uses AES/CCMP</strong> &nbsp;|&nbsp; <strong>WEP is RC4-based and completely broken</strong></div>
+  </div>
+</div>
+
+<!-- S28 -->
+<div id="s28" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">28</div><div class="sec-title-wrap"><div class="sec-title">Network Segmentation &amp; DMZ <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Dividing network into security zones &#8212; Demilitarized Zone</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-title">Segmented Network Architecture</div>
+      <div class="flow-steps" style="flex-direction:column;gap:6px;">
+        <span class="flow-step">Internet (Untrusted)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#dc2626;color:#991b1b;">Outer Firewall</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#d97706;color:#b45309;">DMZ (Web / Mail / DNS / Public Servers)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#dc2626;color:#991b1b;">Inner Firewall</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#059669;color:#047857;">Internal Network (Trusted)</span><span class="flow-arrow">&#8595;</span>
+        <span class="flow-step" style="border-color:#2563eb;color:#1e40af;">Database Servers (Most Protected)</span>
+      </div>
+    </div>
+    <div class="def-box"><strong>DMZ (Demilitarized Zone)</strong> &#8594; A neutral zone that hosts <strong>public-facing services</strong> (web servers, mail servers, DNS) while isolating them from the internal private network. If an attacker compromises the DMZ, internal systems remain protected.</div>
+  </div>
+</div>
+
+<!-- S29 -->
+<div id="s29" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">29</div><div class="sec-title-wrap"><div class="sec-title">Zero Trust Architecture</div><div class="sec-subtitle">Never trust, always verify &#8212; modern security model</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Zero Trust</strong>: Do NOT automatically trust any user or device just because it is inside the corporate network perimeter. Treat every access request as potentially hostile.</div>
+    <div class="callout callout-indigo"><div class="callout-title">&#11088; Core Motto</div><em>"Never trust, always verify."</em></div>
+    <div class="mini-h">Zero Trust Principles</div>
+    <ul class="bullet-list">
+      <li><strong>Continuous verification</strong> &#8594; authenticate and authorize every single request</li>
+      <li><strong>Least privilege</strong> &#8594; grant minimum access needed for the task</li>
+      <li><strong>Assume breach</strong> &#8594; design assuming attackers may already be inside</li>
+      <li><strong>Strong identity &amp; device verification</strong> &#8594; validate user + device health</li>
+      <li><strong>Micro-segmentation</strong> &#8594; limit lateral movement within the network</li>
+    </ul>
+  </div>
+</div>
+
+<!-- S30 -->
+<div id="s30" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">30</div><div class="sec-title-wrap"><div class="sec-title">Security Principles &amp; Operational Concepts <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Least Privilege, Defense in Depth, SIEM, Patch Management, DLP &amp; more</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">&#128274; Least Privilege</div><p style="font-size:13px;color:#475569;">Give users/processes <strong>only the permissions they absolutely need</strong> &#8212; nothing more.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">&#127963; Defense in Depth</div>
+        <p style="font-size:13px;color:#475569;margin-bottom:8px;">Use <strong>multiple layered security controls</strong> so one failure does not compromise the system.</p>
+        <div class="flow-steps" style="flex-direction:column;gap:3px;"><span class="flow-step" style="font-size:11px;">Firewall &#8594; IDS/IPS &#8594; Auth &#8594; Encryption &#8594; Access Control</span></div>
+      </div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">&#128683; Fail-Safe Defaults</div><p style="font-size:13px;color:#475569;">Default system state should be <strong>DENY access</strong>, unless explicitly permitted. Deny-by-default.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">&#128101; Separation of Duties</div><p style="font-size:13px;color:#475569;">Critical tasks divided among multiple people/roles to prevent fraud, error, and abuse of power.</p></div>
+    </div>
+    <div class="mini-h">Operational Security Concepts <span class="badge-new">NEW</span></div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Concept</th><th>What It Does</th></tr></thead><tbody>
+      <tr><td><strong>Patch Management</strong></td><td>Regularly updating software to fix known vulnerabilities before they can be exploited</td></tr>
+      <tr><td><strong>Sandboxing</strong></td><td>Running untrusted code/files in an <strong>isolated environment</strong> to prevent harm to real systems</td></tr>
+      <tr><td><strong>DLP (Data Loss Prevention)</strong></td><td>Tools and policies to prevent <strong>sensitive data from leaving</strong> the organization (exfiltration)</td></tr>
+      <tr><td><strong>SIEM (Security Info &amp; Event Mgmt)</strong></td><td>Centrally collects, correlates, and analyzes security logs/events from multiple sources for threat detection</td></tr>
+      <tr><td><strong>Air Gapping</strong></td><td>Physically isolating a system from all external/unsecured networks &#8212; ultimate isolation</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S31 -->
+<div id="s31" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">31</div><div class="sec-title-wrap"><div class="sec-title">Important Attacks &#8212; One-Liner Reference Table</div><div class="sec-subtitle">MCQ-ready attack summary &#8212; quickly eliminate wrong options</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Attack</th><th>Core Idea</th></tr></thead><tbody>
+      <tr><td><strong>DoS</strong></td><td>Overwhelm and make a service unavailable (single/few sources)</td></tr>
+      <tr><td><strong>DDoS</strong></td><td>DoS from many distributed compromised systems (botnet)</td></tr>
+      <tr><td><strong>MITM</strong></td><td>Secretly intercept communication between two parties</td></tr>
+      <tr><td><strong>Replay</strong></td><td>Capture a valid message and re-send it later</td></tr>
+      <tr><td><strong>Spoofing</strong></td><td>Pretend to be another entity (IP/MAC/DNS/Email)</td></tr>
+      <tr><td><strong>Sniffing</strong></td><td>Passively capture network traffic/packets</td></tr>
+      <tr><td><strong>Phishing</strong></td><td>Fake message/site to steal credentials or information</td></tr>
+      <tr><td><strong>Pharming</strong></td><td>Redirect users to a fake website via DNS manipulation</td></tr>
+      <tr><td><strong>DNS Cache Poisoning</strong></td><td>Insert malicious DNS records into a resolver's cache</td></tr>
+      <tr><td><strong>Session Hijacking</strong></td><td>Steal an active authenticated session token</td></tr>
+      <tr><td><strong>Brute Force</strong></td><td>Try every possible password or key combination</td></tr>
+      <tr><td><strong>Dictionary Attack</strong></td><td>Try passwords from a list of common words</td></tr>
+      <tr><td><strong>SQL Injection (SQLi)</strong></td><td>Inject malicious SQL through input to manipulate database</td></tr>
+      <tr><td><strong>XSS</strong></td><td>Inject malicious script that runs in other users' browsers</td></tr>
+      <tr><td><strong>CSRF</strong></td><td>Trick an authenticated user into submitting an unwanted request</td></tr>
+      <tr><td><strong>Buffer Overflow</strong></td><td>Write beyond buffer boundaries to overwrite memory</td></tr>
+      <tr><td><strong>Zero-Day</strong></td><td>Exploit an unknown, unpatched vulnerability</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S32 -->
+<div id="s32" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">32</div><div class="sec-title-wrap"><div class="sec-title">Key Comparisons <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">All must-know comparison pairs &#8212; direct MCQ gold</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#6d28d9;">Virus vs Worm</div>
+        <ul class="bullet-list"><li><strong>Virus</strong> &#8594; needs a host program/file to spread</li><li><strong>Worm</strong> &#8594; self-replicates, spreads independently</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">DoS vs DDoS</div>
+        <ul class="bullet-list"><li><strong>DoS</strong> &#8594; from one/few sources</li><li><strong>DDoS</strong> &#8594; from many distributed sources</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#059669;">Encryption vs Hashing</div>
+        <ul class="bullet-list"><li><strong>Encryption</strong> &#8594; reversible (with correct key)</li><li><strong>Hashing</strong> &#8594; one-way, irreversible</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Symmetric vs Asymmetric</div>
+        <ul class="bullet-list"><li><strong>Symmetric</strong> &#8594; one shared key, fast</li><li><strong>Asymmetric</strong> &#8594; public/private keys, slower</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">IDS vs IPS</div>
+        <ul class="bullet-list"><li><strong>IDS</strong> &#8594; Detect + Alert only (passive)</li><li><strong>IPS</strong> &#8594; Detect + Block/Prevent (active)</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#0d9488;">Authentication vs Authorization</div>
+        <ul class="bullet-list"><li><strong>Authentication</strong> &#8594; Who are you? (Identity)</li><li><strong>Authorization</strong> &#8594; What can you do? (Permission)</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#3730a3;">AH vs ESP</div>
+        <ul class="bullet-list"><li><strong>AH</strong> &#8594; Auth + Integrity (NO encryption)</li><li><strong>ESP</strong> &#8594; Confidentiality + Integrity + Auth</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#334155;">SSH vs Telnet</div>
+        <ul class="bullet-list"><li><strong>SSH</strong> &#8594; Encrypted, secure (Port 22)</li><li><strong>Telnet</strong> &#8594; Plaintext, insecure (Port 23)</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#9f1239;">HTTP vs HTTPS</div>
+        <ul class="bullet-list"><li><strong>HTTP</strong> &#8594; No TLS, Port 80, insecure</li><li><strong>HTTPS</strong> &#8594; HTTP + TLS, Port 443, secure</li></ul></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#b45309;">MAC (Auth) vs Digital Signature</div>
+        <ul class="bullet-list"><li><strong>MAC</strong> &#8594; Symmetric key, no non-repudiation</li><li><strong>Digital Sig.</strong> &#8594; Asymmetric, provides non-repudiation</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- S33 -->
+<div id="s33" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">33</div><div class="sec-title-wrap"><div class="sec-title">Common Port Numbers <span class="badge-new">NEW</span> <span class="badge-fire">DIRECT MCQ MARKS</span></div><div class="sec-subtitle">Memorize every port &#8212; high probability of direct questions in exam</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="port-table"><thead><tr><th>Port</th><th>Protocol / Service</th><th>Secure?</th></tr></thead><tbody>
+      <tr><td><strong>20 / 21</strong></td><td>FTP (data transfer / control)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>22</strong></td><td>SSH (Secure Shell)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>23</strong></td><td>Telnet (remote login, plaintext)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>25</strong></td><td>SMTP (email sending)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>53</strong></td><td>DNS (Domain Name System)</td><td><span class="na">&#8212; Neutral</span></td></tr>
+      <tr><td><strong>67 / 68</strong></td><td>DHCP (server / client)</td><td><span class="na">&#8212; Neutral</span></td></tr>
+      <tr><td><strong>80</strong></td><td>HTTP (web, unencrypted)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>88</strong></td><td>Kerberos (ticket-based auth)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>110</strong></td><td>POP3 (receive email)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>143</strong></td><td>IMAP (email access)</td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>161 / 162</strong></td><td>SNMP (network monitoring)</td><td><span class="bad">&#10008; No (v1/v2)</span></td></tr>
+      <tr><td><strong>443</strong></td><td>HTTPS (HTTP over TLS)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>465 / 587</strong></td><td>SMTPS / SMTP Submission (secure email)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>993</strong></td><td>IMAPS (IMAP over SSL/TLS)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>995</strong></td><td>POP3S (POP3 over SSL/TLS)</td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>3389</strong></td><td>RDP (Remote Desktop Protocol)</td><td><span class="warn">&#9888; Needs hardening</span></td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- S34 -->
+<div id="s34" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">34</div><div class="sec-title-wrap"><div class="sec-title">Security Mapped to OSI Layers <span class="badge-new">NEW</span></div><div class="sec-subtitle">Which security protocol operates at which layer of the OSI model</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>OSI Layer</th><th>Security Protocol / Concept</th></tr></thead><tbody>
+      <tr><td><strong>L7 &#8212; Application</strong></td><td>PGP, S/MIME, HTTPS (application-level), application-layer firewalls, SPF / DKIM / DMARC</td></tr>
+      <tr><td><strong>L6 &#8212; Presentation</strong></td><td>SSL/TLS (sometimes mapped here &#8212; handles encryption/decryption)</td></tr>
+      <tr><td><strong>L5 &#8212; Session</strong></td><td>SSL/TLS handshake, session tokens, Kerberos session management</td></tr>
+      <tr><td><strong>L4 &#8212; Transport</strong></td><td>TLS, SSH (transport-adjacent), TCP-level firewall rules</td></tr>
+      <tr><td><strong>L3 &#8212; Network</strong></td><td><strong>IPsec (AH, ESP)</strong>, packet-filtering firewalls, IP spoofing, routing-level attacks</td></tr>
+      <tr><td><strong>L2 &#8212; Data Link</strong></td><td>MAC spoofing, ARP spoofing, WPA2/WPA3 (wireless link security)</td></tr>
+      <tr><td><strong>L1 &#8212; Physical</strong></td><td>Cable tapping, physical access controls, air gapping</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Key Layer Mapping to Memorize</div>
+      <strong>IPsec &#8594; Network Layer (L3)</strong> &nbsp;|&nbsp;
+      <strong>SSL/TLS &#8594; Transport/Session/Presentation (L4&#8211;L6)</strong> &nbsp;|&nbsp;
+      <strong>PGP, S/MIME &#8594; Application (L7)</strong>
+    </div>
+  </div>
+</div>
+
+<!-- S35 -->
+<div id="s35" class="sec c-rose sec-anchor" style="border-color:#9f1239;">
+  <div class="sec-header" style="background:linear-gradient(135deg,#fff1f2,#fef2f2);">
+    <div class="sec-num" style="background:#fecaca;color:#dc2626;">35</div>
+    <div class="sec-title-wrap">
+      <div class="sec-title" style="color:#9f1239;">IT Act 2000 &#8212; Cyber Law India <span class="badge-new">NEW</span> <span class="badge-fire">VERY HIGH YIELD</span></div>
+      <div class="sec-subtitle">Information Technology Act 2000 &#8212; key sections tested directly in IBPS SO IT</div>
+    </div>
+  </div>
+  <div class="sec-body">
+    <div class="def-box">The <strong>Information Technology Act, 2000</strong> is India's primary legislation on cybercrime and electronic commerce. <strong>Frequently tested with direct section-number questions in IBPS SO IT.</strong></div>
+    <div class="mini-h">Key Sections &#8212; Must Memorize</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Section</th><th>Deals With</th></tr></thead><tbody>
+      <tr><td><strong>Section 43</strong></td><td>Penalty for <strong>unauthorized access / damage</strong> to computer systems (civil liability)</td></tr>
+      <tr><td><strong>Section 43A</strong></td><td>Compensation for <strong>failure to protect sensitive personal data</strong> (corporate bodies)</td></tr>
+      <tr><td><strong>Section 65</strong></td><td><strong>Tampering with computer source documents</strong></td></tr>
+      <tr><td><strong>Section 66</strong></td><td>Computer-related offences &#8212; <strong>hacking</strong></td></tr>
+      <tr><td><strong>Section 66C &#11088;</strong></td><td><strong>Identity theft</strong> &#8212; fraudulent use of password / electronic signature / unique ID</td></tr>
+      <tr><td><strong>Section 66D &#11088;</strong></td><td><strong>Cheating by personation</strong> using computer resource (covers phishing-type fraud)</td></tr>
+      <tr><td><strong>Section 66E</strong></td><td><strong>Violation of privacy</strong> &#8212; capturing/publishing private images without consent</td></tr>
+      <tr><td><strong>Section 66F &#11088;</strong></td><td><strong>Cyber terrorism</strong></td></tr>
+      <tr><td><strong>Section 67</strong></td><td>Publishing/transmitting <strong>obscene material</strong> in electronic form</td></tr>
+      <tr><td><strong>Section 69</strong></td><td>Government's power to <strong>intercept/monitor/decrypt</strong> information</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">Important Bodies &amp; Terms</div>
+    <ul class="bullet-list">
+      <li><strong>CERT-In</strong> &#8594; Indian Computer Emergency Response Team &#8212; national agency for cybersecurity incident response in India</li>
+      <li><strong>Digital Signature legal recognition</strong> &#8594; IT Act gives legal validity to digital signatures and electronic records</li>
+      <li><strong>Cyber Appellate Tribunal</strong> &#8594; Set up to hear appeals against orders made under the IT Act</li>
+    </ul>
+    <div class="callout callout-rose"><div class="callout-title">&#11088; Most Tested &#8212; Top 3</div>
+      <strong>Section 66C = Identity theft</strong> &nbsp;|&nbsp;
+      <strong>Section 66D = Phishing / Cheating by personation</strong> &nbsp;|&nbsp;
+      <strong>Section 66F = Cyber terrorism</strong>
+    </div>
+  </div>
+</div>
+
+<!-- S36 -->
+<div id="s36" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">36</div><div class="sec-title-wrap"><div class="sec-title">Business Continuity &amp; Disaster Recovery <span class="badge-new">NEW</span></div><div class="sec-subtitle">BCP, DRP, RTO, RPO, Hot Site, Cold Site</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+      <tr><td><strong>BCP</strong></td><td>Business Continuity Plan &#8212; keeps critical <strong>business operations running</strong> during a disruption</td></tr>
+      <tr><td><strong>DRP</strong></td><td>Disaster Recovery Plan &#8212; focuses on restoring <strong>IT systems and data</strong> after a disaster</td></tr>
+      <tr><td><strong>RTO &#11088;</strong></td><td>Recovery Time Objective &#8212; maximum acceptable <strong>downtime</strong> (how long can we be down?)</td></tr>
+      <tr><td><strong>RPO &#11088;</strong></td><td>Recovery Point Objective &#8212; maximum acceptable <strong>data loss</strong> measured in time (how much data can we afford to lose?)</td></tr>
+      <tr><td><strong>Hot Site</strong></td><td>Fully operational backup site &#8212; can take over <strong>almost instantly</strong> (high cost)</td></tr>
+      <tr><td><strong>Cold Site</strong></td><td>Basic backup infrastructure &#8212; needs significant <strong>setup time</strong> (lower cost)</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-green"><div class="callout-title">&#129504; RTO vs RPO Memory Trick</div>
+      <strong>RTO = downtime tolerance</strong> &#8212; "How long can the service be DOWN?"<br/>
+      <strong>RPO = data-loss tolerance</strong> &#8212; "How much DATA can we afford to lose?"
+    </div>
+  </div>
+</div>
+
+<!-- S37 LAST MINUTE FACTS -->
+<div id="s37" class="sec sec-anchor" style="border-color:#dc2626;">
+  <div class="sec-header" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);">
+    <div class="sec-num" style="background:rgba(251,113,133,.15);color:#fb7185;font-size:22px;width:52px;height:52px;">&#128293;</div>
+    <div class="sec-title-wrap">
+      <div class="sec-title" style="color:#f1f5f9;">IBPS SO Last-Minute 20 Facts <span class="badge-fire">EXAM READY</span></div>
+      <div class="sec-subtitle" style="color:#94a3b8;">Memorize these high-yield one-liners right before the exam</div>
+    </div>
+  </div>
+  <div class="sec-body">
+    <div class="fact-grid">
+      <div class="fact-item"><span class="fact-num">01</span><span><strong>CIA</strong> &#8594; Confidentiality, Integrity, Availability</span></div>
+      <div class="fact-item"><span class="fact-num">02</span><span><strong>Authentication</strong> &#8594; Identity &nbsp;|&nbsp; <strong>Authorization</strong> &#8594; Permission</span></div>
+      <div class="fact-item"><span class="fact-num">03</span><span><strong>Symmetric</strong> &#8594; Same key (fast). <strong>AES</strong> = symmetric block cipher.</span></div>
+      <div class="fact-item"><span class="fact-num">04</span><span><strong>Asymmetric</strong> &#8594; Public + Private keys. <strong>RSA</strong> = asymmetric.</span></div>
+      <div class="fact-item"><span class="fact-num">05</span><span><strong>Hash</strong> &#8594; One-way. <strong>SHA-256 &#10003;</strong> &nbsp;|&nbsp; <strong>MD5 &#10008;</strong> broken</span></div>
+      <div class="fact-item"><span class="fact-num">06</span><span><strong>Digital Sig.</strong> &#8594; Sign with PRIVATE key, Verify with PUBLIC key</span></div>
+      <div class="fact-item"><span class="fact-num">07</span><span><strong>Encrypt for confidentiality</strong> &#8594; use receiver's PUBLIC key</span></div>
+      <div class="fact-item"><span class="fact-num">08</span><span><strong>HTTPS</strong> &#8594; HTTP + TLS &#8594; Port <strong>443</strong> &#10003;</span></div>
+      <div class="fact-item"><span class="fact-num">09</span><span><strong>SSH</strong> &#8594; Port <strong>22</strong> &#10003; &nbsp;|&nbsp; <strong>Telnet</strong> &#8594; Port <strong>23</strong> &#10008; (plaintext)</span></div>
+      <div class="fact-item"><span class="fact-num">10</span><span><strong>IDS</strong> &#8594; Detect + Alert &nbsp;|&nbsp; <strong>IPS</strong> &#8594; Detect + Prevent</span></div>
+      <div class="fact-item"><span class="fact-num">11</span><span><strong>AH</strong> &#8594; Auth + Integrity only (NO encryption) &nbsp;|&nbsp; <strong>ESP</strong> &#8594; Everything</span></div>
+      <div class="fact-item"><span class="fact-num">12</span><span><strong>IPsec</strong> &#8594; Network Layer (L3). Tunnel mode &#8594; VPNs</span></div>
+      <div class="fact-item"><span class="fact-num">13</span><span><strong>Kerberos</strong> &#8594; Port 88, KDC, tickets, symmetric key, SSO</span></div>
+      <div class="fact-item"><span class="fact-num">14</span><span><strong>WPA2</strong> &#8594; AES/CCMP &#10003; &nbsp;|&nbsp; <strong>WEP</strong> &#8594; RC4-based, broken &#10008;</span></div>
+      <div class="fact-item"><span class="fact-num">15</span><span><strong>Sec 66C</strong> = Identity theft &nbsp;|&nbsp; <strong>Sec 66D</strong> = Phishing/Cheating by personation</span></div>
+      <div class="fact-item"><span class="fact-num">16</span><span><strong>Sec 66F</strong> = Cyber terrorism &nbsp;|&nbsp; <strong>CERT-In</strong> = India's cyber incident response</span></div>
+      <div class="fact-item"><span class="fact-num">17</span><span><strong>RTO</strong> = downtime tolerance &nbsp;|&nbsp; <strong>RPO</strong> = data-loss tolerance</span></div>
+      <div class="fact-item"><span class="fact-num">18</span><span><strong>SQLi / XSS / CSRF</strong> &#8594; Application-layer attacks (NOT network-layer)</span></div>
+      <div class="fact-item"><span class="fact-num">19</span><span><strong>Passive attack</strong> &#8594; Confidentiality &nbsp;|&nbsp; <strong>Active attack</strong> &#8594; Integrity + Availability</span></div>
+      <div class="fact-item"><span class="fact-num">20</span><span><strong>Salt</strong> &#8594; defeats rainbow tables &nbsp;|&nbsp; <strong>DNSSEC</strong> &#8594; DNS integrity via crypto</span></div>
+    </div>
+    <div class="mini-h" style="margin-top:32px;">&#129504; One-Minute Network Security Mental Map</div>
+    <div class="mental-map">Network Security
+  &#8594; Foundation
+      CIA Triad: Confidentiality / Integrity / Availability
+      Auth (Who?) / AuthZ (What?) / Non-repudiation / Accountability
+      Threat / Vulnerability / Risk
+
+  &#8594; Attacks
+      Passive: Eavesdrop, Sniff, Traffic Analysis &#8594; targets Confidentiality
+      Active:  DoS, MITM, Replay, Spoofing, Modification &#8594; targets Integrity + Availability
+      App-Layer: SQLi / XSS / CSRF / Buffer Overflow / Zero-Day
+      Malware: Virus (host) / Worm (self) / Trojan / Ransomware / Rootkit / Logic Bomb
+
+  &#8594; Cryptography
+      Symmetric: AES-128/192/256 block 128b / DES 56b (broken) / fast / key-sharing problem
+      Asymmetric: RSA / ECC / DH &#8594; Public key encrypt, Private key sign
+      Hashing: SHA-256 &#10003; / MD5 &#10008; &#8594; one-way, fixed-length digest
+      Digital Sig: PRIVATE signs &#8594; PUBLIC verifies &#8594; Auth + Integrity + Non-repudiation
+      MAC (HMAC): symmetric, Auth + Integrity, no strong non-repudiation
+
+  &#8594; Protocols
+      SSL/TLS &#8594; HTTPS (Port 443) / TLS 1.3 latest
+      IPsec: AH (auth+integrity, no encryption) + ESP (all three) / Network Layer
+      VPN: IPsec Tunnel mode / TLS-based
+      SSH: Port 22 &#10003; / Telnet: Port 23 &#10008;
+      Kerberos: Port 88, KDC, TGT, tickets, symmetric
+
+  &#8594; Infrastructure
+      PKI: CA / RA / CRL / X.509 / CRL &#8594; Digital Cert = Identity + Public Key
+      Firewall: Packet / Stateful / Application / NGFW / Bastion Host
+      IDS (Alert) / IPS (Block) &#8594; Signature-based vs Anomaly-based
+      DMZ: public-facing servers between two firewalls
+      Honeypot: decoy system for intelligence
+
+  &#8594; Access Control
+      AAA: Authentication / Authorization / Accounting
+      Models: DAC / MAC / RBAC / ABAC
+      MFA: Something Know + Have + Are
+
+  &#8594; Wireless
+      WEP &#10008; (RC4/broken) &#8594; WPA &#8594; WPA2 (AES/CCMP) &#8594; WPA3 (SAE)
+
+  &#8594; India Cyber Law &#8212; IT Act 2000
+      Sec 43: Unauthorized access (civil) / Sec 65: Source tampering
+      Sec 66: Hacking / Sec 66C: Identity theft / Sec 66D: Phishing/Personation
+      Sec 66F: Cyber terrorism / Sec 69: Government intercept power
+      CERT-In / Cyber Appellate Tribunal
+
+  &#8594; Continuity
+      BCP (business ops) / DRP (IT recovery)
+      RTO (downtime) / RPO (data loss)
+      Hot Site (instant) / Cold Site (needs setup)</div>
+  </div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+  <a href="../index.html" class="bottom-btn btn-rose-ol">&#127968; Practice Hub Dashboard</a>
+  <a href="gs-computer-networks-notes.html" class="bottom-btn btn-blue-ol">&#128216; CN Notes Index</a>
+  <a href="se-quick-revision.html" class="bottom-btn btn-slate">&#128295; SE Quick Revision</a>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="bottom-btn btn-slate">&#8593; Back to Top</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 01: Machine Instructions &amp; Types of Instructions – COA Notes</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .note-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .note-header {
+      border-bottom: 2px solid rgba(217, 119, 6, 0.25);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .note-badge {
+      display: inline-block;
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .note-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .note-subtitle {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .source-pdf-box {
+      margin-top: 16px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .source-pdf-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .pdf-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #d97706;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .pdf-link-btn:hover {
+      background: #b45309;
+      transform: translateY(-1px);
+    }
+
+    .section-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 22px;
+    }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .concept-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .concept-box h4 {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent4);
+      margin-bottom: 6px;
+    }
+
+    .concept-box p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .pyq-highlight-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04));
+      border: 1px dashed var(--accent);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 20px 0;
+    }
+
+    .pyq-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--code-color);
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .summary-table th {
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .summary-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: rgba(0,0,0,0.015);
+    }
+
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn-sec {
+      background: var(--card2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .nav-btn-sec:hover {
+      border-color: var(--accent4);
+      color: var(--accent4);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-organisation-notes.html" class="nav-back">← COA Master Index</a>
+      <span class="nav-title">Lec 01: Machine Instructions &amp; Types</span>
+      <span class="nav-badge">IBPS SO IT Special</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="note-container">
+
+    <!-- HEADER -->
+    <div class="note-header">
+      <span class="note-badge">COA LECTURE 01 NOTE</span>
+      <h1 class="note-title">Machine Instructions &amp; Types of Instructions</h1>
+      <p class="note-subtitle">Comprehensive breakdown of instruction structures, opcode vs operand bit-field math, 0/1/2/3-address formats, instruction execution cycle micro-operations, RISC vs CISC architecture, and IBPS SO IT Mains PYQ patterns.</p>
+      
+      <!-- Source PDF Link -->
+      <div class="source-pdf-box">
+        <div class="source-pdf-info">
+          <span>📄 Reference Source PDF:</span>
+          <code>Lec-1-Machine-Instruction,-Types-of-Instructions.pdf</code>
+        </div>
+        <a href="file:///Users/vanand/Downloads/Lec-1-Machine-Instruction,-Types-of-Instructions.pdf" target="_blank" class="pdf-link-btn">
+          <span>Open PDF File ↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 1. WHAT IS AN INSTRUCTION? -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">💡</span> 1. What is a Machine Instruction? (PDF Page 2 &amp; 3)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        A <strong>machine instruction</strong> is a sequence of binary bits (0s and 1s) representing a command to the CPU to perform a specific primitive operation (e.g., addition, data movement, comparison).
+      </p>
+      
+      <div class="concept-grid">
+        <div class="concept-box">
+          <h4>Binary Command</h4>
+          <p>Tells the CPU what operation to execute and where the operands (data sources/destinations) are located in memory or registers.</p>
+        </div>
+        <div class="concept-box">
+          <h4>Real-Life Analogy</h4>
+          <p>Like a step-by-step recipe for an automated robot (e.g., "Add 50g Sugar to Bowl"). Each instruction must be precise and unambiguous.</p>
+        </div>
+        <div class="concept-box">
+          <h4>Assembly vs Machine Level</h4>
+          <p>Mnemonic form: <code>ADD A, B</code><br>Binary form: <code>10000000 0000 0001</code> (Opcode + Register IDs).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ANATOMY & STRUCTURE OF AN INSTRUCTION -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🧩</span> 2. Anatomy &amp; Structure of an Instruction (PDF Page 3 &amp; 4)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6; margin-bottom:12px;">
+        Every instruction is split into distinct bit-fields:
+      </p>
+      
+      <div class="code-block">
+Instruction Format:  [  OPCODE  |  OPERAND 1  |  OPERAND 2  |  ...  ]
+Example (ADD A, B):  [   ADD    |      A      |      B      ]
+      </div>
+
+      <ul style="margin-left: 20px; font-size: 13.5px; color: var(--text2); line-height: 1.7;">
+        <li><strong>Opcode (Operation Code):</strong> Specifies the action to be performed (e.g., <code>ADD</code>, <code>SUB</code>, <code>MOV</code>, <code>JMP</code>). If a system supports $N$ unique opcodes, the Opcode field requires at least $\lceil \log_2 N \rceil$ bits.</li>
+        <li><strong>Operand(s):</strong> The data inputs or memory/register addresses on which the operation takes place. Can be explicit or implicit.</li>
+        <li><strong>Mode Field (Optional):</strong> Specifies the addressing mode (Direct, Indirect, Indexed, Immediate).</li>
+      </ul>
+
+      <!-- PYQ NUMERICAL EXAMPLE -->
+      <div class="pyq-highlight-box">
+        <span class="pyq-badge">🔥 IBPS SO IT &amp; GATE High-Yield Numerical</span>
+        <p style="font-size:13.5px; color:var(--text); font-weight:700; margin-bottom:6px;">
+          Problem: A computer has 32-bit instructions and 128 CPU registers. If there are 64 distinct opcodes, calculate the number of bits remaining for a memory address field in a 2-address instruction format.
+        </p>
+        <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+          <strong>Step-by-step Solution:</strong><br />
+          1. Opcode bits required = $\log_2(64) = 6 \text{ bits}$.<br />
+          2. Register address bits = $\log_2(128) = 7 \text{ bits}$ per register.<br />
+          3. Total bits used by Opcode + 1 Register = $6 + 7 = 13 \text{ bits}$.<br />
+          4. Remaining bits for Memory Address = $32 - (6 + 7) = 19 \text{ bits}$.<br />
+          $\implies$ Maximum directly addressable memory size = $2^{19} \text{ words} = 512 \text{ KB}$.
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. CLASSIFICATION / TYPES OF INSTRUCTIONS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📋</span> 3. Categories / Types of Instructions (PDF Page 5)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        Instructions in CPU instruction sets (like Intel 8085/8086, ARM, MIPS) are categorized based on their functional role:
+      </p>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Instruction Category</th>
+            <th>Common Mnemonics</th>
+            <th>Primary Function &amp; IBPS Exam Clue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Data Transfer</strong></td>
+            <td><code>MOV</code>, <code>LOAD</code>, <code>STORE</code>, <code>PUSH</code>, <code>POP</code>, <code>XCHG</code></td>
+            <td>Copies data between registers and memory without altering flags.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Arithmetic</strong></td>
+            <td><code>ADD</code>, <code>SUB</code>, <code>INC</code>, <code>DEC</code>, <code>MUL</code>, <code>DIV</code></td>
+            <td>Performs mathematical operations in ALU; updates zero ($Z$), carry ($CY$), sign ($S$) flags.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Logical &amp; Bit Manipulation</strong></td>
+            <td><code>AND</code>, <code>OR</code>, <code>NOT</code>, <code>XOR</code>, <code>CMP</code>, <code>TEST</code>, <code>SHL</code>, <code>SHR</code></td>
+            <td>Bitwise Boolean operations and logical shifts; <code>XOR A, A</code> clears register A to 0.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Branch / Program Control</strong></td>
+            <td><code>JMP</code>, <code>JZ</code>, <code>JNZ</code>, <code>CALL</code>, <code>RET</code></td>
+            <td>Alters sequential program flow by updating Program Counter ($PC$).</td>
+          </tr>
+          <tr>
+            <td><strong>5. Input / Output (I/O)</strong></td>
+            <td><code>IN</code>, <code>OUT</code></td>
+            <td>Transfers data between CPU registers and external peripheral ports.</td>
+          </tr>
+          <tr>
+            <td><strong>6. System / Machine Control</strong></td>
+            <td><code>HLT</code>, <code>NOP</code>, <code>EI</code>, <code>DI</code></td>
+            <td>Stops execution (<code>HLT</code>) or consumes clock cycles for timing delay without operation (<code>NOP</code>).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. INSTRUCTION FORMAT TYPES -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">⚙️</span> 4. Instruction Format Types (0, 1, 2, 3-Address) (PDF Page 8)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6; margin-bottom:12px;">
+        Instructions are classified based on the number of explicit memory/register addresses specified in the instruction word:
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-box">
+          <h4>0-Address Format (Stack Architecture)</h4>
+          <p><strong>Example:</strong> <code>ADD</code><br />Operands are implicit at the Top of Stack ($TOS$). Operates by popping two values and pushing the sum.<br /><em>Used in Stack-based machines (e.g. JVM).</em></p>
+        </div>
+        <div class="concept-box">
+          <h4>1-Address Format (Accumulator Architecture)</h4>
+          <p><strong>Example:</strong> <code>ADD X</code><br />One operand is explicit ($X$); second operand and destination are implicitly the <strong>Accumulator ($AC$)</strong>.<br /><code>AC ← AC + M[X]</code></p>
+        </div>
+        <div class="concept-box">
+          <h4>2-Address Format (General Register Architecture)</h4>
+          <p><strong>Example:</strong> <code>ADD A, B</code><br />Two explicit addresses. Destination overwrites one of the source operands.<br /><code>A ← A + B</code><br /><em>Most common in CISC (e.g. x86).</em></p>
+        </div>
+        <div class="concept-box">
+          <h4>3-Address Format (RISC / Register-Register)</h4>
+          <p><strong>Example:</strong> <code>ADD A, B, C</code><br />Three explicit addresses: Destination, Source 1, Source 2.<br /><code>A ← B + C</code><br /><em>Shortest program length, used in RISC.</em></p>
+        </div>
+      </div>
+
+      <!-- COMPARISON OF EXPRESSION EVALUATION -->
+      <div class="pyq-highlight-box" style="margin-top:20px;">
+        <span class="pyq-badge">🎯 Solved IBPS SO PYQ Comparison</span>
+        <p style="font-size:13.5px; color:var(--text); font-weight:700; margin-bottom:8px;">
+          Evaluating Arithmetic Expression $X = (A + B) \times (C + D)$ across formats:
+        </p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; font-size:12.5px; color:var(--text2);">
+          <div style="background:var(--card); padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <strong>0-Address (Stack):</strong><br />
+            <code>PUSH A</code><br />
+            <code>PUSH B</code><br />
+            <code>ADD</code><br />
+            <code>PUSH C</code><br />
+            <code>PUSH D</code><br />
+            <code>ADD</code><br />
+            <code>MUL</code><br />
+            <code>POP X</code>
+          </div>
+          <div style="background:var(--card); padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <strong>1-Address (AC):</strong><br />
+            <code>LOAD A</code><br />
+            <code>ADD B</code><br />
+            <code>STORE T1</code><br />
+            <code>LOAD C</code><br />
+            <code>ADD D</code><br />
+            <code>MUL T1</code><br />
+            <code>STORE X</code>
+          </div>
+          <div style="background:var(--card); padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <strong>2-Address (Reg):</strong><br />
+            <code>MOV R1, A</code><br />
+            <code>ADD R1, B</code><br />
+            <code>MOV R2, C</code><br />
+            <code>ADD R2, D</code><br />
+            <code>MUL R1, R2</code><br />
+            <code>MOV X, R1</code>
+          </div>
+          <div style="background:var(--card); padding:10px; border-radius:8px; border:1px solid var(--border);">
+            <strong>3-Address (Reg):</strong><br />
+            <code>ADD R1, A, B</code><br />
+            <code>ADD R2, C, D</code><br />
+            <code>MUL X, R1, R2</code><br />
+            <span style="color:#d97706; font-weight:bold;">Total 3 instructions!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. INSTRUCTION EXECUTION CYCLE -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🔄</span> 5. Instruction Execution Cycle &amp; Micro-operations (PDF Page 6)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6; margin-bottom:12px;">
+        Every instruction undergoes a 4-phase execution lifecycle in the CPU:
+      </p>
+
+      <div class="code-block">
+[ FETCH ] ──► [ DECODE ] ──► [ EXECUTE ] ──► [ STORE / WRITE-BACK ]
+      </div>
+
+      <ul style="margin-left: 20px; font-size: 13.5px; color: var(--text2); line-height: 1.8;">
+        <li><strong>1. Fetch Phase:</strong> The CPU fetches the instruction byte from memory address stored in Program Counter ($PC$) into Instruction Register ($IR$). Micro-operations:<br />
+        $$\text{MAR} \leftarrow \text{PC}$$
+        $$\text{MDR} \leftarrow \text{M}[\text{MAR}], \quad \text{PC} \leftarrow \text{PC} + 1$$
+        $$\text{IR} \leftarrow \text{MDR}$$</li>
+        <li><strong>2. Decode Phase:</strong> The Control Unit ($CU$) decodes the opcode bits in $IR$ to generate control signals and identify addressing modes.</li>
+        <li><strong>3. Execute Phase:</strong> ALU performs arithmetic or logical operations specified by the opcode.</li>
+        <li><strong>4. Store / Write-Back Phase:</strong> Results are written back to destination registers or RAM addresses.</li>
+      </ul>
+    </div>
+
+    <!-- 6. RISC VS CISC ARCHITECTURE -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">⚖️</span> 6. RISC vs CISC Architecture Comparison (PDF Page 9 &amp; 10)</div>
+      
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Feature / Parameter</th>
+            <th>RISC (Reduced Instruction Set)</th>
+            <th>CISC (Complex Instruction Set)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Instruction Set Size</strong></td>
+            <td>Small, simple, fixed length (e.g., 32 bits)</td>
+            <td>Large, complex, variable length (1 to 15 bytes)</td>
+          </tr>
+          <tr>
+            <td><strong>Execution Speed &amp; CPI</strong></td>
+            <td>1 instruction per clock cycle ($\text{CPI} \approx 1$)</td>
+            <td>Multiple clock cycles per instruction ($\text{CPI} > 1$)</td>
+          </tr>
+          <tr>
+            <td><strong>Memory Access Architecture</strong></td>
+            <td><strong>Load/Store only</strong> (ALU operations occur only in registers)</td>
+            <td>Memory-to-Memory operations permitted</td>
+          </tr>
+          <tr>
+            <td><strong>Control Unit Type</strong></td>
+            <td><strong>Hardwired Control Unit</strong> (Fast, hardware based)</td>
+            <td><strong>Microprogrammed Control Unit</strong> (ROM microcode based)</td>
+          </tr>
+          <tr>
+            <td><strong>Register File Size</strong></td>
+            <td>Large number of general-purpose registers (32 to 128)</td>
+            <td>Smaller number of registers (8 to 16)</td>
+          </tr>
+          <tr>
+            <td><strong>Pipelining Suitability</strong></td>
+            <td>Highly optimized for pipelined execution</td>
+            <td>Difficult to pipeline due to variable length</td>
+          </tr>
+          <tr>
+            <td><strong>Real-world Examples</strong></td>
+            <td>ARM (Smartphones, Apple Silicon), MIPS, RISC-V</td>
+            <td>Intel x86 (Pentium, Core i3/i5/i7/i9), AMD64</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 7. PRACTICE MCQS FOR IBPS SO IT MAINS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📝</span> 7. IBPS SO IT Mains Practice Questions</div>
+      
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q1. In a 1-address instruction format, which register implicitly stores one of the operands and the final result?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Program Counter (PC)<br />B) Instruction Register (IR)<br />C) Accumulator (AC)<br />D) Memory Address Register (MAR)</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) Accumulator (AC)</strong><br />In 1-address machines, <code>ADD B</code> means $AC \leftarrow AC + M[B]$. Accumulator is the implicit source and destination.</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q2. Which instruction format is used in Stack-oriented architectures where operands are implicitly popped from the stack?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Zero-address format<br />B) One-address format<br />C) Two-address format<br />D) Three-address format</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: A) Zero-address format</strong><br />Zero-address instructions specify no explicit memory/register operands in the instruction word (e.g. <code>ADD</code> pops $TOS$ and $TOS-1$).</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q3. Which of the following statements is TRUE regarding RISC architecture?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Uses microprogrammed control unit<br />B) Arithmetic operations can directly operate on memory operands<br />C) Only LOAD and STORE instructions access main memory<br />D) Instructions have variable word lengths</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) Only LOAD and STORE instructions access main memory</strong><br />RISC follows a strict Load/Store architecture. All arithmetic and logical operations are executed exclusively between CPU registers.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- FOOTER NAV -->
+    <div class="nav-footer">
+      <a href="gs-computer-organisation-notes.html" class="nav-btn nav-btn-sec">← Back to COA Master Index</a>
+      <a href="file:///Users/vanand/Downloads/Lec-1-Machine-Instruction,-Types-of-Instructions.pdf" target="_blank" class="nav-btn" style="background:#d97706; color:#fff;">View Reference PDF ↗</a>
+      <a href="../index.html" class="nav-btn nav-btn-sec">🏠 Main Workspace Dashboard</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Computer Organisation Notes · IBPS SO IT Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

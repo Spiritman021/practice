@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sec 03: Requirement Analysis – Comprehensive Notes | IBPS SO IT</title>
+  <meta name="description" content="Detailed, descriptive point-by-point study notes on Software Requirement Analysis, SRS IEEE 830, Functional vs Non-Functional Requirements, DFD Levels, Data Dictionary, ERD, and Feasibility Study for IBPS SO IT Officer exam." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .se-container {
+      max-width: 940px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .hero-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(13, 148, 136, 0.05));
+      border: 2px solid rgba(37, 99, 235, 0.35);
+      border-radius: 18px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: #2563eb;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .hero-subtitle {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .toc-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .toc-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e40af;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .toc-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      padding: 7px 12px;
+      background: var(--card2);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .toc-link:hover {
+      background: rgba(37, 99, 235, 0.15);
+      color: #1e40af;
+      transform: translateX(3px);
+    }
+
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px 28px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .section-num-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .section-heading {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .sub-heading {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #1e40af;
+      margin: 22px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Point-by-Point Bullet List */
+    .note-list {
+      list-style-type: none;
+      padding-left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .note-list li {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.65;
+      position: relative;
+      background: var(--card2);
+      padding: 12px 16px 12px 28px;
+      border-radius: 10px;
+      border-left: 4px solid #2563eb;
+    }
+    .note-list li::before {
+      content: "▪";
+      position: absolute;
+      left: 12px;
+      top: 11px;
+      color: #2563eb;
+      font-size: 13px;
+    }
+    .note-list li strong {
+      color: #1e40af;
+    }
+
+    .formula-badge {
+      display: inline-block;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1e40af;
+      border: 1.5px solid rgba(37, 99, 235, 0.35);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-family: inherit;
+      margin: 6px 0;
+    }
+
+    .key-tag {
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(37, 99, 235, 0.15);
+      color: #1e40af;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-right: 4px;
+    }
+
+    /* Mini Comparison Tables */
+    .compact-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 13px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .compact-table th {
+      background: #2563eb;
+      color: #ffffff;
+      padding: 11px 14px;
+      font-weight: 800;
+      text-align: left;
+    }
+    .compact-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .compact-table tr:nth-child(even) {
+      background: var(--card2);
+    }
+
+    /* Callout Alert Boxes */
+    .callout-exam {
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.02));
+      border: 1.5px dashed rgba(225, 29, 72, 0.45);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 18px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .callout-exam strong {
+      color: #e11d48;
+    }
+
+    .callout-law {
+      background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(20, 184, 166, 0.02));
+      border: 1.5px solid rgba(13, 148, 136, 0.35);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 18px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+    .callout-law strong {
+      color: #0f766e;
+    }
+
+    .nav-footer-btns {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-btn-blue {
+      background: #2563eb;
+      color: #fff;
+    }
+    .nav-btn-blue:hover {
+      background: #1e40af;
+    }
+    .nav-btn-outline {
+      background: var(--card2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .nav-btn-outline:hover {
+      border-color: #2563eb;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-software-engineering-notes.html" class="nav-back">← SE Master Index</a>
+      <span class="nav-title">Sec 03: Requirement Analysis</span>
+      <span class="nav-badge">DESCRIPTIVE NOTES</span>
+    </div>
+  </div>
+</nav>
+
+<div class="se-container">
+
+  <!-- HERO -->
+  <div class="hero-box">
+    <span class="hero-badge">IBPS SO IT Officer · Detailed Study Notes</span>
+    <h1 class="hero-title">3. Software Requirement Analysis</h1>
+    <p class="hero-subtitle">Comprehensive point-by-point descriptive notes on Requirement Engineering Process (Elicitation, Analysis, SRS, Validation), Functional vs Non-Functional Requirements, SRS IEEE 830 Format &amp; Characteristics, Feasibility Study, and Analysis Tools (DFD Levels &amp; Rules, Data Dictionary, ERD, Decision Tables/Trees).</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc-box">
+    <div class="toc-title">⚡ Topic Quick Jump</div>
+    <div class="toc-grid">
+      <a href="#sec-3-1" class="toc-link"><span>3.1</span> Requirement Engineering Process</a>
+      <a href="#sec-3-2" class="toc-link"><span>3.2</span> Types of Requirements (FR vs NFR)</a>
+      <a href="#sec-3-3" class="toc-link"><span>3.3</span> SRS (IEEE 830 &amp; Characteristics)</a>
+      <a href="#sec-3-4" class="toc-link"><span>3.4</span> Feasibility Study (5 Dimensions)</a>
+      <a href="#sec-3-5" class="toc-link"><span>3.5</span> Requirement Analysis Tools (DFD, ERD)</a>
+    </div>
+  </div>
+
+  <!-- SECTION 3.1 -->
+  <div class="section-card" id="sec-3-1">
+    <div class="section-header">
+      <div class="section-num-pill">3.1</div>
+      <div class="section-heading">Requirement Engineering Process</div>
+    </div>
+
+    <ul class="note-list">
+      <li>
+        <strong>Definition:</strong> Requirement Engineering is the systematic process of discovering, analyzing, documenting, and validating the services required from a system and the operational constraints under which it must operate.
+      </li>
+      <li>
+        <strong>The 4 Key Sequential Sub-Processes:</strong>
+        <br />1. <strong>Requirements Elicitation (Gathering):</strong> Discovering requirements by interacting with domain experts, end-users, and business stakeholders.
+        <br />2. <strong>Requirements Analysis &amp; Negotiation:</strong> Sorting out requirement conflicts, eliminating ambiguities, evaluating feasibility, and negotiating trade-offs among stakeholders.
+        <br />3. <strong>Requirements Specification:</strong> Formalizing analyzed requirements into an official contractual document—the <strong>SRS (Software Requirement Specification)</strong>.
+        <br />4. <strong>Requirements Validation:</strong> Reviewing and auditing the SRS document to ensure requirements are complete, consistent, realistic, and verifiable before design begins.
+      </li>
+      <li>
+        <strong>Requirements Elicitation Techniques (Exam Frequently Asked):</strong>
+        <br />• <span class="key-tag">Interviews</span> 1-on-1 sessions (Structured or Unstructured) with stakeholders.
+        <br />• <span class="key-tag">JAD (Joint Application Development)</span> Intensive structured workshop bringing users, analysts, and managers into a single room to resolve requirements rapidly.
+        <br />• <span class="key-tag">Brainstorming</span> Group technique to generate innovative ideas and unearth unstated user needs.
+        <br />• <span class="key-tag">Questionnaires / Surveys</span> Collecting feedback from a geographically distributed large user base.
+        <br />• <span class="key-tag">Ethnography / Observation</span> Observing actual user workflow in their natural work environment to discover hidden implicit requirements.
+        <br />• <span class="key-tag">Prototyping</span> Building mockups to elicit user feedback when requirements are unclear.
+      </li>
+    </ul>
+
+    <div class="callout-exam">
+      <strong>🔥 IBPS SO IT Exam Clue:</strong> If asked about <em>"Intensive workshop technique bringing users and developers together to finalize requirements"</em> → Answer is <strong>JAD (Joint Application Development)</strong>. If asked about <em>"Observing users in their real environment"</em> → Answer is <strong>Ethnography</strong>.
+    </div>
+  </div>
+
+  <!-- SECTION 3.2 -->
+  <div class="section-card" id="sec-3-2">
+    <div class="section-header">
+      <div class="section-num-pill">3.2</div>
+      <div class="section-heading">Types of Requirements (Functional vs Non-Functional)</div>
+    </div>
+
+    <ul class="note-list">
+      <li>
+        <strong>3.2.1 Functional Requirements (FR):</strong>
+        <br />• Statements of services the system <strong>must perform</strong>, describing inputs, outputs, computations, data manipulation, and reaction to specific operational inputs.
+        <br />• Describes <em>WHAT the system does</em>.
+        <br />• <em>Examples:</em> System must allow users to deposit funds; system shall compute monthly interest at 5%; system must generate a PDF transaction receipt after payment.
+      </li>
+      <li>
+        <strong>3.2.2 Non-Functional Requirements (NFR):</strong>
+        <br />• Constraints or quality benchmarks imposed on the system or development process.
+        <br />• Describes <em>HOW WELL the system performs its functions</em> (Quality Attributes).
+        <br />• <em>Examples:</em> Response time must be under 2 seconds; System uptime must be 99.99%; Passwords must be hashed using SHA-256.
+      </li>
+      <li>
+        <strong>Classification of Non-Functional Requirements:</strong>
+        <br />• <strong>Product Requirements:</strong> Performance (speed, throughput), Reliability (MTBF), Security, Usability, Availability, Portability.
+        <br />• <strong>Organizational Requirements:</strong> Process standards (ISO compliance), implementation language restrictions (e.g., Java only), delivery environment.
+        <br />• <strong>External Requirements:</strong> Regulatory/legal standards (GDPR compliance, Banking Reserve ratio guidelines), Interoperability rules.
+      </li>
+    </ul>
+
+    <table class="compact-table">
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>Functional Requirement (FR)</th>
+          <th>Non-Functional Requirement (NFR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Primary Focus</strong></td>
+          <td>What the system MUST DO (System functionality)</td>
+          <td>How well the system PERFORMS (Quality constraints)</td>
+        </tr>
+        <tr>
+          <td><strong>Scope</strong></td>
+          <td>Specific user tasks or individual feature modules</td>
+          <td>System-wide architecture and operational environment</td>
+        </tr>
+        <tr>
+          <td><strong>Examples</strong></td>
+          <td>"System shall calculate tax based on income slab"</td>
+          <td>"System shall process 10,000 transactions/sec"</td>
+        </tr>
+        <tr>
+          <td><strong>Failure Consequence</strong></td>
+          <td>Specific feature doesn't work</td>
+          <td>Whole system becomes unusable or unscalable</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 3.3 -->
+  <div class="section-card" id="sec-3-3">
+    <div class="section-header">
+      <div class="section-num-pill">3.3</div>
+      <div class="section-heading">Software Requirement Specification (SRS)</div>
+    </div>
+
+    <ul class="note-list">
+      <li>
+        <strong>Definition:</strong> The formal, complete, official document that serves as a binding contract between the software customer and the development organization.
+      </li>
+    </ul>
+
+    <div class="sub-heading">📜 3.3.1 SRS Format / Structure (IEEE 830 Standard)</div>
+
+    <ul class="note-list">
+      <li><strong>Section 1: Introduction:</strong> Purpose, Scope, Definitions, Acronyms, References, Overview.</li>
+      <li><strong>Section 2: Overall Description:</strong> Product Perspective, Product Functions, User Characteristics, General Constraints, Assumptions &amp; Dependencies.</li>
+      <li><strong>Section 3: Specific Requirements:</strong> External Interfaces (User, Hardware, Software, Communication), Functional Requirements, Performance Requirements, Logical Database Requirements, Design Constraints, Software System Attributes (Reliability, Security, Maintainability).</li>
+    </ul>
+
+    <div class="sub-heading">⭐ 3.3.2 Characteristics of a Good SRS (High-Yield Exam Focus)</div>
+
+    <ul class="note-list">
+      <li><strong>1. Correct:</strong> Every requirement stated in SRS is one that the final software shall actually meet.</li>
+      <li><strong>2. Unambiguous:</strong> Every requirement has <strong>only one single interpretation</strong> (avoid vague words like "user-friendly", "fast", "optimal").</li>
+      <li><strong>3. Complete:</strong> Includes all significant requirements, responses to invalid inputs, and full labels on diagrams.</li>
+      <li><strong>4. Consistent:</strong> No requirement conflicts with another (e.g., "Report generated in 2 seconds" vs "Report requires 10 seconds processing").</li>
+      <li><strong>5. Verifiable (Testable):</strong> There exists a finite, cost-effective automated or manual test process to verify that the software meets the requirement.</li>
+      <li><strong>6. Modifiable:</strong> Structure and organization allow changes to be made easily, completely, and consistently without ruining formatting.</li>
+      <li><strong>7. Traceable:</strong> Origin of each requirement is clear, and each requirement facilitates referencing in future SDLC deliverables:
+        <br />• <em>Forward Traceability:</em> Requirement → Design → Code → Test Case.
+        <br />• <em>Backward Traceability:</em> Test Case / Code → Original SRS Requirement.
+      </li>
+    </ul>
+
+    <div class="callout-exam">
+      <strong>🔥 IBPS SO IT Exam Clue:</strong> If asked <em>"Which characteristic ensures every requirement has only ONE interpretation?"</em> → Answer is <strong>Unambiguous</strong>. If asked <em>"Which characteristic allows tracing requirement to test cases?"</em> → Answer is <strong>Traceable</strong>.
+    </div>
+
+    <!-- DIAGRAM: Software Requirement Traceability -->
+    <div style="margin: 20px 0; text-align: center;">
+      <img src="images/se_srs_traceability_chart.jpg" alt="Software Requirement Traceability (Forward and Backward)" style="max-width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-lg);" />
+      <div style="font-size: 12px; color: var(--text3); margin-top: 8px; font-weight: 700;">Figure 3.1: SRS Requirement Traceability (Forward Traceability vs Backward Traceability)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3.4 -->
+  <div class="section-card" id="sec-3-4">
+    <div class="section-header">
+      <div class="section-num-pill">3.4</div>
+      <div class="section-heading">Feasibility Study (The 5 Dimensions)</div>
+    </div>
+
+    <ul class="note-list">
+      <li>
+        <strong>Definition:</strong> A high-level, preliminary study conducted <strong>before requirements engineering</strong> to determine whether a proposed software project is practical, viable, and worth investing in.
+      </li>
+    </ul>
+
+    <table class="compact-table">
+      <thead>
+        <tr>
+          <th>Feasibility Dimension</th>
+          <th>Core Evaluation Question</th>
+          <th>Key Considerations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Technical Feasibility</strong></td>
+          <td>Can we build this system with existing technology?</td>
+          <td>Available hardware, software tools, team expertise, risk of technical failure</td>
+        </tr>
+        <tr>
+          <td><strong>2. Economic Feasibility</strong></td>
+          <td>Do benefits justify project cost? (Cost-Benefit Analysis)</td>
+          <td>ROI (Return on Investment), development cost vs financial gains, payback period</td>
+        </tr>
+        <tr>
+          <td><strong>3. Operational Feasibility</strong></td>
+          <td>Will the end-users actually accept and use the system?</td>
+          <td>User workflow impact, resistance to organizational change, training needed</td>
+        </tr>
+        <tr>
+          <td><strong>4. Legal / Ethical Feasibility</strong></td>
+          <td>Does the system comply with laws &amp; regulations?</td>
+          <td>Copyrights, data privacy (GDPR), licensing terms, regulatory compliance</td>
+        </tr>
+        <tr>
+          <td><strong>5. Schedule Feasibility</strong></td>
+          <td>Can the system be completed within target deadline?</td>
+          <td>Resource availability, market timing, realistic milestone timelines</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 3.5 -->
+  <div class="section-card" id="sec-3-5">
+    <div class="section-header">
+      <div class="section-num-pill">3.5</div>
+      <div class="section-heading">Requirement Analysis Tools (DFD, Data Dictionary, ERD, Decision Tables)</div>
+    </div>
+
+    <div class="sub-heading">📊 3.5.1 Data Flow Diagram (DFD)</div>
+
+    <ul class="note-list">
+      <li>
+        <strong>Concept:</strong> Graphical modeling tool showing the flow of data through an information system, data transformations, and storage locations. Focuses strictly on **Data Flow**, NOT Control Flow (no decision logic, loops, or execution order!).
+      </li>
+      <li>
+        <strong>4 Standard DFD Symbols (Yourdon &amp; DeMarco Notation):</strong>
+        <br />1. <span class="key-tag">Process (Circle / Rounded Rectangle)</span> Transforms input data into output data.
+        <br />2. <span class="key-tag">Data Flow (Arrow)</span> Represents path of data movement.
+        <br />3. <span class="key-tag">Data Store (Open Box / Parallel Lines)</span> Database or file repository where data rests.
+        <br />4. <span class="key-tag">External Entity / Source-Sink (Rectangle)</span> External person, system, or organization supplying or receiving data.
+      </li>
+      <li>
+        <strong>DFD Hierarchy &amp; Levels:</strong>
+        <br />• <strong>Level-0 DFD (Context Diagram):</strong> Highest-level abstraction representing the <em>entire system as a single process circle</em> connected to external entities.
+        <br />• <strong>Level-1 DFD:</strong> Explodes Level-0 process into major sub-processes, primary data stores, and data flows.
+        <br />• <strong>Level-2 DFD:</strong> Decomposes a specific Level-1 sub-process into detailed sub-modules.
+      </li>
+      <li>
+        <strong>Strict DFD Rules (Exam Favorite):</strong>
+        <br />• Data CANNOT flow directly from one Data Store to another Data Store without passing through a Process!
+        <br />• Data CANNOT flow directly from an External Entity to another External Entity without passing through a Process!
+        <br />• Data CANNOT flow directly from an External Entity to a Data Store without passing through a Process!
+      </li>
+    </ul>
+
+    <!-- DIAGRAM: Data Flow Diagram (DFD) Levels and Symbols -->
+    <div style="margin: 20px 0; text-align: center;">
+      <img src="images/se_dfd_levels_diagram.jpg" alt="Data Flow Diagram (DFD) Levels and Symbols" style="max-width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-lg);" />
+      <div style="font-size: 12px; color: var(--text3); margin-top: 8px; font-weight: 700;">Figure 3.2: Data Flow Diagram (DFD) Level-0 Context Diagram &amp; 4 Core Symbols Legend</div>
+    </div>
+
+    <div class="sub-heading">📕 3.5.2 Data Dictionary</div>
+
+    <ul class="note-list">
+      <li>
+        <strong>Concept:</strong> A centralized reference repository containing structured metadata definitions for all data elements, data structures, data stores, and processes appearing in DFDs.
+      </li>
+      <li>
+        <strong>Data Dictionary Notation / Symbols:</strong>
+        <br />• <code>=</code> : Is composed of / Equivalent to
+        <br />• <code>+</code> : And (Sequence)
+        <br />• <code>[ | ]</code> : Selection / Choice (Choose one alternative)
+        <br />• <code>{ }</code> : Iteration / Loop (Repeated data element)
+        <br />• <code>( )</code> : Optional data element
+      </li>
+    </ul>
+
+    <div class="sub-heading">🗄️ 3.5.3 Entity-Relationship Diagram (ERD)</div>
+    <ul class="note-list">
+      <li>
+        <strong>Concept:</strong> Conceptual database modeling tool representing real-world entities, attributes, and relationships.
+        <br />• <em>Entity (Rectangle):</em> Real-world object (e.g., Student, Account).
+        <br />• <em>Attribute (Ellipse):</em> Property of entity (e.g., Student_ID, Name).
+        <br />• <em>Relationship (Diamond):</em> Association between entities (1:1, 1:N, N:M).
+      </li>
+    </ul>
+
+    <div class="sub-heading">🌳 3.5.4 Decision Tables &amp; Decision Trees</div>
+    <ul class="note-list">
+      <li>
+        <strong>Concept:</strong> Tools for modeling complex conditional business rules.
+        <br />• <strong>Decision Table:</strong> Grid with 4 Quadrants: <em>Condition Stub</em> (list of conditions), <em>Condition Entry</em> (Y/N combinations), <em>Action Stub</em> (list of actions), <em>Action Entry</em> (X for actions taken).
+        <br />• <strong>Decision Tree:</strong> Graphical tree representation where internal nodes represent conditions, branches represent outcomes, and leaf nodes represent final actions.
+      </li>
+    </ul>
+
+    <div class="callout-exam">
+      <strong>🔥 Section 3 Master Recap:</strong>
+      <br />• <strong>4 Process Steps:</strong> Elicitation → Analysis → Specification (SRS) → Validation.
+      <br />• <strong>JAD &amp; Ethnography:</strong> Workshop technique vs Real-world user observation.
+      <br />• <strong>FR vs NFR:</strong> Functional = What system does; Non-Functional = How well (Quality).
+      <br />• <strong>SRS IEEE 830 Characteristics:</strong> Correct, Unambiguous (1 meaning), Complete, Consistent, Verifiable, Modifiable, Traceable.
+      <br />• <strong>DFD Level-0:</strong> Context diagram (single process circle).
+      <br />• <strong>DFD Rule:</strong> Data Stores &amp; External Entities CANNOT communicate without passing through a Process!
+      <br />• <strong>Data Dictionary Notation:</strong> <code>=</code> (composed of), <code>+</code> (and), <code>[|]</code> (selection), <code>{}</code> (iteration), <code>()</code> (optional).
+    </div>
+  </div>
+
+  <!-- NAV FOOTER -->
+  <div class="nav-footer-btns">
+    <a href="se-02-sdlc-models.html" class="nav-btn nav-btn-outline">← Prev: SDLC Models (Sec 2)</a>
+    <a href="gs-software-engineering-notes.html" class="nav-btn nav-btn-outline">🏠 SE Master Index</a>
+    <a href="gs-software-engineering-notes.html#sec-04" class="nav-btn nav-btn-blue">Next: Software Design (Sec 4) →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Software Engineering Notes · IBPS SO IT Officer Requirement Analysis Master Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

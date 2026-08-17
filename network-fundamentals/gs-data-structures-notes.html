@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GS Data Structures Notes – Master Index</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .notebook-container {
+      max-width: 840px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 2px solid rgba(37, 99, 235, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .notebook-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(37, 99, 235, 0.3);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .notebook-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .notebook-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .notebook-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    
+    .index-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .index-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .index-item:hover {
+      border-color: var(--accent);
+      transform: translateX(6px);
+      background: var(--card2);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .index-item.item-blue {
+      border-color: rgba(37, 99, 235, 0.4);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(59, 130, 246, 0.03));
+    }
+    .index-item.item-blue .index-num {
+      border-color: var(--accent);
+      color: #ffffff;
+      background: var(--accent);
+    }
+    .index-item.item-blue .index-title {
+      color: var(--accent);
+    }
+    .index-item.item-blue .index-tag {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .index-item.item-blue .arrow-icon {
+      color: var(--accent);
+    }
+
+    .index-item.item-rose {
+      border-color: rgba(225, 29, 72, 0.4);
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.03));
+    }
+    .index-item.item-rose .index-num {
+      border-color: var(--accent5);
+      color: #ffffff;
+      background: var(--accent5);
+    }
+    .index-item.item-rose .index-title {
+      color: var(--accent5);
+    }
+    .index-item.item-rose .index-tag {
+      background: var(--accent5);
+      color: #ffffff;
+    }
+    .index-item.item-rose .arrow-icon {
+      color: var(--accent5);
+    }
+
+    .index-item.item-purple {
+      border-color: rgba(124, 58, 237, 0.4);
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(139, 92, 246, 0.03));
+    }
+    .index-item.item-purple .index-num {
+      border-color: var(--accent2);
+      color: #ffffff;
+      background: var(--accent2);
+    }
+    .index-item.item-purple .index-title {
+      color: var(--accent2);
+    }
+    .index-item.item-purple .index-tag {
+      background: var(--accent2);
+      color: #ffffff;
+    }
+    .index-item.item-purple .arrow-icon {
+      color: var(--accent2);
+    }
+
+    .index-item.item-green {
+      border-color: rgba(5, 150, 105, 0.4);
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(16, 185, 129, 0.03));
+    }
+    .index-item.item-green .index-num {
+      border-color: var(--accent3);
+      color: #ffffff;
+      background: var(--accent3);
+    }
+    .index-item.item-green .index-title {
+      color: var(--accent3);
+    }
+    .index-item.item-green .index-tag {
+      background: var(--accent3);
+      color: #ffffff;
+    }
+    .index-item.item-green .arrow-icon {
+      color: var(--accent3);
+    }
+
+    .index-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent);
+      flex-shrink: 0;
+      background: var(--glow);
+    }
+
+    .index-content {
+      flex: 1;
+    }
+
+    .index-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .index-sub {
+      font-size: 13.5px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .index-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .arrow-icon {
+      font-size: 20px;
+      color: var(--text3);
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .index-item:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .quick-btn-primary {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    .quick-btn-primary:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .quick-btn-secondary {
+      background: rgba(225, 29, 72, 0.12);
+      color: var(--accent5);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+    }
+    .quick-btn-secondary:hover {
+      background: var(--accent5);
+      color: #fff;
+    }
+    .quick-btn-green {
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+    .quick-btn-green:hover {
+      background: var(--accent3);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-back">← Main Workspace</a>
+      <span class="nav-title">GS Data Structures Notes</span>
+      <span class="nav-badge">DS Index</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="notebook-container">
+    <div class="notebook-header">
+      <h1 class="notebook-title">GS Data Structures Notes</h1>
+      <div class="notebook-subtitle">Data Structures &amp; Algorithms Master Index</div>
+      <p class="notebook-desc">Comprehensive study modules covering Arrays, Linked Lists, Stacks, Queues, Binary Trees, BST, AVL Trees, Heaps, Graphs, Hashing, Sorting &amp; Searching, B-Trees &amp; Dynamic Programming for IBPS SO IT &amp; GATE exams.</p>
+    </div>
+
+    <div class="index-list">
+      <!-- Lec 01 & Lec 02: Array Master Guide -->
+      <a href="ds-array-master-guide.html" class="index-item item-blue">
+        <div class="index-num">1</div>
+        <div class="index-content">
+          <div class="index-title">Lec 01 &amp; 02: Array Data Structure Master Notebook (1D &amp; 2D Addressing) ✨</div>
+          <div class="index-sub">Complete breakdown of 1D &amp; 2D Array memory layout, 0/1-indexed &amp; negative lower bounds, Row-Major Order (RMO) &amp; Column-Major Order (CMO) address math, step-by-step solved PYQs, and C/Java/Python code implementations.</div>
+        </div>
+        <span class="index-tag">ARRAY MASTER</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 03: Linked List Master Guide -->
+      <a href="ds-linked-list-master-guide.html" class="index-item item-purple">
+        <div class="index-num">3</div>
+        <div class="index-content">
+          <div class="index-title">Lec 07–12: Linked List Master Notebook (Operations &amp; Reversal) ✨</div>
+          <div class="index-sub">Complete analysis of Linked List fundamentals, finding last/second-last node, in-place reversal algorithm, Floyd's fast/slow pointers for middle node, insertion &amp; deletion (head, tail, by value) with C/Java/Python code.</div>
+        </div>
+        <span class="index-tag">LL MASTER</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 04: Stack Master Guide -->
+      <a href="ds-stack-master-guide.html" class="index-item item-rose">
+        <div class="index-num">4</div>
+        <div class="index-content">
+          <div class="index-title">Lec 04: Stack Master Notebook (TOS = -1, Lifetime &amp; Expression Math) 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">LIFO / FILO principles, TOS initial state (TOS = -1), Push/Pop overflow &amp; underflow checks, Average Lifetime of an element math derivation, Infix to Postfix/Prefix conversion &amp; Evaluation with C/Java/Python code.</div>
+        </div>
+        <span class="index-tag">STACK MASTER</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 05 -->
+      <a href="#lec-05" class="index-item item-green">
+        <div class="index-num">5</div>
+        <div class="index-content">
+          <div class="index-title">Lec 05: Queues, Circular Queues &amp; Priority Queues ✨</div>
+          <div class="index-sub">FIFO Principle, Front &amp; Rear pointers, Circular Queue modulo arithmetic ($(Rear + 1) \pmod N$), Double-Ended Queue (Deque), Priority Queue implementation using Heaps, and OS process queues.</div>
+        </div>
+        <span class="index-tag">LEC 05 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 06 -->
+      <a href="#lec-06" class="index-item item-blue">
+        <div class="index-num">6</div>
+        <div class="index-content">
+          <div class="index-title">Lec 06: Binary Trees &amp; Tree Traversals (DFS / BFS) ✨</div>
+          <div class="index-sub">Tree terminology (Height, Depth, Degree), Full vs Complete vs Perfect Binary Trees, Tree Properties ($N = I + L$, $L = I + 1$), Recursive &amp; Iterative Traversals (Inorder, Preorder, Postorder), and BFS Level-Order Traversal.</div>
+        </div>
+        <span class="index-tag">LEC 06 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 07 -->
+      <a href="#lec-07" class="index-item item-purple">
+        <div class="index-num">7</div>
+        <div class="index-content">
+          <div class="index-title">Lec 07: Binary Search Trees (BST) &amp; Operations ✨</div>
+          <div class="index-sub">BST Property ($\text{Left} < \text{Root} < \text{Right}$), Search/Insert/Delete algorithms, 3 Deletion cases (Leaf node, 1 child, 2 children using Inorder Successor/Predecessor), and Height-dependent Time Complexity ($\mathcal{O}(h)$).</div>
+        </div>
+        <span class="index-tag">LEC 07 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 08 -->
+      <a href="#lec-08" class="index-item item-rose">
+        <div class="index-num">8</div>
+        <div class="index-content">
+          <div class="index-title">Lec 08: Self-Balancing Trees (AVL Trees &amp; Red-Black Trees) 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">Balance Factor calculation ($\text{BF} = H_L - H_R \in \{-1, 0, 1\}$), Single Rotations (LL, RR) &amp; Double Rotations (LR, RL) in AVL Trees, $\mathcal{O}(\log n)$ height proof, Red-Black Tree rules (Black Height, No 2 consecutive Red nodes).</div>
+        </div>
+        <span class="index-tag">LEC 08 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 09 -->
+      <a href="#lec-09" class="index-item item-green">
+        <div class="index-num">9</div>
+        <div class="index-content">
+          <div class="index-title">Lec 09: Heaps, Heapify &amp; Priority Queue Math ✨</div>
+          <div class="index-sub">Max-Heap &amp; Min-Heap array storage ($\text{Parent}(i) = \lfloor (i-1)/2 \rfloor$), Bottom-up Heapify construction in $\mathcal{O}(n)$ time, Extract-Min/Max in $\mathcal{O}(\log n)$, HeapSort algorithm, and Top-K elements.</div>
+        </div>
+        <span class="index-tag">LEC 09 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 10 -->
+      <a href="#lec-10" class="index-item item-blue">
+        <div class="index-num">10</div>
+        <div class="index-content">
+          <div class="index-title">Lec 10: Graph Representations &amp; Traversals (BFS &amp; DFS) ✨</div>
+          <div class="index-sub">Directed vs Undirected Graphs, Adjacency Matrix ($\mathcal{O}(V^2)$) vs Adjacency List ($\mathcal{O}(V+E)$), Breadth-First Search (BFS queue $\mathcal{O}(V+E)$), Depth-First Search (DFS stack $\mathcal{O}(V+E)$), and Bipartite Graph checking.</div>
+        </div>
+        <span class="index-tag">LEC 10 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 11 -->
+      <a href="#lec-11" class="index-item item-rose">
+        <div class="index-num">11</div>
+        <div class="index-content">
+          <div class="index-title">Lec 11: Minimum Spanning Trees (Kruskal's &amp; Prim's) 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">Spanning Tree definition ($V$ vertices, $V-1$ edges), Kruskal's Greedy Edge-based Algorithm using Disjoint Set Union (DSU with Path Compression $\mathcal{O}(E \log V)$), Prim's Vertex-based Greedy Algorithm using Min-Heap, and Cut Property.</div>
+        </div>
+        <span class="index-tag">LEC 11 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 12 -->
+      <a href="#lec-12" class="index-item item-purple">
+        <div class="index-num">12</div>
+        <div class="index-content">
+          <div class="index-title">Lec 12: Shortest Path Algorithms (Dijkstra, Bellman-Ford, Floyd-Warshall) ✨</div>
+          <div class="index-sub">Single-Source Shortest Path: Dijkstra's Algorithm using Min-Priority Queue ($\mathcal{O}((V+E) \log V)$), Bellman-Ford Algorithm ($\mathcal{O}(VE)$ detecting negative weight cycles), and All-Pairs Shortest Path: Floyd-Warshall ($\mathcal{O}(V^3)$).</div>
+        </div>
+        <span class="index-tag">LEC 12 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 13 -->
+      <a href="#lec-13" class="index-item item-green">
+        <div class="index-num">13</div>
+        <div class="index-content">
+          <div class="index-title">Lec 13: Hashing Techniques, Collision Resolution &amp; Hash Tables ✨</div>
+          <div class="index-sub">Hash Functions (Division, Multiplication, Mid-Square), Collision Resolution: Separate Chaining ($\mathcal{O}(1 + \alpha)$ load factor) vs Open Addressing (Linear Probing, Quadratic Probing, Double Hashing), and Rehashing.</div>
+        </div>
+        <span class="index-tag">LEC 13 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 14 -->
+      <a href="#lec-14" class="index-item item-blue">
+        <div class="index-num">14</div>
+        <div class="index-content">
+          <div class="index-title">Lec 14: Sorting Algorithms Master Guide &amp; Complexity Matrix ✨</div>
+          <div class="index-sub">Comparison Sorts ($\mathcal{O}(n^2)$ Bubble, Selection, Insertion vs $\mathcal{O}(n \log n)$ MergeSort, QuickSort, HeapSort), Non-comparison Sorts ($\mathcal{O}(n+k)$ Counting, Radix, Bucket Sort), Stability &amp; In-Place sorting classifications.</div>
+        </div>
+        <span class="index-tag">LEC 14 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 15 -->
+      <a href="#lec-15" class="index-item item-purple">
+        <div class="index-num">15</div>
+        <div class="index-content">
+          <div class="index-title">Lec 15: Searching Algorithms, B-Trees &amp; Advanced Data Structures ✨</div>
+          <div class="index-sub">Linear Search ($\mathcal{O}(n)$), Binary Search ($\mathcal{O}(\log n)$), Multi-way Search Trees: B-Trees &amp; B+ Trees (Node capacity $m$, DB index disk I/O optimization), Tries (Prefix Trees), and Segment Trees for Range Queries.</div>
+        </div>
+        <span class="index-tag">LEC 15 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+    </div>
+
+    <div class="quick-links">
+      <a href="../index.html" class="quick-btn quick-btn-primary">🏠 Back to Main Workspace Dashboard</a>
+      <a href="gs-computer-networks-notes.html" class="quick-btn quick-btn-secondary">📖 Open GS Computer Networks Notes</a>
+      <a href="gs-network-security-notes.html" class="quick-btn quick-btn-green">🛡️ Open GS Security Notes</a>
+      <a href="gs-computer-organisation-notes.html" class="quick-btn" style="background: rgba(217, 119, 6, 0.12); color: var(--accent4); border: 1px solid rgba(217, 119, 6, 0.3);">💻 Open GS COA Notes</a>
+      <a href="gs-software-engineering-notes.html" class="quick-btn" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; border: 1px solid rgba(13, 148, 136, 0.3);">⚙️ Open GS SE Notes</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Data Structures Notes · IBPS SO IT &amp; GATE Complete Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

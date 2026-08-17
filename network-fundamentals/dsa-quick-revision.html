@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="Data Structures & Algorithms Complete Quick Revision for IBPS SO IT & GATE — 40 Individual Topics covering Arrays, LL, Stacks, Queues, Sorting, Trees, BST, Heap, Graphs, MST, Shortest Path, DP, Advanced Trees & P vs NP."/>
+  <title>Data Structures &amp; Algorithms — Complete Quick Revision (40 Individual Topics) | IBPS SO IT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#fff;--border:#e2e8f0;
+      --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+      --accent:#2563eb;--accent-light:#eff6ff;
+      --teal:#0d9488;--teal-light:#f0fdfa;
+      --amber:#d97706;--amber-light:#fffbeb;
+      --rose:#e11d48;--rose-light:#fff1f2;
+      --green:#059669;--green-light:#ecfdf5;
+      --purple:#7c3aed;--purple-light:#f5f3ff;
+      --slate:#334155;--slate-light:#f1f5f9;
+      --indigo:#4338ca;--indigo-light:#eef2ff;
+      --shadow:0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,.07);
+      --radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;min-height:100vh;}
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);box-shadow:var(--shadow);}
+    .nav-inner{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .nav-back{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;transition:color .2s;white-space:nowrap;}
+    .nav-back:hover{color:var(--accent);}
+    .nav-title{font-size:15px;font-weight:800;color:var(--text);flex:1;}
+    .nav-badge{font-size:11px;font-weight:800;background:#2563eb;color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+    .nav-index-btn{text-decoration:none;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-light);border:1px solid rgba(37,99,235,.2);padding:5px 12px;border-radius:8px;white-space:nowrap;transition:all .2s;}
+    .nav-index-btn:hover{background:var(--accent);color:#fff;}
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 45%,#064e3b 100%);color:#fff;padding:56px 24px 48px;text-align:center;}
+    .hero-eyebrow{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:5px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px;}
+    .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;}
+    .hero h1 span{color:#60a5fa;}
+    .hero p{font-size:1.05rem;color:#cbd5e1;max-width:700px;margin:0 auto 28px;line-height:1.7;}
+    .hero-stats{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+    .hero-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;color:#e2e8f0;}
+    .hero-stat span{color:#60a5fa;font-size:20px;font-weight:900;display:block;}
+    .toc-wrap{max-width:1100px;margin:36px auto 0;padding:0 24px;}
+    .toc-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow-md);}
+    .toc-title{font-size:13px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+    .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;}
+    .toc-link{text-decoration:none;color:var(--text2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:8px;transition:all .18s;}
+    .toc-link:hover{background:var(--accent-light);color:var(--accent);border-color:rgba(37,99,235,.25);}
+    .toc-num{font-size:11px;font-weight:800;background:#2563eb;color:#fff;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 4px;}
+    .toc-num.new{background:#7c3aed;}
+    .main{max-width:1100px;margin:36px auto 80px;padding:0 24px;display:flex;flex-direction:column;gap:24px;}
+    .part-banner{background:linear-gradient(135deg,#1e3a8a,#0f172a);color:#fff;border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;}
+    .part-banner h2{font-size:1.35rem;font-weight:900;letter-spacing:-.5px;}
+    .part-banner span{font-size:12px;font-weight:800;background:rgba(255,255,255,.15);padding:4px 12px;border-radius:999px;text-transform:uppercase;}
+    .sec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .sec-header{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--border);}
+    .sec-num{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;flex-shrink:0;background:var(--accent-light);color:var(--accent);}
+    .sec-title-wrap{flex:1;}
+    .sec-title{font-size:1.15rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .sec-subtitle{font-size:12.5px;color:var(--text2);margin-top:2px;font-weight:500;}
+    .badge-fire{font-size:10.5px;background:#dc2626;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-high{font-size:10.5px;background:#d97706;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .badge-new{font-size:10.5px;background:#7c3aed;color:#fff;padding:2px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+    .sec-body{padding:20px 24px;}
+    .c-rose .sec-num{background:var(--rose-light);color:var(--rose);} .c-rose .sec-title{color:#9f1239;}
+    .c-teal .sec-num{background:var(--teal-light);color:var(--teal);} .c-teal .sec-title{color:#0f766e;}
+    .c-amber .sec-num{background:var(--amber-light);color:var(--amber);} .c-amber .sec-title{color:#b45309;}
+    .c-blue .sec-num{background:var(--accent-light);color:var(--accent);} .c-blue .sec-title{color:#1e40af;}
+    .c-purple .sec-num{background:var(--purple-light);color:var(--purple);} .c-purple .sec-title{color:#6d28d9;}
+    .c-green .sec-num{background:var(--green-light);color:var(--green);} .c-green .sec-title{color:#047857;}
+    .c-indigo .sec-num{background:var(--indigo-light);color:var(--indigo);} .c-indigo .sec-title{color:#3730a3;}
+    .c-slate .sec-num{background:var(--slate-light);color:var(--slate);} .c-slate .sec-title{color:#1e293b;}
+    .def-box{background:var(--accent-light);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:#1e3a8a;font-weight:600;line-height:1.6;}
+    .bullet-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+    .bullet-list li{padding-left:22px;position:relative;font-size:13.5px;color:#334155;line-height:1.6;}
+    .bullet-list li::before{content:"›";position:absolute;left:0;color:var(--accent);font-size:16px;top:0px;font-weight:900;}
+    .bullet-list li strong{color:var(--text);}
+    .mini-h{font-size:13.5px;font-weight:800;color:var(--text);margin:16px 0 10px;display:flex;align-items:center;gap:8px;}
+    .mini-h::after{content:'';flex:1;height:1px;background:var(--border);}
+    .callout{border-radius:12px;padding:12px 16px;margin:14px 0;font-size:13px;line-height:1.6;}
+    .callout-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;font-size:12.5px;}
+    .callout-blue{background:var(--accent-light);border-left:4px solid var(--accent);}
+    .callout-blue .callout-title{color:#1d4ed8;}
+    .callout-green{background:var(--green-light);border-left:4px solid var(--green);}
+    .callout-green .callout-title{color:#047857;}
+    .callout-amber{background:var(--amber-light);border-left:4px solid var(--amber);}
+    .callout-amber .callout-title{color:#92400e;}
+    .callout-rose{background:var(--rose-light);border-left:4px solid var(--rose);}
+    .callout-rose .callout-title{color:#9f1239;}
+    .callout-teal{background:var(--teal-light);border-left:4px solid var(--teal);}
+    .callout-teal .callout-title{color:#0f766e;}
+    .callout-purple{background:var(--purple-light);border-left:4px solid var(--purple);}
+    .callout-purple .callout-title{color:#6d28d9;}
+    .callout-indigo{background:var(--indigo-light);border-left:4px solid var(--indigo);}
+    .callout-indigo .callout-title{color:#3730a3;}
+    .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);margin:14px 0;}
+    table.comp{width:100%;border-collapse:collapse;font-size:13px;}
+    table.comp th{background:#0f172a;color:#fff;padding:10px 14px;font-weight:700;text-align:left;white-space:nowrap;}
+    table.comp td{padding:9px 14px;border-bottom:1px solid var(--border);color:#334155;vertical-align:top;line-height:1.5;}
+    table.comp tr:nth-child(even){background:#f8fafc;}
+    table.comp tr:last-child td{border-bottom:none;}
+    table.comp tr:hover td{background:var(--accent-light);}
+    .formula-block{background:#0f172a;color:#38bdf8;font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:14px 18px;border-radius:12px;margin:14px 0;line-height:1.7;overflow-x:auto;white-space:pre;}
+    .formula-block .c{color:#64748b;} .formula-block .k{color:#fb7185;} .formula-block .g{color:#4ade80;} .formula-block .y{color:#facc15;}
+    .flow-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:16px 20px;margin:14px 0;text-align:center;}
+    .flow-title{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+    .flow-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;}
+    .flow-step{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+    .flow-arrow{color:var(--text3);font-size:15px;}
+    .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0;}
+    .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0;}
+    .mini-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;}
+    .mini-card-title{font-size:12.5px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .fact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+    .fact-item{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;color:#334155;display:flex;gap:10px;align-items:flex-start;line-height:1.5;}
+    .fact-num{font-size:10.5px;font-weight:900;background:#0f172a;color:#60a5fa;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+    .fact-item strong{color:var(--text);}
+    .ok{color:#059669;font-weight:800;} .bad{color:#dc2626;font-weight:800;} .warn{color:#d97706;font-weight:800;} .na{color:#94a3b8;font-weight:700;}
+    .bottom-nav{max-width:1100px;margin:0 auto 60px;padding:0 24px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+    .bottom-btn{text-decoration:none;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;transition:all .2s;}
+    .btn-blue-ol{background:var(--accent-light);color:var(--accent);border:1px solid rgba(37,99,235,.25);}
+    .btn-blue-ol:hover{background:var(--accent);color:#fff;}
+    .btn-amber-ol{background:var(--amber-light);color:var(--amber);border:1px solid rgba(217,119,6,.25);}
+    .btn-amber-ol:hover{background:var(--amber);color:#fff;}
+    .btn-slate{background:#f1f5f9;color:#334155;border:1px solid var(--border);}
+    .btn-slate:hover{background:#e2e8f0;}
+    .sec-anchor{scroll-margin-top:80px;}
+    @media(max-width:700px){.nav-inner,.sec-body,.sec-header,.main,.toc-wrap,.bottom-nav{padding-left:16px;padding-right:16px;}.hero{padding:40px 16px 36px;}}
+    ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:#f1f5f9;} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;} ::-webkit-scrollbar-thumb:hover{background:#94a3b8;}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-back">&#8592; Practice Hub Dashboard</a>
+    <span class="nav-title">DSA &#8212; Complete Quick Revision</span>
+    <a href="gs-data-structures-notes.html" class="nav-index-btn">🧱 GS DS Notes</a>
+    <span class="nav-badge">IBPS SO IT</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">IBPS SO IT Officer &#183; Data Structures &amp; Algorithms</div>
+  <h1>Complete <span>Quick Revision</span><br/>End-to-End Overview</h1>
+  <p>All 40 individual topics &mdash; Complexity, Arrays, Linked Lists, Stacks, Queues, Sorting Table, BST, Heaps, Graph BFS/DFS, MST, Shortest Paths, DP, Advanced Trees (Red-Black, B+, BIT) &amp; P vs NP.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>40</span>Individual Topics</div>
+    <div class="hero-stat"><span>40</span>Exam Trap Facts</div>
+    <div class="hero-stat"><span>&#128293;&#128293;</span>High Yield</div>
+  </div>
+</div>
+
+<div class="toc-wrap">
+  <div class="toc-box">
+    <div class="toc-title">&#128203; Quick Navigation Table of Contents (40 Individual Topics)</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-link"><span class="toc-num">1</span>Algorithm Basics &amp; Master Theorem</a><a href="#s2" class="toc-link"><span class="toc-num">2</span>Arrays &amp; Sparse Matrix</a><a href="#s3" class="toc-link"><span class="toc-num">3</span>Linked List &amp; Floyd's Cycle</a><a href="#s4" class="toc-link"><span class="toc-num">4</span>Stack (LIFO) &amp; Applications</a><a href="#s5" class="toc-link"><span class="toc-num">5</span>Queue (FIFO) &amp; Queue Types</a><a href="#s6" class="toc-link"><span class="toc-num">6</span>Recursion &amp; Tail Recursion</a><a href="#s7" class="toc-link"><span class="toc-num">7</span>Searching (Binary/Ternary/Jump)</a><a href="#s8" class="toc-link"><span class="toc-num">8</span>Sorting Algorithms Comparison</a><a href="#s9" class="toc-link"><span class="toc-num">9</span>Hashing &amp; Collision Resolution</a><a href="#s10" class="toc-link"><span class="toc-num">10</span>Tree Terminology &amp; Properties</a><a href="#s11" class="toc-link"><span class="toc-num">11</span>Binary Tree Types &amp; Formulas</a><a href="#s12" class="toc-link"><span class="toc-num">12</span>Binary Search Tree (BST)</a><a href="#s13" class="toc-link"><span class="toc-num">13</span>Tree Traversals (DFS &amp; BFS)</a><a href="#s14" class="toc-link"><span class="toc-num">14</span>AVL Tree (Self-Balancing)</a><a href="#s15" class="toc-link"><span class="toc-num">15</span>Binary Heap &amp; Priority Queue</a><a href="#s16" class="toc-link"><span class="toc-num">16</span>Graph Basics &amp; Handshaking</a><a href="#s17" class="toc-link"><span class="toc-num">17</span>Graph Representation (Matrix/List)</a><a href="#s18" class="toc-link"><span class="toc-num">18</span>Breadth-First Search (BFS)</a><a href="#s19" class="toc-link"><span class="toc-num">19</span>Depth-First Search (DFS)</a><a href="#s20" class="toc-link"><span class="toc-num">20</span>Spanning Tree Concepts</a><a href="#s21" class="toc-link"><span class="toc-num">21</span>MST: Prim's vs Kruskal's</a><a href="#s22" class="toc-link"><span class="toc-num">22</span>Shortest Path (Dijkstra/Bellman)</a><a href="#s23" class="toc-link"><span class="toc-num">23</span>Topological Sorting (DAG)</a><a href="#s24" class="toc-link"><span class="toc-num">24</span>Greedy &amp; Huffman Coding</a><a href="#s25" class="toc-link"><span class="toc-num">25</span>Divide and Conquer</a><a href="#s26" class="toc-link"><span class="toc-num">26</span>Dynamic Programming (DP)</a><a href="#s27" class="toc-link"><span class="toc-num">27</span>Backtracking Paradigm</a><a href="#s28" class="toc-link"><span class="toc-num">28</span>Paradigms Comparison Table</a><a href="#s29" class="toc-link"><span class="toc-num">29</span>String Algorithms (KMP/Z/Manacher)</a><a href="#s30" class="toc-link"><span class="toc-num">30</span>Trie (Prefix Tree)</a><a href="#s31" class="toc-link"><span class="toc-num">31</span>Bit Manipulation &amp; Kernighan</a><a href="#s32" class="toc-link"><span class="toc-num">32</span>Disjoint Set (Union-Find)</a><a href="#s33" class="toc-link"><span class="toc-num new">33</span>Advanced Trees (Red-Black, B+, BIT)</a><a href="#s34" class="toc-link"><span class="toc-num new">34</span>Advanced Graph (SCC, Bipartite)</a><a href="#s35" class="toc-link"><span class="toc-num new">35</span>Two Pointer, Window, Kadane's</a><a href="#s36" class="toc-link"><span class="toc-num new">36</span>LRU Cache, Skip List, Bloom Filter</a><a href="#s37" class="toc-link"><span class="toc-num new">37</span>Complexity Theory (P vs NP)</a><a href="#s38" class="toc-link"><span class="toc-num">38</span>Master Complexity Cheat Sheet</a><a href="#s39" class="toc-link"><span class="toc-num">39</span>Data Structure Associations</a><a href="#s40" class="toc-link"><span class="toc-num">40</span>40 Exam-Trap Facts &amp; Order</a>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="part-banner">
+    <h2>Data Structures &amp; Algorithms Core Concepts</h2>
+    <span>Topics 1 to 40 + Cheat Sheet &amp; 40 Facts</span>
+  </div>
+
+  <!-- S1 -->
+<div id="s1" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title-wrap"><div class="sec-title">Algorithm Basics, Complexity &amp; Master Theorem <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Big-O hierarchy, best/worst/average/amortized, Master Theorem</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Algorithm</strong>: A finite sequence of unambiguous, well-defined computational steps that transforms input into output.<br/><strong>Properties:</strong> Input, Output, Definiteness, Finiteness, Effectiveness.</div>
+    <div class="mini-h">Asymptotic Complexity Order of Growth &#128293;</div>
+    <div class="formula-block">O(1) &lt; O(log n) &lt; O(&radic;n) &lt; O(n) &lt; O(n log n) &lt; O(n&sup2;) &lt; O(n&sup3;) &lt; O(2ⁿ) &lt; O(n!)</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Amortized Analysis (Dynamic Array Doubling) &#11088;</div><p style="font-size:13px;color:#475569;">Average cost per operation over a sequence of operations. In a dynamic array (e.g. ArrayList/Vector), appending is normally O(1). When full, it doubles size and copies all $n$ items (costs $O(n)$). Because doubling occurs geometrically rarely, the <strong>amortized cost per insertion remains $O(1)$</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Master Theorem for Divide &amp; Conquer Recurrences &#11088;</div><p style="font-size:13px;color:#475569;">For $T(n) = aT(n/b) + f(n)$ with $a \ge 1, b &gt; 1$:<br/>
+      &bull; If $f(n) = O(n^{\log_b a - \epsilon}) \implies T(n) = \Theta(n^{\log_b a})$<br/>
+      &bull; If $f(n) = \Theta(n^{\log_b a}) \implies T(n) = \Theta(n^{\log_b a} \log n)$<br/>
+      &bull; If $f(n) = \Omega(n^{\log_b a + \epsilon}) \implies T(n) = \Theta(f(n))$<br/>
+      <em>Example: Merge Sort $T(n) = 2T(n/2) + O(n) \implies O(n \log n)$.</em></p></div>
+    </div>
+  </div>
+</div><!-- S2 -->
+<div id="s2" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title-wrap"><div class="sec-title">Arrays &amp; Sparse Matrix</div><div class="sec-subtitle">Contiguous storage, row/column-major addressing, triplet representation</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Array</strong>: Linear data structure storing homogeneous elements at <strong>contiguous memory locations</strong>. Supports $O(1)$ direct index-based random access via memory offset calculation.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Operation</th><th>Time Complexity</th><th>Notes</th></tr></thead><tbody>
+      <tr><td><strong>Access by Index</strong></td><td><strong>O(1)</strong></td><td>Direct address arithmetic: $	ext{Base} + (	ext{index} 	imes 	ext{size})$</td></tr>
+      <tr><td><strong>Search (Linear)</strong></td><td><strong>O(n)</strong></td><td>$O(\log n)$ if sorted via Binary Search</td></tr>
+      <tr><td><strong>Insertion / Deletion at Start/Middle</strong></td><td><strong>O(n)</strong></td><td>Requires shifting elements</td></tr>
+      <tr><td><strong>Insertion at End</strong></td><td><strong>O(1)</strong> (amortized)</td><td>Assuming capacity available</td></tr>
+    </tbody></table></div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">2D Array Mapping</div><p style="font-size:13px;color:#475569;"><strong>Row-Major Order:</strong> Elements stored row by row.<br/><strong>Column-Major Order:</strong> Elements stored column by column.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Sparse Matrix &#11088;</div><p style="font-size:13px;color:#475569;">Matrix where <strong>majority of elements are zero</strong>. Stored efficiently as <strong>3-tuples (Row, Col, Value)</strong> or linked lists to save memory in graph adjacency matrices.</p></div>
+    </div>
+  </div>
+</div><!-- S3 -->
+<div id="s3" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title-wrap"><div class="sec-title">Linked List &amp; Floyd's Cycle Detection <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Singly, Doubly, Circular LL &amp; Tortoise-Hare Algorithm</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Linked List</strong>: Dynamic linear collection of non-contiguous nodes where each node contains <strong>Data + Pointer(s)</strong>.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Type</th><th>Structure</th><th>Key Features</th></tr></thead><tbody>
+      <tr><td><strong>Singly Linked List</strong></td><td><code>Head &#8594; [Data|Next] &#8594; [Data|Next] &#8594; NULL</code></td><td>Unidirectional traversal; insertion/deletion at head is $O(1)$.</td></tr>
+      <tr><td><strong>Doubly Linked List</strong></td><td><code>NULL &#8592; [Prev|Data|Next] &#8644; [Prev|Data|Next] &#8594; NULL</code></td><td>Bidirectional traversal; deletion of a given node reference is $O(1)$. Extra pointer overhead.</td></tr>
+      <tr><td><strong>Circular Linked List</strong></td><td>Last node's <code>next</code> points back to <code>Head</code></td><td>No NULL pointers; useful in round-robin schedulers.</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-purple"><div class="callout-title">&#128273; Floyd's Cycle Detection (Tortoise and Hare Algorithm) &#11088;&#11088;</div>
+      Use two pointers: <code>slow</code> (advances 1 step) and <code>fast</code> (advances 2 steps).<br/>
+      &bull; If <code>slow == fast</code> at any point &rarr; <strong>Cycle Exists &#10003;</strong><br/>
+      &bull; If <code>fast == NULL</code> or <code>fast-&gt;next == NULL</code> &rarr; <strong>No Cycle &#10008;</strong><br/>
+      <strong>Complexity:</strong> Time $O(n)$, Space $O(1)$.
+    </div>
+  </div>
+</div><!-- S4 -->
+<div id="s4" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title-wrap"><div class="sec-title">Stack (LIFO) &amp; Applications <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Last In First Out, push/pop, Infix to Postfix, Parentheses matching</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Stack</strong>: Linear LIFO (Last In, First Out) data structure. All insertions and deletions occur exclusively at the single end called <strong>Top</strong>. All operations (<code>push</code>, <code>pop</code>, <code>peek</code>) take <strong>O(1)</strong> time.</div>
+    <div class="mini-h">Key Applications of Stack</div>
+    <ul class="bullet-list">
+      <li><strong>Function Call Stack &amp; Recursion</strong> management.</li>
+      <li><strong>Expression Evaluation &amp; Conversion</strong>: Infix &rarr; Postfix (Reverse Polish), Infix &rarr; Prefix.</li>
+      <li><strong>Balanced Parentheses Checking</strong>: Validating compiler syntax.</li>
+      <li><strong>Undo / Redo</strong> operations in editors &amp; Browser back/forward history.</li>
+      <li><strong>Graph Depth First Search (DFS)</strong>.</li>
+    </ul>
+    <div class="callout callout-rose"><div class="callout-title">&#9888; Overflow vs Underflow</div>
+      <strong>Stack Overflow:</strong> Attempting to push into an already full stack.<br/>
+      <strong>Stack Underflow:</strong> Attempting to pop from an empty stack (<code>top == -1</code>).
+    </div>
+  </div>
+</div><!-- S5 -->
+<div id="s5" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title-wrap"><div class="sec-title">Queue (FIFO) &amp; Queue Types <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">First In First Out, Simple, Circular, Deque, Priority Queue</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Queue</strong>: Linear FIFO (First In, First Out) structure. Elements inserted at <strong>Rear (Enqueue)</strong> and removed from <strong>Front (Dequeue)</strong>. Both operations take <strong>O(1)</strong> time.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Queue Type</th><th>Mechanism</th><th>Key Conditions &amp; Notes</th></tr></thead><tbody>
+      <tr><td><strong>Simple Linear Queue</strong></td><td>FIFO order in array/LL</td><td>Suffers from false overflow in linear arrays when rear reaches end.</td></tr>
+      <tr><td><strong>Circular Queue &#11088;</strong></td><td>Last position wraps around to first using modulo arithmetic</td><td><strong>Empty:</strong> <code>front == -1</code><br/><strong>Full:</strong> <code>(rear + 1) % size == front</code></td></tr>
+      <tr><td><strong>Deque (Double-Ended Queue)</strong></td><td>Insertion and deletion permitted at <strong>both ends</strong> (Front and Rear)</td><td>Supports both stack and queue abstractions.</td></tr>
+      <tr><td><strong>Priority Queue &#11088;</strong></td><td>Elements served by highest/lowest priority, not arrival order</td><td>Implemented using <strong>Binary Heap</strong> (Insert $O(\log n)$, Extract Min/Max $O(\log n)$).</td></tr>
+    </tbody></table></div>
+    <div class="mini-h">Applications: CPU scheduling, Printer spooling, BFS graph traversal, Packet buffers.</div>
+  </div>
+</div><!-- S6 -->
+<div id="s6" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">6</div><div class="sec-title-wrap"><div class="sec-title">Recursion &amp; Tail Recursion</div><div class="sec-subtitle">Base case, call stack, Tail Call Optimization (TCO)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Recursion</strong>: Process where a function calls itself directly or indirectly. Requires a <strong>Base Case</strong> (termination condition) and a <strong>Recursive Step</strong>. Uses the system <strong>Call Stack</strong>; missing base case causes <strong>Stack Overflow</strong>.</div>
+    <div class="callout callout-amber"><div class="callout-title">&#128273; Tail Recursion &amp; TCO &#11088;</div>
+      A recursive function is <strong>Tail Recursive</strong> if the recursive call is the <em>very last operation</em> performed (no pending computation like addition/multiplication after return).<br/>
+      Compilers can apply <strong>Tail Call Optimization (TCO)</strong> to convert tail-recursive calls into iterative jumps, reusing the existing stack frame and executing in <strong>O(1) auxiliary space</strong>.
+    </div>
+  </div>
+</div><!-- S7 -->
+<div id="s7" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">7</div><div class="sec-title-wrap"><div class="sec-title">Searching Algorithms</div><div class="sec-subtitle">Linear Search, Binary Search, Ternary, Interpolation, Jump Search</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Prerequisite</th><th>Time Complexity</th><th>Key Principle</th></tr></thead><tbody>
+      <tr><td><strong>Linear Search</strong></td><td>None (Unsorted)</td><td>Best: $O(1)$, Worst: <strong>O(n)</strong></td><td>Sequential scan from index 0 to $n-1$.</td></tr>
+      <tr><td><strong>Binary Search &#11088;</strong></td><td><strong>Sorted Array</strong></td><td>Best: $O(1)$, Worst: <strong>O(log n)</strong></td><td>Divides search space into half at each step by comparing target with middle element.</td></tr>
+      <tr><td><strong>Ternary Search</strong></td><td>Sorted Array</td><td><strong>O(log₃ n)</strong></td><td>Divides search space into 3 equal parts via two midpoints ($m_1, m_2$). Used for unimodal function peaks.</td></tr>
+      <tr><td><strong>Interpolation Search &#11088;</strong></td><td><strong>Uniformly Distributed</strong> Sorted Array</td><td>Average: <strong>O(log log n)</strong>, Worst: $O(n)$</td><td>Probes position based on value: $	ext{pos} = 	ext{low} + rac{	ext{target} - A[	ext{low}]}{A[	ext{high}] - A[	ext{low}]} 	imes (	ext{high} - 	ext{low})$.</td></tr>
+      <tr><td><strong>Jump Search</strong></td><td>Sorted Array</td><td><strong>O(&radic;n)</strong></td><td>Jumps ahead in fixed blocks of size $\sqrt{n}$, then performs linear search within block.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S8 -->
+<div id="s8" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">8</div><div class="sec-title-wrap"><div class="sec-title">Sorting Algorithms &amp; Detailed Comparison Table <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">All 8 standard sorting algorithms, complexities, stability &amp; in-place rules</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable?</th><th>In-Place?</th></tr></thead><tbody>
+      <tr><td><strong>Bubble Sort</strong></td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Selection Sort</strong></td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td><td><span class="bad">&#10008; No</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Insertion Sort</strong></td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Merge Sort &#11088;</strong></td><td><strong>O(n log n)</strong></td><td><strong>O(n log n)</strong></td><td><strong>O(n log n)</strong></td><td>$O(n)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>Quick Sort &#11088;</strong></td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n^2)$ (sorted/poor pivot)</td><td>$O(\log n)$</td><td><span class="bad">&#10008; No</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Heap Sort</strong></td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(1)$</td><td><span class="bad">&#10008; No</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Counting Sort</strong></td><td>$O(n + k)$</td><td>$O(n + k)$</td><td>$O(n + k)$</td><td>$O(k)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>Radix Sort</strong></td><td>$O(d \cdot (n + k))$</td><td>$O(d \cdot (n + k))$</td><td>$O(d \cdot (n + k))$</td><td>$O(n + k)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="bad">&#10008; No</span></td></tr>
+      <tr><td><strong>Shell Sort</strong></td><td>$O(n)$</td><td>$\sim O(n^{1.5})$</td><td>$O(n^2)$</td><td>$O(1)$</td><td><span class="bad">&#10008; No</span></td><td><span class="ok">&#10003; Yes</span></td></tr>
+      <tr><td><strong>Bucket Sort</strong></td><td>$O(n + k)$</td><td>$O(n + k)$</td><td>$O(n^2)$</td><td>$O(n)$</td><td><span class="ok">&#10003; Yes</span></td><td><span class="bad">&#10008; No</span></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-rose"><div class="callout-title">&#128273; Essential Sorting Concepts</div>
+      &bull; <strong>Comparison Lower Bound:</strong> Any comparison-based sorting algorithm has a lower bound of <strong>$\Omega(n \log n)$</strong>.<br/>
+      &bull; <strong>Stable:</strong> Equal keys preserve their original relative order (Merge, Insertion, Bubble).<br/>
+      &bull; <strong>Adaptive:</strong> Runs faster ($O(n)$) on partially sorted inputs (Insertion Sort, optimized Bubble Sort).
+    </div>
+  </div>
+</div><!-- S9 -->
+<div id="s9" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">9</div><div class="sec-title-wrap"><div class="sec-title">Hashing &amp; Collision Resolution <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">Chaining vs Open Addressing (Linear, Quadratic, Double Hashing), Load Factor</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Hashing</strong>: Maps arbitrary keys to fixed table indices using a <strong>Hash Function</strong> ($h(k) = k \pmod m$). Average lookup/insert: <strong>O(1)</strong>; Worst case: $O(n)$.</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Separate Chaining (Open Hashing)</div><p style="font-size:13px;color:#475569;">Each bucket stores a linked list of entries colliding at that index. Never fills up; handles $lpha &gt; 1$.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Open Addressing (Closed Hashing)</div><p style="font-size:13px;color:#475569;">All entries stored inside array itself. If collision occurs, probe for next empty slot ($lpha \le 1$).</p></div>
+    </div>
+    <div class="mini-h">Probing Methods in Open Addressing</div>
+    <ul class="bullet-list">
+      <li><strong>Linear Probing</strong>: $h(k, i) = (h'(k) + i) \pmod m$. Suffers from <strong>Primary Clustering</strong> (long contiguous occupied blocks).</li>
+      <li><strong>Quadratic Probing</strong>: $h(k, i) = (h'(k) + c_1 i + c_2 i^2) \pmod m$. Reduces primary clustering; suffers from <strong>Secondary Clustering</strong>.</li>
+      <li><strong>Double Hashing &#11088;</strong>: $h(k, i) = (h_1(k) + i \cdot h_2(k)) \pmod m$. Best open addressing method; eliminates clustering.</li>
+    </ul>
+    <div class="callout callout-green"><div class="callout-title">&#128273; Load Factor (&alpha;) &amp; Rehashing</div>
+      <strong>$lpha = rac{	ext{Number of elements } n}{	ext{Table size } m}$</strong>. When $lpha$ exceeds threshold (e.g. 0.75), <strong>Rehashing</strong> doubles table size and re-maps all keys.
+    </div>
+  </div>
+</div><!-- S10 -->
+<div id="s10" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">10</div><div class="sec-title-wrap"><div class="sec-title">Tree Terminology &amp; Properties</div><div class="sec-subtitle">Root, Leaf, Degree, Height, Depth, Formula: n - 1 edges</div></div></div>
+  <div class="sec-body">
+    <ul class="bullet-list">
+      <li><strong>Root</strong>: Topmost node without parent. <strong>Leaf Node</strong>: Node with degree 0 (no children).</li>
+      <li><strong>Degree of Node</strong>: Number of children of that node. <strong>Degree of Tree</strong>: Maximum degree among all nodes.</li>
+      <li><strong>Depth of Node</strong>: Number of edges from root to that node (Root depth = 0).</li>
+      <li><strong>Height of Tree</strong>: Length of longest path from root to any leaf node.</li>
+      <li><strong>Golden Tree Formula &#128293;:</strong> A tree with $n$ nodes has <strong>exactly $n - 1$ edges</strong>.</li>
+    </ul>
+  </div>
+</div><!-- S11 -->
+<div id="s11" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">11</div><div class="sec-title-wrap"><div class="sec-title">Binary Tree Types &amp; Formulas <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Full, Complete, Perfect, Skewed Trees &amp; Node Formulas</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Binary Tree Type</th><th>Definition &amp; Identifying Property</th></tr></thead><tbody>
+      <tr><td><strong>Full (Strict) Binary Tree</strong></td><td>Every node has either <strong>0 or 2 children</strong> (no node has 1 child).</td></tr>
+      <tr><td><strong>Complete Binary Tree &#11088;</strong></td><td>All levels filled completely except possibly the last, and the last level is filled <strong>strictly from left to right</strong>. (Used in Binary Heaps).</td></tr>
+      <tr><td><strong>Perfect Binary Tree</strong></td><td>All internal nodes have 2 children and all leaves are at the exact same level. Max nodes at height $h$: <strong>$2^{h+1} - 1$</strong>.</td></tr>
+      <tr><td><strong>Degenerate / Skewed Tree</strong></td><td>Every parent has only 1 child. Degenerates into a linked list ($O(n)$ search).</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Full Binary Tree Theorem</div>
+      In any non-empty full binary tree: <strong>Number of Leaf Nodes ($L$) = Number of Internal Nodes ($I$) + 1</strong> &nbsp;($L = I + 1$).
+    </div>
+  </div>
+</div><!-- S12 -->
+<div id="s12" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">12</div><div class="sec-title-wrap"><div class="sec-title">Binary Search Tree (BST) &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Left &lt; Root &lt; Right, Search/Insert complexity, Inorder property</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>BST Property</strong>: For every node $X$, all keys in its left subtree are <strong>&lt; $X$</strong> and all keys in its right subtree are <strong>&gt; $X$</strong>.</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Balanced BST Search / Insert / Delete</div><p style="font-size:13px;color:#475569;">Average Time Complexity: <strong>O(log n)</strong></p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#dc2626;">Skewed BST (Worst Case)</div><p style="font-size:13px;color:#475569;">Occurs on sorted inputs: <strong>O(n)</strong></p></div>
+    </div>
+    <div class="callout callout-purple"><div class="callout-title">&#128293; Must-Remember BST Fact</div>
+      <strong>Inorder traversal of a Binary Search Tree ALWAYS produces keys in strictly ascending sorted order!</strong>
+    </div>
+  </div>
+</div><!-- S13 -->
+<div id="s13" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">13</div><div class="sec-title-wrap"><div class="sec-title">Tree Traversals (DFS &amp; BFS) &#11088;&#11088;&#11088;</div><div class="sec-subtitle">Preorder, Inorder, Postorder, Level Order (Queue)</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Traversal</th><th>Visiting Order</th><th>Mnemonic / Use Case</th></tr></thead><tbody>
+      <tr><td><strong>Preorder (DFS)</strong></td><td><strong>Root &rarr; Left &rarr; Right</strong></td><td>Copying a tree, prefix expression trees</td></tr>
+      <tr><td><strong>Inorder (DFS)</strong></td><td><strong>Left &rarr; Root &rarr; Right</strong></td><td>Produces sorted order for BST</td></tr>
+      <tr><td><strong>Postorder (DFS)</strong></td><td><strong>Left &rarr; Right &rarr; Root</strong></td><td>Deleting/freeing tree nodes, postfix calculation</td></tr>
+      <tr><td><strong>Level Order (BFS)</strong></td><td>Level by level (Left to Right)</td><td>Uses a <strong>FIFO Queue</strong></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S14 -->
+<div id="s14" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">14</div><div class="sec-title-wrap"><div class="sec-title">AVL Tree (Self-Balancing BST) &#11088;&#11088;</div><div class="sec-subtitle">Balance Factor {-1, 0, +1}, 4 Rotation Cases (LL, RR, LR, RL)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>AVL Tree</strong>: Height-balanced BST where <strong>Balance Factor (BF) = Height(Left Subtree) &minus; Height(Right Subtree)</strong>. For every node, <strong>$BF \in \{-1, 0, +1\}$</strong>. All operations guaranteed <strong>O(log n)</strong>.</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Imbalance Case</th><th>Cause</th><th>Rotation Fix</th></tr></thead><tbody>
+      <tr><td><strong>LL Case</strong></td><td>Insertion into left subtree of left child</td><td><strong>Single Right Rotation</strong></td></tr>
+      <tr><td><strong>RR Case</strong></td><td>Insertion into right subtree of right child</td><td><strong>Single Left Rotation</strong></td></tr>
+      <tr><td><strong>LR Case</strong></td><td>Insertion into right subtree of left child</td><td><strong>Left-Right Double Rotation</strong> (Left on child &rarr; Right on node)</td></tr>
+      <tr><td><strong>RL Case</strong></td><td>Insertion into left subtree of right child</td><td><strong>Right-Left Double Rotation</strong> (Right on child &rarr; Left on node)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S15 -->
+<div id="s15" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">15</div><div class="sec-title-wrap"><div class="sec-title">Binary Heap &amp; Priority Queue <span class="badge-fire">TOP PRIORITY &#128293;</span></div><div class="sec-subtitle">Max Heap, Min Heap, Array Index Formulas, Heapify O(n)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Binary Heap</strong>: A <strong>Complete Binary Tree</strong> satisfying Heap Order Property.<br/>
+    &bull; <strong>Max Heap:</strong> Parent key &ge; Children keys (Root = Global Maximum).<br/>
+    &bull; <strong>Min Heap:</strong> Parent key &le; Children keys (Root = Global Minimum).</div>
+    <div class="mini-h">0-Based Array Representation Formulas &#128293;</div>
+    <div class="formula-block">For a node at index i:
+Left Child Index  = 2i + 1
+Right Child Index = 2i + 2
+Parent Node Index = &lfloor;(i - 1) / 2&rfloor;</div>
+    <div class="callout callout-rose"><div class="callout-title">&#128273; Complexities</div>
+      &bull; <strong>Build Heap (Heapify):</strong> $O(n)$ time.<br/>
+      &bull; <strong>Insert / Extract Min/Max:</strong> $O(\log n)$ time.
+    </div>
+  </div>
+</div><!-- S16 -->
+<div id="s16" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">16</div><div class="sec-title-wrap"><div class="sec-title">Graph Basics &amp; Handshaking Lemma</div><div class="sec-subtitle">Vertices, Edges, Degree, Handshaking Theorem</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Graph $G = (V, E)$</strong>: Non-linear structure consisting of a set of vertices (nodes) and edges (connections).</div>
+    <div class="callout callout-blue"><div class="callout-title">&#128273; Handshaking Lemma (Undirected Graphs)</div>
+      <strong>$\sum_{v \in V} 	ext{deg}(v) = 2 |E|$</strong> &nbsp;(Sum of degrees of all vertices is twice the number of edges).<br/>
+      <strong>Corollary:</strong> In any graph, the number of vertices with odd degree is always <strong>even</strong>.
+    </div>
+  </div>
+</div><!-- S17 -->
+<div id="s17" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">17</div><div class="sec-title-wrap"><div class="sec-title">Graph Representation</div><div class="sec-subtitle">Adjacency Matrix vs Adjacency List</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Representation</th><th>Space Complexity</th><th>Edge Query $(u, v)$</th><th>Find Neighbors of $u$</th><th>Best Used For</th></tr></thead><tbody>
+      <tr><td><strong>Adjacency Matrix</strong></td><td><strong>O(V&sup2;)</strong></td><td><strong>O(1)</strong></td><td>$O(V)$</td><td><strong>Dense Graphs</strong> ($E pprox V^2$)</td></tr>
+      <tr><td><strong>Adjacency List</strong></td><td><strong>O(V + E)</strong></td><td>$O(	ext{deg}(u))$</td><td><strong>O(deg(u))</strong></td><td><strong>Sparse Graphs</strong> ($E \ll V^2$)</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S18 -->
+<div id="s18" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">18</div><div class="sec-title-wrap"><div class="sec-title">BFS (Breadth-First Search) &#11088;&#11088;</div><div class="sec-subtitle">Queue based, level-by-level, unweighted shortest path</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>BFS</strong>: Explores neighbor nodes at current depth level before moving to nodes at next depth level. Uses a <strong>Queue</strong>.<br/>
+    <strong>Time Complexity:</strong> <strong>O(V + E)</strong> | <strong>Space Complexity:</strong> $O(V)$<br/>
+    <strong>Applications:</strong> Shortest path in unweighted graphs, level-order traversal, web crawler, finding connected components.</div>
+  </div>
+</div><!-- S19 -->
+<div id="s19" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">19</div><div class="sec-title-wrap"><div class="sec-title">DFS (Depth-First Search) &#11088;&#11088;</div><div class="sec-subtitle">Stack / Recursion based, backtracking, cycle detection</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>DFS</strong>: Plunges deep down along a path before backtracking. Uses a <strong>Stack / Recursion</strong>.<br/>
+    <strong>Time Complexity:</strong> <strong>O(V + E)</strong> | <strong>Space Complexity:</strong> $O(V)$<br/>
+    <strong>Applications:</strong> Cycle detection (directed &amp; undirected), Topological Sorting, finding Strongly Connected Components, Maze pathfinding.</div>
+  </div>
+</div><!-- S20 -->
+<div id="s20" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">20</div><div class="sec-title-wrap"><div class="sec-title">Spanning Tree Concepts</div><div class="sec-subtitle">Connected subgraph, no cycles, V - 1 edges</div></div></div>
+  <div class="sec-body">
+    <div class="def-box">A <strong>Spanning Tree</strong> of a connected undirected graph $G=(V, E)$ is an acyclic subgraph containing <strong>all $V$ vertices and exactly $V - 1$ edges</strong>. For a complete graph $K_n$, total spanning trees = <strong>$n^{n-2}$</strong> (Cayley's Formula).</div>
+  </div>
+</div><!-- S21 -->
+<div id="s21" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">21</div><div class="sec-title-wrap"><div class="sec-title">Minimum Spanning Tree (MST): Prim's vs Kruskal's <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Greedy MST algorithms comparison</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Approach / Design</th><th>Data Structure Used</th><th>Time Complexity</th><th>Best Suited For</th></tr></thead><tbody>
+      <tr><td><strong>Prim's Algorithm</strong></td><td><strong>Vertex-based</strong> (grows a connected component tree one minimum-weight cut edge at a time).</td><td>Min-Heap / Priority Queue</td><td><strong>O((V + E) log V)</strong></td><td><strong>Dense Graphs</strong></td></tr>
+      <tr><td><strong>Kruskal's Algorithm</strong></td><td><strong>Edge-based</strong> (sorts all edges by weight, adds lowest edge if no cycle formed).</td><td><strong>Disjoint Set (Union-Find)</strong></td><td><strong>O(E log E)</strong> or $O(E \log V)$</td><td><strong>Sparse Graphs</strong></td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S22 -->
+<div id="s22" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">22</div><div class="sec-title-wrap"><div class="sec-title">Shortest Path Algorithms <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Dijkstra, Bellman-Ford, Floyd-Warshall, A* Search</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Type</th><th>Negative Edges?</th><th>Negative Cycles?</th><th>Time Complexity</th></tr></thead><tbody>
+      <tr><td><strong>Dijkstra &#11088;</strong></td><td>Single-Source Shortest Path (Greedy)</td><td><span class="bad">&#10008; Fails</span> (Requires non-negative weights)</td><td><span class="bad">&#10008; No</span></td><td><strong>O((V + E) log V)</strong></td></tr>
+      <tr><td><strong>Bellman-Ford &#11088;</strong></td><td>Single-Source Shortest Path (DP)</td><td><span class="ok">&#10003; Handles negative weights</span></td><td><span class="ok">&#10003; Detects negative cycles</span></td><td><strong>O(V &times; E)</strong></td></tr>
+      <tr><td><strong>Floyd-Warshall</strong></td><td>All-Pairs Shortest Path (DP)</td><td><span class="ok">&#10003; Handles negative edges</span></td><td><span class="bad">&#10008; Cannot have negative cycles</span></td><td><strong>O(V&sup3;)</strong></td></tr>
+      <tr><td><strong>A* Search</strong></td><td>Heuristic Informed Pathfinding</td><td>Non-negative weights ($f(n) = g(n) + h(n)$)</td><td>No</td><td>Depends on heuristic</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S23 -->
+<div id="s23" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">23</div><div class="sec-title-wrap"><div class="sec-title">Topological Sorting (DAG) &#11088;&#11088;</div><div class="sec-subtitle">Directed Acyclic Graphs, Kahn's Algorithm (Indegrees + Queue)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Topological Sort</strong>: Linear ordering of vertices in a <strong>Directed Acyclic Graph (DAG)</strong> such that for every directed edge $u 	o v$, vertex $u$ comes before $v$.<br/><strong>Condition:</strong> Graph MUST be a DAG (cyclic graph has NO topological ordering).</div>
+    <ul class="bullet-list">
+      <li><strong>Kahn's Algorithm (BFS-based)</strong>: Computes in-degrees of all vertices. Pushes 0-indegree nodes into Queue. Decrements neighbor in-degrees on dequeue. Complexity: <strong>O(V + E)</strong>.</li>
+      <li><strong>DFS-based</strong>: Push vertex onto stack after visiting all its descendants; pop stack at end.</li>
+      <li><strong>Applications:</strong> Build dependency resolution (Makefiles), task scheduling, course prerequisites.</li>
+    </ul>
+  </div>
+</div><!-- S24 -->
+<div id="s24" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">24</div><div class="sec-title-wrap"><div class="sec-title">Greedy Algorithms &amp; Huffman Coding</div><div class="sec-subtitle">Locally optimal choices, Fractional Knapsack, Huffman Tree</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Greedy Paradigm</strong>: Makes the locally optimal choice at each step hoping it leads to a global optimum. Fast, but does NOT always guarantee global optimum.</div>
+    <ul class="bullet-list">
+      <li><strong>Works for:</strong> Fractional Knapsack, Prim's, Kruskal's, Dijkstra's, Activity Selection, Job Sequencing.</li>
+      <li><strong>FAILS for:</strong> <strong>0/1 Knapsack Problem</strong> (requires Dynamic Programming).</li>
+    </ul>
+    <div class="callout callout-teal"><div class="callout-title">&#128273; Huffman Coding (Data Compression) &#11088;</div>
+      Builds an optimal prefix-free code using a <strong>Min-Heap</strong>. Repeatedly merges two lowest-frequency characters into a parent node. Higher frequency characters get shorter binary codes. Complexity: <strong>O(n log n)</strong>.
+    </div>
+  </div>
+</div><!-- S25 -->
+<div id="s25" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">25</div><div class="sec-title-wrap"><div class="sec-title">Divide and Conquer Paradigm</div><div class="sec-subtitle">Divide &rarr; Conquer &rarr; Combine</div></div></div>
+  <div class="sec-body">
+    <div class="flow-box"><div class="flow-steps">
+      <span class="flow-step">1. Divide into subproblems</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">2. Conquer recursively</span><span class="flow-arrow">&#8594;</span>
+      <span class="flow-step">3. Combine solutions</span>
+    </div></div>
+    <p style="font-size:13px;color:#475569;"><strong>Classic Examples:</strong> Merge Sort, Quick Sort, Binary Search, Strassen's Matrix Multiplication.</p>
+  </div>
+</div><!-- S26 -->
+<div id="s26" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">26</div><div class="sec-title-wrap"><div class="sec-title">Dynamic Programming (DP) &amp; Common Complexities <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">Overlapping subproblems, optimal substructure, Memoization vs Tabulation</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Dynamic Programming</strong>: Solves optimization problems by breaking into subproblems and storing/reusing solutions.<br/>
+    <strong>2 Mandatory Properties:</strong> 1. <strong>Overlapping Subproblems</strong> &nbsp;|&nbsp; 2. <strong>Optimal Substructure</strong>.</div>
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Memoization (Top-Down)</div><p style="font-size:13px;color:#475569;">Recursion + Lookup Table cache (on-demand subproblem evaluation).</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#1e40af;">Tabulation (Bottom-Up)</div><p style="font-size:13px;color:#475569;">Iterative table filling from base cases up to target.</p></div>
+    </div>
+    <div class="mini-h">Frequently Tested DP Complexities Table &#128293;</div>
+    <div class="table-wrap"><table class="comp"><thead><tr><th>DP Problem</th><th>Time Complexity</th><th>Space Complexity</th></tr></thead><tbody>
+      <tr><td><strong>0/1 Knapsack</strong></td><td><strong>O(n &times; W)</strong> (Pseudo-polynomial)</td><td>$O(n 	imes W)$ or $O(W)$</td></tr>
+      <tr><td><strong>Longest Common Subsequence (LCS)</strong></td><td><strong>O(n &times; m)</strong></td><td>$O(n 	imes m)$</td></tr>
+      <tr><td><strong>Matrix Chain Multiplication (MCM)</strong></td><td><strong>O(n&sup3;)</strong></td><td>$O(n^2)$</td></tr>
+      <tr><td><strong>Edit Distance (Levenshtein)</strong></td><td><strong>O(n &times; m)</strong></td><td>$O(n 	imes m)$</td></tr>
+      <tr><td><strong>Longest Increasing Subsequence (LIS)</strong></td><td>$O(n^2)$ DP / <strong>O(n log n)</strong> with Binary Search</td><td>$O(n)$</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S27 -->
+<div id="s27" class="sec c-amber sec-anchor">
+  <div class="sec-header"><div class="sec-num">27</div><div class="sec-title-wrap"><div class="sec-title">Backtracking Paradigm</div><div class="sec-subtitle">Choose &rarr; Explore &rarr; Undo (Pruning state space trees)</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Backtracking</strong>: Systematic search through state-space tree. Builds candidates incrementally and <strong>abandons/undoes ("backtracks") a candidate as soon as it cannot lead to a valid solution</strong>.<br/>
+    <strong>Classic Problems:</strong> N-Queens, Sudoku Solver, Rat in a Maze, Subset Sum, Graph Hamiltonian Cycle.</div>
+  </div>
+</div><!-- S28 -->
+<div id="s28" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">28</div><div class="sec-title-wrap"><div class="sec-title">Algorithm Design Paradigms Comparison</div><div class="sec-subtitle">Greedy vs DP vs Backtracking vs Divide &amp; Conquer</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Paradigm</th><th>Core Philosophy</th><th>Key Requirement</th><th>Example</th></tr></thead><tbody>
+      <tr><td><strong>Greedy</strong></td><td>Make the best local choice right now</td><td>Greedy choice property</td><td>Fractional Knapsack, Huffman</td></tr>
+      <tr><td><strong>Dynamic Programming</strong></td><td>Store and reuse overlapping subproblems</td><td>Optimal substructure &amp; overlapping subproblems</td><td>0/1 Knapsack, LCS, MCM</td></tr>
+      <tr><td><strong>Backtracking</strong></td><td>Try choice &rarr; Fail &rarr; Undo (backtrack)</td><td>Search space pruning</td><td>N-Queens, Sudoku</td></tr>
+      <tr><td><strong>Divide &amp; Conquer</strong></td><td>Divide &rarr; Solve independent parts &rarr; Combine</td><td>Subproblems must be disjoint</td><td>Merge Sort, Quick Sort</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S29 -->
+<div id="s29" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">29</div><div class="sec-title-wrap"><div class="sec-title">String Algorithms &amp; Pattern Matching <span class="badge-high">HIGH YIELD</span></div><div class="sec-subtitle">KMP (LPS array), Rabin-Karp, Z-Algorithm, Manacher's Algorithm</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Algorithm</th><th>Mechanism</th><th>Time Complexity</th></tr></thead><tbody>
+      <tr><td><strong>Naive Pattern Match</strong></td><td>Check pattern at every text index.</td><td>Worst: <strong>O(n &times; m)</strong></td></tr>
+      <tr><td><strong>KMP (Knuth-Morris-Pratt) &#11088;</strong></td><td>Preprocesses pattern to construct <strong>LPS (Longest Prefix which is also Suffix)</strong> table to skip redundant checks.</td><td><strong>O(n + m)</strong></td></tr>
+      <tr><td><strong>Rabin-Karp</strong></td><td>Uses rolling hash values to compare pattern with text substrings.</td><td>Average: <strong>O(n + m)</strong>, Worst: $O(nm)$</td></tr>
+      <tr><td><strong>Z-Algorithm</strong></td><td>Constructs Z-array where $Z[i]$ = length of longest substring starting at $i$ matching prefix.</td><td><strong>O(n + m)</strong></td></tr>
+      <tr><td><strong>Manacher's Algorithm &#11088;</strong></td><td>Finds the <strong>longest palindromic substring</strong> in linear time.</td><td><strong>O(n)</strong></td></tr>
+    </tbody></table></div>
+    <div class="callout callout-purple"><div class="callout-title">&#129504; Substring vs Subsequence</div>
+      <strong>Substring:</strong> Contiguous characters from the string.<br/>
+      <strong>Subsequence:</strong> Characters in original relative order, but <strong>not necessarily contiguous</strong>.
+    </div>
+  </div>
+</div><!-- S30 -->
+<div id="s30" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">30</div><div class="sec-title-wrap"><div class="sec-title">Trie (Prefix Tree)</div><div class="sec-subtitle">Fast string retrieval, autocomplete, dictionary lookups</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Trie</strong>: Multi-way tree structure where each node represents a character of a string. Edges represent characters, and paths from root to leaf represent words.<br/>
+    <strong>Search / Insert Time:</strong> <strong>O(L)</strong> where $L$ = length of the word (independent of the number of words stored).<br/>
+    <strong>Applications:</strong> Autocomplete, Spell checkers, IP routing longest-prefix lookup.</div>
+  </div>
+</div><!-- S31 -->
+<div id="s31" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">31</div><div class="sec-title-wrap"><div class="sec-title">Bit Manipulation Tricks &amp; Kernighan's Algorithm</div><div class="sec-subtitle">XOR properties, power-of-2 test, Brian Kernighan set bits count</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><div class="mini-card-title" style="color:#3730a3;">Crucial XOR Tricks &#11088;</div><p style="font-size:13px;color:#475569;">&bull; $a \oplus a = 0$<br/>&bull; $a \oplus 0 = a$<br/>&bull; $a \oplus b \oplus b = a$ (Finds single non-repeating element)</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#047857;">Power of 2 &amp; Low Bit Clear</div><p style="font-size:13px;color:#475569;">Check power of 2: <code>n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0</code><br/>Clear lowest set bit: <code>n &amp; (n - 1)</code></p></div>
+    </div>
+    <div class="callout callout-indigo"><div class="callout-title">&#128273; Brian Kernighan's Set Bit Counting Algorithm</div>
+      Loop <code>n = n &amp; (n - 1)</code> until $n = 0$. Number of iterations equals the exact count of set bits (1s) in binary representation. Complexity: <strong>O(number of set bits)</strong>.
+    </div>
+  </div>
+</div><!-- S32 -->
+<div id="s32" class="sec c-green sec-anchor">
+  <div class="sec-header"><div class="sec-num">32</div><div class="sec-title-wrap"><div class="sec-title">Disjoint Set Union (Union-Find) &#11088;&#11088;</div><div class="sec-subtitle">Path Compression, Union by Rank, O(&alpha;(n)) Amortized Time</div></div></div>
+  <div class="sec-body">
+    <div class="def-box"><strong>Disjoint Set (Union-Find)</strong>: Maintains partition of $n$ elements into disjoint sets. Operations: <code>Find(x)</code> (finds set representative) and <code>Union(x, y)</code> (merges two sets).</div>
+    <ul class="bullet-list">
+      <li><strong>Path Compression:</strong> Flattens tree during <code>find</code> by pointing all visited nodes directly to the root.</li>
+      <li><strong>Union by Rank / Size:</strong> Attaches smaller depth tree under root of larger depth tree.</li>
+      <li>With both optimizations: Amortized time per operation is nearly constant: <strong>O(&alpha;(n))</strong> (Inverse Ackermann function $\le 4$ for all practical $n$).</li>
+      <li><strong>Used in:</strong> Kruskal's MST algorithm, cycle detection in undirected graphs.</li>
+    </ul>
+  </div>
+</div><!-- S33 -->
+<div id="s33" class="sec c-blue sec-anchor">
+  <div class="sec-header"><div class="sec-num">33</div><div class="sec-title-wrap"><div class="sec-title">Advanced Trees: Red-Black, B-Tree, B+ Tree, Segment Tree, Fenwick (BIT) <span class="badge-new">NEW</span> &#11088;</div><div class="sec-subtitle">Self-balancing Red-Black, Multi-way DB trees, Range query structures</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Tree Structure</th><th>Key Properties &amp; Time Complexity</th><th>Primary Use Case</th></tr></thead><tbody>
+      <tr><td><strong>Red-Black Tree &#11088;</strong></td><td>Self-balancing BST with Red/Black coloring rules. Root &amp; leaves (NIL) are Black; no two consecutive Red nodes; every path from node to descendant leaves has equal Black nodes. Lookup/Insert: <strong>O(log n)</strong>.</td><td>C++ <code>std::map</code>, Java <code>TreeMap</code> (fewer rotations than AVL on insert/delete).</td></tr>
+      <tr><td><strong>B-Tree &#11088;</strong></td><td>Self-balancing multi-way search tree. Nodes have multiple keys and &gt; 2 children. Minimizes disk I/O operations. Search: <strong>O(log n)</strong>.</td><td>Database systems &amp; file systems.</td></tr>
+      <tr><td><strong>B+ Tree &#11088;</strong></td><td>Data records stored <strong>exclusively in leaf nodes</strong>; internal nodes guide search; <strong>leaf nodes linked sequentially</strong>.</td><td><strong>Database Indexing</strong> &amp; high-performance range queries.</td></tr>
+      <tr><td><strong>Segment Tree</strong></td><td>Binary tree storing range aggregations (sum, min, max). Build: $O(n)$, <strong>Range Query: O(log n)</strong>, <strong>Point/Range Update: O(log n)</strong>.</td><td>Competitive programming range query intervals.</td></tr>
+      <tr><td><strong>Fenwick Tree (BIT)</strong></td><td>Binary Indexed Tree using bit arithmetic to compute prefix sums and point updates in <strong>O(log n)</strong> with only $O(n)$ space.</td><td>Prefix sums and cumulative frequency counts.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S34 -->
+<div id="s34" class="sec c-rose sec-anchor">
+  <div class="sec-header"><div class="sec-num">34</div><div class="sec-title-wrap"><div class="sec-title">Advanced Graph Concepts (SCC, Bridges, Euler, Bipartite) <span class="badge-new">NEW</span></div><div class="sec-subtitle">Kosaraju/Tarjan, Articulation Points, Euler Path/Circuit, 2-Coloring</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Concept</th><th>Definition &amp; Test Condition</th><th>Algorithm &amp; Complexity</th></tr></thead><tbody>
+      <tr><td><strong>Strongly Connected Components (SCC)</strong></td><td>Maximal subgraph where every vertex is reachable from every other vertex in directed graph.</td><td><strong>Kosaraju's Algorithm</strong> (2 DFS passes with Transpose graph) / <strong>Tarjan's</strong> (1 DFS pass) &rarr; <strong>O(V + E)</strong></td></tr>
+      <tr><td><strong>Articulation Point &amp; Bridge</strong></td><td><strong>Cut Vertex / Edge:</strong> Removal increases number of connected components.</td><td>DFS with discovery times &amp; low-link values &rarr; <strong>O(V + E)</strong></td></tr>
+      <tr><td><strong>Euler Circuit &amp; Euler Path</strong></td><td><strong>Euler Circuit:</strong> Visits every edge exactly once and returns to start.<br/><strong>Euler Path:</strong> Visits every edge exactly once.</td><td>Connected graph has Euler Circuit iff <strong>every vertex has EVEN degree</strong>. Has Euler Path iff <strong>exactly 2 vertices have ODD degree</strong>.</td></tr>
+      <tr><td><strong>Bipartite Graph &#11088;</strong></td><td>Vertices partitionable into 2 sets $U, V$ with edges only between $U$ and $V$.</td><td><strong>A graph is Bipartite iff it has NO odd-length cycle</strong> (tested via 2-color BFS/DFS).</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S35 -->
+<div id="s35" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">35</div><div class="sec-title-wrap"><div class="sec-title">Core Algorithmic Techniques (Two Pointer, Sliding Window, Kadane's) <span class="badge-new">NEW</span> &#11088;</div><div class="sec-subtitle">O(n) linear optimization patterns for subarrays and pairs</div></div></div>
+  <div class="sec-body">
+    <div class="grid-3">
+      <div class="mini-card"><div class="mini-card-title" style="color:#0f766e;">Two Pointer Technique</div><p style="font-size:13px;color:#475569;">Two index pointers moving inward or at different speeds. Solves pair sum in sorted array in <strong>O(n)</strong> instead of $O(n^2)$.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#2563eb;">Sliding Window</div><p style="font-size:13px;color:#475569;">Maintains contiguous range $[L, R]$ that expands/shrinks dynamically to find maximum sum or unique substrings in <strong>O(n)</strong>.</p></div>
+      <div class="mini-card"><div class="mini-card-title" style="color:#7c3aed;">Kadane's Algorithm &#11088;</div><p style="font-size:13px;color:#475569;">Finds <strong>maximum sum contiguous subarray</strong> in a single pass: <code>curr_max = max(A[i], curr_max + A[i])</code> in <strong>O(n)</strong> time.</p></div>
+    </div>
+  </div>
+</div><!-- S36 -->
+<div id="s36" class="sec c-purple sec-anchor">
+  <div class="sec-header"><div class="sec-num">36</div><div class="sec-title-wrap"><div class="sec-title">Miscellaneous Data Structures (LRU Cache, Skip List, Bloom Filter) <span class="badge-new">NEW</span></div><div class="sec-subtitle">Hash Map + DLL, Probabilistic search structures</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Structure</th><th>Mechanism</th><th>Complexity &amp; Features</th></tr></thead><tbody>
+      <tr><td><strong>LRU Cache &#11088;</strong></td><td>Combines <strong>Hash Map + Doubly Linked List (DLL)</strong></td><td>Both <code>get()</code> and <code>put()</code> execute in strictly <strong>O(1)</strong> time.</td></tr>
+      <tr><td><strong>Skip List</strong></td><td>Probabilistic layered linked list with express lanes</td><td>Search, Insert, Delete run in <strong>O(log n)</strong> average time (used in Redis).</td></tr>
+      <tr><td><strong>Bloom Filter &#11088;</strong></td><td>Space-efficient probabilistic structure using $k$ hash functions over a bit array</td><td>Tests set membership: <strong>Zero false negatives</strong> (if it says absent, definitely absent), but <em>possible false positives</em>. Cannot delete in standard version.</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S37 -->
+<div id="s37" class="sec c-indigo sec-anchor">
+  <div class="sec-header"><div class="sec-num">37</div><div class="sec-title-wrap"><div class="sec-title">Complexity Theory Basics (P vs NP, NP-Complete, NP-Hard) <span class="badge-new">NEW</span></div><div class="sec-subtitle">Polynomial solvable vs verifiable, Cook-Levin Theorem</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Class</th><th>Formal Definition</th><th>Examples</th></tr></thead><tbody>
+      <tr><td><strong>P</strong></td><td>Problems solvable in <strong>Polynomial Time</strong> ($O(n^k)$) by a deterministic Turing machine.</td><td>Sorting, Shortest path (Dijkstra), MST</td></tr>
+      <tr><td><strong>NP</strong></td><td>Problems whose candidate solution can be <strong>verified in Polynomial Time</strong> by a deterministic Turing machine.</td><td>All P problems, TSP decision, 0/1 Knapsack</td></tr>
+      <tr><td><strong>NP-Complete &#11088;</strong></td><td>Hardest problems in NP. Problem $X$ is NP-Complete if: 1. $X \in 	ext{NP}$ and 2. Every problem in NP reduces to $X$ in polynomial time.</td><td>Circuit-SAT, 3-SAT, Traveling Salesperson Decision, Vertex Cover, Hamiltonian Path</td></tr>
+      <tr><td><strong>NP-Hard</strong></td><td>At least as hard as NP-Complete problems, but does not need to be in NP (not necessarily a decision problem).</td><td>Halting Problem, TSP Optimization version</td></tr>
+    </tbody></table></div>
+    <div class="callout callout-indigo"><div class="callout-title">&#129504; P vs NP Core Question</div>Is every problem whose solution can be verified quickly also solvable quickly? (Currently unsolved Millennium Prize problem).</div>
+  </div>
+</div><!-- S38 -->
+<div id="s38" class="sec c-slate sec-anchor">
+  <div class="sec-header"><div class="sec-num">38</div><div class="sec-title-wrap"><div class="sec-title">Master Complexity Cheat Sheet Table <span class="badge-fire">TOP PRIORITY &#128293;&#128293;</span></div><div class="sec-subtitle">All core Data Structures and Algorithms complexities in one place</div></div></div>
+  <div class="sec-body">
+    <div class="table-wrap"><table class="comp"><thead><tr><th>Structure / Algorithm</th><th>Access / Search</th><th>Insert</th><th>Delete</th><th>Space</th></tr></thead><tbody>
+      <tr><td><strong>Array</strong></td><td>$O(1)$ / $O(n)$</td><td>$O(n)$</td><td>$O(n)$</td><td>$O(n)$</td></tr>
+      <tr><td><strong>Singly Linked List</strong></td><td>$O(n)$ / $O(n)$</td><td>$O(1)$ (at head)</td><td>$O(1)$ (at head)</td><td>$O(n)$</td></tr>
+      <tr><td><strong>Stack / Queue</strong></td><td>$O(n)$ / $O(n)$</td><td>$O(1)$</td><td>$O(1)$</td><td>$O(n)$</td></tr>
+      <tr><td><strong>Hash Table</strong></td><td>N/A / <strong>O(1)</strong> avg</td><td><strong>O(1)</strong> avg</td><td><strong>O(1)</strong> avg</td><td>$O(n)$</td></tr>
+      <tr><td><strong>Binary Search Tree (BST)</strong></td><td>$O(\log n)$ avg / $O(n)$ worst</td><td>$O(\log n)$ avg</td><td>$O(\log n)$ avg</td><td>$O(n)$</td></tr>
+      <tr><td><strong>AVL / Red-Black Tree</strong></td><td><strong>O(log n)</strong> guaranteed</td><td><strong>O(log n)</strong></td><td><strong>O(log n)</strong></td><td>$O(n)$</td></tr>
+      <tr><td><strong>B-Tree / B+ Tree</strong></td><td><strong>O(log n)</strong></td><td><strong>O(log n)</strong></td><td><strong>O(log n)</strong></td><td>$O(n)$</td></tr>
+      <tr><td><strong>Binary Heap</strong></td><td>$O(1)$ min/max / $O(n)$</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>$O(n)$</td></tr>
+      <tr><td><strong>Segment Tree / Fenwick BIT</strong></td><td>$O(\log n)$ Range Query</td><td>$O(\log n)$ Update</td><td>$O(\log n)$</td><td>$O(n)$</td></tr>
+      <tr><td><strong>BFS / DFS</strong></td><td colspan="3"><strong>O(V + E)</strong> time</td><td>$O(V)$</td></tr>
+      <tr><td><strong>Dijkstra</strong></td><td colspan="3"><strong>O((V + E) log V)</strong></td><td>$O(V)$</td></tr>
+      <tr><td><strong>Bellman-Ford / Floyd-Warshall</strong></td><td colspan="3"><strong>O(V &times; E)</strong> &nbsp;|&nbsp; <strong>O(V&sup3;)</strong></td><td>$O(V)$ / $O(V^2)$</td></tr>
+      <tr><td><strong>KMP / Z-Algorithm</strong></td><td colspan="3"><strong>O(n + m)</strong></td><td>$O(m)$ / $O(n+m)$</td></tr>
+      <tr><td><strong>Union-Find (Optimized)</strong></td><td colspan="3"><strong>O(&alpha;(n))</strong> amortized near $O(1)$</td><td>$O(n)$</td></tr>
+    </tbody></table></div>
+  </div>
+</div><!-- S39 -->
+<div id="s39" class="sec c-teal sec-anchor">
+  <div class="sec-header"><div class="sec-num">39</div><div class="sec-title-wrap"><div class="sec-title">Must-Know Data Structure Direct Associations</div><div class="sec-subtitle">One-word matchings for rapid MCQ recall</div></div></div>
+  <div class="sec-body">
+    <div class="grid-2">
+      <div class="mini-card"><p style="font-size:13.5px;line-height:1.8;color:#334155;">
+        &bull; <strong>Stack</strong> &rarr; LIFO, Recursion, Infix/Postfix, DFS<br/>
+        &bull; <strong>Queue</strong> &rarr; FIFO, BFS, Printer Spooling, CPU Round Robin<br/>
+        &bull; <strong>BST Inorder</strong> &rarr; Strictly Ascending Sorted Order<br/>
+        &bull; <strong>Heap</strong> &rarr; Complete Binary Tree, Priority Queue, Heap Sort<br/>
+        &bull; <strong>AVL Tree</strong> &rarr; Balance Factor $\in \{-1, 0, +1\}$, Strict Balance<br/>
+        &bull; <strong>Red-Black Tree</strong> &rarr; Color rules, $O(\log n)$, Language Standard Libraries (std::map)
+      </p></div>
+      <div class="mini-card"><p style="font-size:13.5px;line-height:1.8;color:#334155;">
+        &bull; <strong>B+ Tree</strong> &rarr; Leaves only for data, linked leaves, Database Indexing<br/>
+        &bull; <strong>Kruskal</strong> &rarr; Edge sorting + Union-Find Disjoint Set<br/>
+        &bull; <strong>Dijkstra</strong> &rarr; Min-Heap, Single Source, Non-negative edges<br/>
+        &bull; <strong>Bellman-Ford</strong> &rarr; Negative weights, Negative cycle detection<br/>
+        &bull; <strong>Topological Sort</strong> &rarr; DAG only, Kahn's In-degree Queue<br/>
+        &bull; <strong>LRU Cache</strong> &rarr; Hash Map + Doubly Linked List
+      </p></div>
+    </div>
+  </div>
+</div><!-- S40 -->
+<div id="s40" class="sec sec-anchor" style="border-color:#2563eb;">
+  <div class="sec-header" style="background:linear-gradient(135deg,#0f172a,#1e1b4b);">
+    <div class="sec-num" style="background:rgba(56,189,248,.15);color:#38bdf8;font-size:22px;width:52px;height:52px;">&#128293;</div>
+    <div class="sec-title-wrap">
+      <div class="sec-title" style="color:#f1f5f9;">IBPS SO 40 Exam-Trap Facts &amp; Final Revision Order <span class="badge-fire">EXAM READY</span></div>
+      <div class="sec-subtitle" style="color:#94a3b8;">High-yield points tested in IBPS SO IT Officer &amp; GATE exams</div>
+    </div>
+  </div>
+  <div class="sec-body">
+    <div class="fact-grid">
+      <div class="fact-item"><span class="fact-num">01</span><span>Binary Search requires <strong>sorted data</strong> with direct random access.</span></div>
+      <div class="fact-item"><span class="fact-num">02</span><span>BST <strong>Inorder traversal</strong> produces sorted ascending order.</span></div>
+      <div class="fact-item"><span class="fact-num">03</span><span><strong>BFS uses Queue</strong> &nbsp;|&nbsp; <strong>DFS uses Stack / Recursion</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">04</span><span><strong>Heap is a Complete Binary Tree</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">05</span><span>Max Heap root = Maximum &nbsp;|&nbsp; Min Heap root = Minimum.</span></div>
+      <div class="fact-item"><span class="fact-num">06</span><span>AVL Tree Balance Factor $\in \{-1, 0, +1\}$.</span></div>
+      <div class="fact-item"><span class="fact-num">07</span><span>A tree with $N$ vertices has <strong>exactly $N - 1$ edges</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">08</span><span>Spanning Tree of $V$ vertices has <strong>$V - 1$ edges</strong> and no cycles.</span></div>
+      <div class="fact-item"><span class="fact-num">09</span><span><strong>Dijkstra fails</strong> with negative edge weights.</span></div>
+      <div class="fact-item"><span class="fact-num">10</span><span><strong>Bellman-Ford</strong> handles negative weights and detects negative cycles ($O(VE)$).</span></div>
+      <div class="fact-item"><span class="fact-num">11</span><span><strong>Floyd-Warshall</strong> computes All-Pairs shortest path in $O(V^3)$.</span></div>
+      <div class="fact-item"><span class="fact-num">12</span><span><strong>Topological Sorting requires a DAG</strong> (Directed Acyclic Graph).</span></div>
+      <div class="fact-item"><span class="fact-num">13</span><span>Kruskal's MST uses <strong>Union-Find (Disjoint Set)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">14</span><span>Level-Order traversal uses a <strong>FIFO Queue</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">15</span><span>Recursion uses the internal <strong>Call Stack</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">16</span><span>Hash table average lookup time is <strong>O(1)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">17</span><span><strong>Merge Sort is stable</strong>; Quick Sort is not stable.</span></div>
+      <div class="fact-item"><span class="fact-num">18</span><span>Quick Sort worst-case is <strong>O(n²)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">19</span><span>Comparison sorting lower bound is <strong>&Omega;(n log n)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">20</span><span>Counting &amp; Radix sorts are <strong>non-comparison based</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">21</span><span>Circular Queue full condition: <code>(rear + 1) % size == front</code>.</span></div>
+      <div class="fact-item"><span class="fact-num">22</span><span>Deque allows insertions and deletions at <strong>both ends</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">23</span><span>Priority Queue is commonly implemented using a <strong>Binary Heap</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">24</span><span>Full Binary Tree: Every node has <strong>0 or 2 children</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">25</span><span>Complete Binary Tree: Last level filled <strong>strictly left-to-right</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">26</span><span>Perfect Binary Tree has <strong>$2^{h+1} - 1$ nodes</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">27</span><span>DP requires <strong>Overlapping Subproblems + Optimal Substructure</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">28</span><span>Backtracking = <strong>Choose &rarr; Explore &rarr; Undo</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">29</span><span>Connected graph has Euler Circuit iff <strong>every vertex has EVEN degree</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">30</span><span>A graph is Bipartite iff it has <strong>no odd-length cycle</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">31</span><span>Greedy fails for 0/1 Knapsack (needs DP); works for Fractional Knapsack.</span></div>
+      <div class="fact-item"><span class="fact-num">32</span><span>B+ Trees store data <strong>only in leaf nodes</strong> (linked for range queries).</span></div>
+      <div class="fact-item"><span class="fact-num">33</span><span>Segment Tree &amp; Fenwick BIT answer range queries in <strong>O(log n)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">34</span><span>Bloom Filter: <strong>No false negatives</strong>, but possible false positives.</span></div>
+      <div class="fact-item"><span class="fact-num">35</span><span>Kosaraju &amp; Tarjan find Strongly Connected Components in <strong>O(V + E)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">36</span><span>Kadane's Algorithm finds maximum sum subarray in <strong>O(n)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">37</span><span>P vs NP is unsolved; NP-Complete problems are both in NP and NP-Hard.</span></div>
+      <div class="fact-item"><span class="fact-num">38</span><span>Manacher's Algorithm finds longest palindromic substring in <strong>O(n)</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">39</span><span>Floyd's Tortoise &amp; Hare detects linked list cycles in <strong>O(n) time, O(1) space</strong>.</span></div>
+      <div class="fact-item"><span class="fact-num">40</span><span>Full Binary Tree leaf formula: <strong>Leaves = Internal Nodes + 1</strong> ($L = I + 1$).</span></div>
+    </div>
+
+    <div class="mini-h" style="margin-top:28px;">&#129504; Final IBPS SO High-Return Revision Sequence</div>
+    <div class="callout callout-amber"><div class="callout-title">&#128293; 15-Minute Mock Order</div>
+      <strong>1. Complexity Hierarchy &rarr; 2. Arrays &amp; LL (Floyd) &rarr; 3. Stack &amp; Queue &rarr; 4. Binary Search &rarr; 5. Sorting Table (Merge/Quick/Heap) &rarr; 6. Trees &amp; BST &rarr; 7. Heap &amp; Priority Queue &rarr; 8. Hashing &rarr; 9. BFS / DFS &rarr; 10. MST (Prim/Kruskal) &rarr; 11. Shortest Path (Dijkstra/Bellman-Ford) &rarr; 12. Topological Sort &rarr; 13. DP Complexities (Knapsack/LCS) &rarr; 14. Advanced Trees (B+ Tree, BIT) &rarr; 15. Kadane's &amp; Sliding Window</strong>.
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+  <a href="../index.html" class="bottom-btn btn-blue-ol">&#127968; Practice Hub Dashboard</a>
+  <a href="os-quick-revision.html" class="bottom-btn btn-amber-ol">⚡ Operating System Revision</a>
+  <a href="cn-quick-revision.html" class="bottom-btn btn-slate">🌐 Computer Networks Revision</a>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="bottom-btn btn-slate">&#8593; Back to Top</a>
+</div>
+
+</body>
+</html>

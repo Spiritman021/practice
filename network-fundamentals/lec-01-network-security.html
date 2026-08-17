@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 1 – Network Security Fundamentals: CIA, Cryptography, Hashes & Firewalls | GS Security Notes</title>
+  <meta name="description" content="Comprehensive IBPS SO IT & GATE study notes on Network Security Lecture 1 – CIA Triad, AAA Framework, Symmetric vs Asymmetric Cryptography, Hash Functions (MD5, SHA-256), Digital Signatures, and Firewall Types (Packet Filtering, Circuit-Level, Proxy) with verified PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .pillar-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .pillar-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .pillar-conf::before { background: #4f8ef7; }
+    .pillar-int::before { background: #00d4aa; }
+    .pillar-avail::before { background: #f7a34f; }
+    .pillar-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+    .pillar-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .pillar-conf .pillar-title { color: #4f8ef7; }
+    .pillar-int .pillar-title { color: #00d4aa; }
+    .pillar-avail .pillar-title { color: #f7a34f; }
+    .pillar-desc { font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+
+    /* Comparison Table Styling */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    /* Key Formula Box */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(124,92,240,0.12), rgba(79,142,247,0.12));
+      border: 1px solid rgba(124,92,240,0.35); border-radius: 14px; padding: 18px 22px; margin: 20px 0;
+    }
+    .formula-title { font-size: 14px; font-weight: 800; color: #7c5cf0; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+    /* PYQ Card */
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* Scroll progress */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #10b981, #34d399, #4f8ef7);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4);">Lec 01</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);">Security · Lecture 01</span>
+    <h1 class="page-title">Network Security Fundamentals:<br>CIA, Cryptography, Hashes &amp; Firewalls</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand deep dive into CIA Triad, AAA Framework, Symmetric vs Asymmetric Encryption, Cryptographic Hash Functions (MD5, SHA-256), Digital Signatures with Non-Repudiation, and Firewall Generations (Packet Filtering, Circuit-Level &amp; Proxy Gateway). Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🛡️ IBPS SO IT Top Priority</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 1 Handout</span>
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:var(--accent5);border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#cia-aaa"><span class="toc-num">1.1</span> CIA Triad &amp; AAA Security Framework</a></li>
+      <li><a href="#cryptography"><span class="toc-num">1.2</span> Cryptography: Symmetric vs Asymmetric Encryption</a></li>
+      <li><a href="#hash-functions"><span class="toc-num">1.3</span> Hash Functions (MD5, MD6, SHA Family)</a></li>
+      <li><a href="#digital-signature"><span class="toc-num">1.4</span> Digital Signatures &amp; Non-Repudiation Mechanics</a></li>
+      <li><a href="#firewalls-intro"><span class="toc-num">1.5</span> Firewall Fundamentals &amp; Form Factors</a></li>
+      <li><a href="#firewall-types"><span class="toc-num">1.6</span> Firewall Generations by OSI Layer (Packet Filter, Circuit Gateway, Proxy)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">1.7</span> IBPS SO IT PYQ Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">1.8</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1.1: CIA & AAA -->
+  <div class="section" id="cia-aaa">
+    <div class="sec-card">
+      <h2 class="section-title">1.1 CIA Triad &amp; AAA Security Framework</h2>
+      <p>Network Security is built upon two core foundational frameworks: the <strong>CIA Triad</strong> (information goals) and the <strong>AAA Framework</strong> (access management).</p>
+
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent); margin: 20px 0 12px;">1. The CIA Triad</h3>
+      <div class="grid-3">
+        <div class="pillar-card pillar-conf">
+          <div class="pillar-title">🔒 Confidentiality</div>
+          <div class="pillar-desc">
+            <strong>Goal:</strong> Ensures data is kept private and accessible ONLY to authorized users. Protects against eavesdropping.<br>
+            <strong>Enforcement:</strong> Encryption algorithms (AES, RSA), SSL/TLS, VPNs, Access Control Lists (ACLs).<br>
+            <strong>Exam Attack:</strong> Sniffing, Man-in-the-Middle (MITM), Shoulder Surfing.
+          </div>
+        </div>
+        <div class="pillar-card pillar-int">
+          <div class="pillar-title">🛡️ Integrity</div>
+          <div class="pillar-desc">
+            <strong>Goal:</strong> Ensures data is NOT altered, modified, or tampered with during transit or storage.<br>
+            <strong>Enforcement:</strong> Cryptographic Hashes (SHA-256, MD5), Digital Signatures, HMAC.<br>
+            <strong>Exam Attack:</strong> Packet Injection, Tampering, Replay Attacks.
+          </div>
+        </div>
+        <div class="pillar-card pillar-avail">
+          <div class="pillar-title">⚡ Availability</div>
+          <div class="pillar-desc">
+            <strong>Goal:</strong> Guarantees data, networks, and services are accessible to legitimate users whenever needed.<br>
+            <strong>Enforcement:</strong> High Availability (HA), Redundancy, Load Balancing, Firewalls, SYN Cookies.<br>
+            <strong>Exam Attack:</strong> DoS (Denial of Service), DDoS SYN Floods, Ransomware.
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size:18px; font-weight:800; color:#34d399; margin: 24px 0 12px;">2. The AAA Framework</h3>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Question Answered</th>
+            <th>Description &amp; Mechanism</th>
+            <th>Real-World Protocol / Tech</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Authentication</strong></td>
+            <td><em>"Who are you?"</em></td>
+            <td>Verifying the claimed identity of a user or system.</td>
+            <td>Passwords, Biometrics, Smart Cards, 2FA/MFA, Kerberos</td>
+          </tr>
+          <tr>
+            <td><strong>Authorization</strong></td>
+            <td><em>"What can you do?"</em></td>
+            <td>Determining permissions and access rights granted to an authenticated identity.</td>
+            <td>Role-Based Access Control (RBAC), File Permissions (chmod), ACLs</td>
+          </tr>
+          <tr>
+            <td><strong>Auditing / Accounting</strong></td>
+            <td><em>"What did you do?"</em></td>
+            <td>Logging and tracking actions for accountability, forensic investigation, and compliance.</td>
+            <td>Syslog, Audit Trails, RADIUS / TACACS+ loggers</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 1.2: CRYPTOGRAPHY -->
+  <div class="section" id="cryptography">
+    <div class="sec-card">
+      <h2 class="section-title">1.2 Cryptography: Symmetric vs Asymmetric Encryption</h2>
+      <p><strong>Cryptography</strong> is the science of converting readable <em>Plaintext</em> into unreadable <em>Ciphertext</em> (Encryption) and back (Decryption).</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Symmetric Key Cryptography (Private Key)</th>
+            <th>Asymmetric Key Cryptography (Public Key)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Key Count</strong></td>
+            <td><strong>1 Secret Key</strong> (shared between sender &amp; receiver).</td>
+            <td><strong>2 Keys per user</strong> (1 Public Key + 1 Private Key).</td>
+          </tr>
+          <tr>
+            <td><strong>Key Relationship</strong></td>
+            <td>Same key used for both Encryption &amp; Decryption.</td>
+            <td>Public Key encrypts $\rightarrow$ Private Key decrypts (or vice versa).</td>
+          </tr>
+          <tr>
+            <td><strong>Speed &amp; Efficiency</strong></td>
+            <td><strong>Extremely Fast</strong> (computational overhead is minimal).</td>
+            <td><strong>Slower</strong> (complex mathematical prime factorizations).</td>
+          </tr>
+          <tr>
+            <td><strong>Key Distribution</strong></td>
+            <td>Hard to distribute key securely (Key Distribution Problem).</td>
+            <td>Easy key distribution (Public Key is distributed freely).</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Use Cases</strong></td>
+            <td>Bulk data encryption (file systems, database streams, AES).</td>
+            <td>Digital signatures, key exchange protocols (Diffie-Hellman), SSL/TLS handshake.</td>
+          </tr>
+          <tr>
+            <td><strong>Algorithms</strong></td>
+            <td><strong>AES</strong>, DES, 3DES, Blowfish, RC4, IDEA.</td>
+            <td><strong>RSA</strong>, Diffie-Hellman, ECC (Elliptic Curve), DSA.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Formulas -->
+      <div class="formula-box">
+        <div class="formula-title">🧮 IBPS SO IT Mathematical Key Formulas</div>
+        <ul style="margin: 0; padding-left: 20px; color: var(--text); font-size: 14px; line-height: 1.8;">
+          <li><strong>Symmetric Encryption Key Count Formula:</strong> For $N$ users to communicate securely pairwise:
+            $$\text{Total Keys} = \frac{N(N - 1)}{2}$$
+            <em>Example: For 10 users $\rightarrow \frac{10 \times 9}{2} = 45$ secret keys required.</em>
+          </li>
+          <li><strong>Asymmetric Encryption Key Count Formula:</strong> For $N$ users:
+            $$\text{Total Keys} = 2N$$
+            <em>Example: For 10 users $\rightarrow 2 \times 10 = 20$ total keys (10 Public + 10 Private).</em>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1.3: HASH FUNCTIONS -->
+  <div class="section" id="hash-functions">
+    <div class="sec-card">
+      <h2 class="section-title">1.3 Hash Functions (MD5, MD6, SHA Family)</h2>
+      <p>A <strong>Cryptographic Hash Function</strong> is a mathematical algorithm that converts an arbitrary-sized input string into a <strong>fixed-length bit string (Digest)</strong>.</p>
+
+      <div class="grid-3" style="margin-top:16px;">
+        <div class="pillar-card" style="border-top: 3px solid #f05c88;">
+          <div style="font-weight:800; color:#f05c88; font-size:16px; margin-bottom:6px;">1. One-Way Property</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.5;">It is computationally impossible to reverse a hash digest back into its original input plaintext: $H = \text{hash}(M)$, cannot get $M$ from $H$.</div>
+        </div>
+        <div class="pillar-card" style="border-top: 3px solid #7c5cf0;">
+          <div style="font-weight:800; color:#7c5cf0; font-size:16px; margin-bottom:6px;">2. Avalanche Effect</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.5;">Changing even a single bit in the input message changes more than 50% of the output hash digest completely.</div>
+        </div>
+        <div class="pillar-card" style="border-top: 3px solid #00d4aa;">
+          <div style="font-weight:800; color:#00d4aa; font-size:16px; margin-bottom:6px;">3. Collision Resistance</div>
+          <div style="font-size:13px; color:var(--text2); line-height:1.5;">It should be virtually impossible to find two distinct inputs $M_1 \neq M_2$ such that $\text{hash}(M_1) = \text{hash}(M_2)$.</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:18px; font-weight:800; color:var(--accent); margin: 24px 0 12px;">Hash Family Output Digest Master Table (High Yield IBPS SO IT)</h3>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Algorithm Name</th>
+            <th>Output Digest Size (Bits)</th>
+            <th>Output Digest Size (Bytes)</th>
+            <th>Security Status &amp; Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MD5</strong> (Message Digest 5)</td>
+            <td><span style="color:#f05c88; font-weight:800;">128 Bits</span></td>
+            <td>16 Bytes</td>
+            <td><strong>Deprecated</strong> due to collision vulnerability (Brucker attacks).</td>
+          </tr>
+          <tr>
+            <td><strong>MD6</strong> (Message Digest 6)</td>
+            <td><span style="color:#f7a34f; font-weight:800;">256 Bits</span> (Up to 512)</td>
+            <td>32 Bytes</td>
+            <td>Variable-length hash algorithm designed for parallelized CPU architecture.</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-1</strong> (Secure Hash Algorithm)</td>
+            <td><span style="color:#7c5cf0; font-weight:800;">160 Bits</span></td>
+            <td>20 Bytes</td>
+            <td>Deprecated by Google/Microsoft (SHAttered collision attack 2017).</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-256</strong> (SHA-2 Family)</td>
+            <td><span style="color:#00d4aa; font-weight:800;">256 Bits</span></td>
+            <td>32 Bytes</td>
+            <td><strong>Industry Standard</strong> (Used in Bitcoin, SSL/TLS certificates, IPsec).</td>
+          </tr>
+          <tr>
+            <td><strong>SHA-512</strong> (SHA-2 Family)</td>
+            <td><span style="color:#4f8ef7; font-weight:800;">512 Bits</span></td>
+            <td>64 Bytes</td>
+            <td>Ultra-high security hash standard.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 1.4: DIGITAL SIGNATURE -->
+  <div class="section" id="digital-signature">
+    <div class="sec-card">
+      <h2 class="section-title">1.4 Digital Signatures &amp; Non-Repudiation Mechanics</h2>
+      <p>A <strong>Digital Signature</strong> is a mathematical technique used to guarantee message <strong>Authenticity</strong>, <strong>Integrity</strong>, and <strong>Non-Repudiation</strong>.</p>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; margin:20px 0;">
+        <h4 style="color:#34d399; font-size:16px; margin-bottom:10px;">🔄 Step-by-Step Signing &amp; Verification Process:</h4>
+        <ol style="color:var(--text2); font-size:14px; line-height:1.8; margin-left:20px;">
+          <li><strong>Signing (Sender / Alice):</strong>
+            <ul>
+              <li>Alice computes Hash $H = \text{SHA-256}(\text{Message})$.</li>
+              <li>Alice encrypts Hash $H$ using <strong>Alice's PRIVATE Key</strong> $\rightarrow$ This produces the <strong>Digital Signature</strong>!</li>
+              <li>Alice sends both the original Message + Digital Signature to Bob.</li>
+            </ul>
+          </li>
+          <li><strong>Verification (Receiver / Bob):</strong>
+            <ul>
+              <li>Bob receives Message + Signature.</li>
+              <li>Bob decrypts Signature using <strong>Alice's PUBLIC Key</strong> $\rightarrow$ yields Hash $H_1$.</li>
+              <li>Bob computes fresh Hash $H_2 = \text{SHA-256}(\text{Message})$.</li>
+              <li>If $H_1 == H_2$, the signature is <strong>VALID</strong>! (Proves authenticity &amp; integrity).</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Golden Rule Box -->
+      <div style="background:rgba(240,92,136,0.12); border:1px solid rgba(240,92,136,0.35); border-radius:14px; padding:18px 22px;">
+        <h4 style="color:#f05c88; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">⚠️ IBPS SO IT Golden Rule: Key Usage Distinction</h4>
+        <ul style="color:var(--text); font-size:14px; line-height:1.7; margin:0; padding-left:20px;">
+          <li>To achieve <strong>Confidentiality (Privacy)</strong> $\rightarrow$ Encrypt with <strong>RECEIVER'S Public Key</strong>.</li>
+          <li>To achieve <strong>Digital Signature / Non-Repudiation</strong> $\rightarrow$ Encrypt Hash with <strong>SENDER'S Private Key</strong>.</li>
+          <li><strong>Non-Repudiation:</strong> The sender CANNOT deny sending the message because only the sender holds their private key!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1.5: FIREWALL INTRO -->
+  <div class="section" id="firewalls-intro">
+    <div class="sec-card">
+      <h2 class="section-title">1.5 Firewall Fundamentals &amp; Form Factors</h2>
+      <p>A <strong>Firewall</strong> is a network security device that monitors, filters, and controls incoming and outgoing network traffic based on configured security rules (Access Control Lists - ACLs).</p>
+
+      <div class="grid-3">
+        <div class="pillar-card">
+          <div style="font-weight:800; color:#4f8ef7; font-size:16px; margin-bottom:6px;">🖥️ Software Firewalls</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.5;">Installed as software applications directly on endpoints (e.g. Windows Defender Firewall, iptables). Protects individual host computers.</div>
+        </div>
+        <div class="pillar-card">
+          <div style="font-weight:800; color:#34d399; font-size:16px; margin-bottom:6px;">🔌 Hardware Firewalls</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.5;">Dedicated standalone physical appliances placed between internal router and external network (e.g., Cisco ASA, Palo Alto). Handles high throughput for entire LANs.</div>
+        </div>
+        <div class="pillar-card">
+          <div style="font-weight:800; color:#f7a34f; font-size:16px; margin-bottom:6px;">☁️ Cloud Firewalls (FWaaS)</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.5;">Virtual firewalls deployed in cloud infrastructure (AWS Security Groups, Azure Firewall). Scalable perimeter control for cloud workloads.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1.6: FIREWALL TYPES BY OSI LAYER -->
+  <div class="section" id="firewall-types">
+    <div class="sec-card">
+      <h2 class="section-title">1.6 Firewall Generations by OSI Layer</h2>
+      <p>Firewalls are categorized based on the <strong>OSI Layer</strong> at which they inspect network traffic:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Firewall Type</th>
+            <th>OSI Operating Layer</th>
+            <th>Inspection Details</th>
+            <th>Pros &amp; Cons / Security Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Packet Filtering Firewall</strong></td>
+            <td><span style="color:#4f8ef7; font-weight:800;">Layer 3 (Network) &amp; Layer 4 (Transport)</span></td>
+            <td>Inspects IP addresses (Source/Dest), Port numbers (Source/Dest), and Protocol types (TCP/UDP/ICMP). Does <strong>NOT</strong> open packet payload.</td>
+            <td><strong>Pros:</strong> Extremely fast, low CPU load.<br><strong>Cons:</strong> Cannot detect malware in payload. Vulnerable to IP spoofing.</td>
+          </tr>
+          <tr>
+            <td><strong>Circuit-Level Gateway</strong></td>
+            <td><span style="color:#f7a34f; font-weight:800;">Layer 5 (Session Layer)</span></td>
+            <td>Verifies <strong>TCP 3-Way Handshake</strong> (SYN, SYN-ACK, ACK) and virtual connection validity before allowing packet flow.</td>
+            <td><strong>Pros:</strong> Fast, resource-efficient, validates connection legitimacy.<br><strong>Cons:</strong> Does not inspect packet content/payload. Malicious payloads passing TCP handshake will bypass it.</td>
+          </tr>
+          <tr>
+            <td><strong>Application-Level Gateway (Proxy Firewall)</strong></td>
+            <td><span style="color:#34d399; font-weight:800;">Layer 7 (Application Layer)</span></td>
+            <td>Acts as a full proxy intermediary. Performs <strong>Deep Packet Inspection (DPI)</strong>, inspecting HTTP headers, URLs, FTP commands, and file payloads.</td>
+            <td><strong>Pros:</strong> Highest security level, detects application-layer malware &amp; viruses.<br><strong>Cons:</strong> Slower performance, high CPU/memory consumption.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Firewall Summary Cards -->
+      <div style="margin-top:20px; display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#4f8ef7; font-size:15px; margin-bottom:8px;">1. Stateless vs Stateful SPI</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">
+            • <strong>Stateless Packet Filter:</strong> Evaluates every packet in isolation against static rule lists without tracking connection state.<br>
+            • <strong>Stateful Packet Inspection (SPI):</strong> Tracks active TCP connection states in a <em>State Table</em>. Allows return traffic dynamically for established sessions!
+          </p>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#34d399; font-size:15px; margin-bottom:8px;">2. Next-Gen Firewall (NGFW)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">
+            Combines traditional Stateful Packet Inspection (SPI) with Application Control, Deep Packet Inspection (DPI), Integrated Intrusion Prevention System (IPS), and TLS/SSL encrypted traffic inspection.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1.7: IBPS SO IT PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">1.7 IBPS SO IT PYQ Verified Solved Question Bank</h2>
+      <p>Practice these authentic questions sourced and verified from <strong>IBPS SO IT Officer Previous Year Question Papers (2015–2025)</strong>:</p>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q1. A Circuit-Level Gateway firewall operates at which layer of the OSI model to filter network traffic?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Network Layer (Layer 3)</div>
+          <div class="pyq-opt">B) Transport Layer (Layer 4)</div>
+          <div class="pyq-opt correct">C) Session Layer (Layer 5) ✓</div>
+          <div class="pyq-opt">D) Application Layer (Layer 7)</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Session Layer (Layer 5).</strong><br>
+          <em>Explanation:</em> Circuit-level gateways operate at Layer 5 (Session Layer) by validating TCP 3-way handshakes (SYN, SYN-ACK, ACK) and session establishment. Packet Filtering operates at L3/L4, and Proxy Firewalls operate at L7 (Application Layer).
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q2. To provide Non-Repudiation and verify sender authenticity in digital message exchange, the digital signature is created by encrypting the message digest with:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Receiver's Public Key</div>
+          <div class="pyq-opt">B) Receiver's Private Key</div>
+          <div class="pyq-opt">C) Sender's Public Key</div>
+          <div class="pyq-opt correct">D) Sender's Private Key ✓</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: D) Sender's Private Key.</strong><br>
+          <em>Explanation:</em> A digital signature is generated by hashing the plaintext message and encrypting that hash using the <strong>Sender's Private Key</strong>. Because only the sender possesses their private key, anyone can verify the signature using the sender's public key, guaranteeing non-repudiation!
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. If 20 users in a banking network wish to communicate with complete confidentiality using Symmetric Encryption, how many total secret keys must be generated?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) 20 Keys</div>
+          <div class="pyq-opt">B) 40 Keys</div>
+          <div class="pyq-opt correct">C) 190 Keys ✓</div>
+          <div class="pyq-opt">D) 400 Keys</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) 190 Keys.</strong><br>
+          <em>Formula:</em> $\text{Total Keys} = \frac{N(N-1)}{2} = \frac{20 \times 19}{2} = 190$ secret keys. (If Asymmetric Encryption were used, it would require $2N = 40$ keys!).
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2021 Verified</div>
+        <div class="pyq-question">Q4. What is the fixed hash output size generated by the Message Digest 5 (MD5) algorithm?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt correct">A) 128 Bits (16 Bytes) ✓</div>
+          <div class="pyq-opt">B) 160 Bits (20 Bytes)</div>
+          <div class="pyq-opt">C) 256 Bits (32 Bytes)</div>
+          <div class="pyq-opt">D) 512 Bits (64 Bytes)</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: A) 128 Bits.</strong><br>
+          <em>Key Reference:</em> MD5 generates a 128-bit digest, SHA-1 generates 160-bit, and SHA-256 generates 256-bit hash digest.
+        </div>
+      </div>
+
+      <!-- PYQ 5 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q5. Which type of firewall performs Deep Packet Inspection (DPI) at the Application Layer to inspect actual packet contents for malicious code?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Packet Filtering Firewall</div>
+          <div class="pyq-opt">B) Circuit-Level Gateway</div>
+          <div class="pyq-opt correct">C) Application-Level Gateway (Proxy Firewall) ✓</div>
+          <div class="pyq-opt">D) Stateless Packet Filter</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Application-Level Gateway (Proxy Firewall).</strong><br>
+          <em>Explanation:</em> Application-Level Gateways (Proxy Firewalls) operate at Layer 7 (Application Layer) and perform Deep Packet Inspection (DPI) on the actual application payload.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1.8: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">1.8 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. CIA Triad:</strong> Confidentiality (Privacy/Encryption), Integrity (Tamper-proofing/Hashes), Availability (Accessibility/Redundancy).</p>
+        <p><strong style="color:#fff;">2. AAA Framework:</strong> Authentication (Who are you?), Authorization (What permissions do you have?), Accounting (Logging actions).</p>
+        <p><strong style="color:#fff;">3. Cryptography Keys:</strong> Symmetric = 1 Secret Key ($\frac{N(N-1)}{2}$ keys). Asymmetric = Public/Private pair ($2N$ keys). Fast = Symmetric (AES); Key Exchange = Asymmetric (RSA/Diffie-Hellman).</p>
+        <p><strong style="color:#fff;">4. Hash Bit Sizes:</strong> MD5 = 128 bits | SHA-1 = 160 bits | SHA-256 = 256 bits | SHA-512 = 512 bits.</p>
+        <p><strong style="color:#fff;">5. Digital Signature:</strong> Message Hash encrypted with <strong>Sender's Private Key</strong>. Verified with Sender's Public Key. Provides Non-Repudiation.</p>
+        <p><strong style="color:#fff;">6. Firewall Layers:</strong>
+          <br>• Packet Filter = Layers 3 &amp; 4 (Network &amp; Transport - IP/Ports)
+          <br>• Circuit Gateway = Layer 5 (Session - TCP 3-Way Handshake)
+          <br>• Proxy Gateway = Layer 7 (Application - Deep Packet Inspection DPI)
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="gs-network-security-notes.html" style="color:#34d399; font-weight:700; text-decoration:none;">← Security Index</a>
+      <a href="index.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Network Fundamentals Home</a>
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" style="color:#34d399; font-weight:700; text-decoration:none;">Chapter 26: Firewalls &amp; DMZ →</a>
+    </div>
+    GS Network Security Notes · Lecture 01 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

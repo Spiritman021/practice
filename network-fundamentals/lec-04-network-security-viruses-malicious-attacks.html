@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 4 – Security Attacks &amp; Malware: Passive/Active, Viruses, Worms, Trojans &amp; Ransomware | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 4 – Passive vs Active Attacks (Traffic Analysis, Masquerade, Replay), Malware Classification (Viruses, Worms, Trojans, Ransomware, Spyware), 5 Virus Types (MBR, Multipartite, Macro), Famous Historical Malware (Stuxnet, Pegasus, ILOVEYOU, CryptoLocker), and IBPS SO IT PYQs." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .pillar-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .pillar-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .pillar-pass::before { background: #4f8ef7; }
+    .pillar-act::before { background: #f05c88; }
+    .pillar-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .formula-box {
+      background: linear-gradient(135deg, rgba(79,142,247,0.12), rgba(124,92,240,0.12));
+      border: 1px solid rgba(79,142,247,0.35); border-radius: 14px; padding: 18px 22px; margin: 20px 0;
+    }
+    .formula-title { font-size: 14px; font-weight: 800; color: #4f8ef7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #7c5cf0, #f05c88, #34d399);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(124,92,240,0.2); color: #7c5cf0; border: 1px solid rgba(124,92,240,0.4);">Lec 04</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(124,92,240,0.15); color: #7c5cf0; border: 1px solid rgba(124,92,240,0.3);">Security · Lecture 04</span>
+    <h1 class="page-title">Security Attacks &amp; Malware:<br>Passive/Active Attacks, Viruses, Worms &amp; Ransomware</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Passive vs Active Security Attacks (Traffic Analysis, Masquerade, Replay, Modification, DoS), Malware Classification, 5 Computer Virus Types (Boot Sector, MBR, Multipartite, Macro), Worms vs Trojans vs Spyware vs Ransomware, Botnets, and Historical Famous Malware (Stuxnet, Pegasus, CryptoLocker, ILOVEYOU). Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(124,92,240,0.15);color:#7c5cf0;border:1px solid rgba(124,92,240,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">🦠 IBPS SO IT High Yield</span>
+      <span style="font-size:12px;background:rgba(79,142,247,0.12);color:var(--accent);border:1px solid rgba(79,142,247,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 4 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#attack-types"><span class="toc-num">4.1</span> Classification of Security Attacks: Passive vs Active</a></li>
+      <li><a href="#malware-intro"><span class="toc-num">4.2</span> Malware Definition &amp; Distribution Vectors</a></li>
+      <li><a href="#virus-types"><span class="toc-num">4.3</span> Computer Viruses &amp; The 5 Major Virus Types</a></li>
+      <li><a href="#malware-matrix"><span class="toc-num">4.4</span> Worms vs Trojan Horses vs Spyware vs Ransomware</a></li>
+      <li><a href="#adware-botnets"><span class="toc-num">4.5</span> Botnets, Adware, Phishing &amp; Spam</a></li>
+      <li><a href="#famous-malware"><span class="toc-num">4.6</span> Historical Famous Malware Dictionary (2000–2021)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">4.7</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">4.8</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 4.1: ATTACK CLASSIFICATION -->
+  <div class="section" id="attack-types">
+    <div class="sec-card">
+      <h2 class="section-title">4.1 Classification of Security Attacks: Passive vs Active</h2>
+      <p>Security attacks are categorized based on whether they alter system data and resources or merely observe them:</p>
+
+      <div class="grid-2">
+        <div class="pillar-card pillar-pass">
+          <div style="font-size:18px; font-weight:800; color:#4f8ef7; margin-bottom:8px;">1. Passive Attacks</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.6;">
+            • <strong>Definition:</strong> Attempts to learn or make use of system information but <strong>does NOT affect system resources or alter data</strong>.<br>
+            • <strong>Goal:</strong> Eavesdropping on or monitoring data transmissions.<br>
+            • <strong>Two Main Types:</strong>
+              <br>&nbsp;&nbsp;a) <em>Release of Message Contents:</em> Intercepting confidential emails or calls.
+              <br>&nbsp;&nbsp;b) <em>Traffic Analysis:</em> Observing message pattern, frequency, and length even if payload is encrypted.<br>
+            • <strong style="color:#4f8ef7;">Detection vs Prevention:</strong> <strong>Extremely difficult to detect</strong> because no data is modified. Focus is on <strong>Prevention</strong> using <strong>Encryption (SSL/TLS, IPsec)</strong>.
+          </div>
+        </div>
+
+        <div class="pillar-card pillar-act">
+          <div style="font-size:18px; font-weight:800; color:#f05c88; margin-bottom:8px;">2. Active Attacks</div>
+          <div style="font-size:13.5px; color:var(--text2); line-height:1.6;">
+            • <strong>Definition:</strong> Attempts to <strong>alter system resources or affect their operation</strong>. Involves data modification or creation of false streams.<br>
+            • <strong>Four Main Categories:</strong>
+              <br>&nbsp;&nbsp;a) <em>Masquerade:</em> Impersonating another entity (IP Spoofing).
+              <br>&nbsp;&nbsp;b) <em>Replay:</em> Capturing &amp; retransmitting valid data to produce unauthorized effects.
+              <br>&nbsp;&nbsp;c) <em>Message Modification:</em> Altering message contents in transit.
+              <br>&nbsp;&nbsp;d) <em>Denial of Service (DoS):</em> Inhibiting legitimate access.<br>
+            • <strong style="color:#f05c88;">Detection vs Prevention:</strong> <strong>Hard to prevent completely</strong>. Focus is on <strong>Detection &amp; Recovery</strong> (Firewalls, IPS, Audit Logs).
+          </div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Comparison Feature</th>
+            <th>Passive Security Attack</th>
+            <th>Active Security Attack</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>System Data Alteration</strong></td>
+            <td><strong>No</strong> (Data is not modified or corrupted).</td>
+            <td><strong>Yes</strong> (Data stream modified, fabricated, or blocked).</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Target</strong></td>
+            <td>Confidentiality &amp; Privacy.</td>
+            <td>Integrity &amp; Availability.</td>
+          </tr>
+          <tr>
+            <td><strong>Detection Difficulty</strong></td>
+            <td><strong>Very Difficult to Detect</strong> (leaves no trace).</td>
+            <td>Easier to Detect (leaves audit logs/error alerts).</td>
+          </tr>
+          <tr>
+            <td><strong>Primary Defense Focus</strong></td>
+            <td><strong>Prevention</strong> (Encryption, Data Hiding).</td>
+            <td><strong>Detection &amp; Recovery</strong> (Firewalls, IPS, Backups).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4.2: MALWARE INTRO -->
+  <div class="section" id="malware-intro">
+    <div class="sec-card">
+      <h2 class="section-title">4.2 Malware Definition &amp; Distribution Vectors</h2>
+      <p><strong>Malware</strong> (Malicious Software) is a general term for any software inserted into an information system to cause harm to that system or connected networks.</p>
+
+      <div class="grid-3">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#4f8ef7; font-size:15px; margin-bottom:6px;">🌐 Social Engineering &amp; Phishing</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Deceptive messages or emails tricking users into executing malicious attachments.</p>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#34d399; font-size:15px; margin-bottom:6px;">💾 Drive-by Downloads &amp; Media</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Infected USB drives, pirated software cracks, or compromised malicious websites.</p>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#7c5cf0; font-size:15px; margin-bottom:6px;">📦 Network Exploits</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Scanning network ports for unpatched OS vulnerabilities to spread autonomously.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4.3: COMPUTER VIRUSES -->
+  <div class="section" id="virus-types">
+    <div class="sec-card">
+      <h2 class="section-title">4.3 Computer Viruses &amp; The 5 Major Virus Types</h2>
+      <p>A <strong>Computer Virus</strong> is a piece of code loaded onto a computer without user knowledge. <strong>Key Trait:</strong> Requires a <strong>host file/program</strong> to attach to and requires human action to execute.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Virus Category</th>
+            <th>Infection Target &amp; Mechanism</th>
+            <th>Exam Key Characteristics</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. File Infector Virus</strong></td>
+            <td>Attaches to executable program files (e.g. <code>.exe</code>, <code>.com</code>, <code>.sys</code>, <code>.dll</code>).</td>
+            <td>Executes whenever the infected host application is launched.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Boot Sector Virus</strong></td>
+            <td>Infects the boot sector / boot record of storage drives (floppy disks, hard drives, USBs).</td>
+            <td>Loads into memory during system boot before the Operating System loads.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Master Boot Record (MBR) Virus</strong></td>
+            <td>Infects the Master Boot Record (MBR) controlling the partition table and system boot loader.</td>
+            <td>Prevents OS startup; can destroy disk partition structures.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Multipartite Virus (Polypartite)</strong></td>
+            <td>Infects <strong>BOTH boot sectors AND executable program files</strong> simultaneously.</td>
+            <td>Re-infects system if only file or boot sector is cleaned; hard to eradicate.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Macro Virus</strong></td>
+            <td>Written in macro programming languages embedded within Office documents (Word <code>.doc</code>, Excel <code>.xls</code>).</td>
+            <td>Executes automatically when the infected document or spreadsheet is opened.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4.4: MALWARE MATRIX -->
+  <div class="section" id="malware-matrix">
+    <div class="sec-card">
+      <h2 class="section-title">4.4 Worms vs Trojan Horses vs Spyware vs Ransomware</h2>
+      <p>Understanding the functional distinction between malware types is a high-yield IBPS SO IT requirement:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Malware Type</th>
+            <th>Self-Replicating?</th>
+            <th>Requires Host File?</th>
+            <th>User Interaction Needed?</th>
+            <th>Core Purpose &amp; Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Virus</strong></td>
+            <td><span style="color:#00d4aa; font-weight:800;">Yes</span></td>
+            <td><span style="color:#00d4aa; font-weight:800;">Yes</span> (Attaches to host)</td>
+            <td><strong>Yes</strong> (User must execute)</td>
+            <td>Corrupts files, modifies disk sectors, spreads via file sharing.</td>
+          </tr>
+          <tr>
+            <td><strong>Worm</strong></td>
+            <td><span style="color:#00d4aa; font-weight:800;">Yes</span></td>
+            <td><span style="color:#f05c88; font-weight:800;">No</span> (Standalone program)</td>
+            <td><span style="color:#f05c88; font-weight:800;">No</span> (Autonomous spread)</td>
+            <td>Traverses network nodes autonomously, consuming bandwidth &amp; system memory.</td>
+          </tr>
+          <tr>
+            <td><strong>Trojan Horse</strong></td>
+            <td><span style="color:#f05c88; font-weight:800;">No</span></td>
+            <td><span style="color:#f05c88; font-weight:800;">No</span></td>
+            <td><strong>Yes</strong> (Masquerades as valid app)</td>
+            <td>Disguises as useful utility (e.g. game); installs backdoors (RATs), keyloggers.</td>
+          </tr>
+          <tr>
+            <td><strong>Spyware</strong></td>
+            <td>Varies</td>
+            <td>Varies</td>
+            <td>No (Lurks silently)</td>
+            <td>Monitors user activity, records keystrokes (keyloggers), steals banking passwords.</td>
+          </tr>
+          <tr>
+            <td><strong>Ransomware</strong></td>
+            <td>Varies</td>
+            <td>Varies</td>
+            <td>Yes</td>
+            <td>Encrypts user files or locks OS; demands ransom payment for decryption key.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4.5: ADWARE & BOTNETS -->
+  <div class="section" id="adware-botnets">
+    <div class="sec-card">
+      <h2 class="section-title">4.5 Botnets, Adware, Phishing &amp; Spam</h2>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#f05c88; font-size:16px; margin-bottom:6px;">🤖 Botnets &amp; Zombie Hosts</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            A network of malware-infected computers (called "zombies" or "bots") controlled remotely by a Botmaster to launch massive DDoS attacks or send bulk spam emails.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#f7a34f; font-size:16px; margin-bottom:6px;">🔒 Ransomware (CryptoLocker / Locky)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Holds computer systems captive by encrypting files using strong asymmetric/symmetric keys. Demands ransom cryptocurrency for recovery.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#34d399; font-size:16px; margin-bottom:6px;">🎣 Phishing &amp; Social Engineering</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Spoofed messages tricking users into surrendering financial data, credentials, or Social Security numbers by linking to fake bank login pages.
+          </p>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:6px;">📢 Adware &amp; Unwanted Spam</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin:0;">
+            Adware automatically displays pop-up advertisements. Spam refers to bulk unsolicited commercial email carrying malicious attachments.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4.6: FAMOUS MALWARE DICTIONARY -->
+  <div class="section" id="famous-malware">
+    <div class="sec-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <h2 class="section-title" style="margin-bottom:0;">4.6 Complete Historical Famous Malware Master Reference (1–29)</h2>
+        <span style="background: rgba(124,92,240,0.2); color: #7c5cf0; border: 1px solid rgba(124,92,240,0.4); font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px;">FULL 29 MALWARE DICTIONARY</span>
+      </div>
+      <p>Complete 29-item master reference table of historical malware (2000–2021) from the lecture handout for IBPS SO IT &amp; GATE exam preparation:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width: 50px;">Sr No</th>
+            <th>Malware Name</th>
+            <th>Year</th>
+            <th>Type</th>
+            <th>Key Characteristics &amp; Behavior Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td><strong>Pegasus</strong></td>
+            <td>2020-21</td>
+            <td><span style="color:#7c5cf0; font-weight:800;">Spyware</span></td>
+            <td>NSO Group zero-click mobile spyware targeting iOS/Android to record calls, mics, and messages.</td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td><strong>Titanium</strong></td>
+            <td>2019</td>
+            <td><span style="color:#f05c88; font-weight:800;">Backdoor Malware</span></td>
+            <td>Advanced persistent threat (APT) backdoor payload operating silently inside system memory.</td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td><strong>Thanatos</strong></td>
+            <td>2018</td>
+            <td><span style="color:#f7a34f; font-weight:800;">Ransomware</span></td>
+            <td>First ransomware variant to accept multiple cryptocurrencies (BTC, ETH, BCH) for ransom payment.</td>
+          </tr>
+          <tr>
+            <td><strong>4</strong></td>
+            <td><strong>Petya</strong></td>
+            <td>2017</td>
+            <td><span style="color:#f7a34f; font-weight:800;">Malware / Ransomware</span></td>
+            <td>Overwrites Master Boot Record (MBR) and encrypts Master File Table (MFT) blocking system boot.</td>
+          </tr>
+          <tr>
+            <td><strong>5</strong></td>
+            <td><strong>Xafecopy</strong></td>
+            <td>2017</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan</span></td>
+            <td>Mobile Trojan disguised as legitimate Android apps that secretly subscribes users to paid SMS services.</td>
+          </tr>
+          <tr>
+            <td><strong>6</strong></td>
+            <td><strong>Locky</strong></td>
+            <td>2016</td>
+            <td><span style="color:#f7a34f; font-weight:800;">Ransomware</span></td>
+            <td>Phishing email-distributed AES/RSA file encrypting ransomware requiring ransom for private key.</td>
+          </tr>
+          <tr>
+            <td><strong>7</strong></td>
+            <td><strong>Bashlite</strong></td>
+            <td>2015</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Malware</span></td>
+            <td>Linux-based IoT malware used to infect busybox devices and launch large-scale DDoS attacks.</td>
+          </tr>
+          <tr>
+            <td><strong>8</strong></td>
+            <td><strong>Regin</strong></td>
+            <td>2014</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan</span></td>
+            <td>Highly sophisticated multi-stage cyber espionage Trojan used to monitor telecom operators.</td>
+          </tr>
+          <tr>
+            <td><strong>9</strong></td>
+            <td><strong>CryptoLocker</strong></td>
+            <td>2013</td>
+            <td><span style="color:#f7a34f; font-weight:800;">Trojan / Ransomware</span></td>
+            <td>Pioneered public-key RSA encryption of victim hard drives, demanding Bitcoin ransom within 72 hours.</td>
+          </tr>
+          <tr>
+            <td><strong>10</strong></td>
+            <td><strong>Shamoon</strong></td>
+            <td>2012</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Virus</span></td>
+            <td>Modular disk-wiping virus that wiped Master Boot Records across 30,000 workstations in the energy sector.</td>
+          </tr>
+          <tr>
+            <td><strong>11</strong></td>
+            <td><strong>SpyEye</strong></td>
+            <td>2011</td>
+            <td><span style="color:#7c5cf0; font-weight:800;">Spyware</span></td>
+            <td>Commercial banking Trojan spyware designed for keylogging, form grabbing, and online credential theft.</td>
+          </tr>
+          <tr>
+            <td><strong>12</strong></td>
+            <td><strong>Stuxnet</strong></td>
+            <td>2010</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan / Cyberweapon</span></td>
+            <td>Famous cyberweapon targeting Siemens SCADA industrial control systems in Iranian nuclear centrifuges.</td>
+          </tr>
+          <tr>
+            <td><strong>13</strong></td>
+            <td><strong>Daproxy</strong></td>
+            <td>2009</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Network worm designed to redirect web browser proxy settings to malicious servers.</td>
+          </tr>
+          <tr>
+            <td><strong>14</strong></td>
+            <td><strong>Kenzero</strong></td>
+            <td>2009</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Virus</span></td>
+            <td>P2P file-sharing virus that published victim browsing histories online to blackmail users into paying.</td>
+          </tr>
+          <tr>
+            <td><strong>15</strong></td>
+            <td><strong>Koobface</strong></td>
+            <td>2008</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Social networking botnet worm that spread via social media messages on Facebook, Twitter, and Myspace.</td>
+          </tr>
+          <tr>
+            <td><strong>16</strong></td>
+            <td><strong>Storm</strong></td>
+            <td>2007</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>P2P botnet worm that spread through fake weather news emails ("230 dead as storm batters Europe").</td>
+          </tr>
+          <tr>
+            <td><strong>17</strong></td>
+            <td><strong>Zeus or Zbot</strong></td>
+            <td>2007</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan</span></td>
+            <td>Notorious banking Trojan used for man-in-the-browser keystroke logging &amp; multi-million dollar theft.</td>
+          </tr>
+          <tr>
+            <td><strong>18</strong></td>
+            <td><strong>Nyxem</strong></td>
+            <td>2006</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Mass-mailing worm (Blackworm) designed to destroy Office documents &amp; disable security software.</td>
+          </tr>
+          <tr>
+            <td><strong>19</strong></td>
+            <td><strong>Zlob</strong></td>
+            <td>2005</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan</span></td>
+            <td>Trojan disguised as a required video codec update to view online adult videos.</td>
+          </tr>
+          <tr>
+            <td><strong>20</strong></td>
+            <td><strong>NetSky</strong></td>
+            <td>2004</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Mass-mailing email worm with built-in code designed to remove rival worms (Mydoom, Bagle).</td>
+          </tr>
+          <tr>
+            <td><strong>21</strong></td>
+            <td><strong>Caribe</strong></td>
+            <td>2004</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>First proof-of-concept Bluetooth worm targeting mobile phones running Symbian OS.</td>
+          </tr>
+          <tr>
+            <td><strong>22</strong></td>
+            <td><strong>Graybird</strong></td>
+            <td>2003</td>
+            <td><span style="color:#f05c88; font-weight:800;">Trojan</span></td>
+            <td>Backdoor Trojan horse allowing unauthorized remote administration and file access.</td>
+          </tr>
+          <tr>
+            <td><strong>23</strong></td>
+            <td><strong>Swen</strong></td>
+            <td>2003</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Mass-mailing worm that spoofed official Microsoft security patch notification emails.</td>
+          </tr>
+          <tr>
+            <td><strong>24</strong></td>
+            <td><strong>Mylife</strong></td>
+            <td>2002</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Email attachment worm that displayed caricatures of famous personalities while deleting user files.</td>
+          </tr>
+          <tr>
+            <td><strong>25</strong></td>
+            <td><strong>Simile</strong></td>
+            <td>2002</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Virus</span></td>
+            <td>Complex metamorphic assembly language virus designed to evade antivirus signature detection.</td>
+          </tr>
+          <tr>
+            <td><strong>26</strong></td>
+            <td><strong>Sircam</strong></td>
+            <td>2001</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Email worm that randomly selected private documents from victim hard drives and emailed them to contacts.</td>
+          </tr>
+          <tr>
+            <td><strong>27</strong></td>
+            <td><strong>Code Red</strong></td>
+            <td>2001</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>Famous buffer overflow worm targeting Microsoft IIS web servers; defaced websites with "Hacked By Chinese!".</td>
+          </tr>
+          <tr>
+            <td><strong>28</strong></td>
+            <td><strong>Pikachu</strong></td>
+            <td>2000</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Virus</span></td>
+            <td>First computer virus targeted at children disguised as a Pokémon character attachment (<code>Pikapok.exe</code>).</td>
+          </tr>
+          <tr>
+            <td><strong>29</strong></td>
+            <td><strong>ILOVEYOU</strong></td>
+            <td>2000</td>
+            <td><span style="color:#00d4aa; font-weight:800;">Worm</span></td>
+            <td>VBScript email attachment worm (Love Bug); infected over 10% of world's connected PCs within hours.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4.7: IBPS SO IT PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">4.7 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q1. Which category of security attack involves eavesdropping or traffic analysis without altering system resources or modifying data?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt correct">A) Passive Attack ✓</div>
+          <div class="pyq-opt">B) Active Attack</div>
+          <div class="pyq-opt">C) Masquerade Attack</div>
+          <div class="pyq-opt">D) Denial of Service Attack</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: A) Passive Attack.</strong><br>
+          <em>Explanation:</em> Passive attacks observe or monitor transmissions without altering data (e.g. eavesdropping, traffic analysis). Active attacks alter data or create false streams.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q2. What is the fundamental operational difference between a Computer Virus and a Computer Worm?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Viruses spread across networks; worms do not</div>
+          <div class="pyq-opt correct">B) Worms are self-replicating and autonomous; viruses require a host file and user action ✓</div>
+          <div class="pyq-opt">C) Trojans require host files; worms do not</div>
+          <div class="pyq-opt">D) Viruses cannot infect boot sectors</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Worms are self-replicating and autonomous; viruses require a host file.</strong><br>
+          <em>Key Distinction:</em> A worm spreads automatically across network nodes without human intervention and does not need a host program. A virus attaches to a host executable file and needs execution to spread.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. A computer virus that infects BOTH executable program files (.exe) AND hard drive boot sectors simultaneously is classified as a:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Macro Virus</div>
+          <div class="pyq-opt">B) File Infector Virus</div>
+          <div class="pyq-opt correct">C) Multipartite Virus ✓</div>
+          <div class="pyq-opt">D) Boot Sector Virus</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: C) Multipartite Virus (Polypartite).</strong><br>
+          <em>Explanation:</em> Multipartite viruses target multiple infection vectors simultaneously—infecting executable files as well as master boot sectors.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2021 Verified</div>
+        <div class="pyq-question">Q4. A malicious software program disguised as a legitimate free computer game that installs a hidden backdoor without self-replicating is a:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Worm</div>
+          <div class="pyq-opt correct">B) Trojan Horse ✓</div>
+          <div class="pyq-opt">C) Macro Virus</div>
+          <div class="pyq-opt">D) Adware</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Trojan Horse.</strong><br>
+          <em>Explanation:</em> Trojan horses masquerade as desirable software and do NOT self-replicate.
+        </div>
+      </div>
+
+      <!-- PYQ 5 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q5. Why are Passive Attacks extremely difficult to detect in a network environment?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Because they bypass firewalls automatically</div>
+          <div class="pyq-opt correct">B) Because they do not involve any alteration or modification of data ✓</div>
+          <div class="pyq-opt">C) Because they disable intrusion detection systems</div>
+          <div class="pyq-opt">D) Because they only execute during system boot</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Because they do not involve any alteration or modification of data.</strong><br>
+          <em>Explanation:</em> Passive attacks eavesdrop without modifying traffic, leaving no audit trace. Hence prevention (encryption) is the primary line of defense.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4.8: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">4.8 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. Passive Attacks:</strong> Eavesdropping, Traffic Analysis. No data alteration. Hard to detect $\rightarrow$ Focus on <strong>Prevention (Encryption)</strong>.</p>
+        <p><strong style="color:#fff;">2. Active Attacks:</strong> Masquerade, Replay, Message Modification, DoS. Alters data/resources $\rightarrow$ Focus on <strong>Detection &amp; Recovery</strong>.</p>
+        <p><strong style="color:#fff;">3. Virus vs Worm vs Trojan:</strong>
+          <br>• Virus = Host file needed + Replicates + User action required.
+          <br>• Worm = Standalone + Self-replicating + Autonomous network spread (No host needed).
+          <br>• Trojan = Disguised as useful app + <strong>No self-replication</strong>.
+        </p>
+        <p><strong style="color:#fff;">4. Virus Types:</strong> File Infector (.exe), Boot Sector, MBR, Multipartite (Both files + boot sectors), Macro (Office docs).</p>
+        <p><strong style="color:#fff;">5. Spyware &amp; Ransomware:</strong> Spyware = Secret credential theft (Keyloggers). Ransomware = File encryption demanding ransom (CryptoLocker, Locky).</p>
+        <p><strong style="color:#fff;">6. Famous Malware:</strong> ILOVEYOU (2000 Worm), Code Red (2001 IIS Worm), Stuxnet (2010 SCADA Cyberweapon), Pegasus (2020 Spyware).</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-03-network-security-dos-ddos-attacks.html" style="color:#7c5cf0; font-weight:700; text-decoration:none;">← Lec 03: DoS vs DDoS Attacks</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="29-common-network-attacks-dos-ddos-mitm-phishing.html" style="color:#7c5cf0; font-weight:700; text-decoration:none;">Chapter 29: Cyber Attacks →</a>
+    </div>
+    GS Network Security Notes · Lecture 04 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>

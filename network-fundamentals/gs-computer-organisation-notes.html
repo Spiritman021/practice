@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GS Computer Organisation Notes – Master Index</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .notebook-container {
+      max-width: 840px;
+      margin: 40px auto;
+      background: var(--card);
+      border: 2px solid rgba(217, 119, 6, 0.35);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .notebook-header {
+      text-align: center;
+      border-bottom: 2px dashed rgba(217, 119, 6, 0.35);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .notebook-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .notebook-subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent4);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .notebook-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    
+    .index-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .index-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      box-shadow: var(--shadow);
+    }
+
+    .index-item:hover {
+      border-color: var(--accent4);
+      transform: translateX(6px);
+      background: var(--card2);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .index-item.item-amber {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.08), rgba(245, 158, 11, 0.03));
+    }
+    .index-item.item-amber .index-num {
+      border-color: var(--accent4);
+      color: #ffffff;
+      background: var(--accent4);
+    }
+    .index-item.item-amber .index-title {
+      color: var(--accent4);
+    }
+    .index-item.item-amber .index-tag {
+      background: var(--accent4);
+      color: #ffffff;
+    }
+    .index-item.item-amber .arrow-icon {
+      color: var(--accent4);
+    }
+
+    .index-item.item-indigo {
+      border-color: rgba(79, 70, 229, 0.4);
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(99, 102, 241, 0.03));
+    }
+    .index-item.item-indigo .index-num {
+      border-color: #4f46e5;
+      color: #ffffff;
+      background: #4f46e5;
+    }
+    .index-item.item-indigo .index-title {
+      color: #4f46e5;
+    }
+    .index-item.item-indigo .index-tag {
+      background: #4f46e5;
+      color: #ffffff;
+    }
+    .index-item.item-indigo .arrow-icon {
+      color: #4f46e5;
+    }
+
+    .index-item.item-rose {
+      border-color: rgba(225, 29, 72, 0.4);
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.08), rgba(244, 63, 94, 0.03));
+    }
+    .index-item.item-rose .index-num {
+      border-color: var(--accent5);
+      color: #ffffff;
+      background: var(--accent5);
+    }
+    .index-item.item-rose .index-title {
+      color: var(--accent5);
+    }
+    .index-item.item-rose .index-tag {
+      background: var(--accent5);
+      color: #ffffff;
+    }
+    .index-item.item-rose .arrow-icon {
+      color: var(--accent5);
+    }
+
+    .index-item.item-teal {
+      border-color: rgba(13, 148, 136, 0.4);
+      background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(20, 184, 166, 0.03));
+    }
+    .index-item.item-teal .index-num {
+      border-color: #0d9488;
+      color: #ffffff;
+      background: #0d9488;
+    }
+    .index-item.item-teal .index-title {
+      color: #0d9488;
+    }
+    .index-item.item-teal .index-tag {
+      background: #0d9488;
+      color: #ffffff;
+    }
+    .index-item.item-teal .arrow-icon {
+      color: #0d9488;
+    }
+
+    .index-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid var(--accent4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent4);
+      flex-shrink: 0;
+      background: rgba(217, 119, 6, 0.1);
+    }
+
+    .index-content {
+      flex: 1;
+    }
+
+    .index-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .index-sub {
+      font-size: 13.5px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .index-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .arrow-icon {
+      font-size: 20px;
+      color: var(--text3);
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .index-item:hover .arrow-icon {
+      transform: translateX(4px);
+    }
+
+    .quick-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .quick-btn-primary {
+      background: rgba(217, 119, 6, 0.12);
+      color: var(--accent4);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+    .quick-btn-primary:hover {
+      background: var(--accent4);
+      color: #fff;
+    }
+    .quick-btn-blue {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+    .quick-btn-blue:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .quick-btn-secondary {
+      background: rgba(225, 29, 72, 0.12);
+      color: var(--accent5);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+    }
+    .quick-btn-secondary:hover {
+      background: var(--accent5);
+      color: #fff;
+    }
+    .quick-btn-green {
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+    .quick-btn-green:hover {
+      background: var(--accent3);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-back">← Main Workspace</a>
+      <span class="nav-title">GS Computer Organisation Notes</span>
+      <span class="nav-badge">COA Index</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="notebook-container">
+    <div class="notebook-header">
+      <h1 class="notebook-title">GS Computer Organisation Notes</h1>
+      <div class="notebook-subtitle">Computer Organisation &amp; Microprocessor Master Index</div>
+      <p class="notebook-desc">Comprehensive study modules covering Number Systems, Digital Logic &amp; Circuits, CPU Architecture, Instruction Cycles &amp; Addressing Modes, Cache &amp; Virtual Memory Hierarchy, I/O &amp; DMA, 8085/8086 Microprocessors &amp; Pipelining Math for IBPS SO IT &amp; GATE exams.</p>
+    </div>
+
+    <div class="index-list">
+      <!-- Lec 01: Machine Instructions & Types of Instructions (PDF Lecture) -->
+      <a href="lec-01-machine-instructions.html" class="index-item item-amber">
+        <div class="index-num">1</div>
+        <div class="index-content">
+          <div class="index-title">Lec 01: Machine Instructions &amp; Types of Instructions ✨ <span style="font-size:11px; background:#d97706; color:#fff; padding:2px 8px; border-radius:100px;">PDF LINKED</span></div>
+          <div class="index-sub">Complete analysis of <span style="color:#d97706; font-weight:bold;">Lec-1-Machine-Instruction PDF</span>: Instruction structure (Opcode + Operands), 0/1/2/3-address instruction formats, 6 instruction categories (Data Transfer, Arithmetic, Logical, Branch, I/O, Control), Fetch-Decode-Execute cycle &amp; RISC vs CISC comparison with IBPS SO IT PYQs.</div>
+        </div>
+        <span class="index-tag">LEC 01 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 02: Addressing Modes (PDF Lecture 3,4) -->
+      <a href="lec-02-addressing-modes.html" class="index-item item-rose">
+        <div class="index-num">2</div>
+        <div class="index-content">
+          <div class="index-title">Lec 02: Addressing Modes in Computer Organization 🔥 <span style="font-size:11px; background:#e11d48; color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD • PDF LINKED</span></div>
+          <div class="index-sub">Complete analysis of <span style="color:#e11d48; font-weight:bold;">Lec-3,4-Addressing-Modes PDF</span>: All 8 addressing modes (Immediate, Register, Direct, Indirect, Indexed, Relative, Base-Register, Implied), Effective Address ($EA$) formulas, Memory reference count comparison table, Array &amp; Loop access, and IBPS SO IT PYQ numericals.</div>
+        </div>
+        <span class="index-tag">LEC 02 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 03: 8085 & 8086 Microprocessor Registers (PDF Lecture 5) -->
+      <a href="lec-03-microprocessor-registers.html" class="index-item item-teal">
+        <div class="index-num">3</div>
+        <div class="index-content">
+          <div class="index-title">Lec 03: 8085 &amp; 8086 Microprocessor Registers ✨ <span style="font-size:11px; background:#0d9488; color:#fff; padding:2px 8px; border-radius:100px;">PDF LINKED</span></div>
+          <div class="index-sub">Complete analysis of <span style="color:#0d9488; font-weight:bold;">Lec-5-General-Purpose-Registers PDF</span>: 8085 GPRs (B, C, D, E, H, L, HL pair memory pointer `M`), 8085 SPRs (A, Flags, PC, SP, IR), 8086 GPRs (AX, BX, CX, DX splits), Segment Registers (CS, DS, SS, ES), and 20-bit physical address segmentation math ($\text{PA} = \text{Segment} \times 16 + \text{Offset}$).</div>
+        </div>
+        <span class="index-tag">LEC 03 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 04 -->
+      <a href="#lec-04-sequential-circuits" class="index-item item-rose">
+        <div class="index-num">4</div>
+        <div class="index-content">
+          <div class="index-title">Lec 04: Sequential Circuits (Flip-Flops, Registers &amp; Counters) 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">SR Latch, SR, JK, D, T Flip-Flops, Race Around Condition &amp; Master-Slave JK Flip-Flop, Excitation tables, Shift Registers (SISO, SIPO, PISO, PIPO), Synchronous &amp; Asynchronous (Ripple) Mod-N Counters.</div>
+        </div>
+        <span class="index-tag">LEC 04 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 05 -->
+      <a href="#lec-05-cpu-organization" class="index-item item-teal">
+        <div class="index-num">5</div>
+        <div class="index-content">
+          <div class="index-title">Lec 05: CPU Organization, ALU &amp; Control Unit Architecture ✨</div>
+          <div class="index-sub">Single-bus vs Multi-bus CPU architecture, ALU organization, Control Unit design: Hardwired CU vs Microprogrammed CU (Horizontal vs Vertical microinstructions), CISC vs RISC design philosophy comparison.</div>
+        </div>
+        <span class="index-tag">LEC 05 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 06 -->
+      <a href="#lec-06-instruction-cycle" class="index-item item-rose">
+        <div class="index-num">6</div>
+        <div class="index-content">
+          <div class="index-title">Lec 06: Instruction Cycles, Formats &amp; Addressing Modes 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">Instruction cycle (Fetch, Decode, Execute, Interrupt), 3/2/1/0-Address Machine instructions, Addressing Modes: Immediate, Direct, Indirect, Register Direct, Register Indirect, Indexed, Base-Register, and PC-Relative mode math.</div>
+        </div>
+        <span class="index-tag">LEC 06 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 07 -->
+      <a href="#lec-07-main-memory" class="index-item item-indigo">
+        <div class="index-num">7</div>
+        <div class="index-content">
+          <div class="index-title">Lec 07: Main Memory Systems &amp; Interleaving Math ✨</div>
+          <div class="index-sub">SRAM (Flip-flop based) vs DRAM (Capacitor refresh based), ROM types (PROM, EPROM, EEPROM, Flash), Memory expansion (Word &amp; Bit capacity math), High-order &amp; Low-order Memory Interleaving for bandwidth enhancement.</div>
+        </div>
+        <span class="index-tag">LEC 07 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 08 -->
+      <a href="#lec-08-cache-memory" class="index-item item-amber">
+        <div class="index-num">8</div>
+        <div class="index-content">
+          <div class="index-title">Lec 08: Cache Memory Organization &amp; Mapping Techniques 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">Locality of Reference (Temporal &amp; Spatial), Cache Mapping: Direct Mapping ($\text{Tag} + \text{Line} + \text{Word}$), Fully Associative, $k$-way Set-Associative Mapping, Hit Ratio $h$, Average Access Time $T_{avg} = h T_c + (1-h) T_m$, Write-Through vs Write-Back.</div>
+        </div>
+        <span class="index-tag">LEC 08 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 09 -->
+      <a href="#lec-09-virtual-memory" class="index-item item-teal">
+        <div class="index-num">9</div>
+        <div class="index-content">
+          <div class="index-title">Lec 09: Virtual Memory, Paging &amp; TLB Architecture ✨</div>
+          <div class="index-sub">Virtual-to-Physical Address Translation, Page Table structure, Translation Lookaside Buffer (TLB) speedup math ($T_{avg} = t_{tlb} + t_m + (1-h) t_m$), Page Fault Handling, FIFO, LRU &amp; Optimal Page Replacement Algorithms.</div>
+        </div>
+        <span class="index-tag">LEC 09 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 10 -->
+      <a href="#lec-10-io-organization" class="index-item item-indigo">
+        <div class="index-num">10</div>
+        <div class="index-content">
+          <div class="index-title">Lec 10: Input/Output Organization, Interrupts &amp; DMA ✨</div>
+          <div class="index-sub">I/O Interface &amp; Bus standards, Programmed I/O vs Interrupt-Driven I/O, Hardware/Software Interrupts, Priority Interrupts (Daisy Chaining vs Parallel Priority), Direct Memory Access (DMA Controller, Burst Mode vs Cycle Stealing).</div>
+        </div>
+        <span class="index-tag">LEC 10 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 11 -->
+      <a href="#lec-11-microprocessor-8085-8086" class="index-item item-rose">
+        <div class="index-num">11</div>
+        <div class="index-content">
+          <div class="index-title">Lec 11: 8085 &amp; 8086 Microprocessor Architecture Master Guide ✨</div>
+          <div class="index-sub">Intel 8085 8-bit Microprocessor (Accumulator A, Registers B/C/D/E/H/L, Flags S/Z/AC/P/CY, Program Counter PC, Stack Pointer SP, Interrupts TRAP/RST 7.5/6.5/5.5/INTR), 8086 16-bit Microprocessor &amp; Memory Segmentation (64 KB Segments).</div>
+        </div>
+        <span class="index-tag">LEC 11 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+
+      <!-- Lec 12 -->
+      <a href="#lec-12-pipelining" class="index-item item-amber">
+        <div class="index-num">12</div>
+        <div class="index-content">
+          <div class="index-title">Lec 12: Pipelining Basics, Performance Math &amp; Hazard Resolution 🔥 <span style="font-size:11px; background:var(--accent5); color:#fff; padding:2px 8px; border-radius:100px;">HIGH YIELD</span></div>
+          <div class="index-sub">$k$-stage Pipeline Execution, Clock cycle time $\tau = \max(t_i) + d$, Speedup $S = \frac{n \cdot k}{k + n - 1}$, Pipeline Hazards: Structural Hazards, Data Hazards (RAW, WAR, WAW, Data Forwarding), and Control Hazards (Branch Penalty &amp; Dynamic Branch Prediction).</div>
+        </div>
+        <span class="index-tag">LEC 12 NOTE</span>
+        <span class="arrow-icon">→</span>
+      </a>
+    </div>
+
+    <div class="quick-links">
+      <a href="../index.html" class="quick-btn quick-btn-primary">🏠 Back to Main Workspace Dashboard</a>
+      <a href="gs-computer-networks-notes.html" class="quick-btn quick-btn-secondary">📖 Open GS Computer Networks Notes</a>
+      <a href="gs-network-security-notes.html" class="quick-btn quick-btn-green">🛡️ Open GS Security Notes</a>
+      <a href="gs-data-structures-notes.html" class="quick-btn quick-btn-blue">🧱 Open GS Data Structures Notes</a>
+      <a href="gs-software-engineering-notes.html" class="quick-btn quick-btn-teal" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; border: 1px solid rgba(13, 148, 136, 0.3);">⚙️ Open GS SE Notes</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Computer Organisation Notes · IBPS SO IT &amp; GATE Complete Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

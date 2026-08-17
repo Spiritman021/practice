@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 02: Addressing Modes in Computer Organization – COA Notes</title>
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+
+  <!-- KaTeX for rendering LaTeX math formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <style>
+    .note-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .note-header {
+      border-bottom: 2px solid rgba(217, 119, 6, 0.25);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .note-badge {
+      display: inline-block;
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .note-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .note-subtitle {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .source-pdf-box {
+      margin-top: 16px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .source-pdf-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .pdf-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #d97706;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .pdf-link-btn:hover {
+      background: #b45309;
+      transform: translateY(-1px);
+    }
+
+    .section-card {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .icon {
+      font-size: 22px;
+    }
+
+    .mode-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .mode-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-card:hover {
+      border-color: var(--accent4);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .mode-card h4 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent4);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mode-tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .mode-card p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .formula-badge {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      color: var(--code-color);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .analogy-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: #166534;
+      margin-top: 8px;
+    }
+
+    .pyq-highlight-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04));
+      border: 1px dashed var(--accent);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 20px 0;
+    }
+
+    .pyq-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--code-color);
+      overflow-x: auto;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .summary-table th {
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .summary-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: rgba(0,0,0,0.015);
+    }
+
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-btn-sec {
+      background: var(--card2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .nav-btn-sec:hover {
+      border-color: var(--accent4);
+      color: var(--accent4);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-computer-organisation-notes.html" class="nav-back">← COA Master Index</a>
+      <span class="nav-title">Lec 02: Addressing Modes</span>
+      <span class="nav-badge">IBPS SO IT High Yield</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="note-container">
+
+    <!-- HEADER -->
+    <div class="note-header">
+      <span class="note-badge">COA LECTURE 02 NOTE</span>
+      <h1 class="note-title">Addressing Modes in Computer Organization</h1>
+      <p class="note-subtitle">Master all 8+ Addressing Modes (Immediate, Register, Direct, Indirect, Indexed, Relative, Base-Register, Implied), Effective Address (EA) calculation formulas, memory reference counts, real-life analogies, and IBPS SO IT PYQ patterns.</p>
+      
+      <!-- Source PDF Link -->
+      <div class="source-pdf-box">
+        <div class="source-pdf-info">
+          <span>📄 Reference Source PDF:</span>
+          <code>Lec-3,4-Addressing-Modes.pdf</code>
+        </div>
+        <a href="file:///Users/vanand/Downloads/Lec-3,4-Addressing-Modes.pdf" target="_blank" class="pdf-link-btn">
+          <span>Open PDF File ↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 1. WHAT IS AN ADDRESSING MODE? -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🎯</span> 1. What is an Addressing Mode? (PDF Page 2)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        An <strong>addressing mode</strong> specifies the rule or mechanism used by the CPU to locate the operand (data) needed by an instruction.
+      </p>
+      
+      <div class="code-block">
+Instruction = [  OPCODE  |  ADDRESS MODE FIELD  |  ADDRESS / OPERAND FIELD  ]
+Opcode      → What operation to perform (e.g., ADD, MOV, JMP)
+Operand     → The data or location where the data resides
+Mode        → How to interpret the address field to find Effective Address (EA)
+      </div>
+
+      <p style="font-size:13.5px; color:var(--text2); line-height:1.6;">
+        <strong>Effective Address (EA):</strong> The actual <em>physical memory address</em> of the operand in RAM or CPU register where the operand is fetched during the execution phase.
+      </p>
+    </div>
+
+    <!-- 2. DEEP DIVE: ALL ADDRESSING MODES -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">⚡</span> 2. Comprehensive Guide to All 8 Addressing Modes (PDF Pages 3–10)</div>
+      
+      <div class="mode-card-grid">
+
+        <!-- 1. Immediate -->
+        <div class="mode-card">
+          <h4>1. Immediate Mode <span class="mode-tag">FASTEST</span></h4>
+          <p>The operand is specified <strong>directly inside the instruction</strong> itself. No memory or register lookup is needed for data.</p>
+          <div class="formula-badge">Effective Address: N/A (Data in Instruction)</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV R1, #5</code> (Loads value 5 into R1)</p>
+          <div class="analogy-box">💡 <em>Real-life Analogy:</em> You already know the number in your mind.</div>
+        </div>
+
+        <!-- 2. Register -->
+        <div class="mode-card">
+          <h4>2. Register Mode <span class="mode-tag">VERY FAST</span></h4>
+          <p>The operand is stored in a CPU register specified by the instruction register field.</p>
+          <div class="formula-badge">Effective Address: EA = R (Register R)</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV R1, R2</code> (Copies R2 content to R1)</p>
+          <div class="analogy-box">📱 <em>Real-life Analogy:</em> Phone number is saved directly in your contacts list.</div>
+        </div>
+
+        <!-- 3. Direct / Absolute -->
+        <div class="mode-card">
+          <h4>3. Direct / Absolute Mode <span class="mode-tag">SIMPLE</span></h4>
+          <p>The instruction contains the explicit <strong>memory address</strong> of the operand.</p>
+          <div class="formula-badge">Effective Address: EA = A (Address Field)</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV A, [5000]</code> (Reads memory location 5000 into A)</p>
+          <div class="analogy-box">📄 <em>Real-life Analogy:</em> Address is written directly on a sheet of paper.</div>
+        </div>
+
+        <!-- 4. Register Indirect -->
+        <div class="mode-card">
+          <h4>4. Register Indirect Mode <span class="mode-tag">POINTERS</span></h4>
+          <p>The register holds the <strong>memory address</strong> of the operand rather than the data itself.</p>
+          <div class="formula-badge">Effective Address: EA = [R] (Contents of R)</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV A, [R1]</code> (Reads RAM location stored in R1)</p>
+          <div class="analogy-box">📔 <em>Real-life Analogy:</em> Paper says: "Look up contact stored in Diary".</div>
+        </div>
+
+        <!-- 5. Indexed -->
+        <div class="mode-card">
+          <h4>5. Indexed Mode <span class="mode-tag">ARRAY A[i]</span></h4>
+          <p>Effective address is computed by adding an Index Register ($IX$) to a base displacement address.</p>
+          <div class="formula-badge">Effective Address: EA = Index Reg + Base Addr</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV A, [R1 + 5]</code> (Accesses array element $A[i]$)</p>
+          <div class="analogy-box">🔢 <em>Real-life Analogy:</em> Locating the 5th person in a sorted queue.</div>
+        </div>
+
+        <!-- 6. Relative (PC-Relative) -->
+        <div class="mode-card">
+          <h4>6. PC-Relative Mode <span class="mode-tag">JUMPS &amp; LOOPS</span></h4>
+          <p>Effective address is calculated by adding an offset to the Program Counter ($PC$). Used in branch/jump instructions.</p>
+          <div class="formula-badge">Effective Address: EA = PC + Offset</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>JUMP LOOP</code> (Jumps relative to current PC location)</p>
+          <div class="analogy-box">⏭️ <em>Real-life Analogy:</em> Moving 3 steps forward from where you are currently standing.</div>
+        </div>
+
+        <!-- 7. Base Register -->
+        <div class="mode-card">
+          <h4>7. Base Register Mode <span class="mode-tag">OS RELOCATION</span></h4>
+          <p>Effective address is formed by adding a Base Register ($BX$) to a displacement. Enables OS program relocation.</p>
+          <div class="formula-badge">Effective Address: EA = BX + Displacement</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>MOV A, [BX + 200]</code> (Accesses struct field from base $BX$)</p>
+          <div class="analogy-box">🏢 <em>Real-life Analogy:</em> Building number (Base) + Apartment number (Displacement).</div>
+        </div>
+
+        <!-- 8. Implied / Implicit -->
+        <div class="mode-card">
+          <h4>8. Implied / Implicit Mode <span class="mode-tag">BUILT-IN</span></h4>
+          <p>The operand is implicitly defined by the opcode itself. No address field required in instruction word.</p>
+          <div class="formula-badge">Effective Address: Implicit (e.g. Accumulator / Stack)</div>
+          <p style="margin-top:6px;"><strong>Example:</strong> <code>CLR A</code> (Clear Accumulator), <code>CMA</code> (Complement A)</p>
+          <div class="analogy-box">👩 <em>Real-life Analogy:</em> Saying "Call Mom" — phone already knows who Mom is.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. MEMORY REFERENCE COUNT & SPEED COMPARISON -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📊</span> 3. Memory Reference Counts &amp; Speed Comparison (PDF Page 11)</div>
+      <p style="font-size:14px; color:var(--text2); line-height:1.6;">
+        A major topic in IBPS SO IT Mains MCQs is counting the number of <strong>Memory References</strong> needed to fetch an operand:
+      </p>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Addressing Mode</th>
+            <th>Effective Address ($EA$) Formula</th>
+            <th>Memory References for Operand</th>
+            <th>Speed / Execution Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Implied</strong></td>
+            <td>Implicit in Opcode</td>
+            <td><strong>0</strong></td>
+            <td><span style="color:#059669; font-weight:800;">Ultra Fast</span></td>
+          </tr>
+          <tr>
+            <td><strong>Immediate</strong></td>
+            <td>Operand in Instruction Word</td>
+            <td><strong>0</strong> (Only fetch instruction)</td>
+            <td><span style="color:#059669; font-weight:800;">Ultra Fast</span></td>
+          </tr>
+          <tr>
+            <td><strong>Register</strong></td>
+            <td>$EA = R$</td>
+            <td><strong>0</strong> (Operand in Register)</td>
+            <td><span style="color:#059669; font-weight:800;">Very Fast</span></td>
+          </tr>
+          <tr>
+            <td><strong>Direct / Absolute</strong></td>
+            <td>$EA = \text{Address Field}$</td>
+            <td><strong>1</strong> (Access RAM at $EA$)</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td><strong>Register Indirect</strong></td>
+            <td>$EA = [R]$</td>
+            <td><strong>1</strong> (Access RAM at address in $R$)</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td><strong>Memory Indirect</strong></td>
+            <td>$EA = M[\text{Address}]$</td>
+            <td><span style="color:#d97706; font-weight:800;">2</span> (Fetch pointer, then fetch operand)</td>
+            <td>Slower</td>
+          </tr>
+          <tr>
+            <td><strong>Indexed</strong></td>
+            <td>$EA = IX + \text{Displacement}$</td>
+            <td><strong>1</strong> (Access RAM after addition)</td>
+            <td>Moderate</td>
+          </tr>
+          <tr>
+            <td><strong>PC-Relative</strong></td>
+            <td>$EA = PC + \text{Offset}$</td>
+            <td><strong>1</strong> (For instruction/data fetch)</td>
+            <td>Fast (Relocatable)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. PYQ FORMULA & SOLVED NUMERICALS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">🧮</span> 4. Effective Address Calculation - Solved Numericals</div>
+
+      <div class="pyq-highlight-box">
+        <span class="pyq-badge">🔥 IBPS SO IT / GATE Solved Numerical 1</span>
+        <p style="font-size:13.5px; color:var(--text); font-weight:700; margin-bottom:6px;">
+          Problem: In a computer system, the Program Counter ($PC$) currently contains address <code>2000</code>. A branch instruction located at address <code>2000</code> has a PC-Relative offset of <code>-45</code>. What is the Effective Address of the target instruction?
+        </p>
+        <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+          <strong>Step-by-step Solution:</strong><br />
+          1. During instruction fetch, $PC$ auto-increments to next instruction: $PC_{next} = 2000 + 1 = 2001$ (or 2002 if 2-byte instruction).<br />
+          2. Relative Effective Address formula: $EA = PC_{next} + \text{Offset}$.<br />
+          3. $EA = 2001 + (-45) = 1956$.<br />
+          $\implies$ Target Branch Address = <code>1956</code>.
+        </div>
+      </div>
+
+      <div class="pyq-highlight-box">
+        <span class="pyq-badge">🔥 IBPS SO IT / GATE Solved Numerical 2</span>
+        <p style="font-size:13.5px; color:var(--text); font-weight:700; margin-bottom:6px;">
+          Problem: An instruction <code>MOV A, [R1 + 100]</code> uses Indexed Addressing. If Register <code>R1</code> contains value <code>4000</code>, and memory location <code>4100</code> contains value <code>99</code>, what value is loaded into Accumulator <code>A</code>?
+        </p>
+        <div style="font-size:13px; color:var(--text2); line-height:1.6;">
+          <strong>Step-by-step Solution:</strong><br />
+          1. Calculate Effective Address ($EA$): $EA = \text{Contents of R1} + \text{Displacement} = 4000 + 100 = 4100$.<br />
+          2. Fetch data at RAM address $4100$: $M[4100] = 99$.<br />
+          $\implies$ Value loaded into Accumulator $A$ = <code>99</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. IBPS SO IT MAINS PRACTICE MCQS -->
+    <div class="section-card">
+      <div class="section-title"><span class="icon">📝</span> 5. IBPS SO IT Mains Practice Questions</div>
+      
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q1. Which addressing mode requires TWO memory references to fetch the operand?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Direct Addressing Mode<br />B) Register Indirect Addressing Mode<br />C) Memory Indirect Addressing Mode<br />D) Immediate Addressing Mode</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) Memory Indirect Addressing Mode</strong><br />Explanation: In Memory Indirect mode, the instruction specifies a memory address containing a pointer. The CPU makes 1st memory access to read the pointer, and 2nd memory access to read the actual operand.</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="margin-bottom:12px; border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q2. Which addressing mode is most suitable for stepping through Array elements $A[i]$ in a loop?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Immediate Addressing<br />B) Indexed Addressing<br />C) Absolute Addressing<br />D) Implied Addressing</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: B) Indexed Addressing</strong><br />Explanation: Indexed mode computes $EA = \text{Base} + \text{Index Reg}$. Incrementing the Index Register steps seamlessly to the next array element $A[i+1]$.</p>
+        </details>
+      </div>
+
+      <div class="pyq-highlight-box" style="border-style:solid;">
+        <p style="font-size:13.5px; font-weight:800; color:var(--text);">Q3. Which addressing mode facilitates program relocation in memory at runtime without modifying address constants?</p>
+        <p style="font-size:13px; color:var(--text2);">A) Direct Addressing<br />B) Register Addressing<br />C) PC-Relative / Base-Register Addressing<br />D) Immediate Addressing</p>
+        <details style="margin-top:6px; font-size:12.5px; color:#059669; font-weight:700;">
+          <summary style="cursor:pointer;">View Answer &amp; Explanation</summary>
+          <p style="margin-top:4px;"><strong>Correct Answer: C) PC-Relative / Base-Register Addressing</strong><br />Explanation: PC-Relative and Base Register modes compute addresses relative to current position or base segment ($EA = \text{Base} + \text{Offset}$), enabling programs to run anywhere in memory.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- FOOTER NAV -->
+    <div class="nav-footer">
+      <a href="lec-01-machine-instructions.html" class="nav-btn nav-btn-sec">← Lec 01: Machine Instructions</a>
+      <a href="gs-computer-organisation-notes.html" class="nav-btn nav-btn-sec">COA Master Index</a>
+      <a href="file:///Users/vanand/Downloads/Lec-3,4-Addressing-Modes.pdf" target="_blank" class="nav-btn" style="background:#d97706; color:#fff;">View Reference PDF ↗</a>
+      <a href="../index.html" class="nav-btn nav-btn-sec">🏠 Main Workspace Dashboard</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>GS Computer Organisation Notes · IBPS SO IT Study Guide</p>
+  </div>
+</footer>
+
+</body>
+</html>

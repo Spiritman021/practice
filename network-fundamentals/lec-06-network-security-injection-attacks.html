@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lec 6 – Injection Attacks: SQLi, Command Injection, Prepared Statements &amp; WAF | GS Security Notes</title>
+  <meta name="description" content="Complete study notes on Network Security Lecture 6 – Injection Attacks, SQL Injection (SQLi) Auth Bypass (' OR 1=1 --), OS Command Injection (os.system rm -rf), Parameterized Queries / Prepared Statements, WAF, and Least Privilege (GRANT SELECT)." />
+  <link rel="stylesheet" href="shared.css" />
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]});"></script>
+  <style>
+    .sec-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .grid-3 {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;
+    }
+    .code-box {
+      background: #13192e; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 16px; margin: 14px 0; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.6; color: #e2e8f0;
+      overflow-x: auto;
+    }
+    .code-bad { border-left: 4px solid #f05c88; background: rgba(240,92,136,0.08); }
+    .code-good { border-left: 4px solid #00d4aa; background: rgba(0,212,170,0.08); }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); font-size: 13.5px;
+    }
+    .compare-table th {
+      background: var(--card2); color: #fff; padding: 14px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border);
+    }
+    .compare-table td {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); background: var(--card);
+    }
+    .compare-table tr:hover td { background: var(--bg2); }
+
+    .pyq-card {
+      background: linear-gradient(135deg, rgba(240,92,136,0.08), rgba(19,29,53,0.95));
+      border: 1.5px solid rgba(240,92,136,0.35); border-radius: 16px; padding: 22px; margin: 20px 0;
+    }
+    .pyq-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,92,136,0.2); border: 1px solid rgba(240,92,136,0.4);
+      color: #f05c88; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .pyq-question { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+    .pyq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .pyq-opt { background: var(--bg2); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--text2); }
+    .pyq-opt.correct { background: rgba(0,212,170,0.15); border-color: rgba(0,212,170,0.4); color: #00d4aa; font-weight: 700; }
+    .pyq-explain { background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #00d4aa; font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #f05c88, #34d399, #7c5cf0);
+      z-index: 200; transition: width 0.1s;
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <a href="gs-network-security-notes.html" class="nav-back">← Back to Security Notes</a>
+      <span class="nav-title">Network Security</span>
+      <span class="nav-badge" style="background: rgba(240,92,136,0.2); color: #f05c88; border: 1px solid rgba(240,92,136,0.4);">Lec 06</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <span class="chapter-tag" style="background: rgba(240,92,136,0.15); color: #f05c88; border: 1px solid rgba(240,92,136,0.3);">Security · Lecture 06</span>
+    <h1 class="page-title">Injection Attacks:<br>SQL Injection, Command Injection &amp; Defensive Mitigations</h1>
+    <p class="page-subtitle">
+      Comprehensive easy-to-understand study guide covering Injection Vulnerabilities, SQL Injection (SQLi) Authentication Bypass (<code>' OR 1=1 --</code>), OS Command Injection (<code>os.system</code> shell exploits), Parameterized Queries / Prepared Statements, Web Application Firewalls (WAF), and the Principle of Least Privilege. Fully verified against <strong>IBPS SO IT PYQs</strong>.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;">
+      <span style="font-size:12px;background:rgba(240,92,136,0.15);color:#f05c88;border:1px solid rgba(240,92,136,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">💉 OWASP Top 10 High Yield</span>
+      <span style="font-size:12px;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);padding:5px 14px;border-radius:100px;font-weight:700;">📖 Security Lec 6 Handout</span>
+      <span style="font-size:12px;background:rgba(0,212,170,0.15);color:#00d4aa;border:1px solid rgba(0,212,170,0.3);padding:5px 14px;border-radius:100px;font-weight:700;">✅ PYQ Verified</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ul class="toc-list">
+      <li><a href="#injection-intro"><span class="toc-num">6.1</span> What is an Injection Attack?</a></li>
+      <li><a href="#sqli-deep-dive"><span class="toc-num">6.2</span> SQL Injection (SQLi) &amp; Authentication Bypass</a></li>
+      <li><a href="#command-injection"><span class="toc-num">6.3</span> OS Command Injection &amp; Shell Execution Exploits</a></li>
+      <li><a href="#defensive-mitigations"><span class="toc-num">6.4</span> 4 Key Defense Mitigations (Prepared Statements, WAF, PoLP)</a></li>
+      <li><a href="#pyq-bank"><span class="toc-num">6.5</span> IBPS SO IT Verified Solved Question Bank</a></li>
+      <li><a href="#cheat-sheet"><span class="toc-num">6.6</span> Quick Exam Revision Cheat Sheet</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 6.1: INJECTION INTRO -->
+  <div class="section" id="injection-intro">
+    <div class="sec-card">
+      <h2 class="section-title">6.1 What is an Injection Attack?</h2>
+      <p>An <strong>Injection Attack</strong> occurs when an attacker inputs untrusted, malicious code or syntax into an application's input field or query interpreter. The interpreter mistakenly executes the untrusted data as command code, leading to unauthorized data access or system takeover.</p>
+
+      <div class="grid-3">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#f05c88; font-size:15px; margin-bottom:6px;">🗄️ SQL Injection (SQLi)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Injects database queries to bypass login forms, dump database contents, or modify data tables.</p>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#7c5cf0; font-size:15px; margin-bottom:6px;">💻 OS Command Injection</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Tricks applications into executing terminal commands directly on the host operating system.</p>
+        </div>
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:18px;">
+          <h4 style="color:#34d399; font-size:15px; margin-bottom:6px;">🌐 Cross-Site Scripting (XSS)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.5;">Injects malicious client-side JavaScript executed inside victim browser sessions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6.2: SQL INJECTION -->
+  <div class="section" id="sqli-deep-dive">
+    <div class="sec-card">
+      <h2 class="section-title">6.2 SQL Injection (SQLi) &amp; Authentication Bypass</h2>
+      <p>SQL Injection is one of the most dangerous web application vulnerabilities. It occurs when un-sanitized user input is directly concatenated into SQL query strings.</p>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; margin:16px 0;">
+        <h4 style="color:#f05c88; font-size:16px; margin-bottom:8px;">🔓 The Classic Login Authentication Bypass</h4>
+        <p style="font-size:13.5px; color:var(--text); line-height:1.6;">Original vulnerable backend SQL query string:</p>
+        
+        <div class="code-box code-bad">
+          SELECT * FROM users WHERE username = '[user_input]' AND password = '[password_input]';
+        </div>
+
+        <p style="font-size:13.5px; color:var(--text); line-height:1.6;">Attacker inputs into Username field: <code>admin' --</code></p>
+        
+        <div class="code-box code-bad">
+          SELECT * FROM users WHERE username = 'admin' --' AND password = '';
+        </div>
+
+        <p style="font-size:13.5px; color:var(--text); line-height:1.6;">Or inputs into Username field: <code>' OR 1=1 --</code></p>
+
+        <div class="code-box code-bad">
+          SELECT * FROM users WHERE username = 'user' OR 1=1 --' AND password = '';
+        </div>
+
+        <div style="font-size:13px; color:var(--text2); line-height:1.6; margin-top:12px; background:rgba(0,0,0,0.2); padding:12px; border-radius:8px;">
+          • <strong>The Single Quote (<code>'</code>):</strong> Breaks out of the intended SQL string literal.<br>
+          • <strong>The Tautology (<code>OR 1=1</code>):</strong> Evaluates to <code>TRUE</code> for every row in the database.<br>
+          • <strong>The Comment Indicator (<code>--</code> or <code>#</code>):</strong> Comments out the rest of the query, ignoring password verification entirely!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6.3: COMMAND INJECTION -->
+  <div class="section" id="command-injection">
+    <div class="sec-card">
+      <h2 class="section-title">6.3 OS Command Injection &amp; Shell Execution Exploits</h2>
+      <p>OS Command Injection occurs when an application passes un-sanitized user input into system-level shell calls (`os.system`, `exec`, `popen`).</p>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+        <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">💻 Python OS Command Execution Vulnerability Example</h4>
+
+        <div class="code-box code-bad">
+          <span style="color:#f05c88;"># Vulnerable Python Function (From PDF Slide 3)</span><br>
+          import os<br><br>
+          def check_disk_space(path):<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;os.system(f"df -h {path}")
+        </div>
+
+        <div style="font-size:13.5px; color:var(--text2); line-height:1.7;">
+          • <strong>Normal Safe Input:</strong> <code>/home/user</code> $\rightarrow$ System executes: <code>df -h /home/user</code><br>
+          • <strong>Malicious Injected Input:</strong> <code>/home/user; rm -rf /</code> $\rightarrow$ System executes: <code>df -h /home/user; rm -rf /</code><br>
+          • <strong>Result:</strong> Command separator semicolon (<code>;</code>) or ampersand (<code>&amp;&amp;</code>) allows execution of arbitrary destructive terminal commands with server OS privileges!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6.4: DEFENSIVE MITIGATIONS -->
+  <div class="section" id="defensive-mitigations">
+    <div class="sec-card">
+      <h2 class="section-title">6.4 4 Key Defense Mitigations (Prepared Statements, WAF, PoLP)</h2>
+
+      <div class="grid-2">
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#00d4aa; font-size:16px; margin-bottom:8px;">1. Parameterized Queries / Prepared Statements ⭐</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6;">
+            <strong>The #1 Defense against SQLi!</strong> Separates SQL code logic from user data. Database engine treats user input strictly as literal parameter data, never as executable code.
+          </p>
+
+          <div class="code-box code-bad">
+            <span style="color:#f05c88;"># Vulnerable Code (String Concatenation)</span><br>
+            user_id = input("Enter user ID:")<br>
+            query = f"SELECT * FROM users WHERE id = {user_id}"<br>
+            cursor.execute(query)
+          </div>
+
+          <div class="code-box code-good">
+            <span style="color:#00d4aa;"># Safe Code (Parameterized Query)</span><br>
+            user_id = input("Enter user ID:")<br>
+            query = "SELECT * FROM users WHERE id = ?"<br>
+            cursor.execute(query, (user_id,))
+          </div>
+        </div>
+
+        <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px;">
+          <h4 style="color:#34d399; font-size:16px; margin-bottom:8px;">2. Input Sanitization &amp; Validation</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:14px;">
+            Enforce strict allowlists, data type checking (e.g. ensure ID is integer), and HTML/SQL special character escaping.
+          </p>
+
+          <h4 style="color:#4f8ef7; font-size:16px; margin-bottom:8px;">3. Web Application Firewalls (WAF)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:14px;">
+            Inspects HTTP payloads at Layer 7 to detect and drop malicious injection vectors (e.g. AWS WAF, Cloudflare).
+          </p>
+
+          <h4 style="color:#7c5cf0; font-size:16px; margin-bottom:8px;">4. Principle of Least Privilege (PoLP)</h4>
+          <p style="font-size:13px; color:var(--text2); line-height:1.6;">
+            Restricts database user privileges to only required tables and operations:
+          </p>
+          <div class="code-box code-good" style="margin-top:8px;">
+            GRANT SELECT ON employees TO public_user;<br>
+            GRANT SELECT, INSERT, UPDATE ON payroll TO hr_user;
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6.5: PYQ BANK -->
+  <div class="section" id="pyq-bank">
+    <div class="sec-card">
+      <h2 class="section-title">6.5 IBPS SO IT Verified Solved Question Bank</h2>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2023 Verified</div>
+        <div class="pyq-question">Q1. Which of the following is considered the MOST effective software development defense against SQL Injection (SQLi) attacks?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Client-side JavaScript validation</div>
+          <div class="pyq-opt correct">B) Parameterized Queries / Prepared Statements ✓</div>
+          <div class="pyq-opt">C) Storing passwords as plain text</div>
+          <div class="pyq-opt">D) Packet Filtering Firewalls</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Parameterized Queries / Prepared Statements.</strong><br>
+          <em>Explanation:</em> Prepared statements separate database query logic from data parameters, preventing user input from ever being executed as SQL syntax.
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2022 Verified</div>
+        <div class="pyq-question">Q2. What is the primary objective of an attacker entering `' OR '1'='1` or `' --` into a web application login field?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) To execute a Denial of Service attack on the database</div>
+          <div class="pyq-opt correct">B) To bypass login authentication via SQL Injection ✓</div>
+          <div class="pyq-opt">C) To perform Cross-Site Scripting (XSS)</div>
+          <div class="pyq-opt">D) To brute-force the server SSH password</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) To bypass login authentication via SQL Injection.</strong><br>
+          <em>Explanation:</em> The `' OR 1=1` forces the SQL query WHERE clause to evaluate to TRUE, while `--` comments out password verification.
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2020 Verified</div>
+        <div class="pyq-question">Q3. Passing un-sanitized user input strings directly into system functions like `os.system()` or `exec()` makes an application vulnerable to:</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Cross-Site Request Forgery</div>
+          <div class="pyq-opt correct">B) OS Command Injection ✓</div>
+          <div class="pyq-opt">C) Buffer Overflow</div>
+          <div class="pyq-opt">D) Session Hijacking</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) OS Command Injection.</strong><br>
+          <em>Explanation:</em> OS Command Injection allows attackers to append arbitrary operating system terminal commands (e.g. `; rm -rf /`) onto shell system calls.
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-badge">IBPS SO IT 2024 Verified</div>
+        <div class="pyq-question">Q4. Restricting database user permissions to only required tables using statements like `GRANT SELECT ON employees TO public_user;` follows which security principle?</div>
+        <div class="pyq-options">
+          <div class="pyq-opt">A) Defense in Depth</div>
+          <div class="pyq-opt correct">B) Principle of Least Privilege (PoLP) ✓</div>
+          <div class="pyq-opt">C) Fail-Safe Defaults</div>
+          <div class="pyq-opt">D) Open Design Principle</div>
+        </div>
+        <div class="pyq-explain">
+          <strong>Correct Answer: B) Principle of Least Privilege (PoLP).</strong><br>
+          <em>Explanation:</em> PoLP dictates that user accounts and processes should be granted only the minimum permissions necessary to complete their job functions.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6.6: CHEAT SHEET -->
+  <div class="section" id="cheat-sheet">
+    <div class="sec-card">
+      <h2 class="section-title">6.6 Quick Exam Revision Cheat Sheet</h2>
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; font-size:13.5px; line-height:1.8; color:var(--text2);">
+        <p><strong style="color:#fff;">1. Injection Attacks:</strong> Occur when untrusted user input is executed as code by a backend query or shell interpreter.</p>
+        <p><strong style="color:#fff;">2. SQLi Auth Bypass:</strong> <code>' OR 1=1 --</code> forces query evaluation to <code>TRUE</code> and comments out password checking.</p>
+        <p><strong style="color:#fff;">3. OS Command Injection:</strong> Exploits un-sanitized input in <code>os.system()</code> using command separators like <code>;</code> or <code>&amp;&amp;</code> (e.g., <code>path; rm -rf /</code>).</p>
+        <p><strong style="color:#fff;">4. #1 Defense against SQLi:</strong> <strong>Parameterized Queries / Prepared Statements</strong> (<code>query = "SELECT * FROM users WHERE id = ?"</code>).</p>
+        <p><strong style="color:#fff;">5. Layer 7 Defense:</strong> <strong>Web Application Firewall (WAF)</strong> drops malicious HTTP injection payloads.</p>
+        <p><strong style="color:#fff;">6. Permission Control:</strong> <strong>Principle of Least Privilege (PoLP)</strong> via SQL <code>GRANT SELECT</code> statement restrictions.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-nav" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <a href="lec-05-network-security-brute-force-attacks.html" style="color:#f05c88; font-weight:700; text-decoration:none;">← Lec 05: Brute Force Attacks</a>
+      <a href="gs-network-security-notes.html" style="color:var(--text2); font-weight:700; text-decoration:none;">Security Notes Index</a>
+      <a href="26-network-security-firewalls-ids-ips-dmz.html" style="color:#f05c88; font-weight:700; text-decoration:none;">Chapter 26: Firewalls &amp; DMZ →</a>
+    </div>
+    GS Network Security Notes · Lecture 06 · IBPS SO IT Study Guide
+  </div>
+</footer>
+
+<script>
+  window.onscroll = function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var scrolled = (winScroll / height) * 100;
+    document.getElementById("scroll-progress").style.width = scrolled + "%";
+  };
+</script>
+
+</body>
+</html>
